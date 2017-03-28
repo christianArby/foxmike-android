@@ -43,4 +43,24 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://svn.riouxsvn.com/kungsbrostrand/branches" />
+                  <option value="https://svn.riouxsvn.com/kungsbrostrand/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://svn.riouxsvn.com/kungsbrostrand/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="mySupportsUserInfoFilter" value="true" />
+  </component>
 </project>
