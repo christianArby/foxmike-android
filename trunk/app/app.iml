@@ -105,6 +105,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="play-services-nearby-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-cast-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="constraint-layout-solver-1.0.0-alpha4" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-base-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-config-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-10.2.1" level="project" />
@@ -141,6 +142,7 @@
     <orderEntry type="library" exported="" name="firebase-client-android-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="constraint-layout-1.0.0-alpha4" level="project" />
     <orderEntry type="library" exported="" name="play-services-awareness-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-ads-lite-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-clearcut-10.2.1" level="project" />

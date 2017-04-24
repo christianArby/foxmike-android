@@ -9,11 +9,8 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -39,27 +36,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
 
-    private Button mSendData;
-    private Firebase mRef;
+    //TESTING FIREBASE START
+    //TESTING FIREBASE END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mRef = new Firebase("https://knox-163821.firebaseio.com/");
+        //TESTING FIREBASE START
 
-        mSendData = (Button) findViewById(R.id.sendData);
-
-        mSendData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Firebase mRefChild =mRef.child("Name");
-
-                mRefChild.setValue("test");
-            }
-        });
+        //TESTING FIREBASE END
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
