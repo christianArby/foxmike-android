@@ -14,4 +14,10 @@
         tools:context="com.example.chris.kungsbrostrand.MapsActivity"
         tools:layout="@layout/dummy_mapviewfragment"/>
 
+    <Button
+        android:id="@+id/selectImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Image from Gallery" />
+
 </FrameLayout>

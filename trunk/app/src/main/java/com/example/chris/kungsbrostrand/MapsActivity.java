@@ -1,16 +1,22 @@
 package com.example.chris.kungsbrostrand;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -24,6 +30,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -37,6 +47,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationRequest mLocationRequest;
 
     //TESTING FIREBASE START
+    private Button mSelectImage;
+    private StorageReference mStorage;
+    private static final int GALLERY_INTENT =2;
+    private ProgressDialog mProgressDialog;
+
     //TESTING FIREBASE END
 
     @Override
@@ -45,6 +60,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         //TESTING FIREBASE START
+
+        mStorage = FirebaseStorage.getInstance().getReference();
+
+        mSelectImage = (Button) findViewById(R.id.selectImage);
+
+        mProgressDialog = new ProgressDialog(this);
+
+        mSelectImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+
+                startActivityForResult(intent, GALLERY_INTENT);
+            }
+        });
+
 
         //TESTING FIREBASE END
 
@@ -57,6 +90,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
     }
+
+    //TESTING FIREBASE START
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
+
+            mProgressDialog.setMessage("Uploading ...");
+            mProgressDialog.show();
+
+            Uri uri = data.getData();
+
+            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());
+
+            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    Toast.makeText(MapsActivity.this, "Upload done.", Toast.LENGTH_LONG).show();
+                    mProgressDialog.dismiss();
+
+                }
+            });
+        }
+    }
+
+
+    //TESTING FIREBASE END
 
     /**
      * Manipulates the map once available.
