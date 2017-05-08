@@ -135,6 +135,7 @@
     <orderEntry type="library" exported="" name="play-services-basement-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-auth-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-analytics-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-tasks-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-storage-common-10.2.1" level="project" />

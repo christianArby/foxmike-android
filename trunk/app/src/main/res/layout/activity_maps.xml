@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,9 +16,16 @@
         tools:layout="@layout/dummy_mapviewfragment"/>
 
     <Button
-        android:id="@+id/selectImage"
+        android:id="@+id/upload"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Image from Gallery" />
+        android:text="Capture and upload" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="400dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/cast_abc_scrubber_control_off_mtrl_alpha" />
 
 </FrameLayout>

@@ -5,15 +5,19 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -34,6 +38,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -47,10 +53,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationRequest mLocationRequest;
 
     //TESTING FIREBASE START
-    private Button mSelectImage;
-    private StorageReference mStorage;
-    private static final int GALLERY_INTENT =2;
+
+    private Button mUploadBtn;
+    private ImageView   mImageview;
     private ProgressDialog mProgressDialog;
+
+    private StorageReference mStorage;
+
+    private static final int CAMERA_REQUEST_CODE = 1;
+
 
     //TESTING FIREBASE END
 
@@ -60,24 +71,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         //TESTING FIREBASE START
-
         mStorage = FirebaseStorage.getInstance().getReference();
-
-        mSelectImage = (Button) findViewById(R.id.selectImage);
 
         mProgressDialog = new ProgressDialog(this);
 
-        mSelectImage.setOnClickListener(new View.OnClickListener() {
+        mUploadBtn = (Button) findViewById(R.id.upload);
+        mImageview = (ImageView) findViewById(R.id.imageView);
+
+        mUploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                startActivityForResult(intent, GALLERY_INTENT);
+                startActivityForResult(intent, CAMERA_REQUEST_CODE);
+
+
             }
         });
-
 
         //TESTING FIREBASE END
 
@@ -97,27 +108,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
 
-            mProgressDialog.setMessage("Uploading ...");
+            mProgressDialog.setMessage("Uploading Image ...");
             mProgressDialog.show();
 
             Uri uri = data.getData();
 
-            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());
+            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment()); //Use random name if i dont want to override images
 
             filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    Toast.makeText(MapsActivity.this, "Upload done.", Toast.LENGTH_LONG).show();
                     mProgressDialog.dismiss();
+
+                    Uri downloadUri = taskSnapshot.getDownloadUrl();
+
+                    Picasso.with(MapsActivity.this).load(downloadUri).fit().centerCrop().into(mImageview);
+
+                    Toast.makeText(MapsActivity.this, "Uploading Finished ...", Toast.LENGTH_SHORT).show();
 
                 }
             });
         }
-    }
 
+
+    }
 
     //TESTING FIREBASE END
 
