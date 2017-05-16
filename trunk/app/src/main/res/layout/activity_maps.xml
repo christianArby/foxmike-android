@@ -25,7 +25,13 @@
         android:id="@+id/imageView"
         android:layout_width="400dp"
         android:layout_height="350dp"
-        android:layout_marginTop="50dp"
-        app:srcCompat="@drawable/cast_abc_scrubber_control_off_mtrl_alpha" />
+        android:layout_marginTop="80dp" />
+
+    <Button
+        android:id="@+id/imageBtn"
+        android:layout_width="192dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="430dp"
+        android:text="Button" />
 
 </FrameLayout>
