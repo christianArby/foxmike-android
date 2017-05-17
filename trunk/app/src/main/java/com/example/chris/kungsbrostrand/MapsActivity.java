@@ -9,20 +9,17 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -32,25 +29,19 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -74,13 +65,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Firebase Variables
     private StorageReference mStorage;
-    private Uri testPath;
     private String photoName;
-    private String markerPhotoName;
-    Marker testMarker;
     Double latitudeDouble;
     Double longtitudeDouble;
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
     ChildEventListener mChildEventListener;
     //
 
@@ -137,38 +125,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mProgressDialog.setMessage("Uploading Image ...");
             mProgressDialog.show();
 
-            Uri uri = data.getData();
-
             // filepath and name for photo
             photoName = "Lat" + latitudeDouble.toString() + "Long" + longtitudeDouble.toString();
             StorageReference filepath = mStorage.child("Photos").child(photoName); //Use random name if i dont want to override images
-
             // add photo to database with path from above
+            Uri uri = data.getData();
             filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
                     mProgressDialog.dismiss();
-
-                    Uri downloadUri = taskSnapshot.getDownloadUrl();
-                    String downloadURL = taskSnapshot.getMetadata().getDownloadUrl().toString();
-
                     // fit the image in imageview
+                    Uri downloadUri = taskSnapshot.getDownloadUrl();
                     Picasso.with(MapsActivity.this).load(downloadUri).fit().centerCrop().into(mImageview);
-
-                    //String markerName = latitudeDouble.toString();
-
-                    // Add firebase marker
+                    // Add firebase marker to Firebase realtime database
+                    String downloadURL = taskSnapshot.getMetadata().getDownloadUrl().toString();
                     FirebaseMarker marker = new FirebaseMarker(downloadURL,latitudeDouble,longtitudeDouble);
-                    //mMarkerDbRef.child("markers").child(markerName).setValue(latitudeDouble);
                     mMarkerDbRef.push().setValue(marker);
                     //
-
                     Toast.makeText(MapsActivity.this, "Uploading Finished ...", Toast.LENGTH_SHORT).show();
                 }
             });
         }
-
     }
 
     /**
@@ -198,12 +175,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-        //get marker info from Firebase Database and add to map
+        // when marker is clicked find latitude value in child in realtime database
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                LatLng markerLatLng = marker.getPosition();
+                Double markerLatitude= markerLatLng.latitude;
+                Double markerLongitude= markerLatLng.longitude;
+                getPhotoURL(markerLatitude);
+                return false;
+            }
+        });
+        //get all markers info from Firebase Database and add to map
         addMarkersToMap(mMap);
     }
-
+    // Method add markers to map
     private void addMarkersToMap(GoogleMap map) {
-
         mChildEventListener = mMarkerDbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -236,6 +223,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+    // method get photoURL from database
+    private void getPhotoURL(Double latitude){
+        // find latitude value in child in realtime database and fit in imageview
+        mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                FirebaseMarker markerResult = dataSnapshot.getValue(FirebaseMarker.class);
+                Picasso.with(MapsActivity.this).load(markerResult.photoURL).fit().centerCrop().into(mImageview);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     //google  ONLY LONG AND LAT SET BELOW THIS
     protected synchronized void buildGoogleApiClient() {
@@ -289,13 +308,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //mCurrLocationMarker = mMap.addMarker(markerOptions);
 
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        //mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
 
         //stop location updates
-        if (mGoogleApiClient != null) {
+        /*if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
+        }*/
 
     }
 
