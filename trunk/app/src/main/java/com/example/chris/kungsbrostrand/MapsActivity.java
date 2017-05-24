@@ -2,20 +2,26 @@ package com.example.chris.kungsbrostrand;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
+import android.support.v4.content.ContextCompatApi24;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -43,6 +49,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static java.security.AccessController.getContext;
+
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -60,7 +73,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button mUploadBtn;
     private ImageView   mImageview;
     private ProgressDialog mProgressDialog;
-    private static final int CAMERA_REQUEST_CODE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private String mCurrentPhotoPath;
+    Uri photoURI;
     //
 
     //Firebase Variables
@@ -88,9 +104,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mUploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                dispatchTakePictureIntent();
             }
         });
         //
@@ -113,14 +127,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
     } //on create ends
+
+    // Take photo
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                return;
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(this,
+                        ".com.example.chris.kungsbrostrand.provider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
 
     //CameraResult
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 
             mProgressDialog.setMessage("Uploading Image ...");
             mProgressDialog.show();
@@ -129,8 +168,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             photoName = "Lat" + latitudeDouble.toString() + "Long" + longtitudeDouble.toString();
             StorageReference filepath = mStorage.child("Photos").child(photoName); //Use random name if i dont want to override images
             // add photo to database with path from above
-            Uri uri = data.getData();
-            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+/*            Uri uri = data.getData();
+
+            File imagePath = new File(Context.getFilesDir(), "images");
+            File newFile = new File(imagePath, "default_image.jpg");*/
+
+
+            filepath.putFile(photoURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     mProgressDialog.dismiss();
@@ -147,6 +191,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         }
     }
+
+    // Create image file
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+
+
+
 
     /**
      * Manipulates the map once available.
@@ -182,7 +247,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LatLng markerLatLng = marker.getPosition();
                 Double markerLatitude= markerLatLng.latitude;
                 Double markerLongitude= markerLatLng.longitude;
-                getPhotoURL(markerLatitude);
+                getPhotoURL(markerLatitude, markerLongitude);
                 return false;
             }
         });
@@ -224,13 +289,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
     // method get photoURL from database
-    private void getPhotoURL(Double latitude){
+    private void getPhotoURL(Double latitude, final Double longitude){
         // find latitude value in child in realtime database and fit in imageview
         mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 FirebaseMarker markerResult = dataSnapshot.getValue(FirebaseMarker.class);
-                Picasso.with(MapsActivity.this).load(markerResult.photoURL).fit().centerCrop().into(mImageview);
+                if(markerResult.longitude==longitude) {
+                    Picasso.with(MapsActivity.this).load(markerResult.photoURL).fit().centerCrop().into(mImageview);
+                }
             }
 
             @Override
