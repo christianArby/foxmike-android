@@ -57,7 +57,7 @@ import java.util.Date;
 import static java.security.AccessController.getContext;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
+public class MapsActivity extends MakePhoto implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener{
@@ -71,20 +71,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //  Camera variables
     private Button mUploadBtn;
-    private ImageView   mImageview;
-    private ProgressDialog mProgressDialog;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int REQUEST_TAKE_PHOTO = 1;
-    private String mCurrentPhotoPath;
-    Uri photoURI;
     //
 
-    //Firebase Variables
-    private StorageReference mStorage;
-    private String photoName;
-    Double latitudeDouble;
-    Double longtitudeDouble;
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
     ChildEventListener mChildEventListener;
     //
 
@@ -129,88 +117,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     } //on create ends
-
-    // Take photo
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                return;
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        ".com.example.chris.kungsbrostrand.provider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }
-
-    //CameraResult
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-
-            mProgressDialog.setMessage("Uploading Image ...");
-            mProgressDialog.show();
-
-            // filepath and name for photo
-            photoName = "Lat" + latitudeDouble.toString() + "Long" + longtitudeDouble.toString();
-            StorageReference filepath = mStorage.child("Photos").child(photoName); //Use random name if i dont want to override images
-            // add photo to database with path from above
-/*            Uri uri = data.getData();
-
-            File imagePath = new File(Context.getFilesDir(), "images");
-            File newFile = new File(imagePath, "default_image.jpg");*/
-
-
-            filepath.putFile(photoURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    mProgressDialog.dismiss();
-                    // fit the image in imageview
-                    Uri downloadUri = taskSnapshot.getDownloadUrl();
-                    Picasso.with(MapsActivity.this).load(downloadUri).fit().centerCrop().into(mImageview);
-                    // Add firebase marker to Firebase realtime database
-                    String downloadURL = taskSnapshot.getMetadata().getDownloadUrl().toString();
-                    FirebaseMarker marker = new FirebaseMarker(downloadURL,latitudeDouble,longtitudeDouble);
-                    mMarkerDbRef.push().setValue(marker);
-                    //
-                    Toast.makeText(MapsActivity.this, "Uploading Finished ...", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    // Create image file
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-
-
 
 
     /**
@@ -288,39 +194,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-    // method get photoURL from database
-    private void getPhotoURL(Double latitude, final Double longitude){
-        // find latitude value in child in realtime database and fit in imageview
-        mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                FirebaseMarker markerResult = dataSnapshot.getValue(FirebaseMarker.class);
-                if(markerResult.longitude==longitude) {
-                    Picasso.with(MapsActivity.this).load(markerResult.photoURL).fit().centerCrop().into(mImageview);
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
 
     //google  ONLY LONG AND LAT SET BELOW THIS
@@ -364,7 +237,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         latitudeDouble = mLastLocation.getLatitude();
-        longtitudeDouble = mLastLocation.getLongitude();
+        longitudeDouble = mLastLocation.getLongitude();
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
