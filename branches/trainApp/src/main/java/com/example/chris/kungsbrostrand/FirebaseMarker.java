@@ -6,7 +6,7 @@ package com.example.chris.kungsbrostrand;
 
 public class FirebaseMarker {
 
-    public String photoURL;
+    public String sessionType;
     public double latitude;
     public double longitude;
 
@@ -15,18 +15,18 @@ public class FirebaseMarker {
     public FirebaseMarker() {
     }
 
-    public FirebaseMarker(String photoURL, double latitude, double longitude) {
-        this.photoURL = photoURL;
+    public FirebaseMarker(String sessionType, double latitude, double longitude) {
+        this.sessionType = sessionType;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public String getPhotoURL() {
-        return photoURL;
+    public String getsessionType() {
+        return sessionType;
     }
 
-    public void setPhotoURL(String photoURL) {
-        this.photoURL = photoURL;
+    public void setsessionType(String sessionType) {
+        this.sessionType = sessionType;
     }
 
     public double getLongitude() {

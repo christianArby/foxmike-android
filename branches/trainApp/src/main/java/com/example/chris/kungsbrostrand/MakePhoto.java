@@ -1,3 +1,4 @@
+/*
 package com.example.chris.kungsbrostrand;
 
 import android.app.ProgressDialog;
@@ -25,14 +26,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+*/
 /**
  * Created by chris on 2017-05-26.
- */
+ *//*
+
 
 class MakePhoto extends AppCompatActivity {
-    protected ImageView mImageview;
     protected ProgressDialog mProgressDialog;
-    protected StorageReference mStorage;
+
     Uri photoURI;
     Double latitudeDouble;
     Double longitudeDouble;
@@ -88,10 +90,12 @@ class MakePhoto extends AppCompatActivity {
             photoName = "Lat" + latitudeDouble.toString() + "Long" + longitudeDouble.toString();
             StorageReference filepath = mStorage.child("Photos").child(photoName); //Use random name if i dont want to override images
             // add photo to database with path from above
+*/
 /*            Uri uri = data.getData();
 
             File imagePath = new File(Context.getFilesDir(), "images");
-            File newFile = new File(imagePath, "default_image.jpg");*/
+            File newFile = new File(imagePath, "default_image.jpg");*//*
+
 
 
             filepath.putFile(photoURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -119,9 +123,15 @@ class MakePhoto extends AppCompatActivity {
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,  */
+/* prefix *//*
+
+                ".jpg",         */
+/* suffix *//*
+
+                storageDir      */
+/* directory *//*
+
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -163,3 +173,4 @@ class MakePhoto extends AppCompatActivity {
         });
     }
 }
+*/

@@ -57,7 +57,7 @@ import java.util.Date;
 import static java.security.AccessController.getContext;
 
 
-public class MapsActivity extends MakePhoto implements OnMapReadyCallback,
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener{
@@ -67,7 +67,13 @@ public class MapsActivity extends MakePhoto implements OnMapReadyCallback,
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
+    static final int PICK_SESSION_REQUEST = 1;
 
+    protected ProgressDialog mProgressDialog;
+    Double latitudeDouble;
+    Double longitudeDouble;
+    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
+    protected StorageReference mStorage;
 
     //  Camera variables
     private Button mUploadBtn;
@@ -86,25 +92,24 @@ public class MapsActivity extends MakePhoto implements OnMapReadyCallback,
         mStorage = FirebaseStorage.getInstance().getReference();
         mProgressDialog = new ProgressDialog(this);
         mUploadBtn = (Button) findViewById(R.id.upload);
-        mImageview = (ImageView) findViewById(R.id.imageView);
 
         // Uploadbutton
-        mUploadBtn.setOnClickListener(new View.OnClickListener() {
+       /* mUploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
             }
-        });
+        });*/
+
+
+
+
+
+
         //
 
         //Hide Image
-        cImageBtn = (Button) findViewById(R.id.imageBtn);
-        cImageBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mImageview.setImageDrawable(null);
-            }
-        });
+
 
         //google
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -153,20 +158,60 @@ public class MapsActivity extends MakePhoto implements OnMapReadyCallback,
                 LatLng markerLatLng = marker.getPosition();
                 Double markerLatitude= markerLatLng.latitude;
                 Double markerLongitude= markerLatLng.longitude;
-                getPhotoURL(markerLatitude, markerLongitude);
+                //getPhotoURL(markerLatitude, markerLongitude);
                 return false;
             }
+
         });
         //get all markers info from Firebase Database and add to map
         addMarkersToMap(mMap);
+
+        //when map is clicked, add marker to map
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng point) {
+
+                // TODO Auto-generated method stub
+                //lstLatLngs.add(point);
+                addSession(point);
+                mMap.addMarker(new MarkerOptions().position(point));
+            }
+        });
+
     }
-    // Method add markers to map
+
+    public void addSession(LatLng point) {
+        Intent intent = new Intent(this, TrainingSessionActivity.class);
+        intent.putExtra("LatLng", point);
+        //EditText editText = (EditText) findViewById(R.id.editText);
+        //String message = editText.getText().toString();
+        //intent.putExtra(EXTRA_MESSAGE, message);
+        //startActivity(intent);
+        startActivityForResult(intent, PICK_SESSION_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == PICK_SESSION_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+
+                // Do something with the contact here (bigger example below)
+            }
+        }
+    }
+
+    // Method add markers in database to map
     private void addMarkersToMap(GoogleMap map) {
         mChildEventListener = mMarkerDbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 FirebaseMarker marker = dataSnapshot.getValue(FirebaseMarker.class);
-                String photoURL = marker.getPhotoURL();
+                //String photoURL = marker.getPhotoURL();
                 Double latitude = marker.getLatitude();
                 Double longitude = marker.getLongitude();
                 LatLng location = new LatLng(latitude, longitude);
