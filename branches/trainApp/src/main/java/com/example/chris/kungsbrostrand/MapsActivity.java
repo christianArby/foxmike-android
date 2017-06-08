@@ -77,7 +77,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //  Camera variables
     private Button mUploadBtn;
+
     //
+
+    LatLng clickedPosition;
 
     ChildEventListener mChildEventListener;
     //
@@ -91,7 +94,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button cImageBtn;
         mStorage = FirebaseStorage.getInstance().getReference();
         mProgressDialog = new ProgressDialog(this);
-        mUploadBtn = (Button) findViewById(R.id.upload);
+        //mUploadBtn = (Button) findViewById(R.id.upload);
 
         // Uploadbutton
        /* mUploadBtn.setOnClickListener(new View.OnClickListener() {
@@ -175,7 +178,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // TODO Auto-generated method stub
                 //lstLatLngs.add(point);
                 addSession(point);
-                mMap.addMarker(new MarkerOptions().position(point));
+                clickedPosition = point;
+
             }
         });
 
@@ -189,6 +193,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //intent.putExtra(EXTRA_MESSAGE, message);
         //startActivity(intent);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
+
     }
 
     @Override
@@ -197,6 +202,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == PICK_SESSION_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
+
+                mMap.addMarker(new MarkerOptions().position(clickedPosition));
+
                 // The user picked a contact.
                 // The Intent's data Uri identifies which contact was selected.
 

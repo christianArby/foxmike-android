@@ -7,25 +7,68 @@ package com.example.chris.kungsbrostrand;
 public class FirebaseMarker {
 
     public String sessionType;
+    public String date;
+    public String time;
+    public String level;
+    public String nrOfParticipants;
     public double latitude;
     public double longitude;
 
+
+
+
+    public FirebaseMarker(String sessionType, String date, String time, String level, String nrOfParticipants, double latitude, double longitude) {
+        this.sessionType = sessionType;
+        this.date = date;
+        this.time = time;
+        this.level = level;
+        this.nrOfParticipants = nrOfParticipants;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     //required empty constructor
     public FirebaseMarker() {
     }
 
-    public FirebaseMarker(String sessionType, double latitude, double longitude) {
-        this.sessionType = sessionType;
-        this.latitude = latitude;
-        this.longitude = longitude;
+
+    public String getDate() {
+        return date;
     }
 
-    public String getsessionType() {
+    public String getTime() {
+        return time;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public String getNrOfParticipants() {
+        return nrOfParticipants;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public void setNrOfParticipants(String nrOfParticipants) {
+        this.nrOfParticipants = nrOfParticipants;
+    }
+
+    public String getSessionType() {
         return sessionType;
     }
 
-    public void setsessionType(String sessionType) {
+    public void setSessionType(String sessionType) {
         this.sessionType = sessionType;
     }
 
