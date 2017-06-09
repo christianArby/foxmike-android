@@ -2,13 +2,11 @@ package com.example.chris.kungsbrostrand;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -68,20 +66,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
     static final int PICK_SESSION_REQUEST = 1;
-
-    protected ProgressDialog mProgressDialog;
     Double latitudeDouble;
     Double longitudeDouble;
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
-    protected StorageReference mStorage;
-
-    //  Camera variables
-    private Button mUploadBtn;
-
-    //
-
     LatLng clickedPosition;
-
+    LatLng markerLatLng;
     ChildEventListener mChildEventListener;
     //
 
@@ -89,30 +78,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        //Firebase
-        Button cImageBtn;
-        mStorage = FirebaseStorage.getInstance().getReference();
-        mProgressDialog = new ProgressDialog(this);
-        //mUploadBtn = (Button) findViewById(R.id.upload);
-
-        // Uploadbutton
-       /* mUploadBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dispatchTakePictureIntent();
-            }
-        });*/
-
-
-
-
-
-
-        //
-
-        //Hide Image
-
 
         //google
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -122,8 +87,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     } //on create ends
 
 
@@ -154,46 +117,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+
+        //when map is clicked, open TrainingSessionActivity
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                // TODO Auto-generated method stub
+                //lstLatLngs.add(point);
+                clickedPosition = point;
+                addSession();
+            }
+        });
+
         // when marker is clicked find latitude value in child in realtime database
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                LatLng markerLatLng = marker.getPosition();
-                Double markerLatitude= markerLatLng.latitude;
-                Double markerLongitude= markerLatLng.longitude;
-                //getPhotoURL(markerLatitude, markerLongitude);
+                markerLatLng = marker.getPosition();
+                joinSession(markerLatLng);
                 return false;
             }
-
         });
         //get all markers info from Firebase Database and add to map
         addMarkersToMap(mMap);
-
-        //when map is clicked, add marker to map
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
-            @Override
-            public void onMapClick(LatLng point) {
-
-                // TODO Auto-generated method stub
-                //lstLatLngs.add(point);
-                addSession(point);
-                clickedPosition = point;
-
-            }
-        });
-
     }
 
-    public void addSession(LatLng point) {
+    public void addSession() {
         Intent intent = new Intent(this, TrainingSessionActivity.class);
-        intent.putExtra("LatLng", point);
-        //EditText editText = (EditText) findViewById(R.id.editText);
-        //String message = editText.getText().toString();
-        //intent.putExtra(EXTRA_MESSAGE, message);
-        //startActivity(intent);
+        intent.putExtra("LatLng", clickedPosition);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
+    }
 
+    public void joinSession(LatLng markerLatLng) {
+        Intent intent = new Intent(this, JoinSessionActivity.class);
+        intent.putExtra("LatLng", markerLatLng);
+        startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
 
     @Override
@@ -202,13 +160,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == PICK_SESSION_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-
                 mMap.addMarker(new MarkerOptions().position(clickedPosition));
-
-                // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-
-                // Do something with the contact here (bigger example below)
             }
         }
     }
@@ -218,12 +170,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mChildEventListener = mMarkerDbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                FirebaseMarker marker = dataSnapshot.getValue(FirebaseMarker.class);
-                //String photoURL = marker.getPhotoURL();
-                Double latitude = marker.getLatitude();
-                Double longitude = marker.getLongitude();
+                Session session = dataSnapshot.getValue(Session.class);
+                Double latitude = session.getLatitude();
+                Double longitude = session.getLongitude();
                 LatLng location = new LatLng(latitude, longitude);
-                mMap.addMarker(new MarkerOptions().position(location).title("test").snippet("hej"));
+                mMap.addMarker(new MarkerOptions().position(location).title(session.sessionType).snippet(session.time));
             }
 
             @Override
@@ -247,8 +198,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
-
     //google  ONLY LONG AND LAT SET BELOW THIS
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -308,7 +257,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         /*if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }*/
-
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;

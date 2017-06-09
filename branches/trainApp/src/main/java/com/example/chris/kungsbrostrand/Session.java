@@ -1,10 +1,10 @@
 package com.example.chris.kungsbrostrand;
 
 /**
- * Created by chris on 2017-05-14.
+ * Created by chris on 2017-06-09.
  */
 
-public class FirebaseMarker {
+public class Session {
 
     public String sessionType;
     public String date;
@@ -17,7 +17,7 @@ public class FirebaseMarker {
 
 
 
-    public FirebaseMarker(String sessionType, String date, String time, String level, String nrOfParticipants, double latitude, double longitude) {
+    public Session(String sessionType, String date, String time, String level, String nrOfParticipants, double latitude, double longitude) {
         this.sessionType = sessionType;
         this.date = date;
         this.time = time;
@@ -28,7 +28,7 @@ public class FirebaseMarker {
     }
 
     //required empty constructor
-    public FirebaseMarker() {
+    public Session() {
     }
 
 
@@ -87,4 +87,6 @@ public class FirebaseMarker {
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
+
+
 }

@@ -65,7 +65,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".TrainingSessionActivity"></activity>
+        <activity android:name=".TrainingSessionActivity" />
+        <activity android:name=".JoinSessionActivity"></activity>
     </application>
 
 </manifest>

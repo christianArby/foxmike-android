@@ -28,8 +28,6 @@ public class TrainingSessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_session);
 
-
-
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
 
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
@@ -41,24 +39,21 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 mLevel = (EditText) findViewById(R.id.levelET);
                 mNrOfParticipants = (EditText) findViewById(R.id.nrOfParticipantsET);
 
-                FirebaseMarker marker = new FirebaseMarker();
+                Session session = new Session();
                 LatLng clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
 
-                marker.sessionType = mSessionType.getText().toString();
-                marker.date = mDate.getText().toString();
-                marker.time = mTime.getText().toString();
-                marker.level = mLevel.getText().toString();
-                marker.nrOfParticipants = mNrOfParticipants.getText().toString();
-                marker.longitude = clickedLatLng.longitude;
-                marker.latitude = clickedLatLng.latitude;
+                session.sessionType = mSessionType.getText().toString();
+                session.date = mDate.getText().toString();
+                session.time = mTime.getText().toString();
+                session.level = mLevel.getText().toString();
+                session.nrOfParticipants = mNrOfParticipants.getText().toString();
+                session.longitude = clickedLatLng.longitude;
+                session.latitude = clickedLatLng.latitude;
 
-                mMarkerDbRef.push().setValue(marker);
+                mMarkerDbRef.push().setValue(session);
                 finish();
             }
         });
 
     }
-
-
-
 }
