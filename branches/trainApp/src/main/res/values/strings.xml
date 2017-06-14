@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">kungsbroStrand</string>
     <string name="title_activity_maps">Map</string>
+
+    <string-array name="sessionType_array">
+                <item>Running</item>
+                <item>Trailing</item>
+                <item>Physical</item>
+    </string-array>
+
+    <string-array name="level_array">
+                <item>1</item>
+                <item>2</item>
+                <item>3</item>
+    </string-array>
+
+    <string-array name="nrOfParticipants_array">
+                <item>0</item>
+                <item>1</item>
+                <item>2</item>
+    </string-array>
+
 </resources>
