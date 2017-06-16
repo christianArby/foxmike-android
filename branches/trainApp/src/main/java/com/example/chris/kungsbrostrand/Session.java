@@ -1,40 +1,64 @@
 package com.example.chris.kungsbrostrand;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Created by chris on 2017-06-09.
  */
 
 public class Session {
-
+    public String userID;
     public String sessionType;
-    public String date;
-    public String time;
     public String level;
     public String nrOfParticipants;
     public double latitude;
     public double longitude;
+    public String time;
+    public SessionDate sessionDate;
 
 
 
 
-    public Session(String sessionType, String date, String time, String level, String nrOfParticipants, double latitude, double longitude) {
+    public Session(String userID, String sessionType, String level, String nrOfParticipants, double latitude, double longitude, String time, SessionDate sessionDate) {
+        this.userID = sessionType;
         this.sessionType = sessionType;
-        this.date = date;
-        this.time = time;
         this.level = level;
         this.nrOfParticipants = nrOfParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.time = time;
+        this.sessionDate = sessionDate;
+    }
+
+    public String textMonth(SessionDate sessionDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
+        SimpleDateFormat monthDate = new SimpleDateFormat("MMMM");
+        String monthName = monthDate.format(cal.getTime());
+        return monthName;
     }
 
     //required empty constructor
     public Session() {
     }
 
-
-    public String getDate() {
-        return date;
+    public SessionDate getSessionDate() {
+        return sessionDate;
     }
+
+    public void setSessionDate(SessionDate sessionDate) {
+        this.sessionDate = sessionDate;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
 
     public String getTime() {
         return time;
@@ -46,10 +70,6 @@ public class Session {
 
     public String getNrOfParticipants() {
         return nrOfParticipants;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
     public void setTime(String time) {

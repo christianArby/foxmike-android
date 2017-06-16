@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -68,7 +69,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static final int PICK_SESSION_REQUEST = 1;
     Double latitudeDouble;
     Double longitudeDouble;
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
+    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    DatabaseReference mDeleteMarkerDbRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference mDMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
     LatLng clickedPosition;
     LatLng markerLatLng;
     ChildEventListener mChildEventListener;
@@ -76,6 +79,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        mDeleteMarkerDbRef.removeValue();
+        mMarkerDbRef.removeValue();
+        mDMarkerDbRef.removeValue();
+        mDeleteMarkerDbRef.setValue(null);
+        mMarkerDbRef.setValue(null);
+        mDMarkerDbRef.setValue(null);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 

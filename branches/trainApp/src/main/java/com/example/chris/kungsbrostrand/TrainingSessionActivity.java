@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -28,7 +30,7 @@ import java.util.Locale;
 
 public class TrainingSessionActivity extends AppCompatActivity {
 
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("markers");
+    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     EditText mSessionType;
     EditText mDate;
     EditText mTime;
@@ -37,6 +39,8 @@ public class TrainingSessionActivity extends AppCompatActivity {
     private Button mCreateSessionBtn;
     Calendar myCalendar = Calendar.getInstance();
     ListView lv;
+    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    SessionDate mSessionDate;
 
 
     @Override
@@ -57,16 +61,23 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 Session session = new Session();
                 LatLng clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
 
+
                 session.sessionType = mSessionType.getText().toString();
-                session.date = mDate.getText().toString();
+                session.sessionDate = mSessionDate;
                 session.time = mTime.getText().toString();
                 session.level = mLevel.getText().toString();
                 session.nrOfParticipants = mNrOfParticipants.getText().toString();
                 session.longitude = clickedLatLng.longitude;
                 session.latitude = clickedLatLng.latitude;
+                session.userID = currentFirebaseUser.getUid();
 
-                mMarkerDbRef.push().setValue(session);
-                finish();
+                if (session.sessionDate != null){
+                    mMarkerDbRef.push().setValue(session);
+                    finish();
+                }   else    {
+                    Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
+                }
+
             }
         });
 
@@ -82,6 +93,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 updateLabel();
+                mSessionDate = new SessionDate(myCalendar);
             }
 
         };
@@ -144,7 +156,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
     private void updateLabel() {
 
-        String myFormat = "MM/dd/yy"; //In which you need put here
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
         mDate.setText(sdf.format(myCalendar.getTime()));
@@ -179,7 +191,4 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
 
     }
-
-
-
 }
