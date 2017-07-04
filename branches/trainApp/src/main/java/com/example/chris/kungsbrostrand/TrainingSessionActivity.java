@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -31,11 +32,12 @@ import java.util.Locale;
 public class TrainingSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    EditText mSessionName;
     EditText mSessionType;
     EditText mDate;
     EditText mTime;
     EditText mLevel;
-    EditText mNrOfParticipants;
+    EditText mMaxParticipants;
     private Button mCreateSessionBtn;
     Calendar myCalendar = Calendar.getInstance();
     ListView lv;
@@ -48,10 +50,11 @@ public class TrainingSessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_session);
         mDate = (EditText)findViewById(R.id.dateET);
+        mSessionName = (EditText) findViewById(R.id.sessionNameET);
         mSessionType = (EditText) findViewById(R.id.sessionTypeET);
         mTime = (EditText) findViewById(R.id.timeET);
         mLevel = (EditText) findViewById(R.id.levelET);
-        mNrOfParticipants = (EditText) findViewById(R.id.nrOfParticipantsET);
+        mMaxParticipants = (EditText) findViewById(R.id.maxParticipantsET);
 
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
 
@@ -61,12 +64,13 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 Session session = new Session();
                 LatLng clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
 
-
+                mSessionDate = new SessionDate(myCalendar);
+                session.sessionName = mSessionName.getText().toString();
                 session.sessionType = mSessionType.getText().toString();
                 session.sessionDate = mSessionDate;
-                session.time = mTime.getText().toString();
                 session.level = mLevel.getText().toString();
-                session.nrOfParticipants = mNrOfParticipants.getText().toString();
+                session.maxParticipants = mMaxParticipants.getText().toString();
+                session.countParticipants = 0;
                 session.longitude = clickedLatLng.longitude;
                 session.latitude = clickedLatLng.latitude;
                 session.userID = currentFirebaseUser.getUid();
@@ -93,7 +97,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 updateLabel();
-                mSessionDate = new SessionDate(myCalendar);
+
             }
 
         };
@@ -123,11 +127,13 @@ public class TrainingSessionActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         mTime.setText( selectedHour + ":" + selectedMinute);
+                        myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                        myCalendar.set(Calendar.MINUTE, selectedMinute);
+
                     }
                 }, hour, minute, true);//Yes 24 hour time
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
-
             }
         });
 
@@ -146,10 +152,10 @@ public class TrainingSessionActivity extends AppCompatActivity {
             }
         });
 
-        mNrOfParticipants.setOnClickListener(new View.OnClickListener() {
+        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createDialog("Choose nr of participants", R.array.nrOfParticipants_array,mNrOfParticipants);
+                createDialog("Choose nr of participants", R.array.max_participants_array,mMaxParticipants);
             }
         });
     }

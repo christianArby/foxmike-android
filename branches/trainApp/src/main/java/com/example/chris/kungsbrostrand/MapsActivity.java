@@ -75,17 +75,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng clickedPosition;
     LatLng markerLatLng;
     ChildEventListener mChildEventListener;
+    Button mSignOut;
+    Button mClearDb;
+    Button mUser;
+    FirebaseAuth fAuth = FirebaseAuth.getInstance();
     //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        mDeleteMarkerDbRef.removeValue();
+        /*mDeleteMarkerDbRef.removeValue();
         mMarkerDbRef.removeValue();
         mDMarkerDbRef.removeValue();
         mDeleteMarkerDbRef.setValue(null);
         mMarkerDbRef.setValue(null);
-        mDMarkerDbRef.setValue(null);
+        mDMarkerDbRef.setValue(null);*/
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -98,6 +103,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mSignOut = (Button) findViewById(R.id.signOutBtn);
+        mSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapsActivity.this, LoginPage.class);
+                fAuth.signOut();
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        mUser = (Button) findViewById(R.id.userBtn);
+        mUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapsActivity.this, UserActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mClearDb = (Button) findViewById(R.id.clearDbBtn);
+        mClearDb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDeleteMarkerDbRef.removeValue();
+                mMarkerDbRef.removeValue();
+                mDMarkerDbRef.removeValue();
+                mDeleteMarkerDbRef.setValue(null);
+                mMarkerDbRef.setValue(null);
+                mDMarkerDbRef.setValue(null);
+            }
+        });
     } //on create ends
 
 

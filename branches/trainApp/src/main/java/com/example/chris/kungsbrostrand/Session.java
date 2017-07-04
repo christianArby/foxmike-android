@@ -9,27 +9,32 @@ import java.util.Calendar;
 
 public class Session {
     public String userID;
+    public String sessionName;
     public String sessionType;
     public String level;
-    public String nrOfParticipants;
+    public String maxParticipants;
     public double latitude;
     public double longitude;
     public String time;
     public SessionDate sessionDate;
+    public int countParticipants;
 
 
 
 
-    public Session(String userID, String sessionType, String level, String nrOfParticipants, double latitude, double longitude, String time, SessionDate sessionDate) {
+    public Session(String sessionName, String userID, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants) {
         this.userID = sessionType;
+        this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.level = level;
-        this.nrOfParticipants = nrOfParticipants;
+        this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
         this.time = time;
         this.sessionDate = sessionDate;
+        this.countParticipants= countParticipants;
     }
+
 
     public String textMonth(SessionDate sessionDate) {
         Calendar cal = Calendar.getInstance();
@@ -41,6 +46,26 @@ public class Session {
 
     //required empty constructor
     public Session() {
+    }
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
+
+    public String getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public int getCountParticipants() {
+        return countParticipants;
+    }
+
+    public void setCountParticipants(int nrOfParticipants) {
+        this.countParticipants = nrOfParticipants;
     }
 
     public SessionDate getSessionDate() {
@@ -68,9 +93,6 @@ public class Session {
         return level;
     }
 
-    public String getNrOfParticipants() {
-        return nrOfParticipants;
-    }
 
     public void setTime(String time) {
         this.time = time;
@@ -80,8 +102,8 @@ public class Session {
         this.level = level;
     }
 
-    public void setNrOfParticipants(String nrOfParticipants) {
-        this.nrOfParticipants = nrOfParticipants;
+    public void setMaxParticipants(String maxParticipants) {
+        this.maxParticipants = maxParticipants;
     }
 
     public String getSessionType() {

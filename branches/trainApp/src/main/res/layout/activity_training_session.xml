@@ -6,13 +6,23 @@
     android:orientation="vertical">
 
     <EditText
+        android:id="@+id/sessionNameET"
+        android:layout_width="368dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:ems="10"
+        android:gravity="center_vertical"
+        android:hint="Session name"
+        android:inputType="textPersonName" />
+
+    <EditText
         android:id="@+id/sessionTypeET"
         android:layout_width="368dp"
         android:layout_height="wrap_content"
         android:layout_weight="10"
         android:ems="10"
         android:gravity="center_vertical"
-        android:hint="Session type..."
+        android:hint="Session type"
         android:inputType="textPersonName"
         android:focusable="false"
         android:longClickable="false"/>
@@ -25,7 +35,7 @@
         android:layout_weight="10"
         android:ems="10"
         android:gravity="center_vertical"
-        android:hint="date..."
+        android:hint="Date"
         android:inputType="textPersonName"
         android:focusable="false"
         android:longClickable="false"/>
@@ -38,7 +48,7 @@
         android:layout_weight="10"
         android:ems="10"
         android:gravity="center_vertical"
-        android:hint="time..."
+        android:hint="Time"
         android:inputType="textPersonName"
         android:focusable="false"
         android:longClickable="false"/>
@@ -50,22 +60,22 @@
         android:layout_weight="10"
         android:ems="10"
         android:gravity="center_vertical"
-        android:hint="level..."
+        android:hint="Level"
         android:inputType="textPersonName"
         android:focusable="false"
         android:longClickable="false"/>
 
     <EditText
-        android:id="@+id/nrOfParticipantsET"
+        android:id="@+id/maxParticipantsET"
         android:layout_width="368dp"
         android:layout_height="wrap_content"
         android:layout_weight="10"
         android:ems="10"
-        android:gravity="center_vertical"
-        android:hint="Nr of participants..."
-        android:inputType="textPersonName"
         android:focusable="false"
-        android:longClickable="false"/>
+        android:gravity="center_vertical"
+        android:hint="Maximum participants"
+        android:inputType="number"
+        android:longClickable="false" />
 
 
     <Button
