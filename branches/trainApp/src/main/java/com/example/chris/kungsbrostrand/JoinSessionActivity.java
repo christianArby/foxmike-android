@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +28,7 @@ public class JoinSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+
     TextView mDay;
     TextView mMonth;
     TextView mSessionType;
@@ -36,6 +38,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     String sessionID;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     Long countParticipants;
+    String test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,15 @@ public class JoinSessionActivity extends AppCompatActivity {
                     mLevel.setText("Level: " + markerResult.level);
                     mParticipants.setText("Participants: " + markerResult.countParticipants +"/" + markerResult.maxParticipants);
                     sessionID = dataSnapshot.getRef().getKey();
+
+                    if (markerResult.participants != null) {
+                        for (String participant:markerResult.participants.keySet()){
+                            if (participant.equals(currentFirebaseUser.getUid())) {
+                                Toast.makeText(getApplicationContext(),participant,Toast.LENGTH_SHORT).show();
+                            }
+                        };
+                    }
+
                 }
             }
 

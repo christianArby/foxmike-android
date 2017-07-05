@@ -38,11 +38,10 @@ public class UserActivity extends AppCompatActivity {
     ListView list;
     ArrayList<String> titles;
     ArrayList<String> description;
-    int [] imgs = {R.drawable.twitter, R.drawable.twitter, R.drawable.twitter, R.drawable.twitter};
+    int imgs = R.drawable.twitter;
     ArrayList<String> sessionNameArray;
     ArrayList<Session> sessionArray;
     public MyAdapter adapter;
-    String test;
     public LatLng sessionLatLng;
 
     @Override
@@ -56,7 +55,6 @@ public class UserActivity extends AppCompatActivity {
         description = new ArrayList<>();
         sessionNameArray= new ArrayList<>();
         sessionArray= new ArrayList<>();
-        test = "hej";
 
         list = (ListView) findViewById(R.id.list1);
         adapter = new MyAdapter(this, titles,imgs,description);
@@ -117,11 +115,11 @@ public class UserActivity extends AppCompatActivity {
 
     class MyAdapter extends ArrayAdapter<String>{
         Context context;
-        int [] imgs;
+        int imgs;
         ArrayList<String> myTitles;
         ArrayList<String> myDescription;
 
-        MyAdapter(Context c, ArrayList<String> titles, int[] imgs, ArrayList<String> description){
+        MyAdapter(Context c, ArrayList<String> titles, int imgs, ArrayList<String> description){
           super(c,R.layout.row,R.id.text1,titles);
             this.context = c;
             this.imgs =imgs;
@@ -136,7 +134,7 @@ public class UserActivity extends AppCompatActivity {
             ImageView images = (ImageView) row.findViewById(R.id.icon);
             TextView myTitle =(TextView) row.findViewById(R.id.text1);
             TextView myDescription = (TextView) row.findViewById(R.id.text2);
-            images.setImageResource(imgs[position]);
+            images.setImageResource(imgs);
             myTitle.setText(titles.get(position));
             myDescription.setText(description.get(position));
             return row;

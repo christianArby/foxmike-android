@@ -1,7 +1,9 @@
 package com.example.chris.kungsbrostrand;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by chris on 2017-06-09.
@@ -18,11 +20,12 @@ public class Session {
     public String time;
     public SessionDate sessionDate;
     public int countParticipants;
+    public HashMap<String,Boolean> participants;
 
 
 
 
-    public Session(String sessionName, String userID, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants) {
+    public Session(String sessionName, String userID, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants) {
         this.userID = sessionType;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -33,6 +36,7 @@ public class Session {
         this.time = time;
         this.sessionDate = sessionDate;
         this.countParticipants= countParticipants;
+        this.participants = participants;
     }
 
 
