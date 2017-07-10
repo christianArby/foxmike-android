@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,13 +37,13 @@ public class UserActivity extends AppCompatActivity {
     DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-    ListView list;
+    LinearLayout list;
     ArrayList<String> titles;
     ArrayList<String> description;
     int imgs = R.drawable.twitter;
     ArrayList<String> sessionNameArray;
     ArrayList<Session> sessionArray;
-    public MyAdapter adapter;
+    //public MyAdapter adapter;
     public LatLng sessionLatLng;
 
     @Override
@@ -56,8 +58,15 @@ public class UserActivity extends AppCompatActivity {
         sessionNameArray= new ArrayList<>();
         sessionArray= new ArrayList<>();
 
-        list = (ListView) findViewById(R.id.list1);
-        adapter = new MyAdapter(this, titles,imgs,description);
+        list = (LinearLayout) findViewById(R.id.list1);
+        //adapter = new MyAdapter(this, titles,imgs,description);
+
+        // Set profile layout
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View profile = inflater.inflate(R.layout.user_profile_info,list,false);
+        TextView userName = (TextView) profile.findViewById(R.id.userNameTW) ;
+        userName.setText(currentFirebaseUser.getEmail());
+        list.addView(profile);
 
         usersDbRef.child(currentFirebaseUser.getUid()).child("sessions").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -72,14 +81,6 @@ public class UserActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                sessionLatLng = new LatLng(sessionArray.get(position).latitude, sessionArray.get(position).longitude);
-                joinSession(sessionLatLng);
             }
         });
     }
@@ -103,7 +104,8 @@ public class UserActivity extends AppCompatActivity {
                     description.add(sessionArray.get(i).sessionType + ' ' + sessionArray.get(i).sessionDate.day + '/' + sessionArray.get(i).sessionDate.month + ' ' + sessionArray.get(i).sessionDate.hour + ':' +sessionArray.get(i).sessionDate.minute);
                     titles.add(sessionArray.get(i).sessionName);
                 }
-                list.setAdapter(adapter);
+
+                populateList(sessionArray);
             }
 
             @Override
@@ -113,31 +115,28 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
-    class MyAdapter extends ArrayAdapter<String>{
-        Context context;
-        int imgs;
-        ArrayList<String> myTitles;
-        ArrayList<String> myDescription;
-
-        MyAdapter(Context c, ArrayList<String> titles, int imgs, ArrayList<String> description){
-          super(c,R.layout.row,R.id.text1,titles);
-            this.context = c;
-            this.imgs =imgs;
-            this.myDescription = description;
-            this.myTitles = titles;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent){
-            LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View row = layoutInflater.inflate(R.layout.row,parent,false);
+    public void populateList(final ArrayList<Session> sessionArray) {
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        for (int i=0; i < sessionArray.size(); i++) {
+            View row  = inflater.inflate(R.layout.row, list, false);
             ImageView images = (ImageView) row.findViewById(R.id.icon);
             TextView myTitle =(TextView) row.findViewById(R.id.text1);
             TextView myDescription = (TextView) row.findViewById(R.id.text2);
             images.setImageResource(imgs);
-            myTitle.setText(titles.get(position));
-            myDescription.setText(description.get(position));
-            return row;
+            myTitle.setText(titles.get(i));
+            myDescription.setText(description.get(i));
+            // set item content in view
+            list.addView(row);
+            final int t = i;
+
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sessionLatLng = new LatLng(sessionArray.get(t).latitude, sessionArray.get(t).longitude);
+                    joinSession(sessionLatLng);
+                }
+            });
         }
+
     }
 }
