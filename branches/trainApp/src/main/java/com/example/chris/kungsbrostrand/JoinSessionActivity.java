@@ -76,8 +76,7 @@ public class JoinSessionActivity extends AppCompatActivity {
 
                 sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
 
-                DatabaseReference userIDref = mUserDbRef.child(currentFirebaseUser.getUid()).child("sessions");
-                userIDref.child(sessionID).setValue(true);
+                mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
 
                 finish();
 

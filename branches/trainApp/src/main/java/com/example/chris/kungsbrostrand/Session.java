@@ -10,7 +10,7 @@ import java.util.HashMap;
  */
 
 public class Session {
-    public String userID;
+    public String host;
     public String sessionName;
     public String sessionType;
     public String level;
@@ -25,8 +25,8 @@ public class Session {
 
 
 
-    public Session(String sessionName, String userID, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants) {
-        this.userID = sessionType;
+    public Session(String sessionName, String host, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants) {
+        this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.level = level;
@@ -80,12 +80,12 @@ public class Session {
         this.sessionDate = sessionDate;
     }
 
-    public String getUserID() {
-        return userID;
+    public String gethost() {
+        return host;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void sethost(String host) {
+        this.host = host;
     }
 
 

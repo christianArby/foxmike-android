@@ -55,7 +55,7 @@ public class UserActivity extends AppCompatActivity {
 
         titles =  new ArrayList<>();
         description = new ArrayList<>();
-        sessionNameArray= new ArrayList<>();
+        //sessionNameArray= new ArrayList<>();
         sessionArray= new ArrayList<>();
 
         list = (LinearLayout) findViewById(R.id.list1);
@@ -64,19 +64,30 @@ public class UserActivity extends AppCompatActivity {
         // Set profile layout
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         View profile = inflater.inflate(R.layout.user_profile_info,list,false);
-        TextView userName = (TextView) profile.findViewById(R.id.userNameTW) ;
+        ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        profileImage.setImageResource(imgs);
+        TextView userName = (TextView) profile.findViewById(R.id.profileTV) ;
         userName.setText(currentFirebaseUser.getEmail());
         list.addView(profile);
+        final User user = new User();
 
-        usersDbRef.child(currentFirebaseUser.getUid()).child("sessions").addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        usersDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = new User();
+                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                View yourSessionsHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
+                TextView yourSessionsHeading = (TextView) yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
+                yourSessionsHeading.setText("Sessions Attending");
+                list.addView(yourSessionsHeadingView);
+
+
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    user.sessions.add(snapshot.getKey().toString());
+                    user.sessionsAttending.add(snapshot.getKey().toString());
                 }
-                sessionNameArray =user.sessions;
-                populateSessionArray(user.sessions);
+                //sessionNameArray =user.sessionsAttending;
+                populateSessionArray(user.sessionsAttending);
 
             }
             @Override

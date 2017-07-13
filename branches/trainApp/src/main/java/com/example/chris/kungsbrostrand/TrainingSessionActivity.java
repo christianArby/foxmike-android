@@ -32,6 +32,7 @@ import java.util.Locale;
 public class TrainingSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     EditText mSessionName;
     EditText mSessionType;
     EditText mDate;
@@ -73,14 +74,19 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 session.countParticipants = 0;
                 session.longitude = clickedLatLng.longitude;
                 session.latitude = clickedLatLng.latitude;
-                session.userID = currentFirebaseUser.getUid();
+                session.host = currentFirebaseUser.getUid();
 
                 if (session.sessionDate != null){
-                    mMarkerDbRef.push().setValue(session);
+                    String mSessionId = mMarkerDbRef.push().getKey();
+                    mMarkerDbRef.child(mSessionId).setValue(session);
+                    //DatabaseReference userIDref = mUserDbRef.child(currentFirebaseUser.getUid()).child("hostingSessions");
+                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
                     finish();
                 }   else    {
                     Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
                 }
+
+
 
             }
         });
