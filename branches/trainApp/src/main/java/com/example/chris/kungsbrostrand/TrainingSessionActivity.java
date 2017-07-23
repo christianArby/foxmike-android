@@ -86,8 +86,6 @@ public class TrainingSessionActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
                 }
 
-
-
             }
         });
 
@@ -200,7 +198,5 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 dlg.dismiss();
             }
         });
-
-
     }
 }

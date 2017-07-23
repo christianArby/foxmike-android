@@ -22,9 +22,6 @@ public class Session {
     public int countParticipants;
     public HashMap<String,Boolean> participants;
 
-
-
-
     public Session(String sessionName, String host, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants) {
         this.host = host;
         this.sessionName = sessionName;

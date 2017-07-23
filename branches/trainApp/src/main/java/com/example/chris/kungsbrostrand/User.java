@@ -1,14 +1,8 @@
 package com.example.chris.kungsbrostrand;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by chris on 2017-06-28.
@@ -16,44 +10,36 @@ import java.util.ArrayList;
 
 public class User {
 
+    public HashMap<String,Boolean> sessionsAttending;
+    public HashMap<String,Boolean> sessionsHosting;
 
-    public ArrayList<String> sessionsAttending;
-    public ArrayList<String> sessionsHosting;
-    DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-    public User(ArrayList<String> sessionsAttending, ArrayList<String> sessionsHosting) {
+    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+
+    public User(HashMap<String,Boolean> sessionsAttending, HashMap<String,Boolean> sessionsHosting) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
     }
 
-
-
     public User() {
-        this.sessionsAttending = new ArrayList<String>();
-        this.sessionsHosting = new ArrayList<String>();
+        this.sessionsAttending = new HashMap<String,Boolean>();
+        this.sessionsHosting = new HashMap<String,Boolean>();
     }
 
-/*    public ArrayList<String> getSessionsAttending() {
-        usersDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = new User();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    user.sessionsAttending.add(snapshot.getKey().toString());
-                }
-                sessionsAttending =user.sessionsAttending;
-                //populateSessionArray(user.sessions);
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+    public HashMap<String, Boolean> getSessionsAttending() {
         return sessionsAttending;
-    }*/
+    }
 
-    public ArrayList<String> getSessionsHosting() {
+    public HashMap<String,Boolean> getSessionsHosting() {
         return sessionsHosting;
     }
+
+    public void setSessionsAttending(HashMap<String, Boolean> sessionsAttending) {
+        this.sessionsAttending = sessionsAttending;
+    }
+
+    public void setSessionsHosting(HashMap<String, Boolean> sessionsHosting) {
+        this.sessionsHosting = sessionsHosting;
+    }
+
 }

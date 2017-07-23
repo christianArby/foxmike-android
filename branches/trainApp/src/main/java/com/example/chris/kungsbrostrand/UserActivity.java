@@ -3,6 +3,7 @@ package com.example.chris.kungsbrostrand;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,58 +70,28 @@ public class UserActivity extends AppCompatActivity {
         TextView userName = (TextView) profile.findViewById(R.id.profileTV) ;
         userName.setText(currentFirebaseUser.getEmail());
         list.addView(profile);
-        final User user = new User();
 
+        UserActivityContent userActivityContent = new UserActivityContent();
 
-
-        usersDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").addListenerForSingleValueEvent(new ValueEventListener() {
+        userActivityContent.getUserActivityContent(new OnUserActivityContentListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void OnUserActivityContent(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting) {
+
+                // Heading sessionAttending
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
+                TextView sessionsAttendingHeading = (TextView) sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
+                sessionsAttendingHeading.setText("Sessions Attending");
+                list.addView(sessionsAttendingHeadingView);
+                populateList(sessionsAttending);
+
+
+                // Heading sessionsHosting
                 View yourSessionsHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
-                TextView yourSessionsHeading = (TextView) yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
-                yourSessionsHeading.setText("Sessions Attending");
+                TextView sessionsHostingHeading = (TextView) yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
+                sessionsHostingHeading.setText("Sessions Hosting");
                 list.addView(yourSessionsHeadingView);
-
-
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    user.sessionsAttending.add(snapshot.getKey().toString());
-                }
-                //sessionNameArray =user.sessionsAttending;
-                populateSessionArray(user.sessionsAttending);
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    public void joinSession(LatLng markerLatLng) {
-        Intent intent = new Intent(this, JoinSessionActivity.class);
-        intent.putExtra("LatLng", markerLatLng);
-        startActivity(intent);
-    }
-
-    public void populateSessionArray(final ArrayList<String> sessionNameArray){
-        dbRef.child("sessions").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Session session;
-                for (int i=0; i < sessionNameArray.size(); i++){
-                    session = dataSnapshot.child(sessionNameArray.get(i)).getValue(Session.class);
-                    sessionArray.add(session);
-                }
-                for (int i=0; i < sessionArray.size(); i++){
-                    description.add(sessionArray.get(i).sessionType + ' ' + sessionArray.get(i).sessionDate.day + '/' + sessionArray.get(i).sessionDate.month + ' ' + sessionArray.get(i).sessionDate.hour + ':' +sessionArray.get(i).sessionDate.minute);
-                    titles.add(sessionArray.get(i).sessionName);
-                }
-
-                populateList(sessionArray);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                populateList(sessionsHosting);
 
             }
         });
@@ -134,8 +105,8 @@ public class UserActivity extends AppCompatActivity {
             TextView myTitle =(TextView) row.findViewById(R.id.text1);
             TextView myDescription = (TextView) row.findViewById(R.id.text2);
             images.setImageResource(imgs);
-            myTitle.setText(titles.get(i));
-            myDescription.setText(description.get(i));
+            myTitle.setText(sessionArray.get(i).getSessionName());
+            myDescription.setText(sessionArray.get(i).getSessionType());
             // set item content in view
             list.addView(row);
             final int t = i;
@@ -148,6 +119,11 @@ public class UserActivity extends AppCompatActivity {
                 }
             });
         }
+    }
 
+    public void joinSession(LatLng markerLatLng) {
+        Intent intent = new Intent(this, JoinSessionActivity.class);
+        intent.putExtra("LatLng", markerLatLng);
+        startActivity(intent);
     }
 }
