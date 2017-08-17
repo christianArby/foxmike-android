@@ -1,3 +1,4 @@
+/*
 package com.example.chris.kungsbrostrand;
 
 import android.content.Intent;
@@ -91,3 +92,4 @@ public class LoginPage extends AppCompatActivity {
 
     }
 }
+*/

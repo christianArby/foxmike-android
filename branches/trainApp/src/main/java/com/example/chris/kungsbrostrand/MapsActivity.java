@@ -10,12 +10,11 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 
-import android.support.v4.content.ContextCompatApi24;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 
 import android.view.View;
@@ -43,6 +42,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import static java.security.AccessController.getContext;
 
@@ -78,10 +79,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button mSignOut;
     Button mClearDb;
     Button mUser;
-    FirebaseAuth fAuth = FirebaseAuth.getInstance();
-    //
 
-    @Override
+    private DatabaseReference mDatabaseUsers;
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
     protected void onCreate(Bundle savedInstanceState) {
 
         /*mDeleteMarkerDbRef.removeValue();
@@ -91,9 +94,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMarkerDbRef.setValue(null);
         mDMarkerDbRef.setValue(null);*/
 
+        //new user content
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                if(firebaseAuth.getCurrentUser()== null){
+
+                    Intent loginIntent = new Intent(MapsActivity.this,LoginActivity.class);
+                    loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(loginIntent);
+
+                }
+
+                else {
+
+
+                }
+            }
+        };
+
+
+
+        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
+
+        mDatabaseUsers.keepSynced(true);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //
 
         //google
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -108,9 +141,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MapsActivity.this, LoginPage.class);
-                fAuth.signOut();
-                startActivity(intent);
+                //Intent intent = new Intent(MapsActivity.this, LoginPage.class);
+                mAuth.signOut();
+                //startActivity(intent);
                 finish();
             }
         });
@@ -136,6 +169,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mDMarkerDbRef.setValue(null);
             }
         });
+
+        checkUserExist();
     } //on create ends
 
 
@@ -152,6 +187,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        mAuth.addAuthStateListener(mAuthListener);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -247,6 +284,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
+    private void checkUserExist() {
+
+        final String user_id = mAuth.getCurrentUser().getUid();
+
+        mDatabaseUsers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.hasChild(user_id)){
+
+                    Intent setupIntent = new Intent(MapsActivity.this,SetupAccountActivity.class);
+                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(setupIntent);
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
     //google  ONLY LONG AND LAT SET BELOW THIS
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
