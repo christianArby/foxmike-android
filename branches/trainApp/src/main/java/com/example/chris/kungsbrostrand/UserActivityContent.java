@@ -26,19 +26,19 @@ public class UserActivityContent {
 
         myFirebaseDatabase.getUser(new OnUserFoundListener() {
             @Override
-            public void OnUserFound(User user) {
+            public void OnUserFound(final User user) {
 
                 if (user.sessionsAttending.size()==0){
                     userActivityContent.put("sessionsAttending",true);
                     if (testContent()==true){
-                        onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting);
+                        onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                     }
                 }
 
                 if (user.sessionsHosting.size()==0){
                     userActivityContent.put("sessionsHosting",true);
                     if (testContent()==true){
-                        onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting);
+                        onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                     }
                 }
 
@@ -48,7 +48,7 @@ public class UserActivityContent {
                         sessionsAttending = sessions;
                         userActivityContent.put("sessionsAttending",true);
                         if (testContent()==true){
-                            onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting);
+                            onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                         }
                     }
                 },user.sessionsAttending);
@@ -60,7 +60,7 @@ public class UserActivityContent {
                         sessionsHosting = sessions;
                         userActivityContent.put("sessionsHosting",true);
                         if (testContent()==true){
-                            onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting);
+                            onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                         }
                     }
                 },user.sessionsHosting);

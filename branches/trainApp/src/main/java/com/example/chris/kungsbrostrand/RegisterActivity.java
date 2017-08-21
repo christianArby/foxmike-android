@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -84,6 +85,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
+
                 startRegister();
             }
         });
@@ -110,8 +113,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                         final DatabaseReference current_user_db = mDatabase.child(user_id);
 
-                        current_user_db.child("name").setValue(name);
-                        current_user_db.child("image").setValue("default");
+                        //current_user_db.child("name").setValue(name);
+                        //current_user_db.child("image").setValue("default");
 
                         StorageReference filepath = mStorageImage.child(mImageUri.getLastPathSegment());
 
@@ -122,13 +125,20 @@ public class RegisterActivity extends AppCompatActivity {
                                 String downloadUri = taskSnapshot.getDownloadUrl().toString();
 
                                 current_user_db.child("name").setValue(name);
-                                current_user_db.child("image").setValue(downloadUri);
+                                current_user_db.child("image").setValue(downloadUri, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
-                                mProgress.dismiss();
+                                        mProgress.dismiss();
 
-                                Intent mainIntent = new Intent(RegisterActivity.this, MapsActivity.class);
-                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(mainIntent);
+                                        Intent mainIntent = new Intent(RegisterActivity.this, MapsActivity.class);
+                                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(mainIntent);
+
+                                    }
+                                });
+
+
 
                             }
                         });

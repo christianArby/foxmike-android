@@ -7,5 +7,5 @@ import java.util.ArrayList;
  */
 
 public interface OnUserActivityContentListener {
-    void OnUserActivityContent(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting);
+    void OnUserActivityContent(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting, String userProfileName, String userProfileImageURL);
 }

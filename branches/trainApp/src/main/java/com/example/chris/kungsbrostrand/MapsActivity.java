@@ -17,6 +17,8 @@ import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -76,16 +78,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng clickedPosition;
     LatLng markerLatLng;
     ChildEventListener mChildEventListener;
-    Button mSignOut;
-    Button mClearDb;
-    Button mUser;
 
     private DatabaseReference mDatabaseUsers;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private boolean moveCamera;
 
     protected void onCreate(Bundle savedInstanceState) {
+
+        moveCamera=true;
 
         /*mDeleteMarkerDbRef.removeValue();
         mMarkerDbRef.removeValue();
@@ -93,6 +95,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mDeleteMarkerDbRef.setValue(null);
         mMarkerDbRef.setValue(null);
         mDMarkerDbRef.setValue(null);*/
+
+
 
         //new user content
         mAuth = FirebaseAuth.getInstance();
@@ -108,13 +112,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     startActivity(loginIntent);
 
                 }
-
-                else {
-
-
-                }
             }
         };
+
+        mAuth.addAuthStateListener(mAuthListener);
 
 
 
@@ -137,41 +138,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mSignOut = (Button) findViewById(R.id.signOutBtn);
-        mSignOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(MapsActivity.this, LoginPage.class);
-                mAuth.signOut();
-                //startActivity(intent);
-                finish();
-            }
-        });
-
-        mUser = (Button) findViewById(R.id.userBtn);
-        mUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MapsActivity.this, UserActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        mClearDb = (Button) findViewById(R.id.clearDbBtn);
-        mClearDb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDeleteMarkerDbRef.removeValue();
-                mMarkerDbRef.removeValue();
-                mDMarkerDbRef.removeValue();
-                mDeleteMarkerDbRef.setValue(null);
-                mMarkerDbRef.setValue(null);
-                mDMarkerDbRef.setValue(null);
-            }
-        });
 
         checkUserExist();
+
     } //on create ends
+
+    // Menu
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId()== R.id.action_my_page){
+
+            startActivity(new Intent(MapsActivity.this, UserActivity.class));
+
+        }
+
+        if(item.getItemId()== R.id.action_logout){
+
+            logout();
+
+        }
+
+        if(item.getItemId()== R.id.action_clear_db){
+
+            mDeleteMarkerDbRef.removeValue();
+            mMarkerDbRef.removeValue();
+            mDMarkerDbRef.removeValue();
+            mDeleteMarkerDbRef.setValue(null);
+            mMarkerDbRef.setValue(null);
+            mDMarkerDbRef.setValue(null);
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        mAuth.signOut();
+    }
+
+    //
 
 
     /**
@@ -187,8 +200,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        mAuth.addAuthStateListener(mAuthListener);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -226,6 +237,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         //get all markers info from Firebase Database and add to map
         addMarkersToMap(mMap);
+
     }
 
     public void addSession() {
@@ -287,26 +299,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void checkUserExist() {
 
-        final String user_id = mAuth.getCurrentUser().getUid();
+        if(mAuth.getCurrentUser() != null) {
 
-        mDatabaseUsers.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(user_id)){
+            final String user_id = mAuth.getCurrentUser().getUid();
 
-                    Intent setupIntent = new Intent(MapsActivity.this,SetupAccountActivity.class);
-                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(setupIntent);
+            mDatabaseUsers.addValueEventListener(new ValueEventListener() { ////// TA BORT signingUp FIXA SÅ ATT LISTENER PAUSAS UNDER REG https://stackoverflow.com/questions/44435763/firebase-value-event-listener-firing-even-after-activity-is-finished
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(!dataSnapshot.hasChild(user_id)){
 
+                        Intent setupIntent = new Intent(MapsActivity.this,SetupAccountActivity.class);
+                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(setupIntent);
+
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
-            }
+            });
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        }
 
-            }
-        });
+
     }
 
 
@@ -324,9 +342,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setInterval(10 * 1000);
+        mLocationRequest.setFastestInterval(1*1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -354,8 +372,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         latitudeDouble = mLastLocation.getLatitude();
         longitudeDouble = mLastLocation.getLongitude();
 
+        if(moveCamera==true){
+            LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+            moveCamera=false;
+        }
+
+
+
+
         //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         //MarkerOptions markerOptions = new MarkerOptions();
         //markerOptions.position(latLng);
         //markerOptions.title("Current Position");

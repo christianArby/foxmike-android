@@ -44,5 +44,6 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.theartofdev.edmodo:android-image-cropper:2.4.+'
+
 }
 apply plugin: 'com.google.gms.google-services'

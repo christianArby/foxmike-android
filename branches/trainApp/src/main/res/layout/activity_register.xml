@@ -8,11 +8,11 @@
 
     <ImageButton
         android:id="@+id/registerImageBtn"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="0dp"
         android:background="@color/colorPrimary"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture" />
@@ -26,7 +26,7 @@
         android:inputType="textPersonName"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/emailField"
-        android:layout_marginTop="170dp" />
+        android:layout_marginTop="220dp" />
 
     <EditText
         android:id="@+id/emailField"

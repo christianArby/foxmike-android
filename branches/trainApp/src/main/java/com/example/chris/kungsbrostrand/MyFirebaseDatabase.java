@@ -55,6 +55,9 @@ public class MyFirebaseDatabase {
                     if (userDb.sessionsAttending != null) {
                         user.setSessionsAttending(userDb.sessionsAttending); //FIXA DETTA ´, FULT
                     }
+
+                    user.setUserName(userDb.name);
+                    user.setUserImageURL(userDb.image);
                 }
                 onUserFoundListener.OnUserFound(user);
             }

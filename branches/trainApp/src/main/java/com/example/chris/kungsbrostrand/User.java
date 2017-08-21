@@ -12,13 +12,17 @@ public class User {
 
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
+    public String name;
+    public String image;
 
 
     DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
 
-    public User(HashMap<String,Boolean> sessionsAttending, HashMap<String,Boolean> sessionsHosting) {
+    public User(HashMap<String,Boolean> sessionsAttending, HashMap<String,Boolean> sessionsHosting, String name, String image) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
+        this.name = name;
+        this.image = image;
     }
 
     public User() {
@@ -32,6 +36,14 @@ public class User {
 
     public HashMap<String,Boolean> getSessionsHosting() {
         return sessionsHosting;
+    }
+
+    public void setUserName(String name) {
+        this.name = name;
+    }
+
+    public void setUserImageURL(String image) {
+        this.image = image;
     }
 
     public void setSessionsAttending(HashMap<String, Boolean> sessionsAttending) {

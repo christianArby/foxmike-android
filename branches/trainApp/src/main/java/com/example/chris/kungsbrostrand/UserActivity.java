@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
@@ -46,6 +47,7 @@ public class UserActivity extends AppCompatActivity {
     ArrayList<Session> sessionArray;
     //public MyAdapter adapter;
     public LatLng sessionLatLng;
+    private View profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,18 +66,23 @@ public class UserActivity extends AppCompatActivity {
 
         // Set profile layout
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        View profile = inflater.inflate(R.layout.user_profile_info,list,false);
-        ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        profile = inflater.inflate(R.layout.user_profile_info,list,false);
+        final ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
         profileImage.setImageResource(imgs);
-        TextView userName = (TextView) profile.findViewById(R.id.profileTV) ;
-        userName.setText(currentFirebaseUser.getEmail());
+        final TextView userNameTV = (TextView) profile.findViewById(R.id.profileTV) ;
+        //TextView userName = (TextView) profile.findViewById(R.id.profileTV) ;
+        //
         list.addView(profile);
 
         UserActivityContent userActivityContent = new UserActivityContent();
 
         userActivityContent.getUserActivityContent(new OnUserActivityContentListener() {
             @Override
-            public void OnUserActivityContent(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting) {
+            public void OnUserActivityContent(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting, String name, String image) {
+
+                userNameTV.setText(name);
+
+                setImage(image);
 
                 // Heading sessionAttending
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
@@ -95,6 +102,15 @@ public class UserActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setImage(String image) {
+
+
+        ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        Picasso.with(this).load(image).into(profileImage);
+
+
     }
 
     public void populateList(final ArrayList<Session> sessionArray) {

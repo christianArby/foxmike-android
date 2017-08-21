@@ -17,25 +17,5 @@
         tools:context="com.example.chris.kungsbrostrand.MapsActivity"
         tools:layout="@layout/dummy_mapviewfragment"/>
 
-    <Button
-        android:id="@+id/signOutBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Out" />
-
-    <Button
-        android:id="@+id/clearDbBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:text="Clear Db" />
-
-    <Button
-        android:id="@+id/userBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="200dp"
-        android:text="User" />
-
 
 </FrameLayout>
