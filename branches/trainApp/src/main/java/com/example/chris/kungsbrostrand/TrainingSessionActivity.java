@@ -1,17 +1,27 @@
 package com.example.chris.kungsbrostrand;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,6 +30,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -43,7 +54,19 @@ public class TrainingSessionActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
     ListView lv;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private StorageReference mStorageSessionImage;
+
+
     SessionDate mSessionDate;
+    ImageButton mSessionImageButton;
+
+    private static final int GALLERY_REQUEST = 1;
+
+    private Uri mImageUri = null;
+
+    private ProgressDialog mProgress;
+
+
 
 
     @Override
@@ -57,13 +80,37 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mLevel = (EditText) findViewById(R.id.levelET);
         mMaxParticipants = (EditText) findViewById(R.id.maxParticipantsET);
 
+        mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
+
+        mProgress = new ProgressDialog(this);
+
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
+
+        mSessionImageButton = (ImageButton) findViewById(R.id.sessionImageBtn);
+
+        mSessionImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST);
+
+            }
+        });
 
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Session session = new Session();
+
+                mProgress.setMessage("Creating session ...");
+                mProgress.show();
+
+                final Session session = new Session();
                 LatLng clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
+
+
 
                 mSessionDate = new SessionDate(myCalendar);
                 session.sessionName = mSessionName.getText().toString();
@@ -76,14 +123,35 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 session.latitude = clickedLatLng.latitude;
                 session.host = currentFirebaseUser.getUid();
 
-                if (session.sessionDate != null){
-                    String mSessionId = mMarkerDbRef.push().getKey();
-                    mMarkerDbRef.child(mSessionId).setValue(session);
-                    //DatabaseReference userIDref = mUserDbRef.child(currentFirebaseUser.getUid()).child("hostingSessions");
-                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
-                    finish();
-                }   else    {
-                    Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
+                if(mImageUri != null){
+                    StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
+                    filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            String downloadUri = taskSnapshot.getDownloadUrl().toString();
+                            session.imageUri = downloadUri;
+
+                            mProgress.dismiss();
+
+                            if (session.sessionDate != null){
+                                String mSessionId = mMarkerDbRef.push().getKey();
+                                mMarkerDbRef.child(mSessionId).setValue(session);
+                                //DatabaseReference userIDref = mUserDbRef.child(currentFirebaseUser.getUid()).child("hostingSessions");
+                                mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+
+                                Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
+                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(mainIntent);
+
+                            }   else    {
+                                Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+                else {
+                    mProgress.dismiss();
+                    Toast.makeText(getApplicationContext(),"Choose photo",Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -198,5 +266,35 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 dlg.dismiss();
             }
         });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
+
+            Uri imageUri = data.getData();
+
+            CropImage.activity(imageUri)
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1,1)
+                    .start(this);
+
+
+        }
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+
+            if (resultCode == RESULT_OK) {
+
+                mImageUri = result.getUri();
+
+                mSessionImageButton.setImageURI(mImageUri);
+
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
     }
 }

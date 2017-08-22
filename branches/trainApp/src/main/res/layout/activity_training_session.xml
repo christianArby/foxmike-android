@@ -7,11 +7,12 @@
     android:orientation="vertical">
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/sessionImageBtn"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_weight="10"
-        android:background="@drawable/background"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/imageBtn"
         app:srcCompat="@mipmap/ic_insert_photo_black_24dp" />
 
     <EditText
@@ -20,10 +21,11 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:gravity="center_vertical"
         android:hint="Session name"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:textSize="14sp" />
 
     <EditText
         android:id="@+id/sessionTypeET"
@@ -31,12 +33,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Session type"
         android:inputType="textPersonName"
-        android:longClickable="false" />
+        android:longClickable="false"
+        android:textSize="14sp" />
 
 
     <EditText
@@ -45,12 +48,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Date"
         android:inputType="textPersonName"
-        android:longClickable="false" />
+        android:longClickable="false"
+        android:textSize="14sp" />
 
 
     <EditText
@@ -59,12 +63,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Time"
         android:inputType="textPersonName"
-        android:longClickable="false" />
+        android:longClickable="false"
+        android:textSize="14sp" />
 
     <EditText
         android:id="@+id/levelET"
@@ -72,12 +77,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Level"
         android:inputType="textPersonName"
-        android:longClickable="false" />
+        android:longClickable="false"
+        android:textSize="14sp" />
 
     <EditText
         android:id="@+id/maxParticipantsET"
@@ -85,12 +91,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_weight="10"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Maximum participants"
         android:inputType="number"
-        android:longClickable="false" />
+        android:longClickable="false"
+        android:textSize="14sp" />
 
 
     <Button
@@ -101,7 +108,6 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
-        android:layout_weight="3"
         android:background="#263238"
         android:text="Create session"
         android:textColor="@android:color/white" />

@@ -1,45 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    tools:context="com.example.chris.kungsbrostrand.JoinSessionActivity">
+
+    <ImageButton
+        android:id="@+id/joinSessionImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@color/imageBtn"
+        app:srcCompat="@mipmap/ic_insert_photo_black_24dp" />
 
     <TextView
         android:id="@+id/dayTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginTop="210dp"
+        android:text="TextView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/monthTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginTop="10dp"
+        android:text="TextView"
+        android:layout_below="@+id/dayTW"
+        android:layout_alignStart="@+id/sessionTypeTW"/>
 
     <TextView
         android:id="@+id/sessionTypeTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginTop="10dp"
+        android:text="TextView"
+        android:layout_below="@+id/monthTW"
+        android:layout_alignStart="@+id/levelTW"/>
 
     <TextView
         android:id="@+id/levelTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginTop="10dp"
+        android:text="TextView"
+        android:layout_below="@+id/sessionTypeTW"
+        android:layout_alignStart="@+id/participantsTW"/>
 
     <TextView
         android:id="@+id/participantsTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_marginTop="10dp"
+        android:text="TextView"
+        android:layout_below="@+id/levelTW"
+        android:layout_alignStart="@+id/joinSessionBtn"/>
 
     <Button
         android:id="@+id/joinSessionBtn"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Join session" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:background="#263238"
+        android:text="Join session"
+        android:layout_below="@+id/participantsTW"
+        android:textColor="@android:color/white" />
 
 
-</LinearLayout>
+</RelativeLayout>

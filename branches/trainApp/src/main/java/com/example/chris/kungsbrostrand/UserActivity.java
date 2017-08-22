@@ -82,7 +82,7 @@ public class UserActivity extends AppCompatActivity {
 
                 userNameTV.setText(name);
 
-                setImage(image);
+                setImage(image, (ImageView) profile.findViewById(R.id.profileIV));
 
                 // Heading sessionAttending
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
@@ -104,11 +104,11 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
-    private void setImage(String image) {
+    private void setImage(String image, ImageView imageView) {
 
 
-        ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
-        Picasso.with(this).load(image).into(profileImage);
+        //ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        Picasso.with(this).load(image).into(imageView);
 
 
     }
@@ -120,9 +120,10 @@ public class UserActivity extends AppCompatActivity {
             ImageView images = (ImageView) row.findViewById(R.id.icon);
             TextView myTitle =(TextView) row.findViewById(R.id.text1);
             TextView myDescription = (TextView) row.findViewById(R.id.text2);
-            images.setImageResource(imgs);
+            //images.setImageResource(imgs);
             myTitle.setText(sessionArray.get(i).getSessionName());
             myDescription.setText(sessionArray.get(i).getSessionType());
+            setImage(sessionArray.get(i).getImageUri(),images);
             // set item content in view
             list.addView(row);
             final int t = i;

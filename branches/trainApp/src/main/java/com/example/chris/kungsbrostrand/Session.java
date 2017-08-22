@@ -5,24 +5,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-/**
- * Created by chris on 2017-06-09.
- */
 
 public class Session {
-    public String host;
-    public String sessionName;
-    public String sessionType;
-    public String level;
-    public String maxParticipants;
-    public double latitude;
-    public double longitude;
-    public String time;
-    public SessionDate sessionDate;
-    public int countParticipants;
-    public HashMap<String,Boolean> participants;
+    private String host;
+    private String sessionName;
+    private String sessionType;
+    private String level;
+    private String maxParticipants;
+    private double latitude;
+    private double longitude;
+    private String time;
+    private SessionDate sessionDate;
+    private int countParticipants;
+    private HashMap<String,Boolean> participants;
 
-    public Session(String sessionName, String host, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants) {
+
+
+    public String imageUri;
+
+    public Session(String sessionName, String host, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants, String imageUri) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -34,6 +35,7 @@ public class Session {
         this.sessionDate = sessionDate;
         this.countParticipants= countParticipants;
         this.participants = participants;
+        this.imageUri = imageUri;
     }
 
 
@@ -129,6 +131,14 @@ public class Session {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(String imageUri) {
+        this.imageUri = imageUri;
     }
 
 

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -107,6 +109,7 @@ public class JoinSessionActivity extends AppCompatActivity {
                             }
                         };
                     }
+                    setImage(markerResult.imageUri);
 
                 }
             }
@@ -131,6 +134,15 @@ public class JoinSessionActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setImage(String image) {
+
+
+        ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
+        Picasso.with(this).load(image).into(sessionImage);
+
+
     }
 
 }
