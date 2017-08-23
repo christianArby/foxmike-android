@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,11 +22,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,10 +39,8 @@ import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class TrainingSessionActivity extends AppCompatActivity {
@@ -96,6 +93,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
         mSessionImageButton = (ImageButton) findViewById(R.id.sessionImageBtn);
+
+        mUserDbRef.keepSynced(true);
+        mMarkerDbRef.keepSynced(true);
 
 
         sessionIdBundle = getIntent().getExtras();
@@ -150,6 +150,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
             else {
 
                 clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
+                mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
             }
         }
 
@@ -392,7 +393,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
+                    .setAspectRatio(2,1)
                     .start(this);
 
 
@@ -404,6 +405,8 @@ public class TrainingSessionActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 mImageUri = result.getUri();
+
+                mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
                 mSessionImageButton.setImageURI(mImageUri);
 
@@ -417,7 +420,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
 
         //ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
-        Picasso.with(this).load(image).into(imageView);
+        //Picasso.with(this).load(image).resize(3900,2000).centerCrop().into(imageView);
+        mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(this).load(image).into(imageView);
 
 
     }

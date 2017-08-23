@@ -12,8 +12,9 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="@color/imageBtn"
-        app:srcCompat="@mipmap/ic_insert_photo_black_24dp" />
+        android:background="@color/wallet_bright_foreground_holo_dark"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
     <EditText
         android:id="@+id/sessionNameET"

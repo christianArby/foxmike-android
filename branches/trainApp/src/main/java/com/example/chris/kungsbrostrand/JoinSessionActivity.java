@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,12 +21,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JoinSessionActivity extends AppCompatActivity {
 
@@ -207,7 +202,8 @@ public class JoinSessionActivity extends AppCompatActivity {
 
 
         ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
-        Picasso.with(this).load(image).into(sessionImage);
+        //Picasso.with(this).load(image).resize(3900,2000).centerCrop().into(sessionImage);
+        Glide.with(this).load(image).into(sessionImage);
 
 
     }

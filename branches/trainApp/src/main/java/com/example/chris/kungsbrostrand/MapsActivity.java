@@ -1,15 +1,12 @@
 package com.example.chris.kungsbrostrand;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
 import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -19,10 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,10 +27,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -45,18 +38,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import static java.security.AccessController.getContext;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -122,6 +103,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
 
         mDatabaseUsers.keepSynced(true);
+        mMarkerDbRef.keepSynced(true);
 
 
         super.onCreate(savedInstanceState);
@@ -272,7 +254,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Double latitude = session.getLatitude();
                 Double longitude = session.getLongitude();
                 LatLng location = new LatLng(latitude, longitude);
-                mMap.addMarker(new MarkerOptions().position(location).title(session.sessionType).snippet(session.time));
+                mMap.addMarker(new MarkerOptions().position(location).title(session.sessionType).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
             }
 
             @Override

@@ -128,7 +128,7 @@ public class SetupAccountActivity extends AppCompatActivity {
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
+                    .setAspectRatio(2,1)
                     .start(this);
 
 
