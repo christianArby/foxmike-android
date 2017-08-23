@@ -1,5 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     Long countParticipants;
     String test;
+    int sessionHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,27 +62,53 @@ public class JoinSessionActivity extends AppCompatActivity {
         mJoinSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 DatabaseReference sessionIDref = mMarkerDbRef.child(sessionID);
 
-                sessionIDref.child("participants").addValueEventListener(new ValueEventListener() {
+                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        countParticipants = dataSnapshot.getChildrenCount();
-                        DatabaseReference sessionIDref = mMarkerDbRef.child(sessionID);
-                        sessionIDref.child("countParticipants").setValue(countParticipants);
+
+                        if (dataSnapshot.child("host").getValue().equals(currentFirebaseUser.getUid())) {
+
+
+
+                            Intent createSessionIntent = new Intent(JoinSessionActivity.this, TrainingSessionActivity.class);
+
+
+                            Bundle sessionIdBundle = new Bundle();
+                            sessionIdBundle.putString("key",sessionID);
+                            createSessionIntent.putExtras(sessionIdBundle);
+                            createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(createSessionIntent);
+                        }
+
+                        else {
+
+                            final DatabaseReference sessionIDref = mMarkerDbRef.child(sessionID);
+                            sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
+                            mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
+
+                            sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    countParticipants = dataSnapshot.child("participants").getChildrenCount();
+                                    sessionIDref.child("countParticipants").setValue(countParticipants);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                            finish();
+                        }
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
-
-                sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
-
-                mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
-
-                finish();
 
             }
         });
@@ -109,6 +137,12 @@ public class JoinSessionActivity extends AppCompatActivity {
                             }
                         };
                     }
+
+                    if (markerResult.host.equals(currentFirebaseUser.getUid())) {
+
+                        mJoinSessionBtn.setText("Edit session");
+                    }
+
                     setImage(markerResult.imageUri);
 
                 }

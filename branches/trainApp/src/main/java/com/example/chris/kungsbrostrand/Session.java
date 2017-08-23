@@ -7,17 +7,17 @@ import java.util.HashMap;
 
 
 public class Session {
-    private String host;
-    private String sessionName;
-    private String sessionType;
-    private String level;
-    private String maxParticipants;
-    private double latitude;
-    private double longitude;
-    private String time;
-    private SessionDate sessionDate;
-    private int countParticipants;
-    private HashMap<String,Boolean> participants;
+    public String host;
+    public String sessionName;
+    public String sessionType;
+    public String level;
+    public String maxParticipants;
+    public double latitude;
+    public double longitude;
+    public String time;
+    public SessionDate sessionDate;
+    public int countParticipants;
+    public HashMap<String,Boolean> participants;
 
 
 

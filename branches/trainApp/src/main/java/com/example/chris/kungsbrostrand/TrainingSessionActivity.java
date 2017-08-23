@@ -13,11 +13,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -31,6 +35,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -38,6 +43,7 @@ import android.widget.Toast;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class TrainingSessionActivity extends AppCompatActivity {
@@ -55,6 +61,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
     ListView lv;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mStorageSessionImage;
+    int sessionExist;
 
 
     SessionDate mSessionDate;
@@ -65,6 +72,12 @@ public class TrainingSessionActivity extends AppCompatActivity {
     private Uri mImageUri = null;
 
     private ProgressDialog mProgress;
+
+    private LatLng clickedLatLng;
+    Bundle sessionIdBundle;
+    String existingSessionID;
+    String mSessionId;
+    Session existingSession;
 
 
 
@@ -79,14 +92,69 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mTime = (EditText) findViewById(R.id.timeET);
         mLevel = (EditText) findViewById(R.id.levelET);
         mMaxParticipants = (EditText) findViewById(R.id.maxParticipantsET);
-
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
-
         mProgress = new ProgressDialog(this);
-
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
-
         mSessionImageButton = (ImageButton) findViewById(R.id.sessionImageBtn);
+
+
+        sessionIdBundle = getIntent().getExtras();
+        existingSessionID = "new";
+        sessionExist=0;
+        if (sessionIdBundle != null) {
+            existingSessionID = sessionIdBundle.getString("key");
+
+            if (existingSessionID != null){
+
+                sessionExist=1;
+
+                final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
+                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        existingSession = dataSnapshot.getValue(Session.class);
+
+                        clickedLatLng = new LatLng(existingSession.latitude, existingSession.longitude);
+
+                        setImage(existingSession.imageUri,mSessionImageButton);
+
+
+
+                        mSessionName.setText(existingSession.sessionName);
+                        mSessionType.setText(existingSession.sessionType);
+
+                        // Date
+                        myCalendar.set(Calendar.YEAR, existingSession.sessionDate.year);
+                        myCalendar.set(Calendar.MONTH, existingSession.sessionDate.month);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, existingSession.sessionDate.day);
+                        updateLabel();
+
+                        // Time
+                        mTime.setText( existingSession.sessionDate.hour + ":" + existingSession.sessionDate.minute);
+
+                        mLevel.setText(existingSession.level);
+                        mMaxParticipants.setText(existingSession.maxParticipants);
+
+                        mCreateSessionBtn.setText("Update session");
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            else {
+
+                clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
+            }
+        }
+
+
+
 
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,17 +168,12 @@ public class TrainingSessionActivity extends AppCompatActivity {
             }
         });
 
+
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                mProgress.setMessage("Creating session ...");
-                mProgress.show();
-
                 final Session session = new Session();
-                LatLng clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
-
-
 
                 mSessionDate = new SessionDate(myCalendar);
                 session.sessionName = mSessionName.getText().toString();
@@ -123,39 +186,25 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 session.latitude = clickedLatLng.latitude;
                 session.host = currentFirebaseUser.getUid();
 
-                if(mImageUri != null){
-                    StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
-                    filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            String downloadUri = taskSnapshot.getDownloadUrl().toString();
-                            session.imageUri = downloadUri;
+                if (sessionExist == 1){
 
-                            mProgress.dismiss();
+                    mProgress.setMessage("Updating session ...");
+                    mProgress.show();
+                    sendSession(session, sessionExist);
 
-                            if (session.sessionDate != null){
-                                String mSessionId = mMarkerDbRef.push().getKey();
-                                mMarkerDbRef.child(mSessionId).setValue(session);
-                                //DatabaseReference userIDref = mUserDbRef.child(currentFirebaseUser.getUid()).child("hostingSessions");
-                                mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
-
-                                Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
-                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(mainIntent);
-
-                            }   else    {
-                                Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
                 }
+
                 else {
-                    mProgress.dismiss();
-                    Toast.makeText(getApplicationContext(),"Choose photo",Toast.LENGTH_LONG).show();
-                }
 
+                    mProgress.setMessage("Creating session ...");
+                    mProgress.show();
+                    sendSession(session, sessionExist);
+
+                }
             }
         });
+
+
 
 
         //Date picker
@@ -232,6 +281,72 @@ public class TrainingSessionActivity extends AppCompatActivity {
         });
     }
 
+    private void sendSession(final Session session, int sessionExist) {
+
+        if (sessionExist==1) {
+
+            mSessionId = existingSessionID;
+        }
+
+        else {
+            mSessionId = mMarkerDbRef.push().getKey();
+        }
+
+        if(mImageUri != null){
+            StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
+            filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    String downloadUri = taskSnapshot.getDownloadUrl().toString();
+                    session.imageUri = downloadUri;
+
+                    mProgress.dismiss();
+
+                    if (session.sessionDate != null){
+                        mMarkerDbRef.child(mSessionId).setValue(session);
+                        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+
+                        Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
+                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(mainIntent);
+
+                    }   else    {
+                        Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+        else {
+
+            if (sessionExist==1) {
+
+                session.imageUri = existingSession.imageUri;
+
+                mProgress.dismiss();
+
+                if (session.sessionDate != null){
+                    mMarkerDbRef.child(mSessionId).setValue(session);
+                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+
+                    Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
+                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(mainIntent);
+
+                }   else    {
+                    Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            else {
+                mProgress.dismiss();
+                Toast.makeText(getApplicationContext(),"Choose photo",Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+    }
+
     private void updateLabel() {
 
         String myFormat = "yyyy-MM-dd"; //In which you need put here
@@ -296,5 +411,14 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }
+    }
+
+    private void setImage(String image, ImageView imageView) {
+
+
+        //ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        Picasso.with(this).load(image).into(imageView);
+
+
     }
 }
