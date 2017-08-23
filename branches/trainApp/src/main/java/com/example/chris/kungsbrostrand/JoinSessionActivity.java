@@ -40,7 +40,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     Button mJoinSessionBtn;
     String sessionID;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    Long countParticipants;
+    Long participantsCount;
     String test;
     int sessionHost;
 
@@ -69,9 +69,6 @@ public class JoinSessionActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         if (dataSnapshot.child("host").getValue().equals(currentFirebaseUser.getUid())) {
-
-
-
                             Intent createSessionIntent = new Intent(JoinSessionActivity.this, TrainingSessionActivity.class);
 
 
@@ -80,6 +77,16 @@ public class JoinSessionActivity extends AppCompatActivity {
                             createSessionIntent.putExtras(sessionIdBundle);
                             createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(createSessionIntent);
+                        }
+
+                        else if (dataSnapshot.child("participants").hasChild(currentFirebaseUser.getUid())) {
+                            mMarkerDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
+                            mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
+                            countParticipants();
+
+                            Intent mainIntent = new Intent(JoinSessionActivity.this, MapsActivity.class);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(mainIntent);
                         }
 
                         else {
@@ -91,8 +98,7 @@ public class JoinSessionActivity extends AppCompatActivity {
                             sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    countParticipants = dataSnapshot.child("participants").getChildrenCount();
-                                    sessionIDref.child("countParticipants").setValue(countParticipants);
+                                    countParticipants();
                                 }
 
                                 @Override
@@ -113,6 +119,27 @@ public class JoinSessionActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void countParticipants() {
+        mMarkerDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild("participants")) {
+                    participantsCount = dataSnapshot.child("participants").getChildrenCount();
+                    mMarkerDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(participantsCount);
+                }
+                else {
+                    mMarkerDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(0);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     protected void findSession(Double latitude, final Double longitude){
@@ -136,6 +163,12 @@ public class JoinSessionActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(),participant,Toast.LENGTH_SHORT).show();
                             }
                         };
+                    }
+
+                    if (markerResult.participants != null) {
+                        if (markerResult.participants.containsKey(currentFirebaseUser.getUid())) {
+                            mJoinSessionBtn.setText("Cancel booking");
+                        }
                     }
 
                     if (markerResult.host.equals(currentFirebaseUser.getUid())) {
