@@ -48,16 +48,15 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
 
         <!--
         <activity android:name=".LoginPage">
@@ -84,7 +83,8 @@
         <activity android:name=".UserActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".SetupAccountActivity"></activity>
+        <activity android:name=".SetupAccountActivity" />
+        <activity android:name=".ListSessionsActivity"></activity>
     </application>
 
 </manifest>

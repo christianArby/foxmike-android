@@ -32,7 +32,10 @@ public class JoinSessionActivity extends AppCompatActivity {
     TextView mSessionType;
     TextView mLevel;
     TextView mParticipants;
+    TextView mSessionName;
     Button mJoinSessionBtn;
+    ImageView mHostImage;
+    TextView mHost;
     String sessionID;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     Long participantsCount;
@@ -49,6 +52,9 @@ public class JoinSessionActivity extends AppCompatActivity {
         mSessionType = (TextView) findViewById(R.id.sessionTypeTW);
         mLevel = (TextView) findViewById(R.id.levelTW);
         mParticipants = (TextView) findViewById(R.id.participantsTW);
+        mHostImage = (ImageView) findViewById(R.id.JoinSessionHostImage);
+        mHost = (TextView) findViewById(R.id.hostName);
+        mSessionName = (TextView) findViewById(R.id.sessionName);
         LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
         findSession(markerLatLng.latitude, markerLatLng.longitude);
 
@@ -151,6 +157,27 @@ public class JoinSessionActivity extends AppCompatActivity {
                     mLevel.setText("Level: " + markerResult.level);
                     mParticipants.setText("Participants: " + markerResult.countParticipants +"/" + markerResult.maxParticipants);
                     sessionID = dataSnapshot.getRef().getKey();
+                    mSessionName.setText(markerResult.sessionName);
+
+
+                    mUserDbRef.child(markerResult.host).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            User user = dataSnapshot.getValue(User.class);
+
+                            setImage(user.image, mHostImage);
+                            mHost.setText(user.name);
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
 
                     if (markerResult.participants != null) {
                         for (String participant:markerResult.participants.keySet()){
@@ -171,7 +198,9 @@ public class JoinSessionActivity extends AppCompatActivity {
                         mJoinSessionBtn.setText("Edit session");
                     }
 
-                    setImage(markerResult.imageUri);
+                    ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
+
+                    setImage(markerResult.imageUri, sessionImage);
 
                 }
             }
@@ -198,12 +227,12 @@ public class JoinSessionActivity extends AppCompatActivity {
         });
     }
 
-    private void setImage(String image) {
+    private void setImage(String image, ImageView imageView) {
 
 
-        ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
+
         //Picasso.with(this).load(image).resize(3900,2000).centerCrop().into(sessionImage);
-        Glide.with(this).load(image).into(sessionImage);
+        Glide.with(this).load(image).into(imageView);
 
 
     }

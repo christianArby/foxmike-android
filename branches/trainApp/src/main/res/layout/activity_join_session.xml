@@ -14,23 +14,57 @@
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/ic_insert_photo_black_24dp" />
 
+    <ImageView
+        android:id="@+id/JoinSessionHostImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignEnd="@+id/joinSessionBtn"
+        android:layout_below="@+id/joinSessionImage"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/background" />
+
+    <TextView
+        android:id="@+id/hostName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/dayTW"
+        android:layout_marginTop="40dp"
+        android:layout_alignTop="@+id/JoinSessionHostImage"
+        android:layout_marginRight="70dp"
+        android:layout_marginStart="230dp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/sessionName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/dayTW"
+        android:layout_below="@+id/hostName"
+        android:layout_marginTop="30dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/dayTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="210dp"
-        android:text="TextView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@+id/sessionName"
+        android:layout_alignStart="@+id/monthTW"
+        android:layout_marginTop="20dp"
+        android:text="TextView" />
 
     <TextView
         android:id="@+id/monthTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="TextView"
         android:layout_below="@+id/dayTW"
-        android:layout_alignStart="@+id/sessionTypeTW"/>
+        android:layout_alignStart="@+id/sessionTypeTW"
+        android:layout_marginTop="10dp"
+        android:inputType="textCapSentences"
+        android:text="TextView" />
 
     <TextView
         android:id="@+id/sessionTypeTW"
@@ -54,10 +88,10 @@
         android:id="@+id/participantsTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="TextView"
         android:layout_below="@+id/levelTW"
-        android:layout_alignStart="@+id/joinSessionBtn"/>
+        android:layout_alignStart="@+id/joinSessionBtn"
+        android:layout_marginTop="10dp"
+        android:text="TextView" />
 
     <Button
         android:id="@+id/joinSessionBtn"

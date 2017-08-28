@@ -5,7 +5,11 @@
     <group>
 
         <item android:id="@+id/action_my_page"
-            android:title="My profile"
+        android:title="My profile"
+        app:showAsAction="never" />
+
+        <item android:id="@+id/action_list"
+            android:title="Sessions"
             app:showAsAction="never" />
 
         <item android:id="@+id/action_logout"

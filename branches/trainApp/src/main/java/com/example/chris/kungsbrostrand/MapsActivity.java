@@ -143,6 +143,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
+        if(item.getItemId()== R.id.action_list){
+
+            startActivity(new Intent(MapsActivity.this, ListSessionsActivity.class));
+
+        }
+
         if(item.getItemId()== R.id.action_logout){
 
             logout();

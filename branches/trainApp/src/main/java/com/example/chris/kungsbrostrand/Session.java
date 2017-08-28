@@ -17,13 +17,13 @@ public class Session {
     public String time;
     public SessionDate sessionDate;
     public int countParticipants;
+
+
+
     public HashMap<String,Boolean> participants;
-
-
-
     public String imageUri;
 
-    public Session(String sessionName, String host, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String,Boolean> participants, String imageUri) {
+    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -33,11 +33,10 @@ public class Session {
         this.longitude = longitude;
         this.time = time;
         this.sessionDate = sessionDate;
-        this.countParticipants= countParticipants;
+        this.countParticipants = countParticipants;
         this.participants = participants;
         this.imageUri = imageUri;
     }
-
 
     public String textMonth(SessionDate sessionDate) {
         Calendar cal = Calendar.getInstance();
@@ -51,62 +50,20 @@ public class Session {
     public Session() {
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     public String getSessionName() {
         return sessionName;
     }
 
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
-    }
-
-    public String getMaxParticipants() {
-        return maxParticipants;
-    }
-
-    public int getCountParticipants() {
-        return countParticipants;
-    }
-
-    public void setCountParticipants(int nrOfParticipants) {
-        this.countParticipants = nrOfParticipants;
-    }
-
-    public SessionDate getSessionDate() {
-        return sessionDate;
-    }
-
-    public void setSessionDate(SessionDate sessionDate) {
-        this.sessionDate = sessionDate;
-    }
-
-    public String gethost() {
-        return host;
-    }
-
-    public void sethost(String host) {
-        this.host = host;
-    }
-
-
-    public String getTime() {
-        return time;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public void setMaxParticipants(String maxParticipants) {
-        this.maxParticipants = maxParticipants;
     }
 
     public String getSessionType() {
@@ -117,12 +74,20 @@ public class Session {
         this.sessionType = sessionType;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public String getLevel() {
+        return level;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public String getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public void setMaxParticipants(String maxParticipants) {
+        this.maxParticipants = maxParticipants;
     }
 
     public double getLatitude() {
@@ -133,6 +98,46 @@ public class Session {
         this.latitude = latitude;
     }
 
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public SessionDate getSessionDate() {
+        return sessionDate;
+    }
+
+    public void setSessionDate(SessionDate sessionDate) {
+        this.sessionDate = sessionDate;
+    }
+
+    public int getCountParticipants() {
+        return countParticipants;
+    }
+
+    public void setCountParticipants(int countParticipants) {
+        this.countParticipants = countParticipants;
+    }
+
+    public HashMap<String, Boolean> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(HashMap<String, Boolean> participants) {
+        this.participants = participants;
+    }
+
     public String getImageUri() {
         return imageUri;
     }
@@ -140,6 +145,4 @@ public class Session {
     public void setImageUri(String imageUri) {
         this.imageUri = imageUri;
     }
-
-
 }

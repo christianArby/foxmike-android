@@ -6,16 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/sessionImageBtn"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@color/wallet_bright_foreground_holo_dark"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
-
     <EditText
         android:id="@+id/sessionNameET"
         android:layout_width="match_parent"
@@ -25,8 +15,18 @@
         android:layout_marginTop="10dp"
         android:gravity="center_vertical"
         android:hint="Session name"
-        android:inputType="textPersonName"
+        android:inputType="textCapSentences|textPersonName"
         android:textSize="14sp" />
+
+    <ImageButton
+        android:id="@+id/sessionImageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/background"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
     <EditText
         android:id="@+id/sessionTypeET"
@@ -38,7 +38,7 @@
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="Session type"
-        android:inputType="textPersonName"
+        android:inputType="textCapSentences|textPersonName"
         android:longClickable="false"
         android:textSize="14sp" />
 
