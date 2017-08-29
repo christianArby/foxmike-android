@@ -177,16 +177,6 @@ public class JoinSessionActivity extends AppCompatActivity {
                         }
                     });
 
-
-
-                    if (markerResult.participants != null) {
-                        for (String participant:markerResult.participants.keySet()){
-                            if (participant.equals(currentFirebaseUser.getUid())) {
-                                Toast.makeText(getApplicationContext(),participant,Toast.LENGTH_SHORT).show();
-                            }
-                        };
-                    }
-
                     if (markerResult.participants != null) {
                         if (markerResult.participants.containsKey(currentFirebaseUser.getUid())) {
                             mJoinSessionBtn.setText("Cancel booking");

@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:layout_margin="20dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginBottom="5dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/session_image"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:src="@mipmap/add_btn" />
 
         <TextView
             android:id="@+id/session_title"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:text="session name goes here"
+            android:textAllCaps="true"
+            android:textColor="#fff"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/session_desc"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="right"
             android:paddingBottom="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
-            android:text="desc goes here" />
+            android:text="desc goes here"
+            android:textColor="#fff" />
 
 
-    </LinearLayout>
+    </FrameLayout>
 
 </android.support.v7.widget.CardView>

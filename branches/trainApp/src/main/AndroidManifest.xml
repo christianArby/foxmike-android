@@ -78,13 +78,18 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".TrainingSessionActivity" />
-        <activity android:name=".JoinSessionActivity" />
-        <activity android:name=".UserActivity" />
+        <activity android:name=".TrainingSessionActivity"
+            android:label="@string/title_activity_training_session"/>
+        <activity android:name=".JoinSessionActivity"
+            android:label="@string/title_activity_join_session"/>
+        <activity android:name=".UserActivity"
+            android:label="@string/title_activity_user_activity"/>
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SetupAccountActivity" />
-        <activity android:name=".ListSessionsActivity"></activity>
+        <activity android:name=".ListSessionsActivity"
+            android:label="@string/title_activity_list_sessions"
+            ></activity>
     </application>
 
 </manifest>
