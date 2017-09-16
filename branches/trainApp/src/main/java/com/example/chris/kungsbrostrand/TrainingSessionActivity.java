@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +48,7 @@ import java.util.Locale;
 public class TrainingSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     EditText mSessionName;
     EditText mSessionType;
@@ -75,6 +78,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
     String existingSessionID;
     String mSessionId;
     Session existingSession;
+    GeoFire geoFire;
 
 
 
@@ -93,6 +97,8 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
         mSessionImageButton = (ImageButton) findViewById(R.id.sessionImageBtn);
+
+        geoFire = new GeoFire(mGeofireDbRef);
 
         mUserDbRef.keepSynced(true);
         mMarkerDbRef.keepSynced(true);
@@ -305,6 +311,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                     if (session.sessionDate != null){
                         mMarkerDbRef.child(mSessionId).setValue(session);
+                        geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
                         Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
@@ -327,6 +334,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                 if (session.sessionDate != null){
                     mMarkerDbRef.child(mSessionId).setValue(session);
+                    geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
                     Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);

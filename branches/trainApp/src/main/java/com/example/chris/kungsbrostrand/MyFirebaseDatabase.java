@@ -10,6 +10,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * Created by chris on 2017-07-21.
@@ -41,6 +42,30 @@ public class MyFirebaseDatabase {
             });
         }
     }
+
+    public void getSessionsByTreeMap(final OnSessionsFoundListener onSessionsFoundListener, final TreeMap<Integer,String> nearSessions) {
+
+        final ArrayList<Session> sessions = new ArrayList<Session>();
+
+        for (Integer str : nearSessions.keySet()) {
+
+            dbRef.child("sessions").child(nearSessions.get(str)).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Session session;
+                    session = dataSnapshot.getValue(Session.class);
+                    sessions.add(session);
+                    if (sessions.size() == nearSessions.size()) {
+                        onSessionsFoundListener.OnSessionsFound(sessions);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
 
     public void getUser(final OnUserFoundListener onUserFoundListener){
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {

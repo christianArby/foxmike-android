@@ -22,19 +22,35 @@
             android:id="@+id/session_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:gravity="center_horizontal"
             android:padding="15dp"
             android:text="session name goes here"
+            android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="#fff"
-            android:textSize="16sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/session_address"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:layout_marginTop="120dp"
+            android:text="Address"
+            android:textColor="#fff" />
 
         <TextView
             android:id="@+id/session_desc"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:gravity="right"
+            android:gravity="left"
             android:paddingBottom="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
