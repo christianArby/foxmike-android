@@ -9,6 +9,7 @@ import java.util.Calendar;
 public class SessionDate {
 
     Calendar mCalendar;
+
     int year;
     int month;
     int day;

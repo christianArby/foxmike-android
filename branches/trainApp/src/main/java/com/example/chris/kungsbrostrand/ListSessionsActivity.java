@@ -39,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -50,6 +52,8 @@ public class ListSessionsActivity extends AppCompatActivity {
     DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     ArrayList<Session> sessionsClose = new ArrayList<Session>();
+
+
 
     private RecyclerView mSessionList;
 
@@ -65,12 +69,35 @@ public class ListSessionsActivity extends AppCompatActivity {
 
     TreeMap<Integer,String> nearSessions;
 
+    HashMap<String,Boolean> weekdayHashMap;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_sessions);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        weekdayHashMap = new HashMap<String,Boolean>();
+
+        Session dummySession = new Session();
+
+
+        Calendar cal = Calendar.getInstance();
+
+        SessionDate todaysSessionDate = new SessionDate(cal);
+
+        for(int i=1; i<8; i++){
+            weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
+            todaysSessionDate.day = todaysSessionDate.day +1;
+        }
+
+        //todaysSessionDate = new SessionDate(cal);
+
+        //weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
+
+
 
 
 
@@ -122,7 +149,7 @@ public class ListSessionsActivity extends AppCompatActivity {
                                         sessionsCloseHash.put(nearSessions.get(str),true);
                                     }
 
-                                    myFirebaseDatabase.getSessionsByTreeMap(new OnSessionsFoundListener() {
+                                    myFirebaseDatabase.getSessionsFiltered(new OnSessionsFoundListener() {
                                         @Override
                                         public void OnSessionsFound(ArrayList<Session> sessions) {
                                             sessionsClose = sessions;
@@ -131,7 +158,7 @@ public class ListSessionsActivity extends AppCompatActivity {
 
                                             mSessionList.setAdapter(adapter);
                                         }
-                                    },nearSessions);
+                                    },nearSessions, weekdayHashMap);
                                 }
 
                                 @Override

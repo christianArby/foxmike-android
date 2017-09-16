@@ -9,6 +9,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -43,18 +44,26 @@ public class MyFirebaseDatabase {
         }
     }
 
-    public void getSessionsByTreeMap(final OnSessionsFoundListener onSessionsFoundListener, final TreeMap<Integer,String> nearSessions) {
+    public void getSessionsFiltered(final OnSessionsFoundListener onSessionsFoundListener, final TreeMap<Integer,String> nearSessions,final HashMap<String,Boolean> weekdayHashMap) {
 
         final ArrayList<Session> sessions = new ArrayList<Session>();
 
-        for (Integer str : nearSessions.keySet()) {
+
+
+        for (final Integer str : nearSessions.keySet()) {
 
             dbRef.child("sessions").child(nearSessions.get(str)).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Session session;
                     session = dataSnapshot.getValue(Session.class);
-                    sessions.add(session);
+
+                    if (weekdayHashMap.get(session.textDay(session.sessionDate))) {
+                        sessions.add(session);
+                    } else {
+                        nearSessions.remove(str);
+                    }
+
                     if (sessions.size() == nearSessions.size()) {
                         onSessionsFoundListener.OnSessionsFound(sessions);
                     }
@@ -65,6 +74,7 @@ public class MyFirebaseDatabase {
             });
         }
     }
+
 
 
     public void getUser(final OnUserFoundListener onUserFoundListener){
