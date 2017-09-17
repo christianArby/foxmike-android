@@ -5,98 +5,17 @@
     android:layout_height="match_parent"
     tools:context="com.example.chris.kungsbrostrand.ListSessionsActivity">
 
-
-    <LinearLayout
-        android:id="@+id/weekday_bar"
+    <fragment android:name="com.example.chris.kungsbrostrand.WeekdayFilterFragment"
+        android:id="@+id/insertedFragment"
+        android:tag="weekdayFragment"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ToggleButton
-            android:id="@+id/toggleButton1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton6"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton7"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/background_light"
-            android:fontFamily="sans-serif"
-            android:text="ToggleButton"
-            android:textAllCaps="false"
-            android:textColor="@color/toggle_color" />
-
-    </LinearLayout>
-
-
+        android:layout_height="wrap_content" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/session_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/weekday_bar"
+        android:layout_below="@+id/insertedFragment"
         android:layout_alignParentStart="true"></android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

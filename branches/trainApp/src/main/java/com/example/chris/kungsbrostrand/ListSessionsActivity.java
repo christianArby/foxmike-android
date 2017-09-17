@@ -1,5 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
+
+import android.support.v4.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -7,6 +9,8 @@ import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,6 +61,12 @@ public class ListSessionsActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
     private RecyclerView mSessionList;
 
     private RecyclerView.Adapter adapter;
@@ -71,21 +81,26 @@ public class ListSessionsActivity extends AppCompatActivity {
 
     TreeMap<Integer,String> nearSessions;
 
-    HashMap<String,Boolean> weekdayHashMap;
+    public HashMap<String,Boolean> weekdayHashMap;
 
-    ToggleButton toggleButton1;
-    ToggleButton toggleButton2;
-    ToggleButton toggleButton3;
-    ToggleButton toggleButton4;
-    ToggleButton toggleButton5;
-    ToggleButton toggleButton6;
-    ToggleButton toggleButton7;
+
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_sessions);
+
+
+
+
+        FragmentManager fragMgr = getSupportFragmentManager();
+        FragmentTransaction xact = fragMgr.beginTransaction();
+        if (null == fragMgr.findFragmentByTag("weekdayFragment")) {
+            xact.add(R.id.insertedFragment, WeekdayFilterFragment.newInstance(), "weekdayFragment").commit();
+        }
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -107,144 +122,9 @@ public class ListSessionsActivity extends AppCompatActivity {
         }
 
 
-        toggleButton1 = (ToggleButton) findViewById(R.id.toggleButton1);
-        toggleButton1.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton1.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton1.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton1.setChecked(true);
-        toggleButton2 = (ToggleButton) findViewById(R.id.toggleButton2);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton2.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton2.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton2.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton2.setChecked(true);
-        toggleButton3 = (ToggleButton) findViewById(R.id.toggleButton3);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton3.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton3.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton3.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton3.setChecked(true);
-        toggleButton4 = (ToggleButton) findViewById(R.id.toggleButton4);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton4.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton4.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton4.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton4.setChecked(true);
-        toggleButton5 = (ToggleButton) findViewById(R.id.toggleButton5);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton5.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton5.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton5.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton5.setChecked(true);
-        toggleButton6 = (ToggleButton) findViewById(R.id.toggleButton6);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton6.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton6.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton6.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton6.setChecked(true);
-        toggleButton7 = (ToggleButton) findViewById(R.id.toggleButton7);
-        todaysSessionDate.day = todaysSessionDate.day +1;
-        toggleButton7.setText(dummySession.textDay(todaysSessionDate));
-        toggleButton7.setTextOn(dummySession.textDay(todaysSessionDate));
-        toggleButton7.setTextOff(dummySession.textDay(todaysSessionDate));
-        toggleButton7.setChecked(true);
-
-        toggleButton1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                  weekdayHashMap.put(toggleButton1.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton1.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton2.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton2.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton3.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton3.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton4.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton4.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton5.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton5.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton6.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton6.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton6.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-        toggleButton7.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    weekdayHashMap.put(toggleButton7.getText().toString(),true);
-                } else {
-                    weekdayHashMap.put(toggleButton7.getText().toString(),false);
-                }
-                filterSessions();
-            }
-        });
-
-
-
-
-
-
         //todaysSessionDate = new SessionDate(cal);
 
         //weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
-
-
-
-
 
         mSessionList = (RecyclerView) findViewById(R.id.session_list);
         mSessionList.setHasFixedSize(true);
