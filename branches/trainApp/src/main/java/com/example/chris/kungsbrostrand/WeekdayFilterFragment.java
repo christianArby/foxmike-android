@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,7 +11,21 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 
 /**
@@ -29,6 +44,12 @@ public class WeekdayFilterFragment extends Fragment {
 
     public ListSessionsActivity listSessionsActivity;
 
+    public interface OnSessionsFilteredListener {
+
+        public void OnSessionsFiltered(ArrayList<Session> sessions, Location location);
+    }
+
+    DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
     ToggleButton toggleButton1;
     ToggleButton toggleButton2;
@@ -38,12 +59,24 @@ public class WeekdayFilterFragment extends Fragment {
     ToggleButton toggleButton6;
     ToggleButton toggleButton7;
 
+    public HashMap<String,Boolean> weekdayHashMap;
+
+    private FusedLocationProviderClient mFusedLocationClient;
+
+    private Location currentLocation;
+
+    GeoFire geoFire;
+
+    TreeMap<Integer,String> nearSessions;
+
     View inflatedView;
 
-    // TODO: Rename and change types of parameters
+    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    ArrayList<Session> sessionsClose = new ArrayList<Session>();
 
 
-    private OnFragmentInteractionListener mListener;
+
+    private OnSessionsFilteredListener mListener;
 
     public WeekdayFilterFragment() {
         // Required empty public constructor
@@ -70,29 +103,29 @@ public class WeekdayFilterFragment extends Fragment {
         if (getArguments() != null) {
 
         }
-
-
-
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        this.inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
-
-        listSessionsActivity = (ListSessionsActivity) getActivity();
 
 
+        weekdayHashMap = new HashMap<String,Boolean>();
 
         Session dummySession = new Session();
         Calendar cal = Calendar.getInstance();
 
         SessionDate todaysSessionDate = new SessionDate(cal);
 
+        for(int i=1; i<8; i++){
+            weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
+            todaysSessionDate.day = todaysSessionDate.day +1;
+        }
 
+        this.inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
+
+        listSessionsActivity = (ListSessionsActivity) getActivity();
 
         toggleButton1 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton1);
         toggleButton1.setText(dummySession.textDay(todaysSessionDate));
@@ -140,11 +173,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton1.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton1.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton1.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton1.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -152,11 +185,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton2.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton2.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton2.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton2.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -164,11 +197,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton3.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton3.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton3.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton3.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -176,11 +209,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton4.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton4.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton4.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton4.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -188,11 +221,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton5.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton5.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton5.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton5.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -200,11 +233,11 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton6.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton6.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton6.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton6.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
@@ -212,49 +245,113 @@ public class WeekdayFilterFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton7.getText().toString(),true);
+                    weekdayHashMap.put(toggleButton7.getText().toString(),true);
                 } else {
-                    listSessionsActivity.weekdayHashMap.put(toggleButton7.getText().toString(),false);
+                    weekdayHashMap.put(toggleButton7.getText().toString(),false);
                 }
-                listSessionsActivity.filterSessions();
+                filterSessions();
             }
         });
 
-
-
-
+        filterSessions();
 
         // Inflate the layout for this fragment
         return inflatedView;
 
+    }
 
+    public void filterSessions() {
 
+        geoFire = new GeoFire(mGeofireDbRef);
+        nearSessions = new TreeMap<Integer,String>();
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(final Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            currentLocation = location;
+                            // ...
+
+                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), 3000);
+
+                            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                                @Override
+                                public void onKeyEntered(String key, GeoLocation location) {
+                                    //Any location key which is within 3000km from the user's location will show up here as the key parameter in this method
+                                    //You can fetch the actual data for this location by creating another firebase query here
+
+                                    String distString = listSessionsActivity.getDistance(location.latitude,location.longitude, currentLocation);
+                                    Integer dist = Integer.parseInt(distString);
+                                    nearSessions.put(dist,key);
+                                }
+
+                                @Override
+                                public void onKeyExited(String key) {}
+
+                                @Override
+                                public void onKeyMoved(String key, GeoLocation location) {}
+
+                                @Override
+                                public void onGeoQueryReady() {
+
+                                    final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+                                    HashMap<String,Boolean> sessionsCloseHash;
+                                    sessionsCloseHash = new HashMap<String,Boolean>();
+
+                                    for (Integer str : nearSessions.keySet()) {
+                                        sessionsCloseHash.put(nearSessions.get(str),true);
+                                    }
+
+                                    myFirebaseDatabase.getSessionsFiltered(new OnSessionsFoundListener() {
+                                        @Override
+                                        public void OnSessionsFound(ArrayList<Session> sessions) {
+                                            sessionsClose = sessions;
+
+                                            mListener.OnSessionsFiltered(sessions,location);
+
+                                        }
+                                    },nearSessions, weekdayHashMap);
+                                }
+
+                                @Override
+                                public void onGeoQueryError(DatabaseError error) {
+
+                                }
+                            });
+                        }
+                    }
+                });
 
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    /*public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    /*@Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
         }
     }*/
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnSessionsFilteredListener) {
+            mListener = (OnSessionsFilteredListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    /*@Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
+    }*/
 
     /**
      * This interface must be implemented by activities that contain this

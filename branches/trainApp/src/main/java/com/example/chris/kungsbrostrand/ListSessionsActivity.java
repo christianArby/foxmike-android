@@ -53,48 +53,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ListSessionsActivity extends AppCompatActivity {
-
-    DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    ArrayList<Session> sessionsClose = new ArrayList<Session>();
-
-
-
-
-
-
-
-
+public class ListSessionsActivity extends AppCompatActivity implements WeekdayFilterFragment.OnSessionsFilteredListener{
 
     private RecyclerView mSessionList;
 
     private RecyclerView.Adapter adapter;
 
-    private DatabaseReference mDatabase;
-
     private FusedLocationProviderClient mFusedLocationClient;
 
     private Location currentLocation;
-
-    GeoFire geoFire;
-
-    TreeMap<Integer,String> nearSessions;
-
-    public HashMap<String,Boolean> weekdayHashMap;
-
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_sessions);
-
-
-
 
         FragmentManager fragMgr = getSupportFragmentManager();
         FragmentTransaction xact = fragMgr.beginTransaction();
@@ -102,37 +74,14 @@ public class ListSessionsActivity extends AppCompatActivity {
             xact.add(R.id.insertedFragment, WeekdayFilterFragment.newInstance(), "weekdayFragment").commit();
         }
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-
-        //Weekday filter
-
-
-
-        weekdayHashMap = new HashMap<String,Boolean>();
-
-        Session dummySession = new Session();
-        Calendar cal = Calendar.getInstance();
-
-        SessionDate todaysSessionDate = new SessionDate(cal);
-
-        for(int i=1; i<8; i++){
-            weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
-            todaysSessionDate.day = todaysSessionDate.day +1;
-        }
-
-
-        //todaysSessionDate = new SessionDate(cal);
-
-        //weekdayHashMap.put(dummySession.textDay(todaysSessionDate), true);
+        WeekdayFilterFragment weekdayFilterFragment = (WeekdayFilterFragment) fragMgr.findFragmentByTag("weekdayFragment");
 
         mSessionList = (RecyclerView) findViewById(R.id.session_list);
         mSessionList.setHasFixedSize(true);
         mSessionList.setLayoutManager(new LinearLayoutManager(this));
 
-        filterSessions();
-
     }
+
 
     @Override
     protected void onStart() {
@@ -140,75 +89,13 @@ public class ListSessionsActivity extends AppCompatActivity {
 
     }
 
-    public void filterSessions() {
-
-        geoFire = new GeoFire(mGeofireDbRef);
-        nearSessions = new TreeMap<Integer,String>();
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-
-                            currentLocation = location;
-                            // ...
-
-                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), 3000);
-
-                            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                                @Override
-                                public void onKeyEntered(String key, GeoLocation location) {
-                                    //Any location key which is within 3000km from the user's location will show up here as the key parameter in this method
-                                    //You can fetch the actual data for this location by creating another firebase query here
-
-                                    String distString = getDistance(location.latitude,location.longitude);
-                                    Integer dist = Integer.parseInt(distString);
-                                    nearSessions.put(dist,key);
-                                }
-
-                                @Override
-                                public void onKeyExited(String key) {}
-
-                                @Override
-                                public void onKeyMoved(String key, GeoLocation location) {}
-
-                                @Override
-                                public void onGeoQueryReady() {
-
-                                    final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-                                    HashMap<String,Boolean> sessionsCloseHash;
-                                    sessionsCloseHash = new HashMap<String,Boolean>();
-
-                                    for (Integer str : nearSessions.keySet()) {
-                                        sessionsCloseHash.put(nearSessions.get(str),true);
-                                    }
-
-                                    myFirebaseDatabase.getSessionsFiltered(new OnSessionsFoundListener() {
-                                        @Override
-                                        public void OnSessionsFound(ArrayList<Session> sessions) {
-                                            sessionsClose = sessions;
-
-                                            adapter = new sessionsAdapter(sessionsClose, ListSessionsActivity.this);
-
-                                            mSessionList.setAdapter(adapter);
-                                        }
-                                    },nearSessions, weekdayHashMap);
-                                }
-
-                                @Override
-                                public void onGeoQueryError(DatabaseError error) {
-
-                                }
-                            });
-                        }
-                    }
-                });
-
+    @Override
+    public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+        adapter = new ListSessionsActivity.sessionsAdapter(sessions, ListSessionsActivity.this);
+        mSessionList.setAdapter(adapter);
+        currentLocation =location;
     }
+
 
     public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.SessionViewHolder>{
 
@@ -231,7 +118,7 @@ public class ListSessionsActivity extends AppCompatActivity {
             Session session = sessions.get(position);
 
             final LatLng sessionLatLng = new LatLng(session.latitude,session.longitude);
-            String address = getAddress(session.latitude,session.longitude)+"  |  "+getDistance(session.latitude,session.longitude)+" m";
+            String address = getAddress(session.latitude,session.longitude)+"  |  "+getDistance(session.latitude,session.longitude, currentLocation)+" m";
             holder.setTitle(session.getSessionName());
             holder.setDesc(session.getSessionType());
             holder.setAddress(address);
@@ -292,9 +179,6 @@ public class ListSessionsActivity extends AppCompatActivity {
                 session_image.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
             }
 
-
-
-
         }
 
     }
@@ -333,21 +217,16 @@ public class ListSessionsActivity extends AppCompatActivity {
                 returnAddress = "Unknown area";
             }
 
-
-
-
         } catch (IOException ex) {
 
             returnAddress = "failed";
-
     }
 
     return returnAddress;
 
-
     }
 
-    public String getDistance(double latitude, double longitude){
+    public String getDistance(double latitude, double longitude, Location currentLocation){
 
         Location locationA = new Location("point A");
 
