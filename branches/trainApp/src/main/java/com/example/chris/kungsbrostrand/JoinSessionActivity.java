@@ -84,10 +84,6 @@ public class JoinSessionActivity extends AppCompatActivity {
                             mMarkerDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
                             countParticipants();
-
-                            Intent mainIntent = new Intent(JoinSessionActivity.this, MapsActivity.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(mainIntent);
                         }
 
                         else {

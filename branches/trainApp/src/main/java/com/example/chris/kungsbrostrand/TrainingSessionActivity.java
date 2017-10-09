@@ -314,9 +314,6 @@ public class TrainingSessionActivity extends AppCompatActivity {
                         geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                        Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
-                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(mainIntent);
 
                     }   else    {
                         Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
@@ -337,9 +334,6 @@ public class TrainingSessionActivity extends AppCompatActivity {
                     geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                    Intent mainIntent = new Intent(TrainingSessionActivity.this, MapsActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
 
                 }   else    {
                     Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();

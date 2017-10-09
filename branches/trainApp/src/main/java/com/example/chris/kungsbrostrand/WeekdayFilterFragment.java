@@ -27,30 +27,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link WeekdayFilterFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link WeekdayFilterFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class WeekdayFilterFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    public ListSessionsActivity listSessionsActivity;
-
-    public interface OnSessionsFilteredListener {
-
-        public void OnSessionsFiltered(ArrayList<Session> sessions, Location location);
+    public WeekdayFilterFragment() {
+        // Required empty public constructor
     }
-
     DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
-
     ToggleButton toggleButton1;
     ToggleButton toggleButton2;
     ToggleButton toggleButton3;
@@ -58,37 +40,15 @@ public class WeekdayFilterFragment extends Fragment {
     ToggleButton toggleButton5;
     ToggleButton toggleButton6;
     ToggleButton toggleButton7;
-
     public HashMap<String,Boolean> weekdayHashMap;
-
     private FusedLocationProviderClient mFusedLocationClient;
-
     private Location currentLocation;
-
     GeoFire geoFire;
-
     TreeMap<Integer,String> nearSessions;
-
     View inflatedView;
-
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     ArrayList<Session> sessionsClose = new ArrayList<Session>();
+    private OnSessionsFilteredListener onSessionsFilteredListener;
 
-
-
-    private OnSessionsFilteredListener mListener;
-
-    public WeekdayFilterFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment WeekdayFilterFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static WeekdayFilterFragment newInstance() {
         WeekdayFilterFragment fragment = new WeekdayFilterFragment();
         Bundle args = new Bundle();
@@ -109,13 +69,9 @@ public class WeekdayFilterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
-
         weekdayHashMap = new HashMap<String,Boolean>();
-
         Session dummySession = new Session();
         Calendar cal = Calendar.getInstance();
-
         SessionDate todaysSessionDate = new SessionDate(cal);
 
         for(int i=1; i<8; i++){
@@ -124,8 +80,6 @@ public class WeekdayFilterFragment extends Fragment {
         }
 
         this.inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
-
-        listSessionsActivity = (ListSessionsActivity) getActivity();
 
         toggleButton1 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton1);
         toggleButton1.setText(dummySession.textDay(todaysSessionDate));
@@ -254,7 +208,6 @@ public class WeekdayFilterFragment extends Fragment {
         });
 
         filterSessions();
-
         // Inflate the layout for this fragment
         return inflatedView;
 
@@ -264,9 +217,7 @@ public class WeekdayFilterFragment extends Fragment {
 
         geoFire = new GeoFire(mGeofireDbRef);
         nearSessions = new TreeMap<Integer,String>();
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                     @Override
@@ -285,7 +236,7 @@ public class WeekdayFilterFragment extends Fragment {
                                     //Any location key which is within 3000km from the user's location will show up here as the key parameter in this method
                                     //You can fetch the actual data for this location by creating another firebase query here
 
-                                    String distString = listSessionsActivity.getDistance(location.latitude,location.longitude, currentLocation);
+                                    String distString = getDistance(location.latitude,location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
                                     nearSessions.put(dist,key);
                                 }
@@ -312,59 +263,48 @@ public class WeekdayFilterFragment extends Fragment {
                                         public void OnSessionsFound(ArrayList<Session> sessions) {
                                             sessionsClose = sessions;
 
-                                            mListener.OnSessionsFiltered(sessions,location);
+                                            onSessionsFilteredListener.OnSessionsFiltered(sessions,location);
 
                                         }
                                     },nearSessions, weekdayHashMap);
                                 }
-
                                 @Override
                                 public void onGeoQueryError(DatabaseError error) {
-
                                 }
                             });
                         }
                     }
                 });
-
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    /*public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }*/
+    public String getDistance(double latitude, double longitude, Location currentLocation){
+
+        Location locationA = new Location("point A");
+        locationA.setLatitude(currentLocation.getLatitude());
+        locationA.setLongitude(currentLocation.getLongitude());
+        Location locationB = new Location("point B");
+        locationB.setLatitude(latitude);
+        locationB.setLongitude(longitude);
+        float distance = locationA.distanceTo(locationB);
+        float b = (float)Math.round(distance);
+        String distanceString = Float.toString(b).replaceAll("\\.?0*$", "");
+        return  distanceString;
+
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnSessionsFilteredListener) {
-            mListener = (OnSessionsFilteredListener) context;
+            onSessionsFilteredListener = (OnSessionsFilteredListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
 
-    /*@Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }*/
+    public interface OnSessionsFilteredListener {
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void OnSessionsFiltered(ArrayList<Session> sessions, Location location);
     }
 }

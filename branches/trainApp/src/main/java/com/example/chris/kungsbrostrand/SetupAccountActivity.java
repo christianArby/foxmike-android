@@ -104,7 +104,7 @@ public class SetupAccountActivity extends AppCompatActivity {
 
                     mProgress.dismiss();
 
-                    Intent mainIntent = new Intent(SetupAccountActivity.this,MapsActivity.class);
+                    Intent mainIntent = new Intent(SetupAccountActivity.this,MainActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(mainIntent);
 

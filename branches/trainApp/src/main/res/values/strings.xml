@@ -5,6 +5,7 @@
     <string name="title_activity_user_activity">Your page</string>
     <string name="title_activity_training_session">Session</string>
     <string name="title_activity_join_session">Join session</string>
+    <string name="list">List</string>
 
     <string-array name="sessionType_array">
                

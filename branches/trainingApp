@@ -37,6 +37,10 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_list_sessions.xml" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_maps.xml" />
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
@@ -47,6 +51,19 @@
     <option name="myConfigurationMap">
       <map>
         <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://svn.riouxsvn.com/kungsbrostrand/branches" />
+                  <option value="https://svn.riouxsvn.com/kungsbrostrand/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://svn.riouxsvn.com/kungsbrostrand/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app">
           <value>
             <SvnBranchConfiguration>
               <option name="branchUrls">

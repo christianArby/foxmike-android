@@ -45,7 +45,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -78,18 +78,21 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".TrainingSessionActivity"
-            android:label="@string/title_activity_training_session"/>
-        <activity android:name=".JoinSessionActivity"
-            android:label="@string/title_activity_join_session"/>
-        <activity android:name=".UserActivity"
-            android:label="@string/title_activity_user_activity"/>
+        <activity
+            android:name=".TrainingSessionActivity"
+            android:label="@string/title_activity_training_session" />
+        <activity
+            android:name=".JoinSessionActivity"
+            android:label="@string/title_activity_join_session" />
+        <activity
+            android:name=".UserActivity"
+            android:label="@string/title_activity_user_activity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SetupAccountActivity" />
-        <activity android:name=".ListSessionsActivity"
-            android:label="@string/title_activity_list_sessions"
-            ></activity>
+        <activity
+            android:name=".ListSessionsActivity"
+            android:label="@string/title_activity_list_sessions" />
     </application>
 
 </manifest>

@@ -146,6 +146,7 @@
     <orderEntry type="library" exported="" name="constraint-layout-1.0.0-alpha4" level="project" />
     <orderEntry type="library" exported="" name="firebase-auth-11.2.0" level="project" />
     <orderEntry type="library" exported="" name="gifdecoder-4.0.0" level="project" />
+    <orderEntry type="library" exported="" name="transition-26.0.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="jsr305-2.0.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="runner-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-11.2.0" level="project" />
@@ -168,5 +169,6 @@
     <orderEntry type="library" exported="" scope="TEST" name="junit-4.12" level="project" />
     <orderEntry type="library" exported="" name="geofire-android-2.1.1" level="project" />
     <orderEntry type="library" exported="" name="firebase-analytics-impl-11.2.0" level="project" />
+    <orderEntry type="library" exported="" name="design-26.0.1" level="project" />
   </component>
 </module>
