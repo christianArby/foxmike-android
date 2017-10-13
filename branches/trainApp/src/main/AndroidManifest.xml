@@ -84,15 +84,10 @@
         <activity
             android:name=".JoinSessionActivity"
             android:label="@string/title_activity_join_session" />
-        <activity
-            android:name=".UserActivity"
-            android:label="@string/title_activity_user_activity" />
-        <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity"
+            android:label="@string/title_activity_register"/>
         <activity android:name=".SetupAccountActivity" />
-        <activity
-            android:name=".ListSessionsActivity"
-            android:label="@string/title_activity_list_sessions" />
     </application>
 
 </manifest>

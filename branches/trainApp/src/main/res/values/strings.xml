@@ -1,11 +1,13 @@
 <resources>
-    <string name="app_name">kungsbroStrand</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_list_sessions">Sessions</string>
+    <string name="app_name">SportsApp</string>
+    <string name="title_activity_maps">SportsApp</string>
     <string name="title_activity_user_activity">Your page</string>
-    <string name="title_activity_training_session">Session</string>
+    <string name="title_activity_training_session">Create session</string>
+    <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Join session</string>
-    <string name="list">List</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_list">Sessions</string>
+    <string name="menu_profile">Profile</string>
 
     <string-array name="sessionType_array">
                

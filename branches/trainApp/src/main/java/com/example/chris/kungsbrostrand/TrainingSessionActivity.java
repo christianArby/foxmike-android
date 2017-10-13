@@ -314,6 +314,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
                         geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
+                        Intent setupIntent = new Intent(TrainingSessionActivity.this,MainActivity.class);
+                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(setupIntent);
 
                     }   else    {
                         Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
@@ -333,6 +336,10 @@ public class TrainingSessionActivity extends AppCompatActivity {
                     mMarkerDbRef.child(mSessionId).setValue(session);
                     geoFire.setLocation(mSessionId, new GeoLocation(session.latitude, session.longitude));
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+
+                    Intent setupIntent = new Intent(TrainingSessionActivity.this,MainActivity.class);
+                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(setupIntent);
 
 
                 }   else    {
