@@ -12,6 +12,7 @@ public class Session {
     public String sessionType;
     public String level;
     public String maxParticipants;
+    public String description;
     public double latitude;
     public double longitude;
     public String time;
@@ -23,7 +24,7 @@ public class Session {
     public HashMap<String,Boolean> participants;
     public String imageUri;
 
-    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri) {
+    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String description) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -36,6 +37,7 @@ public class Session {
         this.countParticipants = countParticipants;
         this.participants = participants;
         this.imageUri = imageUri;
+        this.description = description;
     }
 
     public String textMonth(SessionDate sessionDate) {
@@ -56,6 +58,14 @@ public class Session {
 
     //required empty constructor
     public Session() {
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getHost() {

@@ -37,6 +37,7 @@ import android.widget.EditText;
 
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
     EditText mTime;
     EditText mLevel;
     EditText mMaxParticipants;
+    EditText mDescription;
     private Button mCreateSessionBtn;
     Calendar myCalendar = Calendar.getInstance();
     ListView lv;
@@ -79,6 +81,8 @@ public class TrainingSessionActivity extends AppCompatActivity {
     String mSessionId;
     Session existingSession;
     GeoFire geoFire;
+    LinearLayout createSessionContainer;
+    private View createSession;
 
 
 
@@ -87,22 +91,31 @@ public class TrainingSessionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_session);
-        mDate = (EditText)findViewById(R.id.dateET);
-        mSessionName = (EditText) findViewById(R.id.sessionNameET);
-        mSessionType = (EditText) findViewById(R.id.sessionTypeET);
-        mTime = (EditText) findViewById(R.id.timeET);
-        mLevel = (EditText) findViewById(R.id.levelET);
-        mMaxParticipants = (EditText) findViewById(R.id.maxParticipantsET);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
+
+        createSessionContainer = (LinearLayout) findViewById(R.id.create_session_container);
+        // Set create session layout
+        createSession = inflater.inflate(R.layout.create_session,createSessionContainer,false);
+
+        mDate = (EditText)createSession.findViewById(R.id.dateET);
+        mSessionName = (EditText) createSession.findViewById(R.id.sessionNameET);
+        mSessionType = (EditText) createSession.findViewById(R.id.sessionTypeET);
+        mTime = (EditText) createSession.findViewById(R.id.timeET);
+        mLevel = (EditText) createSession.findViewById(R.id.levelET);
+        mMaxParticipants = (EditText) createSession.findViewById(R.id.maxParticipantsET);
+        mDescription = (EditText) createSession.findViewById(R.id.descriptionET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(this);
-        mCreateSessionBtn =(Button) findViewById(R.id.createSessionBtn);
-        mSessionImageButton = (ImageButton) findViewById(R.id.sessionImageBtn);
+        mCreateSessionBtn =(Button) createSession.findViewById(R.id.createSessionBtn);
+        mSessionImageButton = (ImageButton) createSession.findViewById(R.id.sessionImageBtn);
+
+        createSessionContainer.addView(createSession);
 
         geoFire = new GeoFire(mGeofireDbRef);
 
         mUserDbRef.keepSynced(true);
         mMarkerDbRef.keepSynced(true);
-
 
         sessionIdBundle = getIntent().getExtras();
         existingSessionID = "new";
@@ -141,6 +154,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                         mLevel.setText(existingSession.level);
                         mMaxParticipants.setText(existingSession.maxParticipants);
+                        mDescription.setText(existingSession.description);
 
                         mCreateSessionBtn.setText("Update session");
 
@@ -188,6 +202,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 session.sessionDate = mSessionDate;
                 session.level = mLevel.getText().toString();
                 session.maxParticipants = mMaxParticipants.getText().toString();
+                session.description = mDescription.getEditableText().toString();
                 session.countParticipants = 0;
                 session.longitude = clickedLatLng.longitude;
                 session.latitude = clickedLatLng.latitude;

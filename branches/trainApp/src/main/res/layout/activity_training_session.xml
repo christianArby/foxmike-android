@@ -6,112 +6,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/sessionNameET"
+    <ScrollView
+        android:id="@+id/scrollview_create_sessopm"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center_vertical"
-        android:hint="Session name"
-        android:inputType="textCapSentences|textPersonName"
-        android:textSize="14sp" />
+        android:layout_height="match_parent">
 
-    <ImageButton
-        android:id="@+id/sessionImageBtn"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/background"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/create_session_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
 
-    <EditText
-        android:id="@+id/sessionTypeET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Session type"
-        android:inputType="textCapSentences|textPersonName"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-
-    <EditText
-        android:id="@+id/dateET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Date"
-        android:inputType="textPersonName"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-
-    <EditText
-        android:id="@+id/timeET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Time"
-        android:inputType="textPersonName"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-    <EditText
-        android:id="@+id/levelET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Level"
-        android:inputType="textPersonName"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-    <EditText
-        android:id="@+id/maxParticipantsET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Maximum participants"
-        android:inputType="number"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-
-    <Button
-        android:id="@+id/createSessionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:background="#263238"
-        android:text="Create session"
-        android:textColor="@android:color/white" />
+    </ScrollView>
 
 
 </LinearLayout>

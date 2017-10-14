@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,10 +38,13 @@ public class JoinSessionActivity extends AppCompatActivity {
     Button mJoinSessionBtn;
     ImageView mHostImage;
     TextView mHost;
+    TextView mDescription;
     String sessionID;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     Long participantsCount;
     String test;
+    LinearLayout joinSessionContainer;
+    View joinSession;
     int sessionHost;
 
     @Override
@@ -47,18 +52,27 @@ public class JoinSessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_session);
 
-        mDay = (TextView) findViewById(R.id.dayTW);
-        mMonth = (TextView) findViewById(R.id.monthTW);
-        mSessionType = (TextView) findViewById(R.id.sessionTypeTW);
-        mLevel = (TextView) findViewById(R.id.levelTW);
-        mParticipants = (TextView) findViewById(R.id.participantsTW);
-        mHostImage = (ImageView) findViewById(R.id.JoinSessionHostImage);
-        mHost = (TextView) findViewById(R.id.hostName);
-        mSessionName = (TextView) findViewById(R.id.sessionName);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
+
+        joinSessionContainer = (LinearLayout) findViewById(R.id.join_session_container);
+        // Set create session layout
+        joinSession = inflater.inflate(R.layout.join_session,joinSessionContainer,false);
+
+        mDay = (TextView) joinSession.findViewById(R.id.dayTW);
+        mMonth = (TextView) joinSession.findViewById(R.id.monthTW);
+        mSessionType = (TextView) joinSession.findViewById(R.id.sessionTypeTW);
+        mLevel = (TextView) joinSession.findViewById(R.id.levelTW);
+        mParticipants = (TextView) joinSession.findViewById(R.id.participantsTW);
+        mHostImage = (ImageView) joinSession.findViewById(R.id.JoinSessionHostImage);
+        mHost = (TextView) joinSession.findViewById(R.id.hostName);
+        mSessionName = (TextView) joinSession.findViewById(R.id.sessionName);
+        mDescription = (TextView) joinSession.findViewById(R.id.descriptionTW);
         LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
         findSession(markerLatLng.latitude, markerLatLng.longitude);
 
-        mJoinSessionBtn = (Button) findViewById(R.id.joinSessionBtn);
+        mJoinSessionBtn = (Button) joinSession.findViewById(R.id.joinSessionBtn);
+
+        joinSessionContainer.addView(joinSession);
 
         mJoinSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +168,7 @@ public class JoinSessionActivity extends AppCompatActivity {
                     mParticipants.setText("Participants: " + markerResult.countParticipants +"/" + markerResult.maxParticipants);
                     sessionID = dataSnapshot.getRef().getKey();
                     mSessionName.setText(markerResult.sessionName);
+                    mDescription.setText(markerResult.description);
 
 
                     mUserDbRef.child(markerResult.host).addListenerForSingleValueEvent(new ValueEventListener() {
