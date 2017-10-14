@@ -97,9 +97,11 @@ public class ListSessionsFragment extends Fragment {
             Session session = sessions.get(position);
 
             final LatLng sessionLatLng = new LatLng(session.latitude,session.longitude);
-            String address = getAddress(session.latitude,session.longitude)+"  |  "+getDistance(session.latitude,session.longitude, currentLocation)+" m";
+            String address = getAddress(session.latitude,session.longitude)+"  |  "+getDistance(session.latitude,session.longitude, currentLocation);
             holder.setTitle(session.getSessionName());
             holder.setDesc(session.getSessionType());
+            String sessionTime = String.format("%02d:%02d", session.sessionDate.hour, session.sessionDate.minute);
+            holder.setDateAndTime(session.textFullDay(session.sessionDate) + " " + session.sessionDate.day + " " + session.textMonth(session.sessionDate) + " " + sessionTime);
             holder.setAddress(address);
             holder.setImage(getActivity(),session.getImageUri());
 
@@ -147,6 +149,13 @@ public class ListSessionsFragment extends Fragment {
 
                 TextView session_desc = (TextView) mView.findViewById(R.id.session_desc);
                 session_desc.setText(desc);
+
+            }
+
+            public void setDateAndTime(String dateAndTime){
+
+                TextView sessionDateAndTime = (TextView) mView.findViewById(R.id.session_date_and_time);
+                sessionDateAndTime.setText(dateAndTime);
 
             }
 
@@ -218,11 +227,14 @@ public class ListSessionsFragment extends Fragment {
         float distance = locationA.distanceTo(locationB);
 
         float b = (float)Math.round(distance);
+        String distanceString = Float.toString(b).replaceAll("\\.?0*$", "") + " m";
 
-        String distanceString = Float.toString(b).replaceAll("\\.?0*$", "");
+        if (b>1000) {
+            b=b/1000;
+            distanceString = String.format("%.1f", b) + " km";
+        }
 
         return  distanceString;
 
     }
-
 }

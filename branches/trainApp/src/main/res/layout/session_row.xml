@@ -57,6 +57,18 @@
             android:text="desc goes here"
             android:textColor="#fff" />
 
+        <TextView
+            android:id="@+id/session_date_and_time"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="right"
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="date goes here"
+            android:textColor="#fff" />
+
 
     </FrameLayout>
 

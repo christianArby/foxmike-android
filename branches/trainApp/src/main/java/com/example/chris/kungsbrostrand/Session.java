@@ -56,6 +56,14 @@ public class Session {
         return dayName;
     }
 
+    public String textFullDay(SessionDate sessionDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
+        SimpleDateFormat textDay = new SimpleDateFormat("EEEE");
+        String dayName = textDay.format(cal.getTime());
+        return dayName;
+    }
+
     //required empty constructor
     public Session() {
     }
