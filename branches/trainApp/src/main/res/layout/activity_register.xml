@@ -57,7 +57,9 @@
         android:text="Sign up"
         android:layout_marginTop="10dp"
         android:layout_below="@+id/passwordField"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:background="#263238"
+        android:textColor="@android:color/white"/>
 
 
 </RelativeLayout>

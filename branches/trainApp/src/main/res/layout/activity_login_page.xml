@@ -36,5 +36,7 @@
         android:layout_below="@+id/passwordField"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="21dp"
-        android:text="Login" />
+        android:text="Login"
+        android:background="#263238"
+        android:textColor="@android:color/white"/>
 </RelativeLayout>

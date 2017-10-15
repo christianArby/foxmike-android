@@ -1,6 +1,9 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,21 +27,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class JoinSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
 
-    TextView mDay;
-    TextView mMonth;
-    TextView mSessionType;
-    TextView mLevel;
+    TextView mDateAndTime;
     TextView mParticipants;
     TextView mSessionName;
     Button mJoinSessionBtn;
     ImageView mHostImage;
     TextView mHost;
     TextView mDescription;
+    TextView mAddressAndSessionType;
     String sessionID;
     FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     Long participantsCount;
@@ -58,15 +65,13 @@ public class JoinSessionActivity extends AppCompatActivity {
         // Set create session layout
         joinSession = inflater.inflate(R.layout.join_session,joinSessionContainer,false);
 
-        mDay = (TextView) joinSession.findViewById(R.id.dayTW);
-        mMonth = (TextView) joinSession.findViewById(R.id.monthTW);
-        mSessionType = (TextView) joinSession.findViewById(R.id.sessionTypeTW);
-        mLevel = (TextView) joinSession.findViewById(R.id.levelTW);
+        mDateAndTime = (TextView) joinSession.findViewById(R.id.dateAndTimeTW);
         mParticipants = (TextView) joinSession.findViewById(R.id.participantsTW);
         mHostImage = (ImageView) joinSession.findViewById(R.id.JoinSessionHostImage);
         mHost = (TextView) joinSession.findViewById(R.id.hostName);
         mSessionName = (TextView) joinSession.findViewById(R.id.sessionName);
         mDescription = (TextView) joinSession.findViewById(R.id.descriptionTW);
+        mAddressAndSessionType = (TextView) joinSession.findViewById(R.id.addressAndSessionTypeTW);
         LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
         findSession(markerLatLng.latitude, markerLatLng.longitude);
 
@@ -98,6 +103,8 @@ public class JoinSessionActivity extends AppCompatActivity {
                             mMarkerDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
                             countParticipants();
+                            Intent mainIntent = new Intent(JoinSessionActivity.this, MainActivity.class);
+                            startActivity(mainIntent);
                         }
 
                         else {
@@ -158,27 +165,28 @@ public class JoinSessionActivity extends AppCompatActivity {
         mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Session markerResult = dataSnapshot.getValue(Session.class);
-                if(markerResult.longitude==longitude) {
-                    String monthName = markerResult.textMonth(markerResult.sessionDate);
-                    mDay.setText(String.valueOf(markerResult.sessionDate.day));
-                    mMonth.setText(monthName);
-                    mSessionType.setText(markerResult.sessionType);
-                    mLevel.setText("Level: " + markerResult.level);
-                    mParticipants.setText("Participants: " + markerResult.countParticipants +"/" + markerResult.maxParticipants);
+                Session session = dataSnapshot.getValue(Session.class);
+                if(session.longitude==longitude) {
+                    String sessionTime = String.format("%02d:%02d", session.sessionDate.hour, session.sessionDate.minute);
+                    String sessionDateAndTime = session.textFullDay(session.sessionDate) + " " + session.sessionDate.day + " " + session.textMonth(session.sessionDate) + " " + sessionTime;
+                    sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
+                    mDateAndTime.setText(sessionDateAndTime);
+                    mParticipants.setText("Participants: " + session.countParticipants +"/" + session.maxParticipants);
                     sessionID = dataSnapshot.getRef().getKey();
-                    mSessionName.setText(markerResult.sessionName);
-                    mDescription.setText(markerResult.description);
+                    mSessionName.setText(session.sessionName);
+                    mDescription.setText(session.description);
+                    String address = getAddress(session.latitude,session.longitude);
+                    mAddressAndSessionType.setText(address + "  |  " + session.sessionType);
 
 
-                    mUserDbRef.child(markerResult.host).addListenerForSingleValueEvent(new ValueEventListener() {
+                    mUserDbRef.child(session.host).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
                             User user = dataSnapshot.getValue(User.class);
 
                             setImage(user.image, mHostImage);
-                            mHost.setText(user.name);
+                            mHost.setText("Host: " + user.name);
 
                         }
 
@@ -188,20 +196,20 @@ public class JoinSessionActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (markerResult.participants != null) {
-                        if (markerResult.participants.containsKey(currentFirebaseUser.getUid())) {
+                    if (session.participants != null) {
+                        if (session.participants.containsKey(currentFirebaseUser.getUid())) {
                             mJoinSessionBtn.setText("Cancel booking");
                         }
                     }
 
-                    if (markerResult.host.equals(currentFirebaseUser.getUid())) {
+                    if (session.host.equals(currentFirebaseUser.getUid())) {
 
                         mJoinSessionBtn.setText("Edit session");
                     }
 
                     ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
 
-                    setImage(markerResult.imageUri, sessionImage);
+                    setImage(session.imageUri, sessionImage);
 
                 }
             }
@@ -237,5 +245,43 @@ public class JoinSessionActivity extends AppCompatActivity {
 
 
     }
+
+    public String getAddress(double latitude, double longitude) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String returnAddress;
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+            String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
+
+            if (street != null) {
+
+                if (!street.equals(knownName)) {
+                    returnAddress = street + " " + knownName;
+                } else {
+                    returnAddress = street;
+                }
+            } else {
+                returnAddress = "Unknown area";
+            }
+
+        } catch (IOException ex) {
+
+            returnAddress = "failed";
+        }
+
+        return returnAddress;
+
+    }
+
 
 }

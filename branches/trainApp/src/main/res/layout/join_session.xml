@@ -1,120 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.chris.kungsbrostrand.JoinSessionActivity">
+    tools:context="com.example.chris.kungsbrostrand.JoinSessionActivity"
+    android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/joinSessionImage"
+    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="@color/imageBtn"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_insert_photo_black_24dp" />
+        android:layout_height="200dp">
 
-    <ImageView
-        android:id="@+id/JoinSessionHostImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignEnd="@+id/joinSessionBtn"
-        android:layout_below="@+id/joinSessionImage"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/background" />
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/joinSessionImage"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/add_btn" />
+
+            <TextView
+                android:id="@+id/sessionName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:gravity="center_horizontal"
+                android:padding="15dp"
+                android:text="session name goes here"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="#fff"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/addressAndSessionTypeTW"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="120dp"
+                android:gravity="center"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="Address"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:textSize="14sp" />
+
+        </FrameLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <Button
+        android:id="@+id/joinSessionBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Join session"
+        android:layout_below="@+id/descriptionTW"
+        android:background="#ff3366"
+        android:textColor="@android:color/white" />
 
     <TextView
-        android:id="@+id/hostName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/dayTW"
-        android:layout_marginTop="0dp"
-        android:layout_alignTop="@+id/JoinSessionHostImage"
-        android:layout_marginRight="70dp"
-        android:layout_marginStart="230dp"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/sessionName"
+        android:id="@+id/dateAndTimeTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/dayTW"
-        android:layout_below="@+id/hostName"
-        android:layout_marginTop="30dp"
-        android:text="TextView"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/dayTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/sessionName"
-        android:layout_alignStart="@+id/monthTW"
-        android:layout_marginTop="20dp"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/monthTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/dayTW"
         android:layout_alignStart="@+id/sessionTypeTW"
-        android:layout_marginTop="10dp"
+        android:layout_below="@+id/sessionName"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        android:fontFamily="sans-serif"
         android:inputType="textCapSentences"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/sessionTypeTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="TextView"
-        android:layout_below="@+id/monthTW"
-        android:layout_alignStart="@+id/levelTW"/>
-
-    <TextView
-        android:id="@+id/levelTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:layout_below="@+id/sessionTypeTW"
-        android:layout_alignStart="@+id/participantsTW"/>
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/participantsTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/levelTW"
         android:layout_alignStart="@+id/descriptionTW"
+        android:layout_below="@+id/levelTW"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView" />
+        android:layout_marginBottom="15dp"
+        android:text="TextView"
+        android:textColor="#ff3366"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="#D3D3D3"
+        android:fadingEdge="horizontal" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/hostName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="TextView" />
+
+        <ImageView
+            android:id="@+id/JoinSessionHostImage"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="end"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/background" />
+
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="#D3D3D3"
+        android:fadingEdge="horizontal" />
+
+    <TextView
+        android:id="@+id/yourSessionsHeadingTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif"
+        android:text="Information"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/descriptionTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:layout_below="@+id/participantsTW"
         android:layout_alignStart="@+id/joinSessionBtn"
         android:layout_marginTop="10dp"
         android:text="TextView"
         android:inputType="textMultiLine"/>
 
-    <Button
-        android:id="@+id/joinSessionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:background="#263238"
-        android:text="Join session"
-        android:layout_below="@+id/descriptionTW"
-        android:textColor="@android:color/white" />
 
 
-</RelativeLayout>
+
+</LinearLayout>

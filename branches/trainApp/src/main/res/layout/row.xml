@@ -3,14 +3,14 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="15dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="10dp">
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:padding="5dp"
         android:scaleType="centerCrop" />
 
     <LinearLayout
@@ -26,9 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:padding="2dp"
             android:text="Medium Text"
-            android:textColor="#33CC33" />
+            android:textColor="#00514c" />
 
         <TextView
             android:id="@+id/text2"

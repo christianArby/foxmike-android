@@ -4,7 +4,7 @@
     <string name="title_activity_user_activity">Your page</string>
     <string name="title_activity_training_session">Create session</string>
     <string name="title_activity_register">Register</string>
-    <string name="title_activity_join_session">Join session</string>
+    <string name="title_activity_join_session">Session</string>
     <string name="menu_map">Map</string>
     <string name="menu_list">Sessions</string>
     <string name="menu_profile">Profile</string>
