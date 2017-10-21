@@ -1,12 +1,16 @@
 package com.example.chris.kungsbrostrand;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.rd.PageIndicatorView;
 
 import java.util.ArrayList;
 
@@ -25,13 +30,17 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
     private FirebaseAuth.AuthStateListener mAuthListener;
     UserProfileFragment userProfileFragment;
     WeekdayFilterFragment weekdayFilterFragment;
+    //WeekdayFilterFragmentB weekdayFilterFragmentB;
     ListSessionsFragment listSessionsFragment;
     MapsFragment mapsFragment;
+    WrapContentViewPager weekdayViewpager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -65,20 +74,12 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
             mapsFragment = MapsFragment.newInstance();
         }
 
-        if (weekdayFilterFragment==null) {
-            weekdayFilterFragment = WeekdayFilterFragment.newInstance();
-        }
 
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
             transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
             transaction.detach(userProfileFragment);
-        }
-
-        if (null == fragmentManager.findFragmentByTag("weekdayFragment")) {
-            transaction.add(R.id.weekdayFilterFragmentContainer, weekdayFilterFragment,"weekdayFragment");
-            transaction.detach(weekdayFilterFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
@@ -93,6 +94,20 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
 
         transaction.commit();
 
+        weekdayViewpager = (WrapContentViewPager) findViewById(R.id.weekdayPager);
+        weekdayViewpager.setAdapter(new weekdayViewpagerAdapter(fragmentManager));
+
+        //Bind the title indicator to the adapter
+        PageIndicatorView pageIndicatorView = (PageIndicatorView) findViewById(R.id.pageIndicatorView);
+        pageIndicatorView.setViewPager(weekdayViewpager);
+
+
+        int selectedColor = Color.parseColor("#303F9F");
+        int unSelectedColor = Color.parseColor("#E0E0E0");
+
+        pageIndicatorView.setSelectedColor(selectedColor);
+        pageIndicatorView.setUnselectedColor(unSelectedColor);
+
         fragmentManager.executePendingTransactions();
 
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -105,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
                         FragmentTransaction transaction1 = fragmentManager.beginTransaction();
                         transaction1.detach(listSessionsFragment);
                         transaction1.detach(userProfileFragment);
-                        transaction1.attach(weekdayFilterFragment);
+                        //transaction1.attach(weekdayFilterFragment);
                         transaction1.attach(mapsFragment);
                         transaction1.commit();
                         getSupportActionBar().setTitle("Map");
@@ -114,14 +129,14 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
                         FragmentTransaction transaction2 = fragmentManager.beginTransaction();
                         transaction2.detach(mapsFragment);
                         transaction2.detach(userProfileFragment);
-                        transaction2.attach(weekdayFilterFragment);
+                        //transaction2.attach(weekdayFilterFragment);
                         transaction2.attach(listSessionsFragment);
                         transaction2.commit();
                         getSupportActionBar().setTitle("Sessions");
                         break;
                     case R.id.menuProfile:
                         FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                        transaction3.detach(weekdayFilterFragment);
+                        //transaction3.detach(weekdayFilterFragment);
                         transaction3.detach(mapsFragment);
                         transaction3.detach(listSessionsFragment);
                         transaction3.attach(userProfileFragment);
@@ -178,5 +193,37 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
         listSessionsFragment.FilterSessions(sessions,location);
 
+    }
+
+    class weekdayViewpagerAdapter extends FragmentPagerAdapter {
+
+        public weekdayViewpagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+            Fragment fragment = null;
+
+            if (position == 0) {
+
+                fragment = WeekdayFilterFragment.newInstance();
+
+            }
+
+            if (position == 1) {
+
+                fragment = WeekdayFilterFragmentB.newInstance();
+
+            }
+
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 }

@@ -137,11 +137,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-    }
-
-    public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
-
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -156,6 +151,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+    }
+
+    public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
+
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
 
         //when map is clicked, open TrainingSessionActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

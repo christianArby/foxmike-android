@@ -106,6 +106,7 @@
     <orderEntry type="library" exported="" name="exifinterface-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-26.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-core-ui-26.0.1" level="project" />
+    <orderEntry type="library" exported="" name="pageindicatorview-0.2.0" level="project" />
     <orderEntry type="library" exported="" name="constraint-layout-solver-1.0.0-alpha4" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-26.0.1" level="project" />
     <orderEntry type="library" exported="" name="glide-4.0.0" level="project" />

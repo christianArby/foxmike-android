@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/weekdayFilterFragment"
+    android:id="@+id/weekdayFilterFragmentB"
     android:layout_width="wrap_content"
-    android:layout_height="30dp">
+    android:layout_height="wrap_content">
 
     <ToggleButton
         android:id="@+id/toggleButton1"
