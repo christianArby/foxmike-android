@@ -1,5 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,9 +21,12 @@ import android.view.View;
 import com.google.firebase.auth.FirebaseAuth;
 import com.rd.PageIndicatorView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements  WeekdayFilterFragment.OnSessionsFilteredListener{
+public class MainActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     private BottomNavigationView bottomNavigation;
     private FragmentManager fragmentManager;
@@ -34,11 +38,37 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
     ListSessionsFragment listSessionsFragment;
     MapsFragment mapsFragment;
     WrapContentViewPager weekdayViewpager;
+    MyFirebaseDatabase myFirebaseDatabase;
+
+    public HashMap<String,Boolean> firstWeekdayHashMap;
+    public HashMap<String,Boolean> secondWeekdayHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        myFirebaseDatabase= new MyFirebaseDatabase();
+
+        firstWeekdayHashMap = new HashMap<String,Boolean>();
+        secondWeekdayHashMap = new HashMap<String,Boolean>();
+        Session dummySession = new Session();
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar todayCal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance();
+
+
+        for(int i=1; i<8; i++){
+            String stringDate = sdf.format(cal.getTime());
+            firstWeekdayHashMap.put(stringDate, true);
+            cal.add(Calendar.DATE,1);
+        }
+
+        for(int i=1; i<8; i++){
+            String stringDate = sdf.format(cal.getTime());
+            secondWeekdayHashMap.put(stringDate, true);
+            cal.add(Calendar.DATE,1);
+        }
 
 
 
@@ -148,6 +178,17 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
             }
         });
 
+        myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+            @Override
+            public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                mapsFragment.addMarkersToMap(sessions,location);
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                listSessionsFragment.FilterSessions(sessions,location);
+            }
+        }, firstWeekdayHashMap, secondWeekdayHashMap, this);
+
         bottomNavigation.setSelectedItemId(R.id.menuMap);
     }
 
@@ -184,18 +225,83 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
         mAuth.signOut();
     }
 
+
     @Override
-    public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+    public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
+        if (week==1) {
+            firstWeekdayHashMap.put(weekdayKey,weekdayBoolean);
+            myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+                @Override
+                public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+                    MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                    mapsFragment.addMarkersToMap(sessions,location);
 
-        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
-        mapsFragment.addMarkersToMap(sessions,location);
+                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                    listSessionsFragment.FilterSessions(sessions,location);
+                }
+            }, firstWeekdayHashMap, secondWeekdayHashMap, activity);
+        }
+        if (week==2) {
+            secondWeekdayHashMap.put(weekdayKey,weekdayBoolean);
+            myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+                @Override
+                public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+                    MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                    mapsFragment.addMarkersToMap(sessions,location);
 
-        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
-        listSessionsFragment.FilterSessions(sessions,location);
+                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                    listSessionsFragment.FilterSessions(sessions,location);
+                }
+            }, firstWeekdayHashMap, secondWeekdayHashMap, activity);
+        }
+    }
+
+    @Override
+    public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
+        HashMap<Integer, Boolean> toggleMap1;
+        HashMap<Integer, Boolean> toggleMap2;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        WeekdayFilterFragment weekdayFilterFragment = (WeekdayFilterFragment) fragmentManager.findFragmentByTag(makeFragmentName(R.id.weekdayPager,0));
+        WeekdayFilterFragmentB weekdayFilterFragmentB = (WeekdayFilterFragmentB) fragmentManager.findFragmentByTag(makeFragmentName(R.id.weekdayPager,1));
+
+        toggleMap1 = weekdayFilterFragment.getToggleMap1();
+        toggleMap2 = weekdayFilterFragmentB.getToggleMap2();
+        // Override checked change
+        /*if (week==1) {
+            if (toggleMap1.get(button)) {
+                toggleMap1.put(button,false);
+                weekdayFilterFragment.setToggleButton(button,false);
+            }
+            if (!toggleMap1.get(button)) {
+                toggleMap1.put(button,true);
+                weekdayFilterFragment.setToggleButton(button,true);
+            }
+        }
+
+        if (week==2) {
+            if (toggleMap2.get(button)) {
+                toggleMap2.put(button,false);
+                weekdayFilterFragmentB.setToggleButton(button,false);
+            }
+            if (!toggleMap2.get(button)) {
+                toggleMap2.put(button,true);
+                weekdayFilterFragmentB.setToggleButton(button,true);
+            }
+        }*/
+
+        weekdayFilterFragment.changeToggleMap(week,button,toggleMap1,toggleMap2);
+        weekdayFilterFragmentB.changeToggleMap(week,button,toggleMap1,toggleMap2);
+
+        toggleMap1 = weekdayFilterFragment.getAndUpdateToggleMap1();
+        weekdayFilterFragmentB.setToggleMap1(toggleMap1);
+        toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
+        weekdayFilterFragment.setToggleMap2(toggleMap2);
 
     }
 
+
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
+
 
         public weekdayViewpagerAdapter(FragmentManager fm) {
             super(fm);
@@ -226,4 +332,9 @@ public class MainActivity extends AppCompatActivity implements  WeekdayFilterFra
             return 2;
         }
     }
+
+    private static String makeFragmentName(int viewPagerId, int index) {
+        return "android:switcher:" + viewPagerId + ":" + index;
+    }
+
 }

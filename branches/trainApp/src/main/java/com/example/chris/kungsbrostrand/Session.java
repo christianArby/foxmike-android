@@ -64,6 +64,13 @@ public class Session {
         return dayName;
     }
 
+    public String textSDF(SessionDate sessionDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(cal.getTime());
+    }
+
     //required empty constructor
     public Session() {
     }
