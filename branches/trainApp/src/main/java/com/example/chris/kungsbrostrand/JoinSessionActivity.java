@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class JoinSessionActivity extends AppCompatActivity {
 
     DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
@@ -42,7 +44,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     TextView mParticipants;
     TextView mSessionName;
     Button mJoinSessionBtn;
-    ImageView mHostImage;
+    CircleImageView mHostImage;
     TextView mHost;
     TextView mDescription;
     TextView mAddressAndSessionType;
@@ -67,7 +69,7 @@ public class JoinSessionActivity extends AppCompatActivity {
 
         mDateAndTime = (TextView) joinSession.findViewById(R.id.dateAndTimeTW);
         mParticipants = (TextView) joinSession.findViewById(R.id.participantsTW);
-        mHostImage = (ImageView) joinSession.findViewById(R.id.JoinSessionHostImage);
+        mHostImage = (CircleImageView) joinSession.findViewById(R.id.JoinSessionHostImage);
         mHost = (TextView) joinSession.findViewById(R.id.hostName);
         mSessionName = (TextView) joinSession.findViewById(R.id.sessionName);
         mDescription = (TextView) joinSession.findViewById(R.id.descriptionTW);
@@ -186,7 +188,7 @@ public class JoinSessionActivity extends AppCompatActivity {
                             User user = dataSnapshot.getValue(User.class);
 
                             setImage(user.image, mHostImage);
-                            mHost.setText("Host: " + user.name);
+                            mHost.setText(user.name + " is your trainer");
 
                         }
 

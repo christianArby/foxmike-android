@@ -14,16 +14,21 @@ public class User {
     public HashMap<String,Boolean> sessionsHosting;
     public String name;
     public String image;
+    public boolean trainerMode;
 
-
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-
-    public User(HashMap<String,Boolean> sessionsAttending, HashMap<String,Boolean> sessionsHosting, String name, String image) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.name = name;
         this.image = image;
+        this.trainerMode = trainerMode;
     }
+
+
+
+    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+
+
 
     public User() {
         this.sessionsAttending = new HashMap<String,Boolean>();
@@ -52,6 +57,30 @@ public class User {
 
     public void setSessionsHosting(HashMap<String, Boolean> sessionsHosting) {
         this.sessionsHosting = sessionsHosting;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public boolean isTrainerMode() {
+        return trainerMode;
+    }
+
+    public void setTrainerMode(boolean trainerMode) {
+        this.trainerMode = trainerMode;
     }
 
 }

@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.rd.PageIndicatorView;
@@ -109,17 +110,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
 
         if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
             transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
-            transaction.detach(userProfileFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
             transaction.add(R.id.main_container, mapsFragment,"mapsFragment");
-            transaction.detach(mapsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
             transaction.add(R.id.main_container, listSessionsFragment,"ListSessionsFragment");
-            transaction.detach(listSessionsFragment);
         }
 
         transaction.commit();
@@ -144,32 +142,35 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
+                RelativeLayout weekdayFilterContainer = (RelativeLayout) findViewById(R.id.weekdayFilterFragmentContainer);
+
                 int id = item.getItemId();
                 switch (id){
                     case R.id.menuMap:
                         FragmentTransaction transaction1 = fragmentManager.beginTransaction();
-                        transaction1.detach(listSessionsFragment);
-                        transaction1.detach(userProfileFragment);
-                        //transaction1.attach(weekdayFilterFragment);
-                        transaction1.attach(mapsFragment);
+                        transaction1.hide(listSessionsFragment);
+                        transaction1.hide(userProfileFragment);
+                        weekdayFilterContainer.setVisibility(View.VISIBLE);
+                        transaction1.show(mapsFragment);
                         transaction1.commit();
                         getSupportActionBar().setTitle("Map");
                         break;
                     case R.id.menuList:
                         FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-                        transaction2.detach(mapsFragment);
-                        transaction2.detach(userProfileFragment);
+                        transaction2.hide(mapsFragment);
+                        transaction2.hide(userProfileFragment);
+                        weekdayFilterContainer.setVisibility(View.VISIBLE);
                         //transaction2.attach(weekdayFilterFragment);
-                        transaction2.attach(listSessionsFragment);
+                        transaction2.show(listSessionsFragment);
                         transaction2.commit();
                         getSupportActionBar().setTitle("Sessions");
                         break;
                     case R.id.menuProfile:
                         FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                        //transaction3.detach(weekdayFilterFragment);
-                        transaction3.detach(mapsFragment);
-                        transaction3.detach(listSessionsFragment);
-                        transaction3.attach(userProfileFragment);
+                        weekdayFilterContainer.setVisibility(View.GONE);
+                        transaction3.hide(mapsFragment);
+                        transaction3.hide(listSessionsFragment);
+                        transaction3.show(userProfileFragment);
                         transaction3.commit();
                         getSupportActionBar().setTitle("Profile");
                         break;
@@ -266,28 +267,6 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
 
         toggleMap1 = weekdayFilterFragment.getToggleMap1();
         toggleMap2 = weekdayFilterFragmentB.getToggleMap2();
-        // Override checked change
-        /*if (week==1) {
-            if (toggleMap1.get(button)) {
-                toggleMap1.put(button,false);
-                weekdayFilterFragment.setToggleButton(button,false);
-            }
-            if (!toggleMap1.get(button)) {
-                toggleMap1.put(button,true);
-                weekdayFilterFragment.setToggleButton(button,true);
-            }
-        }
-
-        if (week==2) {
-            if (toggleMap2.get(button)) {
-                toggleMap2.put(button,false);
-                weekdayFilterFragmentB.setToggleButton(button,false);
-            }
-            if (!toggleMap2.get(button)) {
-                toggleMap2.put(button,true);
-                weekdayFilterFragmentB.setToggleButton(button,true);
-            }
-        }*/
 
         weekdayFilterFragment.changeToggleMap(week,button,toggleMap1,toggleMap2);
         weekdayFilterFragmentB.changeToggleMap(week,button,toggleMap1,toggleMap2);

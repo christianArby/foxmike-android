@@ -157,6 +157,7 @@
     <orderEntry type="library" exported="" name="support-annotations-26.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-26.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-11.2.0" level="project" />
+    <orderEntry type="library" exported="" name="circleimageview-2.2.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="support-fragment-26.0.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="kxml2-2.3.0" level="project" />

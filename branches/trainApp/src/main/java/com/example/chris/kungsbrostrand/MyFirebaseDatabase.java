@@ -86,6 +86,7 @@ public class MyFirebaseDatabase extends Service{
 
                     user.setUserName(userDb.name);
                     user.setUserImageURL(userDb.image);
+                    user.setTrainerMode(userDb.isTrainerMode());
                 }
                 onUserFoundListener.OnUserFound(user);
             }

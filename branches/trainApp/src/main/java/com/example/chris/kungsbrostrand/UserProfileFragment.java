@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class UserProfileFragment extends Fragment {
 
@@ -36,6 +39,7 @@ public class UserProfileFragment extends Fragment {
     //public MyAdapter adapter;
     public LatLng sessionLatLng;
     private View profile;
+    private View switchMode;
 
     public UserProfileFragment() {
         // Required empty public constructor
@@ -59,7 +63,10 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
+        final View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
+
+        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "",
+                "Loading. Please wait...", true);
 
         Resources res = getResources();
 
@@ -78,6 +85,36 @@ public class UserProfileFragment extends Fragment {
         //
         list.addView(profile);
 
+        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+
+
+
+        //Add switch mode
+        switchMode = (LinearLayout) view.findViewById(R.id.switchModeLL);
+        switchMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                myFirebaseDatabase.getUser(new OnUserFoundListener() {
+                    @Override
+                    public void OnUserFound(User user) {
+
+                        if (user.trainerMode) {
+                            user.setTrainerMode(false);
+                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(false);
+                        } else {
+                            user.setTrainerMode(true);
+                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(true);
+                        }
+
+                    }
+                });
+
+
+
+            }
+        });
+
         UserActivityContent userActivityContent = new UserActivityContent();
 
         userActivityContent.getUserActivityContent(new OnUserActivityContentListener() {
@@ -86,7 +123,7 @@ public class UserProfileFragment extends Fragment {
 
                 userNameTV.setText(name);
 
-                setImage(image, (ImageView) profile.findViewById(R.id.profileIV));
+                setCircleImage(image, (CircleImageView) profile.findViewById(R.id.profileIV));
 
                 // Heading sessionAttending
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -104,13 +141,25 @@ public class UserProfileFragment extends Fragment {
                 list.addView(yourSessionsHeadingView);
                 populateList(sessionsHosting);
 
+                dialog.dismiss();
+
             }
         });
         // Inflate the layout for this fragment
         return view;
     }
 
+
     private void setImage(String image, ImageView imageView) {
+
+
+        //ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
+        Glide.with(this).load(image).into(imageView);
+
+
+    }
+
+    private void setCircleImage(String image, CircleImageView imageView) {
 
 
         //ImageView profileImage = (ImageView) profile.findViewById(R.id.profileIV);
