@@ -1,6 +1,5 @@
 package com.example.chris.kungsbrostrand;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**

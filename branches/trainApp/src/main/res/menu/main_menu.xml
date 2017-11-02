@@ -5,11 +5,11 @@
     <group>
 
         <item android:id="@+id/action_logout"
-            android:title="Log out"
+            android:title="@string/log_out"
             app:showAsAction="never" />
 
         <item android:id="@+id/action_clear_db"
-            android:title="Clear Db"
+            android:title="@string/clear_db"
             app:showAsAction="never" />
 
 

@@ -8,10 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.net.Inet4Address;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -26,19 +24,17 @@ public class WeekdayFilterFragmentB extends Fragment {
         // Required empty public constructor
     }
 
-    HashMap<Integer,Boolean> toggleMap1 = new HashMap<Integer, Boolean>();
-    HashMap<Integer,Boolean> toggleMap2 = new HashMap<Integer, Boolean>();
-    HashMap<Integer,ToggleButton> toggleButtonHashMap;
+    private HashMap<Integer,Boolean> toggleMap1 = new HashMap<Integer, Boolean>();
+    private HashMap<Integer,Boolean> toggleMap2 = new HashMap<Integer, Boolean>();
+    private HashMap<Integer,ToggleButton> toggleButtonHashMap;
 
-    ToggleButton toggleButton1;
-    ToggleButton toggleButton2;
-    ToggleButton toggleButton3;
-    ToggleButton toggleButton4;
-    ToggleButton toggleButton5;
-    ToggleButton toggleButton6;
-    ToggleButton toggleButton7;
-    public HashMap<String,Boolean> secondWeekdayHashMap;
-    View inflatedView;
+    private ToggleButton toggleButton1;
+    private ToggleButton toggleButton2;
+    private ToggleButton toggleButton3;
+    private ToggleButton toggleButton4;
+    private ToggleButton toggleButton5;
+    private ToggleButton toggleButton6;
+    private ToggleButton toggleButton7;
     private OnWeekdayChangedListener onWeekdayChangedListener;
     private OnWeekdayButtonClickedListener onWeekdayButtonClickedListener;
 
@@ -62,27 +58,17 @@ public class WeekdayFilterFragmentB extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        secondWeekdayHashMap = new HashMap<String,Boolean>();
-
         toggleButtonHashMap = new HashMap<Integer, ToggleButton>();
         Session dummySession = new Session();
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar todayCal = Calendar.getInstance();
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE,7);
 
 
-        for(int i=1; i<8; i++){
-            String stringDate = sdf.format(cal.getTime());
-            secondWeekdayHashMap.put(stringDate, true);
-            cal.add(Calendar.DATE,1);
-        }
 
+        View inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
 
-
-        this.inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
-
-        toggleButton1 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton1);
+        toggleButton1 = inflatedView.findViewById(R.id.toggleButton1);
         final Calendar calDate8= Calendar.getInstance();
         calDate8.add(Calendar.DATE,7);
         SessionDate sessionDate8 = new SessionDate(calDate8);
@@ -92,7 +78,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton1.setChecked(true);
 
 
-        toggleButton2 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton2);
+        toggleButton2 = inflatedView.findViewById(R.id.toggleButton2);
         final Calendar calDate9= Calendar.getInstance();
         calDate9.add(Calendar.DATE,8);
         SessionDate sessionDate9 = new SessionDate(calDate9);
@@ -101,7 +87,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton2.setTextOff(dummySession.textDay(sessionDate9) + "\n" + Integer.toString(sessionDate9.day));
         toggleButton2.setChecked(true);
 
-        toggleButton3 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton3);
+        toggleButton3 = inflatedView.findViewById(R.id.toggleButton3);
         final Calendar calDate10= Calendar.getInstance();
         calDate10.add(Calendar.DATE,9);
         SessionDate sessionDate10 = new SessionDate(calDate10);
@@ -110,7 +96,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton3.setTextOff(dummySession.textDay(sessionDate10) + "\n" + Integer.toString(sessionDate10.day));
         toggleButton3.setChecked(true);
 
-        toggleButton4 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton4);
+        toggleButton4 = inflatedView.findViewById(R.id.toggleButton4);
         final Calendar calDate11= Calendar.getInstance();
         calDate11.add(Calendar.DATE,10);
         SessionDate sessionDate11 = new SessionDate(calDate11);
@@ -119,7 +105,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton4.setTextOff(dummySession.textDay(sessionDate11) + "\n" + Integer.toString(sessionDate11.day));
         toggleButton4.setChecked(true);
 
-        toggleButton5 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton5);
+        toggleButton5 = inflatedView.findViewById(R.id.toggleButton5);
         final Calendar calDate12= Calendar.getInstance();
         calDate12.add(Calendar.DATE,11);
         SessionDate sessionDate12 = new SessionDate(calDate12);
@@ -128,7 +114,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton5.setTextOff(dummySession.textDay(sessionDate12) + "\n" + Integer.toString(sessionDate12.day));
         toggleButton5.setChecked(true);
 
-        toggleButton6 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton6);
+        toggleButton6 = inflatedView.findViewById(R.id.toggleButton6);
         final Calendar calDate13= Calendar.getInstance();
         calDate13.add(Calendar.DATE,12);
         SessionDate sessionDate13 = new SessionDate(calDate13);
@@ -137,7 +123,7 @@ public class WeekdayFilterFragmentB extends Fragment {
         toggleButton6.setTextOff(dummySession.textDay(sessionDate13) + "\n" + Integer.toString(sessionDate13.day));
         toggleButton6.setChecked(true);
 
-        toggleButton7 = (ToggleButton) inflatedView.findViewById(R.id.toggleButton7);
+        toggleButton7 = inflatedView.findViewById(R.id.toggleButton7);
         final Calendar calDate14= Calendar.getInstance();
         calDate14.add(Calendar.DATE,13);
         SessionDate sessionDate14 = new SessionDate(calDate14);
@@ -248,10 +234,8 @@ public class WeekdayFilterFragmentB extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    String test = sdf.format(calDate10.getTime());
                     onWeekdayChangedListener.OnWeekdayChanged(2,sdf.format(calDate10.getTime()),true, getActivity());
                 } else {
-                    String test = sdf.format(calDate10.getTime());
                     onWeekdayChangedListener.OnWeekdayChanged(2,sdf.format(calDate10.getTime()),false, getActivity());
                 }
             }

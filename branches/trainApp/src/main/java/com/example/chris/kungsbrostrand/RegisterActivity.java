@@ -37,7 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private static final int GALLERY_REQUEST = 1;
 
-    private Button mRegisterBtn;
+
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -52,6 +52,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(activity_register);
 
+        Button mRegisterBtn;
+
         mAuth = FirebaseAuth.getInstance();
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
@@ -60,13 +62,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         mProgress = new ProgressDialog(this);
 
-        mNameField = (EditText) findViewById(R.id.setupNameField);
-        mEmailField= (EditText) findViewById(R.id.emailField);
-        mPasswordField = (EditText) findViewById(R.id.passwordField);
-        mRegisterBtn = (Button) findViewById(R.id.registerBtn);
+        mNameField = findViewById(R.id.setupNameField);
+        mEmailField= findViewById(R.id.emailField);
+        mPasswordField = findViewById(R.id.passwordField);
+        mRegisterBtn = findViewById(R.id.registerBtn);
 
 
-        mRegisterImageButton = (ImageButton) findViewById(R.id.registerImageBtn);
+        mRegisterImageButton = findViewById(R.id.registerImageBtn);
 
         mRegisterImageButton.setOnClickListener(new View.OnClickListener() {
             @Override

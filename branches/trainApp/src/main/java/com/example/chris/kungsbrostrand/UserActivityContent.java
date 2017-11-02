@@ -7,12 +7,12 @@ import java.util.HashMap;
  * Created by chris on 2017-07-22.
  */
 
-public class UserActivityContent {
+class UserActivityContent {
 
-    HashMap<String,Boolean> userActivityContent;
+    private HashMap<String,Boolean> userActivityContent;
 
-    ArrayList<Session> sessionsAttending = new ArrayList<Session>();
-    ArrayList<Session> sessionsHosting = new ArrayList<Session>();
+    private ArrayList<Session> sessionsAttending = new ArrayList<Session>();
+    private ArrayList<Session> sessionsHosting = new ArrayList<Session>();
     User user;
 
     public void getUserActivityContent(final OnUserActivityContentListener onUserActivityContentListener){
@@ -30,14 +30,14 @@ public class UserActivityContent {
 
                 if (user.sessionsAttending.size()==0){
                     userActivityContent.put("sessionsAttending",true);
-                    if (testContent()==true){
+                    if (testContent()){
                         onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                     }
                 }
 
                 if (user.sessionsHosting.size()==0){
                     userActivityContent.put("sessionsHosting",true);
-                    if (testContent()==true){
+                    if (testContent()){
                         onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                     }
                 }
@@ -47,7 +47,7 @@ public class UserActivityContent {
                     public void OnSessionsFound(ArrayList<Session> sessions) {
                         sessionsAttending = sessions;
                         userActivityContent.put("sessionsAttending",true);
-                        if (testContent()==true){
+                        if (testContent()){
                             onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                         }
                     }
@@ -59,7 +59,7 @@ public class UserActivityContent {
                     public void OnSessionsFound(ArrayList<Session> sessions) {
                         sessionsHosting = sessions;
                         userActivityContent.put("sessionsHosting",true);
-                        if (testContent()==true){
+                        if (testContent()){
                             onUserActivityContentListener.OnUserActivityContent(sessionsAttending,sessionsHosting,user.name,user.image);
                         }
                     }
@@ -69,21 +69,17 @@ public class UserActivityContent {
         });
     }
 
-    public boolean testContent(){
+    private boolean testContent(){
         int n = 0;
 
         for (HashMap.Entry<String, Boolean> entry : this.userActivityContent.entrySet())
         {
-            if (entry.getValue()==true){
+            if (entry.getValue()){
                 n++;
             }
             System.out.println(entry.getKey() + "/" + entry.getValue());
         }
 
-        if (n==userActivityContent.size()){
-            return true;
-
-        }
-        return  false;
+        return n == userActivityContent.size();
     }
 }

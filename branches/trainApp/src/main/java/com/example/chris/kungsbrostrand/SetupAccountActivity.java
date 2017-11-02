@@ -21,13 +21,11 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import org.w3c.dom.Text;
-
 public class SetupAccountActivity extends AppCompatActivity {
 
     private ImageButton mSetupImageButton;
     private EditText mNameField;
-    private Button mSubmitBtn;
+
 
     private Uri mImageUri = null;
 
@@ -45,6 +43,8 @@ public class SetupAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_account);
 
+        Button mSubmitBtn;
+
         mAuth = FirebaseAuth.getInstance();
 
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
@@ -53,9 +53,9 @@ public class SetupAccountActivity extends AppCompatActivity {
 
         mProgress = new ProgressDialog(this);
 
-        mSetupImageButton = (ImageButton) findViewById(R.id.setupImageButton);
-        mNameField = (EditText) findViewById(R.id.setupNameField);
-        mSubmitBtn = (Button) findViewById(R.id.setupSubmitBtn);
+        mSetupImageButton = findViewById(R.id.setupImageButton);
+        mNameField = findViewById(R.id.setupNameField);
+        mSubmitBtn = findViewById(R.id.setupSubmitBtn);
 
 
 

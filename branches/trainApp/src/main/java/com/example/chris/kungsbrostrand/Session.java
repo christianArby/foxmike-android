@@ -1,12 +1,11 @@
 package com.example.chris.kungsbrostrand;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
 
-public class Session {
+class Session {
     public String host;
     public String sessionName;
     public String sessionType;

@@ -1,20 +1,13 @@
 package com.example.chris.kungsbrostrand;
 
-import android.*;
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,16 +21,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,15 +51,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
     static final int PICK_SESSION_REQUEST = 1;
-    Double latitudeDouble;
-    Double longitudeDouble;
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    LatLng clickedPosition;
-    LatLng markerLatLng;
-    ChildEventListener mChildEventListener;
+    private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    private LatLng clickedPosition;
+    private LatLng markerLatLng;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
-    private FragmentActivity myContext;
     private boolean moveCamera;
     private View myView;
 
@@ -89,15 +75,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         setRetainInstance(true);
         moveCamera=true;
         mAuth = FirebaseAuth.getInstance();
-        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
-        mDatabaseUsers.keepSynced(true);
+
         mMarkerDbRef.keepSynced(true);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission();
-        }
 
-        checkUserExist();
+
+
     }
 
     @Override
@@ -107,7 +90,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         if (myView==null) {
             myView = inflater.inflate(R.layout.fragment_maps, container, false);
-            mapView = (MapView) myView.findViewById(R.id.map);
+            mapView = myView.findViewById(R.id.map);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
         }
@@ -185,13 +168,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
-    public void addSession() {
+    private void addSession() {
         Intent intent = new Intent(getActivity(), TrainingSessionActivity.class);
         intent.putExtra("LatLng", clickedPosition);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
 
-    public void joinSession(LatLng markerLatLng) {
+    private void joinSession(LatLng markerLatLng) {
         Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
@@ -208,35 +191,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
-    private void checkUserExist() {
 
-        if(mAuth.getCurrentUser() != null) {
-
-            final String user_id = mAuth.getCurrentUser().getUid();
-
-            mDatabaseUsers.addValueEventListener(new ValueEventListener() { ////// TA BORT signingUp FIXA SÅ ATT LISTENER PAUSAS UNDER REG https://stackoverflow.com/questions/44435763/firebase-value-event-listener-firing-even-after-activity-is-finished
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(!dataSnapshot.hasChild(user_id)){
-
-                        Intent setupIntent = new Intent(getActivity(),SetupAccountActivity.class);
-                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(setupIntent);
-
-
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        }
-    }
 
     //google  ONLY LONG AND LAT SET BELOW THIS
-    protected synchronized void buildGoogleApiClient() {
+    private synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -245,74 +203,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mGoogleApiClient.connect();
     }
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission was granted.
-                    if (ContextCompat.checkSelfPermission(getActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        if (mGoogleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        mMap.setMyLocationEnabled(true);
-                    }
-
-                } else {
-
-                    // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(getActivity(), "permission denied", Toast.LENGTH_LONG).show();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other permissions this app might request.
-            //You can add here other case statements according to your requirement.
-        }
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
-        mLocationRequest = new LocationRequest();
+        LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10 * 1000);
         mLocationRequest.setFastestInterval(1*1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -335,15 +228,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
+        Location mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
 
-        latitudeDouble = mLastLocation.getLatitude();
-        longitudeDouble = mLastLocation.getLongitude();
+        Double latitudeDouble = mLastLocation.getLatitude();
+        Double longitudeDouble = mLastLocation.getLongitude();
 
-        if(moveCamera==true){
+        if(moveCamera){
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             moveCamera=false;

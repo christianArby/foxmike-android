@@ -2,12 +2,10 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.Activity;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -25,7 +23,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -35,15 +32,14 @@ import java.util.TreeMap;
 
 public class MyFirebaseDatabase extends Service{
 
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+    private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-    private FusedLocationProviderClient mFusedLocationClient;
+
     private Location currentLocation;
-    GeoFire geoFire;
-    TreeMap<Integer,String> nearSessions;
-    ArrayList<Session> sessionsClose = new ArrayList<Session>();
-    DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private GeoFire geoFire;
+    private TreeMap<Integer,String> nearSessions;
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
 
 
@@ -100,6 +96,8 @@ public class MyFirebaseDatabase extends Service{
 
     public void filterSessions(final OnSessionsFilteredListener onSessionsFilteredListener,final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, Activity activity) {
 
+        FusedLocationProviderClient mFusedLocationClient;
+
         geoFire = new GeoFire(mGeofireDbRef);
         nearSessions = new TreeMap<Integer,String>();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -137,13 +135,7 @@ public class MyFirebaseDatabase extends Service{
                                 @Override
                                 public void onGeoQueryReady() {
 
-                                    final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-                                    HashMap<String,Boolean> sessionsCloseHash;
-                                    sessionsCloseHash = new HashMap<String,Boolean>();
 
-                                    for (Integer str : nearSessions.keySet()) {
-                                        sessionsCloseHash.put(nearSessions.get(str),true);
-                                    }
 
 
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
@@ -156,7 +148,6 @@ public class MyFirebaseDatabase extends Service{
                                                 Session session;
                                                 session = dataSnapshot.getValue(Session.class);
 
-                                                String test = session.textSDF(session.sessionDate);
                                                 if (firstWeekdayHashMap.containsKey(session.textSDF(session.sessionDate))) {
                                                     if (firstWeekdayHashMap.get(session.textSDF(session.sessionDate))) {
                                                         sessions.add(session);
@@ -197,7 +188,7 @@ public class MyFirebaseDatabase extends Service{
                 });
     }
 
-    public String getDistance(double latitude, double longitude, Location currentLocation){
+    private String getDistance(double latitude, double longitude, Location currentLocation){
 
         Location locationA = new Location("point A");
         locationA.setLatitude(currentLocation.getLatitude());

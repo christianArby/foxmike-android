@@ -27,19 +27,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserProfileFragment extends Fragment {
 
-    DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-    LinearLayout list;
-    ArrayList<String> titles;
-    ArrayList<String> description;
-    ArrayList<String> sessionNameArray;
-    ArrayList<Session> sessionArray;
-    //public MyAdapter adapter;
-    public LatLng sessionLatLng;
+    private LinearLayout list;
+    private LatLng sessionLatLng;
     private View profile;
-    private View switchMode;
+
 
     public UserProfileFragment() {
         // Required empty public constructor
@@ -62,25 +56,19 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View switchMode;
 
         final View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
 
         final ProgressDialog dialog = ProgressDialog.show(getActivity(), "",
                 "Loading. Please wait...", true);
 
-        Resources res = getResources();
-
-        titles =  new ArrayList<>();
-        description = new ArrayList<>();
-        //sessionNameArray= new ArrayList<>();
-        sessionArray= new ArrayList<>();
-
-        list = (LinearLayout) view.findViewById(R.id.list1);
+        list = view.findViewById(R.id.list1);
         //adapter = new MyAdapter(this, titles,imgs,description);
 
         // Set profile layout
         profile = inflater.inflate(R.layout.user_profile_info,list,false);
-        final TextView userNameTV = (TextView) profile.findViewById(R.id.profileTV) ;
+        final TextView userNameTV = profile.findViewById(R.id.profileTV);
         //TextView userName = (TextView) profile.findViewById(R.id.profileTV) ;
         //
         list.addView(profile);
@@ -90,7 +78,7 @@ public class UserProfileFragment extends Fragment {
 
 
         //Add switch mode
-        switchMode = (LinearLayout) view.findViewById(R.id.switchModeLL);
+        switchMode = view.findViewById(R.id.switchModeLL);
         switchMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,16 +116,16 @@ public class UserProfileFragment extends Fragment {
                 // Heading sessionAttending
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
                 View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
-                TextView sessionsAttendingHeading = (TextView) sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
-                sessionsAttendingHeading.setText("Sessions Attending");
+                TextView sessionsAttendingHeading = sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
+                sessionsAttendingHeading.setText(R.string.sessions_attending);
                 list.addView(sessionsAttendingHeadingView);
                 populateList(sessionsAttending);
 
 
                 // Heading sessionsHosting
                 View yourSessionsHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
-                TextView sessionsHostingHeading = (TextView) yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV) ;
-                sessionsHostingHeading.setText("Sessions Hosting");
+                TextView sessionsHostingHeading = yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV);
+                sessionsHostingHeading.setText(R.string.sessions_hosting);
                 list.addView(yourSessionsHeadingView);
                 populateList(sessionsHosting);
 
@@ -168,13 +156,13 @@ public class UserProfileFragment extends Fragment {
 
     }
 
-    public void populateList(final ArrayList<Session> sessionArray) {
+    private void populateList(final ArrayList<Session> sessionArray) {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         for (int i=0; i < sessionArray.size(); i++) {
             View row  = inflater.inflate(R.layout.row, list, false);
-            ImageView images = (ImageView) row.findViewById(R.id.icon);
-            TextView myTitle =(TextView) row.findViewById(R.id.text1);
-            TextView myDescription = (TextView) row.findViewById(R.id.text2);
+            ImageView images = row.findViewById(R.id.icon);
+            TextView myTitle = row.findViewById(R.id.text1);
+            TextView myDescription = row.findViewById(R.id.text2);
             //images.setImageResource(imgs);
             myTitle.setText(sessionArray.get(i).getSessionName());
             myDescription.setText(sessionArray.get(i).getSessionType());
@@ -193,7 +181,7 @@ public class UserProfileFragment extends Fragment {
         }
     }
 
-    public void joinSession(LatLng markerLatLng) {
+    private void joinSession(LatLng markerLatLng) {
         Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivity(intent);

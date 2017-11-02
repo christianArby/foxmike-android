@@ -22,7 +22,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         android:orientation="vertical">
 
 
@@ -33,8 +33,7 @@
             android:layout_marginBottom="10dp"
             android:layout_marginStart="15dp"
             android:layout_marginTop="10dp"
-            android:capitalize="words"
-            android:text="Loading..."
+            android:text="@string/loading"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -62,16 +61,17 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|center"
                 android:layout_marginStart="15dp"
-                android:text="Switch to trainer mode"
+                android:text="@string/switch_to_trainer_mode"
                 android:clickable="true"/>
 
             <ImageView
+                android:contentDescription="@string/switch_mode_icon"
                 android:id="@+id/switchModeIV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginBottom="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_marginTop="10dp"
                 android:scaleType="centerCrop"
                 app:srcCompat="@mipmap/ic_swap_vert_black_24dp" />

@@ -3,14 +3,11 @@ package com.example.chris.kungsbrostrand;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,8 +24,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -37,47 +32,49 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class JoinSessionActivity extends AppCompatActivity {
 
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private TextView mDateAndTime;
+    private TextView mParticipants;
+    private TextView mSessionName;
+    private Button mJoinSessionBtn;
+    private CircleImageView mHostImage;
+    private TextView mHost;
+    private TextView mDescription;
+    private TextView mAddressAndSessionType;
+    private String sessionID;
+    private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private Long participantsCount;
 
-    TextView mDateAndTime;
-    TextView mParticipants;
-    TextView mSessionName;
-    Button mJoinSessionBtn;
-    CircleImageView mHostImage;
-    TextView mHost;
-    TextView mDescription;
-    TextView mAddressAndSessionType;
-    String sessionID;
-    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    Long participantsCount;
-    String test;
-    LinearLayout joinSessionContainer;
-    View joinSession;
-    int sessionHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_session);
 
-        LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
-
-        joinSessionContainer = (LinearLayout) findViewById(R.id.join_session_container);
-        // Set create session layout
+        LinearLayout joinSessionContainer;
+        View joinSession;
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        joinSessionContainer = findViewById(R.id.join_session_container);
         joinSession = inflater.inflate(R.layout.join_session,joinSessionContainer,false);
 
-        mDateAndTime = (TextView) joinSession.findViewById(R.id.dateAndTimeTW);
-        mParticipants = (TextView) joinSession.findViewById(R.id.participantsTW);
-        mHostImage = (CircleImageView) joinSession.findViewById(R.id.JoinSessionHostImage);
-        mHost = (TextView) joinSession.findViewById(R.id.hostName);
-        mSessionName = (TextView) joinSession.findViewById(R.id.sessionName);
-        mDescription = (TextView) joinSession.findViewById(R.id.descriptionTW);
-        mAddressAndSessionType = (TextView) joinSession.findViewById(R.id.addressAndSessionTypeTW);
-        LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
-        findSession(markerLatLng.latitude, markerLatLng.longitude);
+        mDateAndTime = joinSession.findViewById(R.id.dateAndTimeTW);
+        mParticipants = joinSession.findViewById(R.id.participantsTW);
+        mHostImage = joinSession.findViewById(R.id.JoinSessionHostImage);
+        mHost = joinSession.findViewById(R.id.hostName);
+        mSessionName = joinSession.findViewById(R.id.sessionName);
+        mDescription = joinSession.findViewById(R.id.descriptionTW);
+        mAddressAndSessionType = joinSession.findViewById(R.id.addressAndSessionTypeTW);
 
-        mJoinSessionBtn = (Button) joinSession.findViewById(R.id.joinSessionBtn);
+        LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
+        if (markerLatLng!=null) {
+            findSession(markerLatLng.latitude, markerLatLng.longitude);
+        } else {
+            Toast toast = Toast.makeText(this,"Session not found, please try again later...",Toast.LENGTH_LONG);
+            toast.show();
+        }
+
+        mJoinSessionBtn = joinSession.findViewById(R.id.joinSessionBtn);
 
         joinSessionContainer.addView(joinSession);
 
@@ -162,7 +159,7 @@ public class JoinSessionActivity extends AppCompatActivity {
         });
     }
 
-    protected void findSession(Double latitude, final Double longitude){
+    private void findSession(Double latitude, final Double longitude){
         // find latitude value in child in realtime database and fit in imageview
         mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
@@ -188,7 +185,8 @@ public class JoinSessionActivity extends AppCompatActivity {
                             User user = dataSnapshot.getValue(User.class);
 
                             setImage(user.image, mHostImage);
-                            mHost.setText(user.name + " is your trainer");
+                            String hostText = user.name + getString(R.string.is_you_trainer);
+                            mHost.setText(hostText);
 
                         }
 
@@ -200,7 +198,7 @@ public class JoinSessionActivity extends AppCompatActivity {
 
                     if (session.participants != null) {
                         if (session.participants.containsKey(currentFirebaseUser.getUid())) {
-                            mJoinSessionBtn.setText("Cancel booking");
+                            mJoinSessionBtn.setText(R.string.cancel_booking);
                         }
                     }
 
@@ -209,7 +207,7 @@ public class JoinSessionActivity extends AppCompatActivity {
                         mJoinSessionBtn.setText("Edit session");
                     }
 
-                    ImageView sessionImage = (ImageView) findViewById(R.id.joinSessionImage);
+                    ImageView sessionImage = findViewById(R.id.joinSessionImage);
 
                     setImage(session.imageUri, sessionImage);
 
@@ -248,7 +246,7 @@ public class JoinSessionActivity extends AppCompatActivity {
 
     }
 
-    public String getAddress(double latitude, double longitude) {
+    private String getAddress(double latitude, double longitude) {
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;

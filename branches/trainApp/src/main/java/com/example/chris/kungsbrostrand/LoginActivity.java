@@ -21,14 +21,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 public class LoginActivity extends AppCompatActivity {
 
     private EditText mLoginEmailField;
     private EditText mLoginPasswordField;
-    private Button mLoginBtn;
-    private Button mCreateAccountBtn;
+
 
 
     private FirebaseAuth mAuth;
@@ -44,6 +41,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Button mLoginBtn;
+        Button mCreateAccountBtn;
+
         mAuth = FirebaseAuth.getInstance();
 
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
@@ -52,10 +52,10 @@ public class LoginActivity extends AppCompatActivity {
         mProgress = new ProgressDialog(this);
 
 
-        mLoginEmailField = (EditText) findViewById(R.id.loginEmailField);
-        mLoginPasswordField =(EditText) findViewById(R.id.loginPasswordField);
-        mLoginBtn = (Button) findViewById(R.id.loginBtn);
-        mCreateAccountBtn = (Button) findViewById(R.id.createAccountBtn);
+        mLoginEmailField = findViewById(R.id.loginEmailField);
+        mLoginPasswordField = findViewById(R.id.loginPasswordField);
+        mLoginBtn = findViewById(R.id.loginBtn);
+        mCreateAccountBtn = findViewById(R.id.createAccountBtn);
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -48,26 +48,26 @@ import java.util.Locale;
 
 public class TrainingSessionActivity extends AppCompatActivity {
 
-    DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
-    DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-    EditText mSessionName;
-    EditText mSessionType;
-    EditText mDate;
-    EditText mTime;
-    EditText mLevel;
-    EditText mMaxParticipants;
-    EditText mDescription;
+    private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private EditText mSessionName;
+    private EditText mSessionType;
+    private EditText mDate;
+    private EditText mTime;
+    private EditText mLevel;
+    private EditText mMaxParticipants;
+    private EditText mDescription;
     private Button mCreateSessionBtn;
-    Calendar myCalendar = Calendar.getInstance();
-    ListView lv;
-    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private final Calendar myCalendar = Calendar.getInstance();
+    private ListView lv;
+    private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mStorageSessionImage;
-    int sessionExist;
+    private int sessionExist;
 
 
-    SessionDate mSessionDate;
-    ImageButton mSessionImageButton;
+    private SessionDate mSessionDate;
+    private ImageButton mSessionImageButton;
 
     private static final int GALLERY_REQUEST = 1;
 
@@ -76,15 +76,10 @@ public class TrainingSessionActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
 
     private LatLng clickedLatLng;
-    Bundle sessionIdBundle;
-    String existingSessionID;
-    String mSessionId;
-    Session existingSession;
-    GeoFire geoFire;
-    LinearLayout createSessionContainer;
-    private View createSession;
-
-
+    private String existingSessionID;
+    private String mSessionId;
+    private Session existingSession;
+    private GeoFire geoFire;
 
 
     @Override
@@ -92,23 +87,25 @@ public class TrainingSessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_session);
 
-        LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
+        View createSession;
 
-        createSessionContainer = (LinearLayout) findViewById(R.id.create_session_container);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
         // Set create session layout
-        createSession = inflater.inflate(R.layout.create_session,createSessionContainer,false);
+        createSession = inflater.inflate(R.layout.create_session, createSessionContainer,false);
 
-        mDate = (EditText)createSession.findViewById(R.id.dateET);
-        mSessionName = (EditText) createSession.findViewById(R.id.sessionNameET);
-        mSessionType = (EditText) createSession.findViewById(R.id.sessionTypeET);
-        mTime = (EditText) createSession.findViewById(R.id.timeET);
-        mLevel = (EditText) createSession.findViewById(R.id.levelET);
-        mMaxParticipants = (EditText) createSession.findViewById(R.id.maxParticipantsET);
-        mDescription = (EditText) createSession.findViewById(R.id.descriptionET);
+        mDate = createSession.findViewById(R.id.dateET);
+        mSessionName = createSession.findViewById(R.id.sessionNameET);
+        mSessionType = createSession.findViewById(R.id.sessionTypeET);
+        mTime = createSession.findViewById(R.id.timeET);
+        mLevel = createSession.findViewById(R.id.levelET);
+        mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
+        mDescription = createSession.findViewById(R.id.descriptionET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(this);
-        mCreateSessionBtn =(Button) createSession.findViewById(R.id.createSessionBtn);
-        mSessionImageButton = (ImageButton) createSession.findViewById(R.id.sessionImageBtn);
+        mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
+        mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
 
         createSessionContainer.addView(createSession);
 
@@ -117,7 +114,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mUserDbRef.keepSynced(true);
         mMarkerDbRef.keepSynced(true);
 
-        sessionIdBundle = getIntent().getExtras();
+        Bundle sessionIdBundle = getIntent().getExtras();
         existingSessionID = "new";
         sessionExist=0;
         if (sessionIdBundle != null) {
@@ -156,7 +153,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                         mMaxParticipants.setText(existingSession.maxParticipants);
                         mDescription.setText(existingSession.description);
 
-                        mCreateSessionBtn.setText("Update session");
+                        mCreateSessionBtn.setText(R.string.update_session);
 
                     }
 
@@ -380,13 +377,13 @@ public class TrainingSessionActivity extends AppCompatActivity {
         mDate.setText(sdf.format(myCalendar.getTime()));
     }
 
-    public void createDialog(String title, int string_array, final EditText mEditText) {
+    private void createDialog(String title, int string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(TrainingSessionActivity.this);
         LayoutInflater inflater = getLayoutInflater();
-        View convertView = (View) inflater.inflate(R.layout.dialog_listview, null);
+        View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialog.setView(convertView);
         alertDialog.setTitle(title);
-        lv =(ListView) convertView.findViewById(R.id.listView1);
+        lv = convertView.findViewById(R.id.listView1);
         String[] values = getResources().getStringArray(string_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(TrainingSessionActivity.this,android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);

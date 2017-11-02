@@ -8,7 +8,7 @@ import java.util.HashMap;
  * Created by chris on 2017-06-28.
  */
 
-public class User {
+class User {
 
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;

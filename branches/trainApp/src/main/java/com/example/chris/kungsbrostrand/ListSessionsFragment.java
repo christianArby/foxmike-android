@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class ListSessionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
-        mSessionList = (RecyclerView) view.findViewById(R.id.session_list);
+        mSessionList = view.findViewById(R.id.session_list);
         mSessionList.setHasFixedSize(true);
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
         return view;
@@ -78,8 +77,8 @@ public class ListSessionsFragment extends Fragment {
 
     public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.SessionViewHolder>{
 
-        private ArrayList<Session> sessions;
-        private Context context;
+        private final ArrayList<Session> sessions;
+        private final Context context;
 
         public sessionsAdapter(ArrayList<Session> sessions, Context context) {
             this.sessions = sessions;
@@ -123,7 +122,7 @@ public class ListSessionsFragment extends Fragment {
 
         public class SessionViewHolder extends RecyclerView.ViewHolder{
 
-            View mView;
+            final View mView;
 
             public SessionViewHolder(View itemView) {
                 super(itemView);
@@ -133,34 +132,34 @@ public class ListSessionsFragment extends Fragment {
 
             public void setTitle(String title){
 
-                TextView session_title = (TextView) mView.findViewById(R.id.session_title);
+                TextView session_title = mView.findViewById(R.id.session_title);
                 session_title.setText(title);
 
             }
 
             public void setAddress(String address){
 
-                TextView session_address = (TextView) mView.findViewById(R.id.session_address);
+                TextView session_address = mView.findViewById(R.id.session_address);
                 session_address.setText(address);
 
             }
 
             public void setDesc(String desc){
 
-                TextView session_desc = (TextView) mView.findViewById(R.id.session_desc);
+                TextView session_desc = mView.findViewById(R.id.session_desc);
                 session_desc.setText(desc);
 
             }
 
             public void setDateAndTime(String dateAndTime){
 
-                TextView sessionDateAndTime = (TextView) mView.findViewById(R.id.session_date_and_time);
+                TextView sessionDateAndTime = mView.findViewById(R.id.session_date_and_time);
                 sessionDateAndTime.setText(dateAndTime);
 
             }
 
             public void setImage(Context ctx, String image){
-                ImageView session_image = (ImageView) mView.findViewById(R.id.session_image);
+                ImageView session_image = mView.findViewById(R.id.session_image);
                 Glide.with(ctx).load(image).into(session_image);
                 session_image.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
             }
@@ -169,13 +168,13 @@ public class ListSessionsFragment extends Fragment {
 
     }
 
-    public void joinSession(LatLng markerLatLng) {
+    private void joinSession(LatLng markerLatLng) {
         Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivity(intent);
     }
 
-    public String getAddress(double latitude, double longitude) {
+    private String getAddress(double latitude, double longitude) {
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;
@@ -212,7 +211,7 @@ public class ListSessionsFragment extends Fragment {
 
     }
 
-    public String getDistance(double latitude, double longitude, Location currentLocation){
+    private String getDistance(double latitude, double longitude, Location currentLocation){
 
         Location locationA = new Location("point A");
 

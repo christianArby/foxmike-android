@@ -18,6 +18,7 @@
             android:orientation="vertical">
 
             <ImageView
+                android:contentDescription="@string/session_image"
                 android:id="@+id/joinSessionImage"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -33,8 +34,7 @@
         android:id="@+id/joinSessionBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Join session"
-        android:layout_below="@+id/descriptionTW"
+        android:text="@string/join_session"
         android:background="#ff3366"
         android:textColor="@android:color/white" />
 
@@ -47,7 +47,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="15dp"
-            android:text="session name goes here"
+            android:text="@string/session_name_goes_here"
             android:textAllCaps="true"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="Address"
+            android:text="@string/address"
             android:textSize="14sp" />
         <TextView
             android:id="@+id/hostName"
@@ -68,14 +68,14 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="90dp"
             android:layout_marginBottom="15dp"
-            android:text="TextView" />
+            android:text="@string/trainer_name" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/JoinSessionHostImage"
             android:layout_marginBottom="15dp"
-            android:layout_marginRight="15dp"
+            android:layout_marginEnd="15dp"
             android:layout_gravity="bottom|end"
             android:src="@drawable/background" />
 
@@ -90,13 +90,10 @@
         android:id="@+id/dateAndTimeTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/sessionTypeTW"
-        android:layout_below="@+id/sessionName"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
         android:fontFamily="sans-serif"
-        android:inputType="textCapSentences"
-        android:text="TextView"
+        android:text="@string/loading"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="14sp" />
 
@@ -104,12 +101,10 @@
         android:id="@+id/participantsTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/descriptionTW"
-        android:layout_below="@+id/levelTW"
         android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="15dp"
-        android:text="TextView"
+        android:text="@string/loading"
         android:textColor="#ff3366"
         android:textSize="14sp" />
 
@@ -125,7 +120,6 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif"
-        android:text="Information"
         android:textColor="?android:attr/textColorPrimary"
         android:textStyle="bold" />
 
@@ -134,11 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_below="@+id/participantsTW"
-        android:layout_alignStart="@+id/joinSessionBtn"
-        android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:inputType="textMultiLine"/>
+        android:layout_marginTop="10dp" />
 
 
 

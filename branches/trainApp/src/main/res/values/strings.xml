@@ -152,6 +152,45 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="choose_profile_picture">Choose profile picture</string>
+    <string name="choose_session_image">Choose session image</string>
+    <string name="session_image">Session image</string>
+    <string name="switch_mode_icon">Switch mode icon</string>
+    <string name="loading">Loading...</string>
+    <string name="switch_to_trainer_mode">Switch to trainer mode</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="need_an_account">Need an account?</string>
+    <string name="your_name">Your name</string>
+    <string name="your_email">Your email</string>
+    <string name="your_password">Your password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="finish_setup">Finish setup</string>
+    <string name="session_name">Session name</string>
+    <string name="session_type">Session type</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="level">Level</string>
+    <string name="maximum_participants">Maximum participants</string>
+    <string name="description">Description</string>
+    <string name="create_session">Create session</string>
+    <string name="set">Set</string>
+    <string name="join_session">Join session</string>
+    <string name="session_name_goes_here">Session name goes here</string>
+    <string name="address">Address</string>
+    <string name="trainer_name">Trainer name</string>
+    <string name="log_out">Log out</string>
+    <string name="clear_db">Clear Db</string>
+    <string name="session_text">Session text</string>
+    <string name="description_goes_here">Description goes here</string>
+    <string name="date_goes_here">Date goes here</string>
+    <string name="sessions">Sessions</string>
+    <string name="is_you_trainer">is your trainer</string>
+    <string name="cancel_booking">Cancel booking</string>
+    <string name="update_session">Update session</string>
+    <string name="sessions_attending">Sessions Attending</string>
+    <string name="sessions_hosting">Sessions Hosting</string>
 
 
 </resources>

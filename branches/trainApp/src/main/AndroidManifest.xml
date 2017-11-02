@@ -88,6 +88,7 @@
         <activity android:name=".RegisterActivity"
             android:label="@string/title_activity_register"/>
         <activity android:name=".SetupAccountActivity" />
+        <service android:name=".MyFirebaseDatabase" />
     </application>
 
 </manifest>

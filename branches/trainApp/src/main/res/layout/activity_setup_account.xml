@@ -8,6 +8,7 @@
 
     <ImageButton
         android:id="@+id/setupImageButton"
+        android:contentDescription="@string/choose_profile_picture"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
@@ -24,7 +25,7 @@
         android:layout_below="@+id/setupImageButton"
         android:layout_marginTop="30dp"
         android:ems="10"
-        android:hint="Enter your display name"
+        android:hint="@string/your_name"
         android:inputType="textPersonName" />
 
     <Button
@@ -34,6 +35,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:text="Finish setup" />
+        android:text="@string/finish_setup" />
 
 </RelativeLayout>
