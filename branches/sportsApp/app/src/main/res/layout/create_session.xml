@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/sessionNameET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/session_name"
+        android:inputType="textCapSentences|textPersonName"
+        android:scrollHorizontally="false"
+        android:textSize="14sp" />
+
+    <ImageButton
+        android:contentDescription="@string/choose_session_image"
+        android:id="@+id/sessionImageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/background"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
+
+    <EditText
+        android:id="@+id/sessionTypeET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="@string/session_type"
+        android:inputType="textCapSentences|textPersonName"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+
+    <EditText
+        android:id="@+id/dateET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="@string/date"
+        android:inputType="date"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+
+    <EditText
+        android:id="@+id/timeET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="@string/time"
+        android:inputType="textPersonName"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/levelET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="@string/level"
+        android:inputType="textPersonName"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/maxParticipantsET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="@string/maximum_participants"
+        android:inputType="number"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/descriptionET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/description"
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
+
+
+    <Button
+        android:id="@+id/createSessionBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:background="#263238"
+        android:text="@string/create_session"
+        android:textColor="@android:color/white" />
+
+
+</LinearLayout>
