@@ -1,0 +1,197 @@
+<resources>
+    <string name="app_name">SportsApp</string>
+    <string name="title_activity_maps">SportsApp</string>
+    <string name="title_activity_user_activity">Your page</string>
+    <string name="title_activity_training_session">Create session</string>
+    <string name="title_activity_register">Register</string>
+    <string name="title_activity_join_session">Session</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_list">Sessions</string>
+    <string name="menu_profile">Profile</string>
+
+    <string-array name="sessionType_array">
+               
+        <item>Running</item>
+
+        <item>Biking</item>
+               
+        <item>Trailing</item>
+               
+        <item>Physical</item>
+
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="level_array">
+               
+        <item>1</item>
+
+        <item>2</item>
+           
+        <item>3</item>
+
+    </string-array>
+
+    <string-array name="max_participants_array">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+        <item>32</item>
+        <item>33</item>
+        <item>34</item>
+        <item>35</item>
+        <item>36</item>
+        <item>37</item>
+        <item>38</item>
+        <item>39</item>
+        <item>40</item>
+        <item>41</item>
+        <item>42</item>
+        <item>43</item>
+        <item>44</item>
+        <item>45</item>
+        <item>46</item>
+        <item>47</item>
+        <item>48</item>
+        <item>49</item>
+        <item>50</item>
+        <item>51</item>
+        <item>52</item>
+        <item>53</item>
+        <item>54</item>
+        <item>55</item>
+        <item>56</item>
+        <item>57</item>
+        <item>58</item>
+        <item>59</item>
+        <item>60</item>
+        <item>61</item>
+        <item>62</item>
+        <item>63</item>
+        <item>64</item>
+        <item>65</item>
+        <item>66</item>
+        <item>67</item>
+        <item>68</item>
+        <item>69</item>
+        <item>70</item>
+        <item>71</item>
+        <item>72</item>
+        <item>73</item>
+        <item>74</item>
+        <item>75</item>
+        <item>76</item>
+        <item>77</item>
+        <item>78</item>
+        <item>79</item>
+        <item>80</item>
+        <item>81</item>
+        <item>82</item>
+        <item>83</item>
+        <item>84</item>
+        <item>85</item>
+        <item>86</item>
+        <item>87</item>
+        <item>88</item>
+        <item>89</item>
+        <item>90</item>
+        <item>91</item>
+        <item>92</item>
+        <item>93</item>
+        <item>94</item>
+        <item>95</item>
+        <item>96</item>
+        <item>97</item>
+        <item>98</item>
+        <item>99</item>
+        <item>100</item>
+    </string-array>
+
+    <string-array name="titles">
+        <item>Facebook</item>
+        <item>Instagram</item>
+        <item>Twitter</item>
+        <item>Google</item>
+    </string-array>
+
+    <string-array name="description">
+        <item>Facebook Description</item>
+        <item>Instagram Description</item>
+        <item>Twitter Description</item>
+        <item>Google Description</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="choose_profile_picture">Choose profile picture</string>
+    <string name="choose_session_image">Choose session image</string>
+    <string name="session_image">Session image</string>
+    <string name="switch_mode_icon">Switch mode icon</string>
+    <string name="loading">Loading...</string>
+    <string name="switch_to_trainer_mode">Switch to trainer mode</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="need_an_account">Need an account?</string>
+    <string name="your_name">Your name</string>
+    <string name="your_email">Your email</string>
+    <string name="your_password">Your password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="finish_setup">Finish setup</string>
+    <string name="session_name">Session name</string>
+    <string name="session_type">Session type</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="level">Level</string>
+    <string name="maximum_participants">Maximum participants</string>
+    <string name="description">Description</string>
+    <string name="create_session">Create session</string>
+    <string name="set">Set</string>
+    <string name="join_session">Join session</string>
+    <string name="session_name_goes_here">Session name goes here</string>
+    <string name="address">Address</string>
+    <string name="trainer_name">Trainer name</string>
+    <string name="log_out">Log out</string>
+    <string name="clear_db">Clear Db</string>
+    <string name="session_text">Session text</string>
+    <string name="description_goes_here">Description goes here</string>
+    <string name="date_goes_here">Date goes here</string>
+    <string name="sessions">Sessions</string>
+    <string name="is_you_trainer"> is your trainer</string>
+    <string name="cancel_booking">Cancel booking</string>
+    <string name="update_session">Update session</string>
+    <string name="sessions_attending">Sessions Attending</string>
+    <string name="sessions_hosting">Sessions Hosting</string>
+    <string name="display_session">Display session</string>
+
+
+</resources>
