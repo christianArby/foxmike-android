@@ -5,23 +5,22 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 
-class Session {
-    public String host;
-    public String sessionName;
-    public String sessionType;
-    public String level;
-    public String maxParticipants;
-    public String description;
-    public double latitude;
-    public double longitude;
+public class Session {
+    private String host;
+    private String sessionName;
+    private String sessionType;
+    private String level;
+    private String maxParticipants;
+    private String description;
+    private double latitude;
+    private double longitude;
     public String time;
-    public SessionDate sessionDate;
-    public int countParticipants;
+    private SessionDate sessionDate;
+    private int countParticipants;
 
 
-
-    public HashMap<String,Boolean> participants;
-    public String imageUri;
+    private HashMap<String,Boolean> participants;
+    private String imageUri;
 
     public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String description) {
         this.host = host;
@@ -74,7 +73,7 @@ class Session {
     public Session() {
     }
 
-    public String getDescription() {
+    String getDescription() {
         return description;
     }
 

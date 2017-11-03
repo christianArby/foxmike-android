@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.chris.kungsbrostrand.JoinSessionActivity"
+    tools:context="com.example.chris.kungsbrostrand.DisplaySessionActivity"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -19,7 +19,7 @@
 
             <ImageView
                 android:contentDescription="@string/session_image"
-                android:id="@+id/joinSessionImage"
+                android:id="@+id/displaySessionImage"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:adjustViewBounds="true"
@@ -31,10 +31,10 @@
     </android.support.v7.widget.CardView>
 
     <Button
-        android:id="@+id/joinSessionBtn"
+        android:id="@+id/displaySessionBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/join_session"
+        android:text="@string/display_session"
         android:background="#ff3366"
         android:textColor="@android:color/white" />
 
@@ -73,7 +73,7 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:id="@+id/JoinSessionHostImage"
+            android:id="@+id/displaySessionHostImage"
             android:layout_marginBottom="15dp"
             android:layout_marginEnd="15dp"
             android:layout_gravity="bottom|end"

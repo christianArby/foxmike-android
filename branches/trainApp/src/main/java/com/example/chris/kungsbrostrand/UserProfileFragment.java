@@ -3,7 +3,6 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -174,7 +173,7 @@ public class UserProfileFragment extends Fragment {
             row.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    sessionLatLng = new LatLng(sessionArray.get(t).latitude, sessionArray.get(t).longitude);
+                    sessionLatLng = new LatLng(sessionArray.get(t).getLatitude(), sessionArray.get(t).getLongitude());
                     joinSession(sessionLatLng);
                 }
             });
@@ -182,7 +181,7 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void joinSession(LatLng markerLatLng) {
-        Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
+        Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivity(intent);
     }

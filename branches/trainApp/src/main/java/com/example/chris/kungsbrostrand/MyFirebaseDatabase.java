@@ -148,24 +148,24 @@ public class MyFirebaseDatabase extends Service{
                                                 Session session;
                                                 session = dataSnapshot.getValue(Session.class);
 
-                                                if (firstWeekdayHashMap.containsKey(session.textSDF(session.sessionDate))) {
-                                                    if (firstWeekdayHashMap.get(session.textSDF(session.sessionDate))) {
+                                                if (firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
+                                                    if (firstWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
                                                         sessions.add(session);
                                                     } else {
                                                         nearSessions.remove(str);
                                                     }
                                                 }
 
-                                                if (secondWeekdayHashMap.containsKey(session.textSDF(session.sessionDate))) {
+                                                if (secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
 
-                                                    if (secondWeekdayHashMap.get(session.textSDF(session.sessionDate))) {
+                                                    if (secondWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
                                                         sessions.add(session);
                                                     } else {
                                                         nearSessions.remove(str);
                                                     }
                                                 }
 
-                                                if (!firstWeekdayHashMap.containsKey(session.textSDF(session.sessionDate)) && !secondWeekdayHashMap.containsKey(session.textSDF(session.sessionDate))) {
+                                                if (!firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate())) && !secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
                                                     nearSessions.remove(str);
                                                 }
 

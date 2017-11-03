@@ -7,13 +7,13 @@
     android:orientation="vertical">
 
     <ScrollView
-        android:id="@+id/scrollview_join_session"
+        android:id="@+id/scrollview_display_session"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="vertical"
-            android:id="@+id/join_session_container"
+            android:id="@+id/display_session_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"/>

@@ -95,12 +95,12 @@ public class ListSessionsFragment extends Fragment {
         public void onBindViewHolder(sessionsAdapter.SessionViewHolder holder, int position) {
             Session session = sessions.get(position);
 
-            final LatLng sessionLatLng = new LatLng(session.latitude,session.longitude);
-            String address = getAddress(session.latitude,session.longitude)+"  |  "+getDistance(session.latitude,session.longitude, currentLocation);
+            final LatLng sessionLatLng = new LatLng(session.getLatitude(),session.getLongitude());
+            String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
             holder.setTitle(session.getSessionName());
             holder.setDesc(session.getSessionType());
-            String sessionTime = String.format("%02d:%02d", session.sessionDate.hour, session.sessionDate.minute);
-            holder.setDateAndTime(session.textFullDay(session.sessionDate) + " " + session.sessionDate.day + " " + session.textMonth(session.sessionDate) + " " + sessionTime);
+            String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
+            holder.setDateAndTime(session.textFullDay(session.getSessionDate()) + " " + session.getSessionDate().day + " " + session.textMonth(session.getSessionDate()) + " " + sessionTime);
             holder.setAddress(address);
             holder.setImage(getActivity(),session.getImageUri());
 
@@ -169,7 +169,7 @@ public class ListSessionsFragment extends Fragment {
     }
 
     private void joinSession(LatLng markerLatLng) {
-        Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
+        Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivity(intent);
     }

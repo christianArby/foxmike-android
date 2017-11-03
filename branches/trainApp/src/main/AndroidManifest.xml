@@ -79,10 +79,10 @@
         </provider>
 
         <activity
-            android:name=".TrainingSessionActivity"
+            android:name=".CreateOrEditSessionActivity"
             android:label="@string/title_activity_training_session" />
         <activity
-            android:name=".JoinSessionActivity"
+            android:name=".DisplaySessionActivity"
             android:label="@string/title_activity_join_session" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity"

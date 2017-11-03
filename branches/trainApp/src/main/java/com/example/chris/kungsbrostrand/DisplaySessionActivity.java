@@ -30,14 +30,14 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class JoinSessionActivity extends AppCompatActivity {
+public class DisplaySessionActivity extends AppCompatActivity {
 
-    private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
+    private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mSessionName;
-    private Button mJoinSessionBtn;
+    private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
     private TextView mHost;
     private TextView mDescription;
@@ -50,45 +50,57 @@ public class JoinSessionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_join_session);
+        setContentView(R.layout.activity_display_session);
 
-        LinearLayout joinSessionContainer;
-        View joinSession;
+        LinearLayout displaySessionContainer;
+        View displaySession;
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        joinSessionContainer = findViewById(R.id.join_session_container);
-        joinSession = inflater.inflate(R.layout.join_session,joinSessionContainer,false);
+        displaySessionContainer = findViewById(R.id.display_session_container);
+        displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
 
-        mDateAndTime = joinSession.findViewById(R.id.dateAndTimeTW);
-        mParticipants = joinSession.findViewById(R.id.participantsTW);
-        mHostImage = joinSession.findViewById(R.id.JoinSessionHostImage);
-        mHost = joinSession.findViewById(R.id.hostName);
-        mSessionName = joinSession.findViewById(R.id.sessionName);
-        mDescription = joinSession.findViewById(R.id.descriptionTW);
-        mAddressAndSessionType = joinSession.findViewById(R.id.addressAndSessionTypeTW);
+        mDateAndTime = displaySession.findViewById(R.id.dateAndTimeTW);
+        mParticipants = displaySession.findViewById(R.id.participantsTW);
+        mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
+        mHost = displaySession.findViewById(R.id.hostName);
+        mSessionName = displaySession.findViewById(R.id.sessionName);
+        mDescription = displaySession.findViewById(R.id.descriptionTW);
+        mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
 
+
+        /**
+        Get latitude and longitude of session from previous activity.
+        Use latitiude and longitude in method findSessionAndFillInUI to fill view
+        with session details.
+         */
         LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
         if (markerLatLng!=null) {
-            findSession(markerLatLng.latitude, markerLatLng.longitude);
+            findSessionAndFillInUI(markerLatLng.latitude, markerLatLng.longitude);
         } else {
             Toast toast = Toast.makeText(this,"Session not found, please try again later...",Toast.LENGTH_LONG);
             toast.show();
         }
 
-        mJoinSessionBtn = joinSession.findViewById(R.id.joinSessionBtn);
+        mDisplaySessionBtn = displaySession.findViewById(R.id.displaySessionBtn);
+        displaySessionContainer.addView(displaySession);
 
-        joinSessionContainer.addView(joinSession);
-
-        mJoinSessionBtn.setOnClickListener(new View.OnClickListener() {
+        mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference sessionIDref = mMarkerDbRef.child(sessionID);
+                DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
 
                 sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        if (dataSnapshot.child("host").getValue().equals(currentFirebaseUser.getUid())) {
-                            Intent createSessionIntent = new Intent(JoinSessionActivity.this, TrainingSessionActivity.class);
+                        Session session = dataSnapshot.getValue(Session.class);
+
+                        /**
+                        If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
+                        and send the session key to that activity as bundle.
+                        */
+
+                        if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                            Intent createSessionIntent = new Intent(DisplaySessionActivity.this, CreateOrEditSessionActivity.class);
 
 
                             Bundle sessionIdBundle = new Bundle();
@@ -98,17 +110,28 @@ public class JoinSessionActivity extends AppCompatActivity {
                             startActivity(createSessionIntent);
                         }
 
-                        else if (dataSnapshot.child("participants").hasChild(currentFirebaseUser.getUid())) {
-                            mMarkerDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
+                        /**
+                        Else if current user is a participant in the session (button will display cancel booking) and button is clicked
+                        remove the current user from that session participant list and go back to main activity.
+                        */
+
+                        else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+                            mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
                             countParticipants();
-                            Intent mainIntent = new Intent(JoinSessionActivity.this, MainActivity.class);
+                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainActivity.class);
                             startActivity(mainIntent);
                         }
 
                         else {
 
-                            final DatabaseReference sessionIDref = mMarkerDbRef.child(sessionID);
+                            /**
+                            Else (button will show join session) add the user id to the session participant list and
+                            the user sessions attending list when button is clicked.
+                            After user is added, count participants of the current session.
+                            */
+
+                            final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
                             sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
 
@@ -138,20 +161,23 @@ public class JoinSessionActivity extends AppCompatActivity {
 
     }
 
+    /**
+    Count participants of the current session with sessionID found in method findSessionAndFillInUI
+     and set the countParticipants value in the database.
+    */
+
     private void countParticipants() {
-        mMarkerDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
+        mSessionDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild("participants")) {
                     participantsCount = dataSnapshot.child("participants").getChildrenCount();
-                    mMarkerDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(participantsCount);
+                    mSessionDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(participantsCount);
                 }
                 else {
-                    mMarkerDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(0);
+                    mSessionDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(0);
                 }
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -159,33 +185,43 @@ public class JoinSessionActivity extends AppCompatActivity {
         });
     }
 
-    private void findSession(Double latitude, final Double longitude){
-        // find latitude value in child in realtime database and fit in imageview
-        mMarkerDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
+    /**
+    Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
+    */
+
+    private void findSessionAndFillInUI(Double latitude, final Double longitude){
+        //
+        mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Session session = dataSnapshot.getValue(Session.class);
-                if(session.longitude==longitude) {
-                    String sessionTime = String.format("%02d:%02d", session.sessionDate.hour, session.sessionDate.minute);
-                    String sessionDateAndTime = session.textFullDay(session.sessionDate) + " " + session.sessionDate.day + " " + session.textMonth(session.sessionDate) + " " + sessionTime;
+                if(session.getLongitude()==longitude) {
+
+                    String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
+                    String sessionDateAndTime = session.textFullDay(session.getSessionDate()) + " " + session.getSessionDate().day + " " + session.textMonth(session.getSessionDate()) + " " + sessionTime;
                     sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                     mDateAndTime.setText(sessionDateAndTime);
-                    mParticipants.setText("Participants: " + session.countParticipants +"/" + session.maxParticipants);
+
+                    mParticipants.setText("Participants: " + session.getCountParticipants() +"/" + session.getMaxParticipants());
                     sessionID = dataSnapshot.getRef().getKey();
-                    mSessionName.setText(session.sessionName);
-                    mDescription.setText(session.description);
-                    String address = getAddress(session.latitude,session.longitude);
-                    mAddressAndSessionType.setText(address + "  |  " + session.sessionType);
+                    mSessionName.setText(session.getSessionName());
+                    mDescription.setText(session.getDescription());
+
+                    String address = getAddress(session.getLatitude(),session.getLongitude());
+                    mAddressAndSessionType.setText(address + "  |  " + session.getSessionType());
 
 
-                    mUserDbRef.child(session.host).addListenerForSingleValueEvent(new ValueEventListener() {
+                    /**
+                    Get the host image from the database (found under users with the userID=session.host)
+                    */
+                    mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
                             User user = dataSnapshot.getValue(User.class);
 
-                            setImage(user.image, mHostImage);
-                            String hostText = user.name + getString(R.string.is_you_trainer);
+                            setImage(user.getImage(), mHostImage);
+                            String hostText = user.getName() + getString(R.string.is_you_trainer);
                             mHost.setText(hostText);
 
                         }
@@ -196,20 +232,27 @@ public class JoinSessionActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (session.participants != null) {
-                        if (session.participants.containsKey(currentFirebaseUser.getUid())) {
-                            mJoinSessionBtn.setText(R.string.cancel_booking);
+                    /**
+                    If participants are more than zero, see if the current user is one of the participants and if so
+                    change the button text to "Cancel booking"
+                    */
+                    if (session.getParticipants() != null) {
+                        if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+                            mDisplaySessionBtn.setText(R.string.cancel_booking);
                         }
                     }
 
-                    if (session.host.equals(currentFirebaseUser.getUid())) {
+                    /**
+                    If the current user is the session host change the button text to "Edit session"
+                    */
+                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
 
-                        mJoinSessionBtn.setText("Edit session");
+                        mDisplaySessionBtn.setText("Edit session");
                     }
 
-                    ImageView sessionImage = findViewById(R.id.joinSessionImage);
+                    ImageView sessionImage = findViewById(R.id.displaySessionImage);
 
-                    setImage(session.imageUri, sessionImage);
+                    setImage(session.getImageUri(), sessionImage);
 
                 }
             }
@@ -237,13 +280,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     }
 
     private void setImage(String image, ImageView imageView) {
-
-
-
-        //Picasso.with(this).load(image).resize(3900,2000).centerCrop().into(sessionImage);
         Glide.with(this).load(image).into(imageView);
-
-
     }
 
     private String getAddress(double latitude, double longitude) {
@@ -282,6 +319,4 @@ public class JoinSessionActivity extends AppCompatActivity {
         return returnAddress;
 
     }
-
-
 }

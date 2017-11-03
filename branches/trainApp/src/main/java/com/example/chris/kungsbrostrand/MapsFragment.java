@@ -1,18 +1,15 @@
 package com.example.chris.kungsbrostrand;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -28,11 +25,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -142,7 +136,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
 
 
-        //when map is clicked, open TrainingSessionActivity
+        //when map is clicked, open CreateOrEditSessionActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
@@ -164,18 +158,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mMap.clear();
         for (Session session: sessions) {
             LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(loc).title(session.sessionType).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
+            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
         }
     }
 
     private void addSession() {
-        Intent intent = new Intent(getActivity(), TrainingSessionActivity.class);
+        Intent intent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
         intent.putExtra("LatLng", clickedPosition);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
 
     private void joinSession(LatLng markerLatLng) {
-        Intent intent = new Intent(getActivity(), JoinSessionActivity.class);
+        Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
