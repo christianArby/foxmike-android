@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     private DatabaseReference mDatabase;
     private HashMap<String,Boolean> firstWeekdayHashMap;
     private HashMap<String,Boolean> secondWeekdayHashMap;
+    private BottomNavigationView bottomNavigation;
     boolean locationPermission;
 
     @Override
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         }
 
         if (locationPermission) {
-            BottomNavigationView bottomNavigation;
+
             FirebaseAuth.AuthStateListener mAuthListener;
 
             myFirebaseDatabase= new MyFirebaseDatabase();
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
 
 
             mAuth = FirebaseAuth.getInstance();
+
             mAuthListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -109,113 +111,124 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
 
             checkUserExist();
 
-            bottomNavigation = findViewById(R.id.bottom_navigation);
-            fragmentManager = getSupportFragmentManager();
+            if (mAuth.getCurrentUser()==null) {
+                Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(loginIntent);
+            } else {
+                updateUI();
 
-            // Initiate SessionContainer Fragment
-
-            if (userProfileFragment==null) {
-                userProfileFragment = UserProfileFragment.newInstance();
             }
-
-            if (listSessionsFragment==null) {
-                listSessionsFragment = ListSessionsFragment.newInstance();
-            }
-
-            if (mapsFragment==null) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-                mapsFragment = MapsFragment.newInstance();
-                mapsFragment.setArguments(bundle);
-            }
-
-
-            final FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-            if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
-                transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
-            }
-
-            if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
-                transaction.add(R.id.main_container, mapsFragment,"mapsFragment");
-            }
-
-            if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
-                transaction.add(R.id.main_container, listSessionsFragment,"ListSessionsFragment");
-            }
-
-            transaction.commit();
-
-            WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
-            weekdayViewpager.setAdapter(new weekdayViewpagerAdapter(fragmentManager));
-
-            //Bind the title indicator to the adapter
-            PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
-            pageIndicatorView.setViewPager(weekdayViewpager);
-
-
-            int selectedColor = Color.parseColor("#303F9F");
-            int unSelectedColor = Color.parseColor("#E0E0E0");
-
-            pageIndicatorView.setSelectedColor(selectedColor);
-            pageIndicatorView.setUnselectedColor(unSelectedColor);
-
-            fragmentManager.executePendingTransactions();
-
-            bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                    RelativeLayout weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
-
-                    int id = item.getItemId();
-                    switch (id){
-                        case R.id.menuMap:
-                            FragmentTransaction transaction1 = fragmentManager.beginTransaction();
-                            transaction1.hide(listSessionsFragment);
-                            transaction1.hide(userProfileFragment);
-                            weekdayFilterContainer.setVisibility(View.VISIBLE);
-                            transaction1.show(mapsFragment);
-                            transaction1.commit();
-                            getSupportActionBar().setTitle("Map");
-                            break;
-                        case R.id.menuList:
-                            FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-                            transaction2.hide(mapsFragment);
-                            transaction2.hide(userProfileFragment);
-                            weekdayFilterContainer.setVisibility(View.VISIBLE);
-                            //transaction2.attach(weekdayFilterFragment);
-                            transaction2.show(listSessionsFragment);
-                            transaction2.commit();
-                            getSupportActionBar().setTitle("Sessions");
-                            break;
-                        case R.id.menuProfile:
-                            FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                            weekdayFilterContainer.setVisibility(View.GONE);
-                            transaction3.hide(mapsFragment);
-                            transaction3.hide(listSessionsFragment);
-                            transaction3.show(userProfileFragment);
-                            transaction3.commit();
-                            getSupportActionBar().setTitle("Profile");
-                            break;
-                    }
-                    return true;
-                }
-            });
-
-            myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
-                @Override
-                public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
-                    MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
-                    mapsFragment.addMarkersToMap(sessions,location);
-
-                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
-                    listSessionsFragment.FilterSessions(sessions,location);
-                }
-            }, firstWeekdayHashMap, secondWeekdayHashMap, this);
-
-            bottomNavigation.setSelectedItemId(R.id.menuMap);
         }
+    }
+
+    public void updateUI() {
+        bottomNavigation = findViewById(R.id.bottom_navigation);
+        fragmentManager = getSupportFragmentManager();
+
+        // Initiate SessionContainer Fragment
+
+        if (userProfileFragment==null) {
+            userProfileFragment = UserProfileFragment.newInstance();
+        }
+
+        if (listSessionsFragment==null) {
+            listSessionsFragment = ListSessionsFragment.newInstance();
+        }
+
+        if (mapsFragment==null) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+            mapsFragment = MapsFragment.newInstance();
+            mapsFragment.setArguments(bundle);
+        }
+
+
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
+            transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
+        }
+
+        if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
+            transaction.add(R.id.main_container, mapsFragment,"mapsFragment");
+        }
+
+        if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
+            transaction.add(R.id.main_container, listSessionsFragment,"ListSessionsFragment");
+        }
+
+        transaction.commit();
+
+        WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
+        weekdayViewpager.setAdapter(new weekdayViewpagerAdapter(fragmentManager));
+
+        //Bind the title indicator to the adapter
+        PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
+        pageIndicatorView.setViewPager(weekdayViewpager);
+
+
+        int selectedColor = Color.parseColor("#303F9F");
+        int unSelectedColor = Color.parseColor("#E0E0E0");
+
+        pageIndicatorView.setSelectedColor(selectedColor);
+        pageIndicatorView.setUnselectedColor(unSelectedColor);
+
+        fragmentManager.executePendingTransactions();
+
+        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                RelativeLayout weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
+
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.menuMap:
+                        FragmentTransaction transaction1 = fragmentManager.beginTransaction();
+                        transaction1.hide(listSessionsFragment);
+                        transaction1.hide(userProfileFragment);
+                        weekdayFilterContainer.setVisibility(View.VISIBLE);
+                        transaction1.show(mapsFragment);
+                        transaction1.commit();
+                        getSupportActionBar().setTitle("Map");
+                        break;
+                    case R.id.menuList:
+                        FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+                        transaction2.hide(mapsFragment);
+                        transaction2.hide(userProfileFragment);
+                        weekdayFilterContainer.setVisibility(View.VISIBLE);
+                        //transaction2.attach(weekdayFilterFragment);
+                        transaction2.show(listSessionsFragment);
+                        transaction2.commit();
+                        getSupportActionBar().setTitle("Sessions");
+                        break;
+                    case R.id.menuProfile:
+                        FragmentTransaction transaction3 = fragmentManager.beginTransaction();
+                        weekdayFilterContainer.setVisibility(View.GONE);
+                        transaction3.hide(mapsFragment);
+                        transaction3.hide(listSessionsFragment);
+                        transaction3.show(userProfileFragment);
+                        transaction3.commit();
+                        getSupportActionBar().setTitle("Profile");
+                        break;
+                }
+                return true;
+            }
+        });
+
+        myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+            @Override
+            public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                mapsFragment.addMarkersToMap(sessions,location);
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                listSessionsFragment.FilterSessions(sessions,location);
+            }
+        }, firstWeekdayHashMap, secondWeekdayHashMap, this);
+
+        bottomNavigation.setSelectedItemId(R.id.menuMap);
     }
 
     @Override
