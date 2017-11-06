@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/weekdayFilterFragment"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton7"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color" />
+
+</LinearLayout>
