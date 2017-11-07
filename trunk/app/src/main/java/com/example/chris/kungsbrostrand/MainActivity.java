@@ -1,6 +1,5 @@
 package com.example.chris.kungsbrostrand;
 
-import android.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -224,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                 mapsFragment.addMarkersToMap(sessions,location);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
-                listSessionsFragment.FilterSessions(sessions,location);
+                listSessionsFragment.generateSessionListView(sessions,location);
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
 
@@ -276,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                     mapsFragment.addMarkersToMap(sessions,location);
 
                     ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
-                    listSessionsFragment.FilterSessions(sessions,location);
+                    listSessionsFragment.generateSessionListView(sessions,location);
                 }
             }, firstWeekdayHashMap, secondWeekdayHashMap, activity);
         }
@@ -289,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                     mapsFragment.addMarkersToMap(sessions,location);
 
                     ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
-                    listSessionsFragment.FilterSessions(sessions,location);
+                    listSessionsFragment.generateSessionListView(sessions,location);
                 }
             }, firstWeekdayHashMap, secondWeekdayHashMap, activity);
         }
