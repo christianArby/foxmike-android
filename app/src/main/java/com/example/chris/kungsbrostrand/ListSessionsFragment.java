@@ -36,7 +36,7 @@ public class ListSessionsFragment extends Fragment {
         }
     }
 
-    /** Inflate the layout for this fragment which is a RecyclerView when creating view for fragment*/
+    /** Inflate the layout for this fragment (which is a RecyclerView) when creating view for fragment*/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class ListSessionsFragment extends Fragment {
         return view;
     }
 
-    /** Use sessionsAdapter to mSessionList*/
+    /** Use sessionsAdapter to generate view mSessionList*/
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mSessionList.setAdapter(sessionsAdapter);

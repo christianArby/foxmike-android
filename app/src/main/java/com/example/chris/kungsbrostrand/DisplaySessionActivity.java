@@ -146,7 +146,8 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
                                 }
                             });
-                            finish();
+                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainActivity.class);
+                            startActivity(mainIntent);
                         }
                     }
 

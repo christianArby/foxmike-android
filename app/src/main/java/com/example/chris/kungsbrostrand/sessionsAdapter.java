@@ -35,11 +35,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
         this.currentLocation=currentLocation;
     }
 
-    /**Inflate the parent recyclerview with the layout session_row which is the session "cardview" */
+    /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
 
     @Override
     public sessionsAdapter.SessionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_row,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
         return  new sessionsAdapter.SessionViewHolder(v);
     }
 
