@@ -75,7 +75,8 @@ public class UserProfileFragment extends Fragment {
         final TextView userNameTV = profile.findViewById(R.id.profileTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
-        View switchMode = view.findViewById(R.id.switchModeLL);
+        final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
+        final View switchMode = view.findViewById(R.id.switchModeLL);
         switchMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,6 +103,11 @@ public class UserProfileFragment extends Fragment {
             public void OnUserFound(User user) {
                 userNameTV.setText(user.getName());
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
+                if (user.trainerMode) {
+                    switchModeTV.setText("Switch to participant mode");
+                } else {
+                    switchModeTV.setText("Switch to trainer mode");
+                }
             }
         });
 
