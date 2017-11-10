@@ -20,7 +20,6 @@ import java.util.ArrayList;
 public class HostSessionsFragment extends Fragment {
 
     private LinearLayout listHostSessions;
-    private LatLng sessionLatLng;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -47,10 +46,10 @@ public class HostSessionsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
 
         listHostSessions = view.findViewById(R.id.list_host_sessions);
-        View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,listHostSessions,false);
-        TextView sessionsAttendingHeading = sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
-        sessionsAttendingHeading.setText("Sessions Hosting");
-        listHostSessions.addView(sessionsAttendingHeadingView);
+        View sessionsHostingHeadingView = inflater.inflate(R.layout.your_sessions_heading,listHostSessions,false);
+        TextView sessionsHostingHeading = sessionsHostingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
+        sessionsHostingHeading.setText("Sessions Hosting");
+        listHostSessions.addView(sessionsHostingHeadingView);
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
@@ -58,8 +57,8 @@ public class HostSessionsFragment extends Fragment {
         myFirebaseDatabase.getUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(final User user) {
-                /* If user is not attending any sessions set that the sessionsAttending content has beeen found*/
-                if (user.sessionsAttending.size()==0){
+                /* If user is not hosting any sessions set that the sessionsHosting content has beeen found*/
+                if (user.sessionsHosting.size()==0){
 
                 }
                 myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
@@ -68,7 +67,7 @@ public class HostSessionsFragment extends Fragment {
                         SessionRow sessionRow = new SessionRow();
                         sessionRow.populateList(sessions, getActivity(),listHostSessions);
                     }
-                },user.sessionsAttending);
+                },user.sessionsHosting);
             }
         });
 
