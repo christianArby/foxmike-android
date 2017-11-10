@@ -2,16 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menuMap"
+        android:id="@+id/menuNewsFeed"
         android:enabled="true"
-        android:icon="@mipmap/ic_location_on_black_24dp"
-        android:title="@string/menu_map"
+        android:icon="@mipmap/ic_tv_black_24dp"
+        android:title="Newsfeed"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/menuList"
+        android:id="@+id/menuListOrMap"
+        android:enabled="true"
+        android:icon="@mipmap/ic_terrain_black_24dp"
+        android:title="@string/menu_list"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuPlayerSessions"
         android:enabled="true"
         android:icon="@mipmap/ic_list_black_24dp"
-        android:title="@string/menu_list"
+        android:title="Your sessions"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuInbox"
+        android:enabled="true"
+        android:icon="@mipmap/ic_chat_bubble_outline_black_24dp"
+        android:title="Inbox"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuProfile"

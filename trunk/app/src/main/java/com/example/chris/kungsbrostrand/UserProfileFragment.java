@@ -28,13 +28,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
  *      - fragment_user_profile.xml
  *      - user_profile_info.xml
  *      - session_row_view.xml
- * The data (used to generate the views) is retrieved by using an object of the class UserActivityContent in order to generate the fill the views with content in the correct order.
+ * The data (used to generate the views) is retrieved by using an object of the class PlayerSessionsContent in order to generate the fill the views with content in the correct order.
  */
 
 public class UserProfileFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private FirebaseAuth mAuth;
 
     private LinearLayout list;
     private LatLng sessionLatLng;
@@ -64,8 +65,7 @@ public class UserProfileFragment extends Fragment {
 
         /* Get the view fragment_user_profile */
         final View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "",
-                "Loading. Please wait...", true);
+        mAuth = FirebaseAuth.getInstance();
 
         /* Inflate the LinearLayout list (in fragment_user_profile) with the layout user_profile_info */
         list = view.findViewById(R.id.list1);
@@ -74,7 +74,6 @@ public class UserProfileFragment extends Fragment {
 
         final TextView userNameTV = profile.findViewById(R.id.profileTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         View switchMode = view.findViewById(R.id.switchModeLL);
         switchMode.setOnClickListener(new View.OnClickListener() {
@@ -96,36 +95,22 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
-        /* Create an object of the class userActivityContent and use the function getUserActivityContent in order to get all the data for the layouts in this fragment*/
-        UserActivityContent userActivityContent = new UserActivityContent();
-        userActivityContent.getUserActivityContent(new OnUserActivityContentReadyListener() {
+        myFirebaseDatabase.getUser(new OnUserFoundListener() {
             @Override
-            public void OnUserActivityContentReady(ArrayList<Session> sessionsAttending, ArrayList<Session> sessionsHosting, String name, String image) {
-
-                userNameTV.setText(name);
-
-                setCircleImage(image, (CircleImageView) profile.findViewById(R.id.profileIV));
-
-                // Create heading sessionAttending and populate the session_row view with the data from the sessions the user is attending
-                LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
-                TextView sessionsAttendingHeading = sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
-                sessionsAttendingHeading.setText(R.string.sessions_attending);
-                list.addView(sessionsAttendingHeadingView);
-                populateList(sessionsAttending);
-
-
-                // Create heading Sessions hosting and populate the session_row view with the data from the sessions the user is hosting
-                View yourSessionsHeadingView = inflater.inflate(R.layout.your_sessions_heading,list,false);
-                TextView sessionsHostingHeading = yourSessionsHeadingView.findViewById(R.id.yourSessionsHeadingTV);
-                sessionsHostingHeading.setText(R.string.sessions_hosting);
-                list.addView(yourSessionsHeadingView);
-                populateList(sessionsHosting);
-
-                dialog.dismiss();
-
+            public void OnUserFound(User user) {
+                userNameTV.setText(user.getName());
+                setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
             }
         });
+
+        View logOutView = view.findViewById(R.id.logOutLL);
+        logOutView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout();
+            }
+        });
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -169,6 +154,10 @@ public class UserProfileFragment extends Fragment {
         Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
         intent.putExtra("LatLng", markerLatLng);
         startActivity(intent);
+    }
+
+    private void logout() {
+        mAuth.signOut();
     }
 
 }

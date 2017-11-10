@@ -212,7 +212,7 @@ public class WeekdayFilterFragment extends Fragment{
 
 
 
-
+        //Ändra så att status sparas i array men skickas till listener i onClickedlistener istället. Kan behövas lyssnare på onCheckedChanged.
         toggleButton1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
