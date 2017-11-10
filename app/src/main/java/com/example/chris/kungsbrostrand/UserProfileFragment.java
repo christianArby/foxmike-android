@@ -86,9 +86,11 @@ public class UserProfileFragment extends Fragment {
                         if (user.trainerMode) {
                             user.setTrainerMode(false);
                             usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(false);
+                            changeMode(user.trainerMode);
                         } else {
                             user.setTrainerMode(true);
                             usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(true);
+                            changeMode(user.trainerMode);
                         }
                     }
                 });
@@ -158,6 +160,19 @@ public class UserProfileFragment extends Fragment {
 
     private void logout() {
         mAuth.signOut();
+    }
+
+    private void changeMode(Boolean trainerMode) {
+
+        if (trainerMode) {
+            Intent intent = new Intent(getActivity(), MainHostActivity.class);
+            getActivity().startActivity(intent);
+        } else {
+            Intent intent = new Intent(getActivity(), MainPlayerActivity.class);
+            getActivity().startActivity(intent);
+        }
+
+
     }
 
 }

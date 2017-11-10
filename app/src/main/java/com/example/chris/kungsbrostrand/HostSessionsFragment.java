@@ -1,17 +1,14 @@
 package com.example.chris.kungsbrostrand;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -20,18 +17,17 @@ import java.util.ArrayList;
 /**
  *
  */
-public class PlayerSessionsFragment extends Fragment {
+public class HostSessionsFragment extends Fragment {
 
-    private LinearLayout listPlayerSessions;
+    private LinearLayout listHostSessions;
     private LatLng sessionLatLng;
-    private View profile;
 
-    public PlayerSessionsFragment() {
+    public HostSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static PlayerSessionsFragment newInstance() {
-        PlayerSessionsFragment fragment = new PlayerSessionsFragment();
+    public static HostSessionsFragment newInstance() {
+        HostSessionsFragment fragment = new HostSessionsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -48,13 +44,13 @@ public class PlayerSessionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_profile */
-        final View view = inflater.inflate(R.layout.fragment_player_sessions, container, false);
+        final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
 
-        listPlayerSessions = view.findViewById(R.id.list_player_sessions);
-        View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,listPlayerSessions,false);
+        listHostSessions = view.findViewById(R.id.list_host_sessions);
+        View sessionsAttendingHeadingView = inflater.inflate(R.layout.your_sessions_heading,listHostSessions,false);
         TextView sessionsAttendingHeading = sessionsAttendingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
-        sessionsAttendingHeading.setText(R.string.sessions_attending);
-        listPlayerSessions.addView(sessionsAttendingHeadingView);
+        sessionsAttendingHeading.setText("Sessions Hosting");
+        listHostSessions.addView(sessionsAttendingHeadingView);
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
@@ -70,7 +66,7 @@ public class PlayerSessionsFragment extends Fragment {
                     @Override
                     public void OnSessionsFound(ArrayList<Session> sessions) {
                         SessionRow sessionRow = new SessionRow();
-                        sessionRow.populateList(sessions, getActivity(),listPlayerSessions);
+                        sessionRow.populateList(sessions, getActivity(),listHostSessions);
                     }
                 },user.sessionsAttending);
             }
@@ -79,7 +75,5 @@ public class PlayerSessionsFragment extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
-
-
 
 }

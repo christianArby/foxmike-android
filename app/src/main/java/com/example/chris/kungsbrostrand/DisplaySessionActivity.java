@@ -119,7 +119,7 @@ public class DisplaySessionActivity extends AppCompatActivity {
                             mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
                             countParticipants();
-                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainActivity.class);
+                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainPlayerActivity.class);
                             startActivity(mainIntent);
                         }
 
@@ -146,7 +146,7 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
                                 }
                             });
-                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainActivity.class);
+                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainPlayerActivity.class);
                             startActivity(mainIntent);
                         }
                     }

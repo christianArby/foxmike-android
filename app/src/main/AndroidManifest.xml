@@ -45,12 +45,11 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".MainPlayerActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -85,10 +84,16 @@
             android:name=".DisplaySessionActivity"
             android:label="@string/title_activity_join_session" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity"
-            android:label="@string/title_activity_register"/>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register" />
         <activity android:name=".SetupAccountActivity" />
+
         <service android:name=".MyFirebaseDatabase" />
+
+        <activity android:name=".MainHostActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            </activity>
     </application>
 
 </manifest>

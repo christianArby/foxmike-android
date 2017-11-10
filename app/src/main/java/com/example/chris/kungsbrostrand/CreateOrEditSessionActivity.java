@@ -309,7 +309,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         geoFire.setLocation(mSessionId, new GeoLocation(session.getLatitude(), session.getLongitude()));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                        Intent setupIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
+                        Intent setupIntent = new Intent(CreateOrEditSessionActivity.this,MainPlayerActivity.class);
                         setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(setupIntent);
 
@@ -333,7 +333,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     geoFire.setLocation(mSessionId, new GeoLocation(session.getLatitude(), session.getLongitude()));
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                    Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
+                    Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainPlayerActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(mainIntent);
                 }   else    {

@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,11 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.rd.PageIndicatorView;
 
 import java.text.SimpleDateFormat;
@@ -36,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener{
     private FragmentManager fragmentManager;
     private FirebaseAuth mAuth;
     private UserProfileFragment userProfileFragment;
@@ -54,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_player);
 
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
+
+        if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationPermission=true;
@@ -66,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         mDatabase.keepSynced(true);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission();
+            locationPermission = checkLocationPermission();
         }
 
         if (locationPermission) {
@@ -96,16 +93,16 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
                     if(firebaseAuth.getCurrentUser()== null){
-                        Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+                        Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
                         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(loginIntent);
                     }
                 }
             };
             mAuth.addAuthStateListener(mAuthListener);
-            checkUserExist();
+            myFirebaseDatabase.checkUserExist(mAuth, mDatabase, this);
             if (mAuth.getCurrentUser()==null) {
-                Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+                Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
                 loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(loginIntent);
             } else {
@@ -115,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     }
 
     public void updateUI() {
-        bottomNavigation = findViewById(R.id.bottom_navigation);
+        bottomNavigation = findViewById(R.id.bottom_navigation_player);
         fragmentManager = getSupportFragmentManager();
         mapOrListBtn = findViewById(R.id.map_or_list_button);
 
@@ -138,19 +135,19 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
-            transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
+            transaction.add(R.id.container_main_player, userProfileFragment,"userProfileFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("playerSessionsFragment")) {
-            transaction.add(R.id.main_container, playerSessionsFragment,"playerSessionsFragment");
+            transaction.add(R.id.container_main_player, playerSessionsFragment,"playerSessionsFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
-            transaction.add(R.id.main_container, mapsFragment,"mapsFragment");
+            transaction.add(R.id.container_main_player, mapsFragment,"mapsFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
-            transaction.add(R.id.main_container, listSessionsFragment,"ListSessionsFragment");
+            transaction.add(R.id.container_main_player, listSessionsFragment,"ListSessionsFragment");
         }
 
         transaction.commit();
@@ -345,36 +342,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         return "android:switcher:" + viewPagerId + ":" + index;
     }
 
-    private void checkUserExist() {
-
-        if(mAuth.getCurrentUser() != null) {
-            final String user_id = mAuth.getCurrentUser().getUid();
-            mDatabase.child("users").addValueEventListener(new ValueEventListener() { ////// TA BORT signingUp FIXA SÅ ATT LISTENER PAUSAS UNDER REG https://stackoverflow.com/questions/44435763/firebase-value-event-listener-firing-even-after-activity-is-finished
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(!dataSnapshot.hasChild(user_id)){
-                        Intent setupIntent = new Intent(MainActivity.this,SetupAccountActivity.class);
-                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(setupIntent);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        }
-    }
-
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
+        if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainPlayerActivity.this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an expanation to the user *asynchronously* -- don't block
@@ -382,14 +357,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                 // sees the explanation, try again to request the permission.
 
                 //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(MainActivity.this,
+                ActivityCompat.requestPermissions(MainPlayerActivity.this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
 
 
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainActivity.this,
+                ActivityCompat.requestPermissions(MainPlayerActivity.this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
@@ -409,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // Permission was granted.
-                    if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
                         locationPermission=true;

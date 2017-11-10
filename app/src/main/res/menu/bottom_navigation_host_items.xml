@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menuNewsFeed"
+        android:enabled="true"
+        android:icon="@mipmap/ic_tv_black_24dp"
+        android:title="Newsfeed"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuInbox"
+        android:enabled="true"
+        android:icon="@mipmap/ic_chat_bubble_outline_black_24dp"
+        android:title="Inbox"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuHostSessions"
+        android:enabled="true"
+        android:icon="@mipmap/ic_list_black_24dp"
+        android:title="Your sessions"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menuProfile"
+        android:enabled="true"
+        android:icon="@mipmap/ic_account_circle_black_24dp"
+        android:title="@string/menu_profile"
+        app:showAsAction="ifRoom" />
+</menu>
