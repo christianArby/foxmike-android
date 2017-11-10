@@ -2,6 +2,7 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
@@ -201,6 +202,28 @@ public class MyFirebaseDatabase extends Service{
         String distanceString = Float.toString(b).replaceAll("\\.?0*$", "");
         return  distanceString;
 
+    }
+
+    public void checkUserExist(FirebaseAuth mAuth, DatabaseReference mDatabase, final Context context) {
+
+        if(mAuth.getCurrentUser() != null) {
+            final String user_id = mAuth.getCurrentUser().getUid();
+            mDatabase.child("users").addValueEventListener(new ValueEventListener() { ////// TA BORT signingUp FIXA SÅ ATT LISTENER PAUSAS UNDER REG https://stackoverflow.com/questions/44435763/firebase-value-event-listener-firing-even-after-activity-is-finished
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(!dataSnapshot.hasChild(user_id)){
+                        Intent setupIntent = new Intent(context,SetupAccountActivity.class);
+                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        context.startActivity(setupIntent);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     @Nullable

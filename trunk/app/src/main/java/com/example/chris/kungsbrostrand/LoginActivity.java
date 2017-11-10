@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild(user_id)){
 
-                    Intent setupIntent = new Intent(LoginActivity.this,MainActivity.class);
+                    Intent setupIntent = new Intent(LoginActivity.this,MainPlayerActivity.class);
                     setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(setupIntent);
 
