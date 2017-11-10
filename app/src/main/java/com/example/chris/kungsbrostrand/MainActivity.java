@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -41,12 +42,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     private UserProfileFragment userProfileFragment;
     private ListSessionsFragment listSessionsFragment;
     private MapsFragment mapsFragment;
+    private PlayerSessionsFragment playerSessionsFragment;
     private MyFirebaseDatabase myFirebaseDatabase;
     private DatabaseReference mDatabase;
     private HashMap<String,Boolean> firstWeekdayHashMap;
     private HashMap<String,Boolean> secondWeekdayHashMap;
     private BottomNavigationView bottomNavigation;
     boolean locationPermission;
+    private Button mapOrListBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,16 +70,13 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         }
 
         if (locationPermission) {
-
             FirebaseAuth.AuthStateListener mAuthListener;
-
             myFirebaseDatabase= new MyFirebaseDatabase();
 
             firstWeekdayHashMap = new HashMap<String,Boolean>();
             secondWeekdayHashMap = new HashMap<String,Boolean>();
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             final Calendar cal = Calendar.getInstance();
-
 
             for(int i=1; i<8; i++){
                 String stringDate = sdf.format(cal.getTime());
@@ -90,10 +90,7 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                 cal.add(Calendar.DATE,1);
             }
 
-
-
             mAuth = FirebaseAuth.getInstance();
-
             mAuthListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -105,18 +102,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
                     }
                 }
             };
-
             mAuth.addAuthStateListener(mAuthListener);
-
             checkUserExist();
-
             if (mAuth.getCurrentUser()==null) {
                 Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
                 loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(loginIntent);
             } else {
                 updateUI();
-
             }
         }
     }
@@ -124,17 +117,17 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     public void updateUI() {
         bottomNavigation = findViewById(R.id.bottom_navigation);
         fragmentManager = getSupportFragmentManager();
-
-        // Initiate SessionContainer Fragment
+        mapOrListBtn = findViewById(R.id.map_or_list_button);
 
         if (userProfileFragment==null) {
             userProfileFragment = UserProfileFragment.newInstance();
         }
-
+        if (playerSessionsFragment==null) {
+            playerSessionsFragment = PlayerSessionsFragment.newInstance();
+        }
         if (listSessionsFragment==null) {
             listSessionsFragment = ListSessionsFragment.newInstance();
         }
-
         if (mapsFragment==null) {
             Bundle bundle = new Bundle();
             bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
@@ -142,11 +135,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
             mapsFragment.setArguments(bundle);
         }
 
-
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
             transaction.add(R.id.main_container, userProfileFragment,"userProfileFragment");
+        }
+
+        if (null == fragmentManager.findFragmentByTag("playerSessionsFragment")) {
+            transaction.add(R.id.main_container, playerSessionsFragment,"playerSessionsFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
@@ -166,50 +162,86 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
         PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
         pageIndicatorView.setViewPager(weekdayViewpager);
 
-
         int selectedColor = Color.parseColor("#303F9F");
         int unSelectedColor = Color.parseColor("#E0E0E0");
-
         pageIndicatorView.setSelectedColor(selectedColor);
         pageIndicatorView.setUnselectedColor(unSelectedColor);
 
         fragmentManager.executePendingTransactions();
 
+        BottomNavigationViewHelper.disableShiftMode(bottomNavigation);
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                final RelativeLayout weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
+                final int id = item.getItemId();
 
-                RelativeLayout weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.hide(mapsFragment);
+                transaction.hide(listSessionsFragment);
+                transaction.hide(userProfileFragment);
+                transaction.hide(playerSessionsFragment);
+                transaction.commit();
+                weekdayFilterContainer.setVisibility(View.GONE);
+                mapOrListBtn.setVisibility(View.GONE);
 
-                int id = item.getItemId();
+                mapOrListBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (id==R.id.menuListOrMap) {
+
+                            if (mapsFragment.isVisible()) {
+                                FragmentTransaction transaction1 = fragmentManager.beginTransaction();
+                                transaction1.hide(mapsFragment);
+                                transaction1.show(listSessionsFragment);
+                                transaction1.commit();
+                                mapOrListBtn.setText("Map");
+                            } else if (listSessionsFragment.isVisible()) {
+                                FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+                                transaction2.hide(listSessionsFragment);
+                                transaction2.show(mapsFragment);
+                                transaction2.commit();
+                                mapOrListBtn.setText("List");
+                            } else {
+                                weekdayFilterContainer.setVisibility(View.VISIBLE);
+                                FragmentTransaction transaction3 = fragmentManager.beginTransaction();
+                                transaction3.hide(mapsFragment);
+                                transaction3.show(listSessionsFragment);
+                                transaction3.commit();
+                                mapOrListBtn.setVisibility(View.VISIBLE);
+                                mapOrListBtn.setText("Map");
+                            }
+                        }
+
+                    }
+                });
+
                 switch (id){
-                    case R.id.menuMap:
-                        FragmentTransaction transaction1 = fragmentManager.beginTransaction();
-                        transaction1.hide(listSessionsFragment);
-                        transaction1.hide(userProfileFragment);
-                        weekdayFilterContainer.setVisibility(View.VISIBLE);
-                        transaction1.show(mapsFragment);
-                        transaction1.commit();
-                        getSupportActionBar().setTitle("Map");
+                    case R.id.menuNewsFeed:
+                        mapOrListBtn.setVisibility(View.VISIBLE);
+                        mapOrListBtn.setText("NEWSFEED WILL BE HERE...");
                         break;
-                    case R.id.menuList:
-                        FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-                        transaction2.hide(mapsFragment);
-                        transaction2.hide(userProfileFragment);
+                    case R.id.menuListOrMap:
                         weekdayFilterContainer.setVisibility(View.VISIBLE);
-                        //transaction2.attach(weekdayFilterFragment);
-                        transaction2.show(listSessionsFragment);
-                        transaction2.commit();
-                        getSupportActionBar().setTitle("Sessions");
+                        FragmentTransaction transaction5 = fragmentManager.beginTransaction();
+                        transaction5.show(listSessionsFragment);
+                        transaction5.commit();
+                        mapOrListBtn.setVisibility(View.VISIBLE);
+                        mapOrListBtn.setText("Map");
+                        break;
+                    case R.id.menuPlayerSessions:
+                        FragmentTransaction transaction6 = fragmentManager.beginTransaction();
+                        transaction6.show(playerSessionsFragment);
+                        transaction6.commit();
+                        break;
+                    case R.id.menuInbox:
+                        FragmentTransaction transaction7 = fragmentManager.beginTransaction();
+                        transaction7.commit();
                         break;
                     case R.id.menuProfile:
-                        FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                        weekdayFilterContainer.setVisibility(View.GONE);
-                        transaction3.hide(mapsFragment);
-                        transaction3.hide(listSessionsFragment);
-                        transaction3.show(userProfileFragment);
-                        transaction3.commit();
-                        getSupportActionBar().setTitle("Profile");
+                        FragmentTransaction transaction8 = fragmentManager.beginTransaction();
+                        transaction8.show(userProfileFragment);
+                        transaction8.commit();
                         break;
                 }
                 return true;
@@ -227,42 +259,8 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
 
-        bottomNavigation.setSelectedItemId(R.id.menuMap);
+        bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if(item.getItemId()== R.id.action_logout){
-
-            logout();
-
-        }
-
-        if(item.getItemId()== R.id.action_clear_db){
-
-            /*mDeleteMarkerDbRef.removeValue();
-            mMarkerDbRef.removeValue();
-            mDMarkerDbRef.removeValue();
-            mDeleteMarkerDbRef.setValue(null);
-            mMarkerDbRef.setValue(null);
-            mDMarkerDbRef.setValue(null);*/
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void logout() {
-        mAuth.signOut();
-    }
-
 
     @Override
     public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
@@ -315,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
 
     }
 
-
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
 
 
@@ -329,17 +326,12 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
             Fragment fragment = null;
 
             if (position == 0) {
-
                 fragment = WeekdayFilterFragment.newInstance();
-
             }
 
             if (position == 1) {
-
                 fragment = WeekdayFilterFragmentB.newInstance();
-
             }
-
             return fragment;
         }
 
@@ -356,19 +348,14 @@ public class MainActivity extends AppCompatActivity implements  OnWeekdayChanged
     private void checkUserExist() {
 
         if(mAuth.getCurrentUser() != null) {
-
             final String user_id = mAuth.getCurrentUser().getUid();
-
             mDatabase.child("users").addValueEventListener(new ValueEventListener() { ////// TA BORT signingUp FIXA SÅ ATT LISTENER PAUSAS UNDER REG https://stackoverflow.com/questions/44435763/firebase-value-event-listener-firing-even-after-activity-is-finished
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(!dataSnapshot.hasChild(user_id)){
-
                         Intent setupIntent = new Intent(MainActivity.this,SetupAccountActivity.class);
                         setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(setupIntent);
-
-
                     }
                 }
 
