@@ -121,16 +121,16 @@ public class LoginActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild(user_id)){
 
-                    Intent setupIntent = new Intent(LoginActivity.this,MainPlayerActivity.class);
-                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(setupIntent);
+                    Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
+                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(mainIntent);
 
 
                 } else {
 
-                    Intent mainIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
+                    Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
+                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(setupIntent);
 
                 }
             }

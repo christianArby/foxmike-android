@@ -309,9 +309,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         geoFire.setLocation(mSessionId, new GeoLocation(session.getLatitude(), session.getLongitude()));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                        Intent setupIntent = new Intent(CreateOrEditSessionActivity.this,MainPlayerActivity.class);
-                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(setupIntent);
+                        Intent hostIntent = new Intent(CreateOrEditSessionActivity.this,MainHostActivity.class);
+                        hostIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(hostIntent);
 
                     }   else    {
                         Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
