@@ -28,6 +28,16 @@
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
+    <CheckedTextView
+        android:checkMark="@mipmap/ic_check_box_black_24dp"
+        android:id="@+id/advertised"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Advertised"/>
+
     <EditText
         android:id="@+id/sessionTypeET"
         android:layout_width="match_parent"
@@ -113,6 +123,8 @@
         android:textSize="14sp" />
 
 
+
+
     <Button
         android:id="@+id/createSessionBtn"
         android:layout_width="match_parent"
@@ -124,6 +136,5 @@
         android:background="#263238"
         android:text="@string/create_session"
         android:textColor="@android:color/white" />
-
 
 </LinearLayout>

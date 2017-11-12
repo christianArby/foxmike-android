@@ -17,12 +17,13 @@ public class Session {
     public String time;
     private SessionDate sessionDate;
     private int countParticipants;
+    private boolean advertised;
 
 
     private HashMap<String,Boolean> participants;
     private String imageUri;
 
-    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String description) {
+    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String description, boolean advertised) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -36,6 +37,15 @@ public class Session {
         this.participants = participants;
         this.imageUri = imageUri;
         this.description = description;
+        this.advertised = advertised;
+    }
+
+    public boolean isAdvertised() {
+        return advertised;
+    }
+
+    public void setAdvertised(boolean advertised) {
+        this.advertised = advertised;
     }
 
     public String textMonth(SessionDate sessionDate) {

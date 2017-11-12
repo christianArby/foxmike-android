@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -54,6 +55,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private EditText mLevel;
     private EditText mMaxParticipants;
     private EditText mDescription;
+    private CheckedTextView mAdvertised;
     private Button mCreateSessionBtn;
     private final Calendar myCalendar = Calendar.getInstance();
     private ListView lv;
@@ -75,13 +77,13 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_training_session);
+        setContentView(R.layout.activity_create_or_edit_session);
 
         /** Set and inflate "create session" layout*/
         View createSession;
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
-        createSession = inflater.inflate(R.layout.create_session, createSessionContainer,false);
+        createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
 
         mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
@@ -94,6 +96,21 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
+        mAdvertised = createSession.findViewById(R.id.advertised);
+
+        mAdvertised.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mAdvertised.isChecked()) {
+                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
+                    mAdvertised.setChecked(false);
+                }
+                if (!mAdvertised.isChecked()) {
+                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+                    mAdvertised.setChecked(true);
+                }
+            }
+        });
 
         createSessionContainer.addView(createSession);
 
@@ -140,6 +157,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         mMaxParticipants.setText(existingSession.getMaxParticipants());
                         mDescription.setText(existingSession.getDescription());
                         mCreateSessionBtn.setText(R.string.update_session);
+                        mAdvertised.setChecked(existingSession.isAdvertised());
+                        if (existingSession.isAdvertised()) {
+                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+                        } else {
+                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
+                        }
                     }
 
                     @Override
@@ -189,6 +212,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 session.setLongitude(clickedLatLng.longitude);
                 session.setLatitude(clickedLatLng.latitude);
                 session.setHost(currentFirebaseUser.getUid());
+                session.setAdvertised(mAdvertised.isChecked());
 
                 /**If session exists (checked on create) send session to database with method sendSession, display progress*/
                 if (sessionExist == 1){
@@ -309,9 +333,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         geoFire.setLocation(mSessionId, new GeoLocation(session.getLatitude(), session.getLongitude()));
                         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                        Intent hostIntent = new Intent(CreateOrEditSessionActivity.this,MainHostActivity.class);
-                        hostIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(hostIntent);
+                        goToMain();
 
                     }   else    {
                         Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
@@ -333,9 +355,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     geoFire.setLocation(mSessionId, new GeoLocation(session.getLatitude(), session.getLongitude()));
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
 
-                    Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainPlayerActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
+                    goToMain();
                 }   else    {
                     Toast.makeText(getApplicationContext(),"Type in neccesary information",Toast.LENGTH_LONG).show();
                 }
@@ -347,6 +367,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"Choose photo",Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void goToMain() {
+        Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(mainIntent);
     }
 
     private void updateLabel() {

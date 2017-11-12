@@ -11,7 +11,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -19,7 +23,9 @@ import java.util.ArrayList;
  */
 public class HostSessionsFragment extends Fragment {
 
-    private LinearLayout listHostSessions;
+    private LinearLayout list1;
+    private LinearLayout list2;
+    private LinearLayout list3;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -40,16 +46,16 @@ public class HostSessionsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_profile */
         final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
 
-        listHostSessions = view.findViewById(R.id.list_host_sessions);
-        View sessionsHostingHeadingView = inflater.inflate(R.layout.your_sessions_heading,listHostSessions,false);
-        TextView sessionsHostingHeading = sessionsHostingHeadingView.findViewById(R.id.yourSessionsHeadingTV);
-        sessionsHostingHeading.setText("Sessions Hosting");
-        listHostSessions.addView(sessionsHostingHeadingView);
+        list1 = view.findViewById(R.id.list1);
+        View list1HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
+        TextView list1Heading = list1HeadingView.findViewById(R.id.yourSessionsHeadingTV);
+        list1Heading.setText("Sessions advertised within 2 weeeks");
+        list1.addView(list1HeadingView);
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
@@ -64,8 +70,60 @@ public class HostSessionsFragment extends Fragment {
                 myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
                     @Override
                     public void OnSessionsFound(ArrayList<Session> sessions) {
-                        SessionRow sessionRow = new SessionRow();
-                        sessionRow.populateList(sessions, getActivity(),listHostSessions);
+
+                        ArrayList<Session> sessionsAdvWithin2weeks = new ArrayList<Session>();
+                        ArrayList<Session> sessionsAdvNotWithin2weeks = new ArrayList<Session>();
+                        ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        final Calendar cal = Calendar.getInstance();
+                        Date todaysDate = cal.getTime();
+                        cal.add(Calendar.DATE,14);
+                        Date twoWeeksDate = cal.getTime();
+                        int n=0;
+                        int n1=0;
+                        int n2=0;
+                        for (Session session: sessions) {
+                            try {
+                                Date sessionDate = sdf.parse(session.textSDF(session.getSessionDate()));
+
+                                if (session.isAdvertised()) {
+                                    if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
+                                        sessionsAdvWithin2weeks.add(n, session);
+                                        n++;
+                                    } else {
+                                        sessionsAdvNotWithin2weeks.add(n1, session);
+                                        n1++;
+                                    }
+                                } else {
+                                    sessionsNotAdv.add(n2, session);
+                                }
+
+                            } catch (ParseException e) {
+                                //handle exception
+                            }
+                        }
+
+
+
+                        SessionRow sessionRow1 = new SessionRow();
+                        sessionRow1.populateList(sessionsAdvWithin2weeks, getActivity(),list1);
+
+                        View list2HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
+                        TextView list2Heading = list2HeadingView.findViewById(R.id.yourSessionsHeadingTV);
+                        list2Heading.setText("Sessions advertised Not within 2 weeeks");
+                        list1.addView(list2HeadingView);
+
+                        SessionRow sessionRow2 = new SessionRow();
+                        sessionRow2.populateList(sessionsAdvNotWithin2weeks, getActivity(),list1);
+
+                        View list3HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
+                        TextView list3Heading = list3HeadingView.findViewById(R.id.yourSessionsHeadingTV);
+                        list3Heading.setText("Sessions not advertised");
+                        list1.addView(list3HeadingView);
+
+                        SessionRow sessionRow3 = new SessionRow();
+                        sessionRow3.populateList(sessionsNotAdv, getActivity(),list1);
+
                     }
                 },user.sessionsHosting);
             }
