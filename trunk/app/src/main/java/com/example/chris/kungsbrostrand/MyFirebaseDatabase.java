@@ -136,9 +136,6 @@ public class MyFirebaseDatabase extends Service{
                                 @Override
                                 public void onGeoQueryReady() {
 
-
-
-
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
 
                                     for (final Integer str : nearSessions.keySet()) {
@@ -149,24 +146,29 @@ public class MyFirebaseDatabase extends Service{
                                                 Session session;
                                                 session = dataSnapshot.getValue(Session.class);
 
-                                                if (firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
-                                                    if (firstWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
-                                                        sessions.add(session);
-                                                    } else {
+                                                if (session.isAdvertised()) {
+                                                    if (firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
+                                                        if (firstWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
+                                                            sessions.add(session);
+                                                        } else {
+                                                            nearSessions.remove(str);
+                                                        }
+                                                    }
+
+                                                    if (secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
+
+                                                        if (secondWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
+                                                            sessions.add(session);
+                                                        } else {
+                                                            nearSessions.remove(str);
+                                                        }
+                                                    }
+
+                                                    if (!firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate())) && !secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
                                                         nearSessions.remove(str);
                                                     }
-                                                }
 
-                                                if (secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
-
-                                                    if (secondWeekdayHashMap.get(session.textSDF(session.getSessionDate()))) {
-                                                        sessions.add(session);
-                                                    } else {
-                                                        nearSessions.remove(str);
-                                                    }
-                                                }
-
-                                                if (!firstWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate())) && !secondWeekdayHashMap.containsKey(session.textSDF(session.getSessionDate()))) {
+                                                } else {
                                                     nearSessions.remove(str);
                                                 }
 
