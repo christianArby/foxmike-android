@@ -30,66 +30,16 @@ import java.util.HashMap;
 public class MainHostActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
-    private FirebaseAuth mAuth;
     private UserProfileFragment userProfileFragment;
-    private ListSessionsFragment listSessionsFragment;
     private MapsFragment mapsFragment;
     private HostSessionsFragment hostSessionsFragment;
-    private MyFirebaseDatabase myFirebaseDatabase;
-    private DatabaseReference mDatabase;
-    private HashMap<String,Boolean> firstWeekdayHashMap;
-    private HashMap<String,Boolean> secondWeekdayHashMap;
     private BottomNavigationView bottomNavigation;
-    boolean locationPermission;
-    private Button mapOrListBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_host);
 
-        if (ContextCompat.checkSelfPermission(MainHostActivity.this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            locationPermission=true;
-        }
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.keepSynced(true);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            locationPermission = checkLocationPermission();
-        }
-
-        if (locationPermission) {
-            FirebaseAuth.AuthStateListener mAuthListener;
-            myFirebaseDatabase= new MyFirebaseDatabase();
-
-            mAuth = FirebaseAuth.getInstance();
-            mAuthListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                    if(firebaseAuth.getCurrentUser()== null){
-                        Intent loginIntent = new Intent(MainHostActivity.this,LoginActivity.class);
-                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(loginIntent);
-                    }
-                }
-            };
-            mAuth.addAuthStateListener(mAuthListener);
-            myFirebaseDatabase.checkUserExist(mAuth, mDatabase, this);
-            if (mAuth.getCurrentUser()==null) {
-                Intent loginIntent = new Intent(MainHostActivity.this,LoginActivity.class);
-                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
-            } else {
-                updateUI();
-            }
-        }
-    }
-
-    public void updateUI() {
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
 
@@ -159,70 +109,5 @@ public class MainHostActivity extends AppCompatActivity {
         });
 
         bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
-    }
-
-
-
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(MainHostActivity.this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainHostActivity.this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(MainHostActivity.this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainHostActivity.this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission was granted.
-                    if (ContextCompat.checkSelfPermission(MainHostActivity.this,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        locationPermission=true;
-                        recreate();
-                    }
-
-                } else {
-
-                    // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
-                    this.finishAffinity();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other permissions this app might request.
-            //You can add here other case statements according to your requirement.
-        }
     }
 }

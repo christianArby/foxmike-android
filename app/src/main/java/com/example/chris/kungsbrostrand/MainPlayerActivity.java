@@ -52,66 +52,23 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
 
+        firstWeekdayHashMap = new HashMap<String,Boolean>();
+        secondWeekdayHashMap = new HashMap<String,Boolean>();
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        final Calendar cal = Calendar.getInstance();
 
-        if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            locationPermission=true;
+        for(int i=1; i<8; i++){
+            String stringDate = sdf.format(cal.getTime());
+            firstWeekdayHashMap.put(stringDate, true);
+            cal.add(Calendar.DATE,1);
         }
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.keepSynced(true);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            locationPermission = checkLocationPermission();
+        for(int i=1; i<8; i++){
+            String stringDate = sdf.format(cal.getTime());
+            secondWeekdayHashMap.put(stringDate, true);
+            cal.add(Calendar.DATE,1);
         }
 
-        if (locationPermission) {
-            FirebaseAuth.AuthStateListener mAuthListener;
-            myFirebaseDatabase= new MyFirebaseDatabase();
-
-            firstWeekdayHashMap = new HashMap<String,Boolean>();
-            secondWeekdayHashMap = new HashMap<String,Boolean>();
-            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            final Calendar cal = Calendar.getInstance();
-
-            for(int i=1; i<8; i++){
-                String stringDate = sdf.format(cal.getTime());
-                firstWeekdayHashMap.put(stringDate, true);
-                cal.add(Calendar.DATE,1);
-            }
-
-            for(int i=1; i<8; i++){
-                String stringDate = sdf.format(cal.getTime());
-                secondWeekdayHashMap.put(stringDate, true);
-                cal.add(Calendar.DATE,1);
-            }
-
-            mAuth = FirebaseAuth.getInstance();
-            mAuthListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                    if(firebaseAuth.getCurrentUser()== null){
-                        Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
-                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(loginIntent);
-                    }
-                }
-            };
-            mAuth.addAuthStateListener(mAuthListener);
-            myFirebaseDatabase.checkUserExist(mAuth, mDatabase, this);
-            if (mAuth.getCurrentUser()==null) {
-                Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
-                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
-            } else {
-                updateUI();
-            }
-        }
-    }
-
-    public void updateUI() {
         bottomNavigation = findViewById(R.id.bottom_navigation_player);
         fragmentManager = getSupportFragmentManager();
         mapOrListBtn = findViewById(R.id.map_or_list_button);
@@ -244,6 +201,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                 return true;
             }
         });
+        myFirebaseDatabase= new MyFirebaseDatabase();
 
         myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
             @Override
@@ -340,69 +298,6 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
-    }
-
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainPlayerActivity.this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(MainPlayerActivity.this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainPlayerActivity.this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission was granted.
-                    if (ContextCompat.checkSelfPermission(MainPlayerActivity.this,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        locationPermission=true;
-                        recreate();
-                    }
-
-                } else {
-
-                    // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
-                    this.finishAffinity();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other permissions this app might request.
-            //You can add here other case statements according to your requirement.
-        }
     }
 
 }

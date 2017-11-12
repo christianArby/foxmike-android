@@ -48,11 +48,21 @@
             android:name=".MainPlayerActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:label="splash"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
@@ -91,9 +101,9 @@
 
         <service android:name=".MyFirebaseDatabase" />
 
-        <activity android:name=".MainHostActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-            </activity>
+        <activity
+            android:name=".MainHostActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>
