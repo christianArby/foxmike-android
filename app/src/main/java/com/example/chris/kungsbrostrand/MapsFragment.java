@@ -128,13 +128,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-    }
-
-    public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
-
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-
 
         //when map is clicked, open CreateOrEditSessionActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -144,6 +137,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 addSession();
             }
         });
+    }
+
+    public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
+
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
+
+
 
         // when marker is clicked find latitude value in child in realtime database
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {

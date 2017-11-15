@@ -1,12 +1,17 @@
 package com.example.chris.kungsbrostrand;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,7 +35,8 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class DisplaySessionActivity extends AppCompatActivity {
+
+public class DisplaySessionFragment extends DialogFragment {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -46,17 +52,56 @@ public class DisplaySessionActivity extends AppCompatActivity {
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private Long participantsCount;
     private ImageView mSessionMapImage;
+    private View view;
+    private static final String SESSION_LATITUDE = "sessionLatitude";
+    private static final String SESSION_LONGITUDE = "sessionLongitude";
+    private Double sessionLatitude;
+    private Double sessionLongitude;
 
+
+    private OnFragmentInteractionListener displaySessionListener;
+
+    public DisplaySessionFragment() {
+        // Required empty public constructor
+    }
+
+
+    public static DisplaySessionFragment newInstance(double sessionLatitude, double sessionLongitude) {
+        DisplaySessionFragment fragment = new DisplaySessionFragment();
+        Bundle args = new Bundle();
+        args.putDouble(SESSION_LATITUDE, sessionLatitude);
+        args.putDouble(SESSION_LONGITUDE, sessionLongitude);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_session);
+        if (getArguments() != null) {
+        }
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog d = getDialog();
+        if (d!=null){
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            d.getWindow().setLayout(width, height);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_display_session, container, false);
 
         LinearLayout displaySessionContainer;
         View displaySession;
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        displaySessionContainer = findViewById(R.id.display_session_container);
+        displaySessionContainer = view.findViewById(R.id.display_session_container);
         displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
 
         mDateAndTime = displaySession.findViewById(R.id.dateAndTimeTW);
@@ -70,15 +115,16 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
 
         /**
-        Get latitude and longitude of session from previous activity.
-        Use latitiude and longitude in method findSessionAndFillInUI to fill view
-        with session details.
+         Get latitude and longitude of session from previous activity.
+         Use latitiude and longitude in method findSessionAndFillInUI to fill view
+         with session details.
          */
-        LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
-        if (markerLatLng!=null) {
-            findSessionAndFillInUI(markerLatLng.latitude, markerLatLng.longitude);
+        sessionLatitude = getArguments().getDouble(SESSION_LATITUDE);
+        sessionLongitude = getArguments().getDouble(SESSION_LONGITUDE);
+        if (sessionLatitude!=null) {
+            findSessionAndFillInUI(sessionLatitude, sessionLongitude);
         } else {
-            Toast toast = Toast.makeText(this,"Session not found, please try again later...",Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getActivity(),"Session not found, please try again later...",Toast.LENGTH_LONG);
             toast.show();
         }
 
@@ -97,12 +143,12 @@ public class DisplaySessionActivity extends AppCompatActivity {
                         Session session = dataSnapshot.getValue(Session.class);
 
                         /**
-                        If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
-                        and send the session key to that activity as bundle.
-                        */
+                         If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
+                         and send the session key to that activity as bundle.
+                         */
 
                         if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                            Intent createSessionIntent = new Intent(DisplaySessionActivity.this, CreateOrEditSessionActivity.class);
+                            Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
 
 
                             Bundle sessionIdBundle = new Bundle();
@@ -113,25 +159,25 @@ public class DisplaySessionActivity extends AppCompatActivity {
                         }
 
                         /**
-                        Else if current user is a participant in the session (button will display cancel booking) and button is clicked
-                        remove the current user from that session participant list and go back to main activity.
-                        */
+                         Else if current user is a participant in the session (button will display cancel booking) and button is clicked
+                         remove the current user from that session participant list and go back to main activity.
+                         */
 
                         else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                             mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                             mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
                             countParticipants();
-                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainPlayerActivity.class);
+                            Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
                             startActivity(mainIntent);
                         }
 
                         else {
 
                             /**
-                            Else (button will show join session) add the user id to the session participant list and
-                            the user sessions attending list when button is clicked.
-                            After user is added, count participants of the current session.
-                            */
+                             Else (button will show join session) add the user id to the session participant list and
+                             the user sessions attending list when button is clicked.
+                             After user is added, count participants of the current session.
+                             */
 
                             final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
                             sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
@@ -148,7 +194,7 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
                                 }
                             });
-                            Intent mainIntent = new Intent(DisplaySessionActivity.this, MainPlayerActivity.class);
+                            Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
                             startActivity(mainIntent);
                         }
                     }
@@ -162,12 +208,43 @@ public class DisplaySessionActivity extends AppCompatActivity {
             }
         });
 
+
+        // Inflate the layout for this fragment
+        return view;
+    }
+
+    public void onButtonPressed(Uri uri) {
+        if (displaySessionListener != null) {
+            displaySessionListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            displaySessionListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        displaySessionListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 
     /**
-    Count participants of the current session with sessionID found in method findSessionAndFillInUI
+     Count participants of the current session with sessionID found in method findSessionAndFillInUI
      and set the countParticipants value in the database.
-    */
+     */
 
     private void countParticipants() {
         mSessionDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -189,8 +266,8 @@ public class DisplaySessionActivity extends AppCompatActivity {
     }
 
     /**
-    Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
-    */
+     Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
+     */
 
     private void findSessionAndFillInUI(Double latitude, final Double longitude){
         //
@@ -215,8 +292,8 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
 
                     /**
-                    Get the host image from the database (found under users with the userID=session.host)
-                    */
+                     Get the host image from the database (found under users with the userID=session.host)
+                     */
                     mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -243,14 +320,14 @@ public class DisplaySessionActivity extends AppCompatActivity {
                     mSessionMapImage.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            
+
                         }
                     });
 
                     /**
-                    If participants are more than zero, see if the current user is one of the participants and if so
-                    change the button text to "Cancel booking"
-                    */
+                     If participants are more than zero, see if the current user is one of the participants and if so
+                     change the button text to "Cancel booking"
+                     */
                     if (session.getParticipants() != null) {
                         if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                             mDisplaySessionBtn.setText(R.string.cancel_booking);
@@ -258,14 +335,14 @@ public class DisplaySessionActivity extends AppCompatActivity {
                     }
 
                     /**
-                    If the current user is the session host change the button text to "Edit session"
-                    */
+                     If the current user is the session host change the button text to "Edit session"
+                     */
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
 
                         mDisplaySessionBtn.setText("Edit session");
                     }
 
-                    ImageView sessionImage = findViewById(R.id.displaySessionImage);
+                    ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
 
                     setImage(session.getImageUri(), sessionImage);
 
@@ -302,7 +379,7 @@ public class DisplaySessionActivity extends AppCompatActivity {
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;
-        geocoder = new Geocoder(this, Locale.getDefault());
+        geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5

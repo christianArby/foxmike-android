@@ -8,4 +8,10 @@
         <item name="colorAccent">#263238</item>
     </style>
 
+<style name="fullscreenDialog" parent="AppTheme" >
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowIsFloating">false</item>
+</style>
+
 </resources>

@@ -1,10 +1,12 @@
 package com.example.chris.kungsbrostrand;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -16,6 +18,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -31,14 +34,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.zip.Inflater;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, DisplaySessionFragment.OnFragmentInteractionListener{
     private FragmentManager fragmentManager;
     private FirebaseAuth mAuth;
     private UserProfileFragment userProfileFragment;
     private ListSessionsFragment listSessionsFragment;
     private MapsFragment mapsFragment;
     private PlayerSessionsFragment playerSessionsFragment;
+    private DisplaySessionFragment displaySessionFragment;
     private MyFirebaseDatabase myFirebaseDatabase;
     private DatabaseReference mDatabase;
     private HashMap<String,Boolean> firstWeekdayHashMap;
@@ -46,6 +51,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private BottomNavigationView bottomNavigation;
     boolean locationPermission;
     private Button mapOrListBtn;
+    private RelativeLayout weekdayFilterContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,17 +133,10 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                final RelativeLayout weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
+                weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
                 final int id = item.getItemId();
 
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.hide(mapsFragment);
-                transaction.hide(listSessionsFragment);
-                transaction.hide(userProfileFragment);
-                transaction.hide(playerSessionsFragment);
-                transaction.commit();
-                weekdayFilterContainer.setVisibility(View.GONE);
-                mapOrListBtn.setVisibility(View.GONE);
+                cleanMainActivity();
 
                 mapOrListBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -217,6 +216,35 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
     }
 
+    private void cleanMainActivity() {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (displaySessionFragment!=null) {
+            transaction.remove(displaySessionFragment);
+        }
+        transaction.hide(mapsFragment);
+        transaction.hide(listSessionsFragment);
+        transaction.hide(userProfileFragment);
+        transaction.hide(playerSessionsFragment);
+        transaction.commit();
+        weekdayFilterContainer.setVisibility(View.GONE);
+        mapOrListBtn.setVisibility(View.GONE);
+        bottomNavigation.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            super.onBackPressed();
+            //additional code
+        } else {
+            //getFragmentManager().popBackStack();
+        }
+
+    }
+
     @Override
     public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
         if (week==1) {
@@ -265,6 +293,25 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         weekdayFilterFragmentB.setToggleMap1(toggleMap1);
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
+
+    }
+
+    @Override
+    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        if (displaySessionFragment!=null) {
+            transaction.remove(displaySessionFragment);
+        }
+
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
+        displaySessionFragment.show(transaction,"displaySessionFragment");
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 

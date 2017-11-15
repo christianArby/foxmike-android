@@ -34,11 +34,15 @@ public class MainHostActivity extends AppCompatActivity {
     private MapsFragment mapsFragment;
     private HostSessionsFragment hostSessionsFragment;
     private BottomNavigationView bottomNavigation;
+    private Button createSessionBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_host);
+
+        createSessionBtn = findViewById(R.id.add_session_btn);
+        createSessionBtn.setVisibility(View.GONE);
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
@@ -85,6 +89,7 @@ public class MainHostActivity extends AppCompatActivity {
                 transaction.hide(userProfileFragment);
                 transaction.hide(hostSessionsFragment);
                 transaction.commit();
+                createSessionBtn.setVisibility(View.GONE);
 
                 switch (id){
                     case R.id.menuNewsFeed:
@@ -94,6 +99,7 @@ public class MainHostActivity extends AppCompatActivity {
 
                         break;
                     case R.id.menuHostSessions:
+                        createSessionBtn.setVisibility(View.VISIBLE);
                         FragmentTransaction transaction6 = fragmentManager.beginTransaction();
                         transaction6.show(hostSessionsFragment);
                         transaction6.commit();
@@ -109,5 +115,18 @@ public class MainHostActivity extends AppCompatActivity {
         });
 
         bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
+
+        createSessionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.hide(userProfileFragment);
+                transaction.hide(hostSessionsFragment);
+                transaction.show(mapsFragment);
+                transaction.commit();
+                createSessionBtn.setVisibility(View.GONE);
+
+            }
+        });
     }
 }

@@ -28,11 +28,13 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
     private final ArrayList<Session> sessions;
     private final Context context;
     private Location currentLocation;
+    private OnSessionClickedListener onSessionClickedListener;
 
-    public sessionsAdapter(ArrayList<Session> sessions, Context context, Location currentLocation) {
+    public sessionsAdapter(ArrayList<Session> sessions, Context context, Location currentLocation, final OnSessionClickedListener onSessionClickedListener) {
         this.sessions = sessions;
         this.context = context;
         this.currentLocation=currentLocation;
+        this.onSessionClickedListener = onSessionClickedListener;
     }
 
     /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
@@ -46,7 +48,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
     @Override
     public void onBindViewHolder(sessionsAdapter.SessionViewHolder holder, int position) {
         /**Get the current session inflated in the sessionViewHolder from the session arraylist" */
-        Session session = sessions.get(position);
+        final Session session = sessions.get(position);
 
         /**Fill the cardview with information of the session" */
         final LatLng sessionLatLng = new LatLng(session.getLatitude(),session.getLongitude());
@@ -59,10 +61,12 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
         holder.setImage(this.context,session.getImageUri());
 
         /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
+
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displaySession(sessionLatLng);
+                onSessionClickedListener.OnSessionClicked(session.getLatitude(),session.getLongitude());
+                //displaySession(sessionLatLng);
             }
         });
 

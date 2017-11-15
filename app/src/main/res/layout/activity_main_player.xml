@@ -9,6 +9,8 @@
     android:background="@android:color/background_light"
     tools:context=".MainPlayerActivity">
 
+
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,4 +62,5 @@
         app:itemIconTint="@color/colorPrimaryDark"
         app:itemTextColor="@color/colorPrimaryDark"
         app:menu="@menu/bottom_navigation_player_items" />
+
 </RelativeLayout>
