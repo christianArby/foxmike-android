@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ public class ListSessionsFragment extends Fragment {
     private RecyclerView mSessionList;
     private RecyclerView.Adapter sessionsAdapter;
     private Location currentLocation;
+    private OnSessionClickedListener onSessionClickedListener;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -56,9 +58,26 @@ public class ListSessionsFragment extends Fragment {
     /** Generate view in RecyclerView with sessionsAdapter*/
     public void generateSessionListView(ArrayList<Session> sessions, Location location) {
         currentLocation =location;
-        sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation);
+        sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation, onSessionClickedListener);
         if (mSessionList!=null) {
             mSessionList.setAdapter(sessionsAdapter);
         }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onSessionClickedListener = null;
     }
 }
