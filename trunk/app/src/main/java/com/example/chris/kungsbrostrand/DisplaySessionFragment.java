@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -269,12 +271,12 @@ public class DisplaySessionFragment extends DialogFragment {
      Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
      */
 
-    private void findSessionAndFillInUI(Double latitude, final Double longitude){
+    private void findSessionAndFillInUI(final Double latitude, final Double longitude){
         //
         mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Session session = dataSnapshot.getValue(Session.class);
+                final Session session = dataSnapshot.getValue(Session.class);
                 if(session.getLongitude()==longitude) {
 
                     String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
@@ -317,10 +319,36 @@ public class DisplaySessionFragment extends DialogFragment {
                     String url = "http://maps.google.com/maps/api/staticmap?center=" + sessionLat + "," + sessionLong + "&zoom=15&size=400x400&sensor=false";
                     setImage(url,mSessionMapImage);
 
-                    mSessionMapImage.setOnClickListener(new View.OnClickListener() {
+                    mParticipants.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
 
+                            ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(session.getParticipants());
+
+                            FragmentManager fragmentManager = getChildFragmentManager();
+
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                            if (participantsFragment!=null) {
+                                transaction.remove(participantsFragment);
+                            }
+
+                            participantsFragment.show(transaction,"participantsFragment");
+
+                        }
+                    });
+
+                    mSessionMapImage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String label = session.getSessionName();
+                            String uriBegin = "geo:" + sessionLatitude + "," + sessionLongitude;
+                            String query = sessionLatitude + "," + sessionLongitude + "(" + label + ")";
+                            String encodedQuery = Uri.encode(query);
+                            String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+                            Uri uri = Uri.parse(uriString);
+                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
+                            startActivity(intent);
                         }
                     });
 
