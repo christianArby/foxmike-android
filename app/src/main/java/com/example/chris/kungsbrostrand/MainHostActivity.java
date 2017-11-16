@@ -74,8 +74,8 @@ public class MainHostActivity extends AppCompatActivity {
             transaction.add(R.id.container_main_host, hostSessionsFragment,"hostSessionsFragment");
         }
 
-        if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
-            transaction.add(R.id.container_main_host, mapsFragment,"mapsFragment");
+        if (null == fragmentManager.findFragmentByTag("mapsFragmentHost")) {
+            transaction.add(R.id.container_main_host, mapsFragment,"mapsFragmentHost");
         }
 
         transaction.commit();
