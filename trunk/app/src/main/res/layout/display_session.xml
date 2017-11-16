@@ -114,22 +114,20 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
+
     <TextView
-        android:id="@+id/yourSessionsHeadingTV"
+        android:id="@+id/descriptionHeadingTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Description:"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="20dp"
-        android:fontFamily="sans-serif"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textStyle="bold" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/descriptionTW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="10dp" />
+        android:layout_marginStart="15dp"/>
 
     <FrameLayout
         android:layout_width="match_parent"

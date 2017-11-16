@@ -30,6 +30,14 @@
         android:textColor="#FFFFFF"
         android:textSize="30sp" />
 
+    <TextView
+        android:id="@+id/create_session_map_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:text="Pick a location by clicking on map!"/>
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation_host"
         android:layout_width="match_parent"

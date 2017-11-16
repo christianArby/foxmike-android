@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +36,7 @@ public class MainHostActivity extends AppCompatActivity {
     private HostSessionsFragment hostSessionsFragment;
     private BottomNavigationView bottomNavigation;
     private Button createSessionBtn;
+    private TextView createSessionMapText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainHostActivity extends AppCompatActivity {
 
         createSessionBtn = findViewById(R.id.add_session_btn);
         createSessionBtn.setVisibility(View.GONE);
+        createSessionMapText = findViewById(R.id.create_session_map_text);
+        createSessionMapText.setVisibility(View.GONE);
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
@@ -90,6 +94,7 @@ public class MainHostActivity extends AppCompatActivity {
                 transaction.hide(hostSessionsFragment);
                 transaction.commit();
                 createSessionBtn.setVisibility(View.GONE);
+                createSessionMapText.setVisibility(View.GONE);
 
                 switch (id){
                     case R.id.menuNewsFeed:
@@ -100,12 +105,14 @@ public class MainHostActivity extends AppCompatActivity {
                         break;
                     case R.id.menuHostSessions:
                         createSessionBtn.setVisibility(View.VISIBLE);
+                        createSessionMapText.setVisibility(View.GONE);
                         FragmentTransaction transaction6 = fragmentManager.beginTransaction();
                         transaction6.show(hostSessionsFragment);
                         transaction6.commit();
                         break;
                     case R.id.menuProfile:
                         FragmentTransaction transaction8 = fragmentManager.beginTransaction();
+                        createSessionMapText.setVisibility(View.GONE);
                         transaction8.show(userProfileFragment);
                         transaction8.commit();
                         break;
@@ -124,6 +131,7 @@ public class MainHostActivity extends AppCompatActivity {
                 transaction.hide(hostSessionsFragment);
                 transaction.show(mapsFragment);
                 transaction.commit();
+                createSessionMapText.setVisibility(View.VISIBLE);
                 createSessionBtn.setVisibility(View.GONE);
 
             }
