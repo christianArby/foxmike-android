@@ -95,6 +95,26 @@ public class MyFirebaseDatabase extends Service{
         });
     }
 
+    public void getUsers(final HashMap<String,Boolean> usersHashMap, final OnUsersFoundListener onUsersFoundListener){
+        final ArrayList<User> users = new ArrayList<User>();
+        for ( String key : usersHashMap.keySet() ) {
+            dbRef.child("users").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user;
+                    user = dataSnapshot.getValue(User.class);
+                    users.add(user);
+                    if (users.size() == usersHashMap.size()) {
+                        onUsersFoundListener.OnUsersFound(users);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
     public void filterSessions(final OnSessionsFilteredListener onSessionsFilteredListener,final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, Activity activity) {
 
         FusedLocationProviderClient mFusedLocationClient;

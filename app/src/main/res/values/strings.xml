@@ -186,7 +186,7 @@
     <string name="description_goes_here">Description goes here</string>
     <string name="date_goes_here">Date goes here</string>
     <string name="sessions">Sessions</string>
-    <string name="is_you_trainer"> is your trainer</string>
+    <string name="is_you_trainer">\u0020is your trainer</string>
     <string name="cancel_booking">Cancel booking</string>
     <string name="update_session">Update session</string>
     <string name="sessions_attending">Sessions Attending</string>

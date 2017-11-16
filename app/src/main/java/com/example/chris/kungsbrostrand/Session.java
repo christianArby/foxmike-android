@@ -174,7 +174,6 @@ public class Session {
     public HashMap<String, Boolean> getParticipants() {
         if (participants==null) {
             participants = new HashMap<String, Boolean>();
-            participants.put("Participants", false);
         }
         return participants;
     }
