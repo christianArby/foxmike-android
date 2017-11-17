@@ -1,3 +1,4 @@
+/*
 package com.example.chris.kungsbrostrand;
 
 import android.content.Intent;
@@ -69,11 +70,13 @@ public class DisplaySessionActivity extends AppCompatActivity {
         mSessionMapImage = displaySession.findViewById(R.id.session_map_image);
 
 
-        /**
+        */
+/**
         Get latitude and longitude of session from previous activity.
         Use latitiude and longitude in method findSessionAndFillInUI to fill view
         with session details.
-         */
+         *//*
+
         LatLng markerLatLng = getIntent().getExtras().getParcelable("LatLng");
         if (markerLatLng!=null) {
             findSessionAndFillInUI(markerLatLng.latitude, markerLatLng.longitude);
@@ -96,10 +99,12 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
                         Session session = dataSnapshot.getValue(Session.class);
 
-                        /**
+                        */
+/**
                         If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
                         and send the session key to that activity as bundle.
-                        */
+                        *//*
+
 
                         if (session.getHost().equals(currentFirebaseUser.getUid())) {
                             Intent createSessionIntent = new Intent(DisplaySessionActivity.this, CreateOrEditSessionActivity.class);
@@ -112,10 +117,12 @@ public class DisplaySessionActivity extends AppCompatActivity {
                             startActivity(createSessionIntent);
                         }
 
-                        /**
+                        */
+/**
                         Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                         remove the current user from that session participant list and go back to main activity.
-                        */
+                        *//*
+
 
                         else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                             mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
@@ -127,11 +134,13 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
                         else {
 
-                            /**
+                            */
+/**
                             Else (button will show join session) add the user id to the session participant list and
                             the user sessions attending list when button is clicked.
                             After user is added, count participants of the current session.
-                            */
+                            *//*
+
 
                             final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
                             sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
@@ -164,10 +173,12 @@ public class DisplaySessionActivity extends AppCompatActivity {
 
     }
 
-    /**
+    */
+/**
     Count participants of the current session with sessionID found in method findSessionAndFillInUI
      and set the countParticipants value in the database.
-    */
+    *//*
+
 
     private void countParticipants() {
         mSessionDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -188,9 +199,11 @@ public class DisplaySessionActivity extends AppCompatActivity {
         });
     }
 
-    /**
-    Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
     */
+/**
+    Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
+    *//*
+
 
     private void findSessionAndFillInUI(Double latitude, final Double longitude){
         //
@@ -214,9 +227,11 @@ public class DisplaySessionActivity extends AppCompatActivity {
                     mAddressAndSessionType.setText(address + "  |  " + session.getSessionType());
 
 
-                    /**
-                    Get the host image from the database (found under users with the userID=session.host)
                     */
+/**
+                    Get the host image from the database (found under users with the userID=session.host)
+                    *//*
+
                     mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -243,23 +258,27 @@ public class DisplaySessionActivity extends AppCompatActivity {
                     mSessionMapImage.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            
+
                         }
                     });
 
-                    /**
+                    */
+/**
                     If participants are more than zero, see if the current user is one of the participants and if so
                     change the button text to "Cancel booking"
-                    */
+                    *//*
+
                     if (session.getParticipants() != null) {
                         if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                             mDisplaySessionBtn.setText(R.string.cancel_booking);
                         }
                     }
 
-                    /**
-                    If the current user is the session host change the button text to "Edit session"
                     */
+/**
+                    If the current user is the session host change the button text to "Edit session"
+                    *//*
+
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
 
                         mDisplaySessionBtn.setText("Edit session");
@@ -334,4 +353,4 @@ public class DisplaySessionActivity extends AppCompatActivity {
         return returnAddress;
 
     }
-}
+}*/

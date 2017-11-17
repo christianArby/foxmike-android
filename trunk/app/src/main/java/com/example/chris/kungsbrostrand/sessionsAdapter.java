@@ -116,12 +116,6 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
 
     }
 
-    /**Method to start DisplaySessionActivity" */
-    private void displaySession(LatLng markerLatLng) {
-        Intent intent = new Intent(this.context, DisplaySessionActivity.class);
-        intent.putExtra("LatLng", markerLatLng);
-        this.context.startActivity(intent);
-    }
     /**Method get address from latitude and longitude" */
     private String getAddress(double latitude, double longitude) {
         Geocoder geocoder;

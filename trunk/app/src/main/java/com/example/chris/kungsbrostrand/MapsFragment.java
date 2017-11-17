@@ -1,5 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -52,6 +53,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private DatabaseReference mDatabaseUsers;
     private boolean moveCamera;
     private View myView;
+    private OnSessionClickedListener onSessionClickedListener;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -89,6 +91,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
         }
         return myView;
+
     }
 
     @Override
@@ -152,7 +155,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public boolean onMarkerClick(Marker marker) {
                 markerLatLng = marker.getPosition();
-                joinSession(markerLatLng);
+                displaySession(markerLatLng);
                 return false;
             }
         });
@@ -170,10 +173,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
 
-    private void joinSession(LatLng markerLatLng) {
-        Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
-        intent.putExtra("LatLng", markerLatLng);
-        startActivityForResult(intent, PICK_SESSION_REQUEST);
+    private void displaySession(LatLng markerLatLng) {
+        onSessionClickedListener.OnSessionClicked(markerLatLng.latitude, markerLatLng.longitude);
     }
 
     @Override
@@ -237,5 +238,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             moveCamera=false;
         }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onSessionClickedListener = null;
     }
 }
