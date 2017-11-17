@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,8 +25,7 @@ import java.util.Date;
 public class HostSessionsFragment extends Fragment {
 
     private LinearLayout list1;
-    private LinearLayout list2;
-    private LinearLayout list3;
+    private OnSessionClickedListener onSessionClickedListener;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -106,7 +106,7 @@ public class HostSessionsFragment extends Fragment {
 
 
                         SessionRow sessionRow1 = new SessionRow();
-                        sessionRow1.populateList(sessionsAdvWithin2weeks, getActivity(),list1);
+                        sessionRow1.populateList(sessionsAdvWithin2weeks, getActivity(),list1, onSessionClickedListener);
 
                         View list2HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
                         TextView list2Heading = list2HeadingView.findViewById(R.id.yourSessionsHeadingTV);
@@ -114,7 +114,7 @@ public class HostSessionsFragment extends Fragment {
                         list1.addView(list2HeadingView);
 
                         SessionRow sessionRow2 = new SessionRow();
-                        sessionRow2.populateList(sessionsAdvNotWithin2weeks, getActivity(),list1);
+                        sessionRow2.populateList(sessionsAdvNotWithin2weeks, getActivity(),list1, onSessionClickedListener);
 
                         View list3HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
                         TextView list3Heading = list3HeadingView.findViewById(R.id.yourSessionsHeadingTV);
@@ -122,7 +122,7 @@ public class HostSessionsFragment extends Fragment {
                         list1.addView(list3HeadingView);
 
                         SessionRow sessionRow3 = new SessionRow();
-                        sessionRow3.populateList(sessionsNotAdv, getActivity(),list1);
+                        sessionRow3.populateList(sessionsNotAdv, getActivity(),list1, onSessionClickedListener);
 
                     }
                 },user.sessionsHosting);
@@ -131,6 +131,23 @@ public class HostSessionsFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onSessionClickedListener = null;
     }
 
 }

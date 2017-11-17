@@ -132,38 +132,6 @@ public class UserProfileFragment extends Fragment {
         Glide.with(this).load(image).into(imageView);
     }
 
-    // Method to populate the LinearLayout list with multiple session_row_view's
-    private void populateList(final ArrayList<Session> sessionArray) {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        for (int i=0; i < sessionArray.size(); i++) {
-            View sessionRowView  = inflater.inflate(R.layout.session_row_view, list, false);
-            ImageView images = sessionRowView.findViewById(R.id.icon);
-            TextView myTitle = sessionRowView.findViewById(R.id.text1);
-            TextView myDescription = sessionRowView.findViewById(R.id.text2);
-            myTitle.setText(sessionArray.get(i).getSessionName());
-            myDescription.setText(sessionArray.get(i).getSessionType());
-            setImage(sessionArray.get(i).getImageUri(),images);
-            // set item content in view
-            list.addView(sessionRowView);
-            final int t = i;
-
-            // When session_row_view is clicked start the DisplaySessionActivity
-            sessionRowView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sessionLatLng = new LatLng(sessionArray.get(t).getLatitude(), sessionArray.get(t).getLongitude());
-                    displaySession(sessionLatLng);
-                }
-            });
-        }
-    }
-
-    private void displaySession(LatLng markerLatLng) {
-        Intent intent = new Intent(getActivity(), DisplaySessionActivity.class);
-        intent.putExtra("LatLng", markerLatLng);
-        startActivity(intent);
-    }
-
     private void logout() {
         mAuth.signOut();
     }

@@ -36,20 +36,17 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.zip.Inflater;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, DisplaySessionFragment.OnFragmentInteractionListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener{
     private FragmentManager fragmentManager;
-    private FirebaseAuth mAuth;
     private UserProfileFragment userProfileFragment;
     private ListSessionsFragment listSessionsFragment;
     private MapsFragment mapsFragment;
     private PlayerSessionsFragment playerSessionsFragment;
     private DisplaySessionFragment displaySessionFragment;
     private MyFirebaseDatabase myFirebaseDatabase;
-    private DatabaseReference mDatabase;
     private HashMap<String,Boolean> firstWeekdayHashMap;
     private HashMap<String,Boolean> secondWeekdayHashMap;
     private BottomNavigationView bottomNavigation;
-    boolean locationPermission;
     private Button mapOrListBtn;
     private RelativeLayout weekdayFilterContainer;
 
@@ -307,11 +304,6 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
         displaySessionFragment.show(transaction,"displaySessionFragment");
-
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
 
     }
 

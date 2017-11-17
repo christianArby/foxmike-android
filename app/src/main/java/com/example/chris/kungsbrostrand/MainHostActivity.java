@@ -28,7 +28,7 @@ import com.rd.PageIndicatorView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainHostActivity extends AppCompatActivity {
+public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener{
 
     private FragmentManager fragmentManager;
     private UserProfileFragment userProfileFragment;
@@ -37,6 +37,7 @@ public class MainHostActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
     private Button createSessionBtn;
     private TextView createSessionMapText;
+    private DisplaySessionFragment displaySessionFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,14 +128,38 @@ public class MainHostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.hide(userProfileFragment);
-                transaction.hide(hostSessionsFragment);
+                cleanMainActivity();
                 transaction.show(mapsFragment);
                 transaction.commit();
                 createSessionMapText.setVisibility(View.VISIBLE);
-                createSessionBtn.setVisibility(View.GONE);
 
             }
         });
+    }
+
+    private void cleanMainActivity() {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (displaySessionFragment!=null) {
+            transaction.remove(displaySessionFragment);
+        }
+        transaction.hide(mapsFragment);
+        transaction.hide(userProfileFragment);
+        transaction.hide(hostSessionsFragment);
+        transaction.commit();
+        createSessionMapText.setVisibility(View.GONE);
+        createSessionBtn.setVisibility(View.GONE);
+        bottomNavigation.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        if (displaySessionFragment!=null) {
+            transaction.remove(displaySessionFragment);
+        }
+
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
+        displaySessionFragment.show(transaction,"displaySessionFragment");
     }
 }

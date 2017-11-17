@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,8 +24,7 @@ import java.util.ArrayList;
 public class PlayerSessionsFragment extends Fragment {
 
     private LinearLayout listPlayerSessions;
-    private LatLng sessionLatLng;
-    private View profile;
+    private OnSessionClickedListener onSessionClickedListener;
 
     public PlayerSessionsFragment() {
         // Required empty public constructor
@@ -70,7 +70,7 @@ public class PlayerSessionsFragment extends Fragment {
                     @Override
                     public void OnSessionsFound(ArrayList<Session> sessions) {
                         SessionRow sessionRow = new SessionRow();
-                        sessionRow.populateList(sessions, getActivity(),listPlayerSessions);
+                        sessionRow.populateList(sessions, getActivity(),listPlayerSessions, onSessionClickedListener);
                     }
                 },user.sessionsAttending);
             }
@@ -78,6 +78,23 @@ public class PlayerSessionsFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onSessionClickedListener = null;
     }
 
 

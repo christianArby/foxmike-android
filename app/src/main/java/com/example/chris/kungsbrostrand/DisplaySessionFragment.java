@@ -60,9 +60,6 @@ public class DisplaySessionFragment extends DialogFragment {
     private Double sessionLatitude;
     private Double sessionLongitude;
 
-
-    private OnFragmentInteractionListener displaySessionListener;
-
     public DisplaySessionFragment() {
         // Required empty public constructor
     }
@@ -213,34 +210,6 @@ public class DisplaySessionFragment extends DialogFragment {
 
         // Inflate the layout for this fragment
         return view;
-    }
-
-    public void onButtonPressed(Uri uri) {
-        if (displaySessionListener != null) {
-            displaySessionListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            displaySessionListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        displaySessionListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     /**

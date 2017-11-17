@@ -21,13 +21,15 @@ public class SessionRow {
 
     LatLng sessionLatLng;
     Context context;
+    OnSessionClickedListener onSessionClickedListener;
 
     public SessionRow() {
 
     }
 
     // Method to populate the LinearLayout list with multiple session_row_view's
-    public void populateList(final ArrayList<Session> sessionArray, Context context, LinearLayout listSessions) {
+    public void populateList(final ArrayList<Session> sessionArray, Context context, LinearLayout listSessions, OnSessionClickedListener onSessionClickedListener) {
+        this.onSessionClickedListener =onSessionClickedListener;
         this.context = context;
         LayoutInflater inflater = LayoutInflater.from(context);
         for (int i=0; i < sessionArray.size(); i++) {
@@ -59,8 +61,6 @@ public class SessionRow {
     }
 
     private void displaySession(LatLng markerLatLng) {
-        Intent intent = new Intent(context, DisplaySessionActivity.class);
-        intent.putExtra("LatLng", markerLatLng);
-        context.startActivity(intent);
+        onSessionClickedListener.OnSessionClicked(markerLatLng.latitude, markerLatLng.longitude);
     }
 }
