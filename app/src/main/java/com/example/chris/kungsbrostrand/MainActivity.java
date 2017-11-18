@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(firebaseAuth.getCurrentUser()== null){
                         Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(loginIntent);
                     }
@@ -67,9 +68,11 @@ public class MainActivity extends AppCompatActivity {
                     public void OnUserFound(User user) {
                         if (user.trainerMode) {
                             Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+                            mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(mainHost);
                         } else {
                             Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                            mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(mainPlayer);
                         }
                     }

@@ -38,6 +38,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     private Button createSessionBtn;
     private TextView createSessionMapText;
     private DisplaySessionFragment displaySessionFragment;
+    private InboxFragment hostInboxFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,11 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         if (hostSessionsFragment==null) {
             hostSessionsFragment = HostSessionsFragment.newInstance();
         }
+
+        if (hostInboxFragment==null) {
+            hostInboxFragment = InboxFragment.newInstance();
+        }
+
         if (mapsFragment==null) {
             Bundle bundle = new Bundle();
             bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
@@ -79,6 +85,10 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
             transaction.add(R.id.container_main_host, mapsFragment,"mapsFragmentHost");
         }
 
+        if (null == fragmentManager.findFragmentByTag("hostInboxFragment")) {
+            transaction.add(R.id.container_main_host, hostInboxFragment,"hostInboxFragment");
+        }
+
         transaction.commit();
 
         fragmentManager.executePendingTransactions();
@@ -88,32 +98,30 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 final int id = item.getItemId();
-
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.hide(mapsFragment);
-                transaction.hide(userProfileFragment);
-                transaction.hide(hostSessionsFragment);
-                transaction.commit();
-                createSessionBtn.setVisibility(View.GONE);
-                createSessionMapText.setVisibility(View.GONE);
+                cleanMainActivity();
 
                 switch (id){
                     case R.id.menuNewsFeed:
+                        cleanMainActivity();
 
                         break;
                     case R.id.menuInbox:
+                        cleanMainActivity();
+                        FragmentTransaction transaction5 = fragmentManager.beginTransaction();
+                        transaction5.show(hostInboxFragment);
+                        transaction5.commit();
 
                         break;
                     case R.id.menuHostSessions:
+                        cleanMainActivity();
                         createSessionBtn.setVisibility(View.VISIBLE);
-                        createSessionMapText.setVisibility(View.GONE);
                         FragmentTransaction transaction6 = fragmentManager.beginTransaction();
                         transaction6.show(hostSessionsFragment);
                         transaction6.commit();
                         break;
                     case R.id.menuProfile:
+                        cleanMainActivity();
                         FragmentTransaction transaction8 = fragmentManager.beginTransaction();
-                        createSessionMapText.setVisibility(View.GONE);
                         transaction8.show(userProfileFragment);
                         transaction8.commit();
                         break;
@@ -142,6 +150,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         if (displaySessionFragment!=null) {
             transaction.remove(displaySessionFragment);
         }
+        transaction.hide(hostInboxFragment);
         transaction.hide(mapsFragment);
         transaction.hide(userProfileFragment);
         transaction.hide(hostSessionsFragment);
