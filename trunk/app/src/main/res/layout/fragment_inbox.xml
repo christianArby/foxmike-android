@@ -1,0 +1,22 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.chris.kungsbrostrand.InboxFragment">
+
+    <include layout="@layout/inbox_bar_layout" android:id="@+id/inbox_page_toolbar"/>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/inbox_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    
+    <android.support.v4.view.ViewPager
+        android:id="@+id/inboxPager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/inbox_page_toolbar">
+
+    </android.support.v4.view.ViewPager>
+
+</RelativeLayout>

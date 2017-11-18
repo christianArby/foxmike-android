@@ -43,6 +43,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private MapsFragment mapsFragment;
     private PlayerSessionsFragment playerSessionsFragment;
     private DisplaySessionFragment displaySessionFragment;
+    private InboxFragment inboxFragment;
     private MyFirebaseDatabase myFirebaseDatabase;
     private HashMap<String,Boolean> firstWeekdayHashMap;
     private HashMap<String,Boolean> secondWeekdayHashMap;
@@ -85,6 +86,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         if (listSessionsFragment==null) {
             listSessionsFragment = ListSessionsFragment.newInstance();
         }
+
+        if (inboxFragment==null) {
+            inboxFragment = InboxFragment.newInstance();
+        }
+
         if (mapsFragment==null) {
             Bundle bundle = new Bundle();
             bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
@@ -108,6 +114,10 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
             transaction.add(R.id.container_main_player, listSessionsFragment,"ListSessionsFragment");
+        }
+
+        if (null == fragmentManager.findFragmentByTag("InboxFragment")) {
+            transaction.add(R.id.container_main_player, inboxFragment,"InboxFragment");
         }
 
         transaction.commit();
@@ -186,6 +196,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                         break;
                     case R.id.menuInbox:
                         FragmentTransaction transaction7 = fragmentManager.beginTransaction();
+                        transaction7.show(inboxFragment);
                         transaction7.commit();
                         break;
                     case R.id.menuProfile:
@@ -218,6 +229,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         if (displaySessionFragment!=null) {
             transaction.remove(displaySessionFragment);
         }
+        transaction.hide(inboxFragment);
         transaction.hide(mapsFragment);
         transaction.hide(listSessionsFragment);
         transaction.hide(userProfileFragment);
