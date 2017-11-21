@@ -1,5 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -24,4 +25,35 @@ public class SessionDate {
         this.minute = mCalendar.get(Calendar.MINUTE);
     }
     public SessionDate(){}
+
+    public String textMonth() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(this.year, this.month, this.day) ;
+        SimpleDateFormat monthDate = new SimpleDateFormat("MMMM");
+        String monthName = monthDate.format(cal.getTime());
+        return monthName;
+    }
+
+    public String textDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(this.year, this.month, this.day) ;
+        SimpleDateFormat textDay = new SimpleDateFormat("EE");
+        String dayName = textDay.format(cal.getTime());
+        return dayName;
+    }
+
+    public String textFullDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(this.year, this.month, this.day) ;
+        SimpleDateFormat textDay = new SimpleDateFormat("EEEE");
+        String dayName = textDay.format(cal.getTime());
+        return dayName;
+    }
+
+    public String textSDF() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(this.year, this.month, this.day) ;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(cal.getTime());
+    }
 }

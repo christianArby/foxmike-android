@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="0dp"
-        android:background="@color/colorPrimary"
+        android:background="@color/white"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture"
         android:contentDescription="@string/choose_profile_picture"/>

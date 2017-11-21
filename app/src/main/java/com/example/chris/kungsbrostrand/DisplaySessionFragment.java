@@ -249,7 +249,7 @@ public class DisplaySessionFragment extends DialogFragment {
                 if(session.getLongitude()==longitude) {
 
                     String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
-                    String sessionDateAndTime = session.textFullDay(session.getSessionDate()) + " " + session.getSessionDate().day + " " + session.textMonth(session.getSessionDate()) + " " + sessionTime;
+                    String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + sessionTime;
                     sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                     mDateAndTime.setText(sessionDateAndTime);
 

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +25,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rd.PageIndicatorView;
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +37,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     private UserProfileFragment userProfileFragment;
     private MapsFragment mapsFragment;
     private HostSessionsFragment hostSessionsFragment;
-    private BottomNavigationView bottomNavigation;
+    private BottomBar bottomNavigation;
     private Button createSessionBtn;
     private TextView createSessionMapText;
     private DisplaySessionFragment displaySessionFragment;
@@ -93,8 +96,47 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
 
         fragmentManager.executePendingTransactions();
 
-        BottomNavigationViewHelper.disableShiftMode(bottomNavigation);
-        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        bottomNavigation.setAnimation(null);
+
+
+
+
+        bottomNavigation.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelected(@IdRes int tabId) {
+
+                switch (tabId){
+                    case R.id.menuNewsFeed:
+                        cleanMainActivity();
+
+                        break;
+                    case R.id.menuInbox:
+                        cleanMainActivity();
+                        FragmentTransaction transaction5 = fragmentManager.beginTransaction();
+                        transaction5.show(hostInboxFragment);
+                        transaction5.commit();
+
+                        break;
+                    case R.id.menuHostSessions:
+                        cleanMainActivity();
+                        createSessionBtn.setVisibility(View.VISIBLE);
+                        FragmentTransaction transaction6 = fragmentManager.beginTransaction();
+                        transaction6.show(hostSessionsFragment);
+                        transaction6.commit();
+                        break;
+                    case R.id.menuProfile:
+                        cleanMainActivity();
+                        FragmentTransaction transaction8 = fragmentManager.beginTransaction();
+                        transaction8.show(userProfileFragment);
+                        transaction8.commit();
+                        break;
+                }
+            }
+        });
+
+
+
+        /*bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 final int id = item.getItemId();
@@ -128,9 +170,9 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
                 }
                 return true;
             }
-        });
+        });*/
 
-        bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
+        //bottomNavigation.setSelectedItemId(R.id.menuNewsFeed);
 
         createSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override

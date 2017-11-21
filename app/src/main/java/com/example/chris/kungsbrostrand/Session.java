@@ -48,37 +48,6 @@ public class Session {
         this.advertised = advertised;
     }
 
-    public String textMonth(SessionDate sessionDate) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
-        SimpleDateFormat monthDate = new SimpleDateFormat("MMMM");
-        String monthName = monthDate.format(cal.getTime());
-        return monthName;
-    }
-
-    public String textDay(SessionDate sessionDate) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
-        SimpleDateFormat textDay = new SimpleDateFormat("EE");
-        String dayName = textDay.format(cal.getTime());
-        return dayName;
-    }
-
-    public String textFullDay(SessionDate sessionDate) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
-        SimpleDateFormat textDay = new SimpleDateFormat("EEEE");
-        String dayName = textDay.format(cal.getTime());
-        return dayName;
-    }
-
-    public String textSDF(SessionDate sessionDate) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(sessionDate.year, sessionDate.month, sessionDate.day) ;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return sdf.format(cal.getTime());
-    }
-
     //required empty constructor
     public Session() {
     }

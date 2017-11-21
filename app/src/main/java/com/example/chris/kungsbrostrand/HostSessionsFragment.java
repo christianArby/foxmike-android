@@ -84,7 +84,7 @@ public class HostSessionsFragment extends Fragment {
                         int n2=0;
                         for (Session session: sessions) {
                             try {
-                                Date sessionDate = sdf.parse(session.textSDF(session.getSessionDate()));
+                                Date sessionDate = sdf.parse(session.getSessionDate().textSDF());
 
                                 if (session.isAdvertised()) {
                                     if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
