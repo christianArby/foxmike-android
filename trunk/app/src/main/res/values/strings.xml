@@ -6,7 +6,7 @@
     <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Session</string>
     <string name="menu_map">Map</string>
-    <string name="menu_list">Sessions</string>
+    <string name="menu_list">Explore</string>
     <string name="menu_profile">Profile</string>
 
     <string-array name="sessionType_array">

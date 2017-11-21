@@ -17,7 +17,7 @@
         android:id="@+id/menuHostSessions"
         android:enabled="true"
         android:icon="@mipmap/ic_list_black_24dp"
-        android:title="Your sessions"
+        android:title="Sessions"
         app:showAsAction="ifRoom" />
 
     <item

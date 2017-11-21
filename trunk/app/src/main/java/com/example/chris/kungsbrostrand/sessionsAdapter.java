@@ -56,7 +56,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
         holder.setTitle(session.getSessionName());
         holder.setDesc(session.getSessionType());
         String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
-        holder.setDateAndTime(session.textFullDay(session.getSessionDate()) + " " + session.getSessionDate().day + " " + session.textMonth(session.getSessionDate()) + " " + sessionTime);
+        holder.setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + sessionTime);
         holder.setAddress(address);
         holder.setImage(this.context,session.getImageUri());
 
