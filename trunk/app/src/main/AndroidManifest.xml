@@ -46,11 +46,9 @@
 
         <activity
             android:name=".MainPlayerActivity"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_maps"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        </activity>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
         <activity
             android:name=".MainActivity"
             android:label="splash"
@@ -62,9 +60,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
@@ -92,15 +87,11 @@
         <activity
             android:name=".CreateOrEditSessionActivity"
             android:label="@string/title_activity_training_session" />
-        <activity
-            android:name=".DisplaySessionActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_join_session" />
         <activity android:name=".LoginActivity" />
         <activity
-            android:screenOrientation="portrait"
             android:name=".RegisterActivity"
-            android:label="@string/title_activity_register" />
+            android:label="@string/title_activity_register"
+            android:screenOrientation="portrait" />
         <activity android:name=".SetupAccountActivity" />
 
         <service android:name=".MyFirebaseDatabase" />
@@ -108,7 +99,8 @@
         <activity
             android:name=".MainHostActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".AllUsersActivity"></activity>
     </application>
 
 </manifest>

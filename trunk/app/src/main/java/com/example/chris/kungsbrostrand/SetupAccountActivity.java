@@ -2,7 +2,9 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,7 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -20,6 +24,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import id.zelory.compressor.Compressor;
 
 public class SetupAccountActivity extends AppCompatActivity {
 
@@ -37,6 +49,8 @@ public class SetupAccountActivity extends AppCompatActivity {
     private StorageReference mStorageImage;
 
     private ProgressDialog mProgress;
+
+    private String currentUserID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,41 +94,25 @@ public class SetupAccountActivity extends AppCompatActivity {
         });
     }
 
-    private void startSetupAccount() {
+    private void startSetupAccount(){
 
         final String name = mNameField.getText().toString().trim();
 
-        final String user_id = mAuth.getCurrentUser().getUid();
+        currentUserID = mAuth.getCurrentUser().getUid();
 
         if(!TextUtils.isEmpty(name) && mImageUri != null){
 
-            mProgress.setMessage("Finishing Setup ...");
-            mProgress.show();
-
-            StorageReference filepath = mStorageImage.child(mImageUri.getLastPathSegment());
-
-            filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            mDatabaseUsers.child(currentUserID).child("name").setValue(name);
+            SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+            setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                 @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                    String downloadUri = taskSnapshot.getDownloadUrl().toString();
-
-                    mDatabaseUsers.child(user_id).child("name").setValue(name);
-                    mDatabaseUsers.child(user_id).child("image").setValue(downloadUri);
-
-                    mProgress.dismiss();
-
-                    Intent mainIntent = new Intent(SetupAccountActivity.this,MainActivity.class);
+                public void onUserImageSet() {
+                    Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(mainIntent);
-
                 }
             });
-
-            /*
-
-            */
-
+            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this,mImageUri,currentUserID);
         }
     }
 
@@ -130,8 +128,6 @@ public class SetupAccountActivity extends AppCompatActivity {
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(2,1)
                     .start(this);
-
-
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
