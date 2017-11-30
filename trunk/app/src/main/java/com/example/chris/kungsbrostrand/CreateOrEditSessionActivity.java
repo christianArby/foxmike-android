@@ -114,7 +114,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         createSessionContainer.addView(createSession);
 
-        /** Create Geofire onject in order to store latitude and longitude under in Geofire structure */
+        /** Create Geofire object in order to store latitude and longitude under in Geofire structure */
         geoFire = new GeoFire(mGeofireDbRef);
 
         /**The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.

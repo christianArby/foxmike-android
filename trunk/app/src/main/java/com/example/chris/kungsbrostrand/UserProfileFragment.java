@@ -2,7 +2,9 @@ package com.example.chris.kungsbrostrand;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -36,6 +38,7 @@ public class UserProfileFragment extends Fragment {
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
+    private OnUserProfileFragmentInteractionListener mListener;
 
     private LinearLayout list;
     private LatLng sessionLatLng;
@@ -73,6 +76,7 @@ public class UserProfileFragment extends Fragment {
         list.addView(profile);
 
         final TextView userNameTV = profile.findViewById(R.id.profileTV);
+        TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
@@ -111,6 +115,25 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
+        editProfileTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.OnUserProfileFragmentInteraction();
+                }
+            }
+        });
+
+        userNameTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.OnUserProfileFragmentInteraction();
+                }
+            }
+        });
+
+
         View logOutView = view.findViewById(R.id.logOutLL);
         logOutView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +170,26 @@ public class UserProfileFragment extends Fragment {
         }
 
 
+    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof UserProfileFragment.OnUserProfileFragmentInteractionListener) {
+            mListener = (UserProfileFragment.OnUserProfileFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnUserProfileFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnUserProfileFragmentInteractionListener {
+        void OnUserProfileFragmentInteraction();
     }
 
 }
