@@ -2,6 +2,7 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,14 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import id.zelory.compressor.Compressor;
+
 import static com.example.chris.kungsbrostrand.R.layout.activity_register;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -40,10 +49,11 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabaseUsers;
     private StorageReference mStorageImage;
 
     private ProgressDialog mProgress;
+    private String currentUserID;
 
     private Uri mImageUri = null;
 
@@ -56,8 +66,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
+
 
 
         mProgress = new ProgressDialog(this);
@@ -102,45 +113,24 @@ public class RegisterActivity extends AppCompatActivity {
 
         if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
 
-            mProgress.setMessage("Signing up ...");
-            mProgress.show();
-
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email,name).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
-                    if(task.isSuccessful()){
+                    if (task.isSuccessful()) {
+                        currentUserID = mAuth.getCurrentUser().getUid();
 
-                        final String user_id = mAuth.getCurrentUser().getUid();
-
-                        final DatabaseReference current_user_db = mDatabase.child(user_id);
-
-                        //current_user_db.child("name").setValue(name);
-                        //current_user_db.child("image").setValue("default");
-
-                        StorageReference filepath = mStorageImage.child(mImageUri.getLastPathSegment());
-
-                        filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        mDatabaseUsers.child(currentUserID).child("name").setValue(name);
+                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                             @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                String downloadUri = taskSnapshot.getDownloadUrl().toString();
-
-                                current_user_db.child("name").setValue(name);
-                                current_user_db.child("image").setValue(downloadUri, new DatabaseReference.CompletionListener() {
-                                    @Override
-                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-
-                                        mProgress.dismiss();
-
-                                        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                        startActivity(mainIntent);
-
-                                    }
-                                });
+                            public void onUserImageSet() {
+                                Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(mainIntent);
                             }
                         });
+                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
                     }
 
                 }
@@ -159,8 +149,6 @@ public class RegisterActivity extends AppCompatActivity {
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(2,1)
                     .start(this);
-
-
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -169,7 +157,6 @@ public class RegisterActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 mImageUri = result.getUri();
-
                 mRegisterImageButton.setImageURI(mImageUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {

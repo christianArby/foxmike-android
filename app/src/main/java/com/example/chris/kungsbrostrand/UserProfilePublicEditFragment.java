@@ -98,23 +98,19 @@ public class UserProfilePublicEditFragment extends Fragment {
                 mProgress.setMessage("Finishing Setup ...");
                 mProgress.show();
 
+                usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
 
-
-                if (mImageUri!=null) {
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
-                    StorageReference filepath = mStorageImage.child(mImageUri.getLastPathSegment());
-                    filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                if(mImageUri!=null) {
+                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            downloadUri = taskSnapshot.getDownloadUrl().toString();
-                            usersDbRef.child(currentFirebaseUser.getUid()).child("image").setValue(downloadUri);
-
+                        public void onUserImageSet() {
+                            mProgress.dismiss();
                             mListener.OnUserProfilePublicEditFragmentInteraction();
                         }
                     });
-
+                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
                 } else {
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
                     mListener.OnUserProfilePublicEditFragmentInteraction();
                 }
 

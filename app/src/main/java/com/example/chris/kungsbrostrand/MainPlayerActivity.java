@@ -182,6 +182,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                     case R.id.menuNewsFeed:
                         mapOrListBtn.setVisibility(View.VISIBLE);
                         mapOrListBtn.setText("NEWSFEED WILL BE HERE...");
+                        Intent AllUsersIntent = new Intent(MainPlayerActivity.this, AllUsersActivity.class);
+                        startActivity(AllUsersIntent);
                         break;
                     case R.id.menuListOrMap:
                         cleanMainActivityAndSwitch(listSessionsFragment);
