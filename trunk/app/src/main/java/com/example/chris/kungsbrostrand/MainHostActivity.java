@@ -32,7 +32,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicFragment.OnUserProfilePublicFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener{
+public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicFragment.OnUserProfilePublicFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener{
 
     private FragmentManager fragmentManager;
     private UserProfileFragment hostUserProfileFragment;
@@ -43,19 +43,12 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
     private BottomBar bottomNavigation;
-    private Button createSessionBtn;
-    private TextView createSessionMapText;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_host);
-
-        createSessionBtn = findViewById(R.id.add_session_btn);
-        createSessionBtn.setVisibility(View.GONE);
-        createSessionMapText = findViewById(R.id.create_session_map_text);
-        createSessionMapText.setVisibility(View.GONE);
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
@@ -135,20 +128,11 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
                         break;
                     case R.id.menuHostSessions:
                         cleanMainActivityAndSwitch(hostSessionsFragment);
-                        createSessionBtn.setVisibility(View.VISIBLE);
                         break;
                     case R.id.menuProfile:
                         cleanMainActivityAndSwitch(hostUserProfileFragment);
                         break;
                 }
-            }
-        });
-
-        createSessionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cleanMainActivityAndSwitch(hostMapsFragment);
-                createSessionMapText.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -166,8 +150,6 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         transaction.hide(hostUserProfilePublicEditFragment);
         transaction.hide(hostSessionsFragment);
         transaction.commit();
-        createSessionMapText.setVisibility(View.GONE);
-        createSessionBtn.setVisibility(View.GONE);
         bottomNavigation.setVisibility(View.VISIBLE);
     }
 
@@ -200,8 +182,6 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
 
         transaction.show(fragment).addToBackStack("fragment");
         transaction.commit();
-        createSessionMapText.setVisibility(View.GONE);
-        createSessionBtn.setVisibility(View.GONE);
         bottomNavigation.setVisibility(View.VISIBLE);
     }
 
@@ -248,10 +228,19 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
             if (hostUserProfilePublicFragment.isVisible()) {
                 bottomNavigation.setVisibility(View.VISIBLE);
             }
+            if (hostMapsFragment.isVisible()) {
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
             // TODO Add Newsfeed fragment here later when exist
             if (!hostUserProfileFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
         }
+    }
+
+    @Override
+    public void OnCreateSessionClicked() {
+        cleanMainActivityAndSwitch(hostMapsFragment);
+        bottomNavigation.setVisibility(View.GONE);
     }
 }
