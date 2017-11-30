@@ -11,11 +11,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -44,7 +46,8 @@ public class UserProfilePublicEditFragment extends Fragment {
     private StorageReference mStorageImage;
     private ImageButton profileImageButton;
     private String downloadUri;
-    private ProgressDialog mProgress;
+    private ProgressBar progressBar;
+    private int progressStatus = 0;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
     private FirebaseAuth mAuth;
@@ -70,7 +73,8 @@ public class UserProfilePublicEditFragment extends Fragment {
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
         mAuth = FirebaseAuth.getInstance();
 
-        mProgress = new ProgressDialog(getActivity());
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar_cyclic);
+
 
         /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_info */
         list = view.findViewById(R.id.list_user_profile_public_edit);
@@ -95,8 +99,9 @@ public class UserProfilePublicEditFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                mProgress.setMessage("Finishing Setup ...");
-                mProgress.show();
+                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+
+                myProgressBar.startProgressBar();
 
                 usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
 
@@ -105,16 +110,17 @@ public class UserProfilePublicEditFragment extends Fragment {
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                         @Override
                         public void onUserImageSet() {
-                            mProgress.dismiss();
                             mListener.OnUserProfilePublicEditFragmentInteraction();
+                            myProgressBar.stopProgressBar();
                         }
                     });
                     setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
                 } else {
                     mListener.OnUserProfilePublicEditFragmentInteraction();
+                    myProgressBar.stopProgressBar();
                 }
 
-                mProgress.dismiss();
+
             }
         });
 

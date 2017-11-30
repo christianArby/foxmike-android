@@ -19,4 +19,13 @@
 
     </ScrollView>
 
+    <ProgressBar
+        android:id="@+id/progressBar_cyclic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:minWidth="50dp"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="invisible"/>
+
 </FrameLayout>

@@ -12,12 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -52,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseUsers;
     private StorageReference mStorageImage;
 
-    private ProgressDialog mProgress;
+    private ProgressBar progressBar;
     private String currentUserID;
 
     private Uri mImageUri = null;
@@ -69,9 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
 
-
-
-        mProgress = new ProgressDialog(this);
+        progressBar = findViewById(R.id.progressBar_cyclic);
 
         mNameField = findViewById(R.id.setupNameField);
         mEmailField= findViewById(R.id.emailField);
@@ -107,13 +108,17 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void startRegister() {
 
+        final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
+
+
         final String name = mNameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
+        myProgressBar.startProgressBar();
 
         if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
 
-            mAuth.createUserWithEmailAndPassword(email,name).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -125,12 +130,17 @@ public class RegisterActivity extends AppCompatActivity {
                         setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                             @Override
                             public void onUserImageSet() {
+                                myProgressBar.stopProgressBar();
                                 Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
                                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(mainIntent);
                             }
                         });
                         setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
+                    } else {
+                        myProgressBar.stopProgressBar();
+                        FirebaseAuthException e = (FirebaseAuthException )task.getException();
+                        Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                 }
