@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -54,6 +55,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private boolean moveCamera;
     private View myView;
     private OnSessionClickedListener onSessionClickedListener;
+    private TextView createSessionMapTextTV;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -90,6 +92,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
         }
+
+        createSessionMapTextTV = myView.findViewById(R.id.create_session_map_text);
         return myView;
 
     }
@@ -132,12 +136,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mMap.setMyLocationEnabled(true);
         }
 
-        //when map is clicked, open CreateOrEditSessionActivity
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+        myFirebaseDatabase.getUser(new OnUserFoundListener() {
             @Override
-            public void onMapClick(LatLng point) {
-                clickedPosition = point;
-                addSession();
+            public void OnUserFound(User user) {
+                if (user.trainerMode) {
+                    createSessionMapTextTV.setVisibility(View.VISIBLE);
+                    //when map is clicked, open CreateOrEditSessionActivity
+                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng point) {
+                            clickedPosition = point;
+                            addSession();
+                        }
+                    });
+                } else {
+                    createSessionMapTextTV.setVisibility(View.GONE);
+                }
             }
         });
     }

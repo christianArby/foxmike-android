@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,6 +27,8 @@ public class HostSessionsFragment extends Fragment {
 
     private LinearLayout list1;
     private OnSessionClickedListener onSessionClickedListener;
+    private OnCreateSessionClickedListener onCreateSessionClickedListener;
+    private Button createSessionBtn;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -56,6 +59,14 @@ public class HostSessionsFragment extends Fragment {
         TextView list1Heading = list1HeadingView.findViewById(R.id.yourSessionsHeadingTV);
         list1Heading.setText("Sessions advertised within 2 weeeks");
         list1.addView(list1HeadingView);
+        createSessionBtn = view.findViewById(R.id.add_session_btn);
+
+        createSessionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onCreateSessionClickedListener.OnCreateSessionClicked();
+            }
+        });
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
@@ -142,12 +153,24 @@ public class HostSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
+
+        if (context instanceof OnCreateSessionClickedListener) {
+            onCreateSessionClickedListener = (OnCreateSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement onCreateSessionClickedListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
+        onCreateSessionClickedListener = null;
+    }
+
+    public interface OnCreateSessionClickedListener {
+        void OnCreateSessionClicked();
     }
 
 }
