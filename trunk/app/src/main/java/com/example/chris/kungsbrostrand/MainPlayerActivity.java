@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicFragment.OnUserProfilePublicFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, AllUsersFragment.OnUserClickedListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, AllUsersFragment.OnUserClickedListener{
     private FragmentManager fragmentManager;
+    private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
     private ListSessionsFragment listSessionsFragment;
     private MapsFragment mapsFragment;
@@ -67,8 +68,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         fragmentManager = getSupportFragmentManager();
         mapOrListBtn = findViewById(R.id.map_or_list_button);
 
-        if (userProfileFragment==null) {
-            userProfileFragment = new UserProfileFragment();
+        if (userAccountFragment ==null) {
+            userAccountFragment = new UserAccountFragment();
         }
         if (playerSessionsFragment==null) {
             playerSessionsFragment = PlayerSessionsFragment.newInstance();
@@ -81,8 +82,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             inboxFragment = InboxFragment.newInstance();
         }
 
-        if (userProfilePublicFragment==null) {
-            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        if (userProfileFragment==null) {
+            userProfileFragment = UserProfileFragment.newInstance();
         }
 
         if (userProfilePublicEditFragment==null) {
@@ -102,8 +103,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
-            transaction.add(R.id.container_main_player, userProfileFragment,"userProfileFragment");
+        if (null == fragmentManager.findFragmentByTag("userAccountFragment")) {
+            transaction.add(R.id.container_main_player, userAccountFragment,"userAccountFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("playerSessionsFragment")) {
@@ -122,8 +123,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             transaction.add(R.id.container_main_player, inboxFragment,"InboxFragment");
         }
 
-        if (null == fragmentManager.findFragmentByTag("userProfilePublicFragment")) {
-            transaction.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
+        if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
+            transaction.add(R.id.container_main_player, userProfileFragment,"userProfileFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("userProfilePublicEditFragment")) {
@@ -204,7 +205,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                         cleanMainActivityAndSwitch(inboxFragment);
                         break;
                     case R.id.menuProfile:
-                        cleanMainActivityAndSwitch(userProfileFragment);
+                        cleanMainActivityAndSwitch(userAccountFragment);
                         break;
                 }
             }
@@ -234,8 +235,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         transaction.hide(inboxFragment);
         transaction.hide(mapsFragment);
         transaction.hide(listSessionsFragment);
+        transaction.hide(userAccountFragment);
         transaction.hide(userProfileFragment);
-        transaction.hide(userProfilePublicFragment);
+        if (userProfilePublicFragment!=null) {
+            transaction.hide(userProfilePublicFragment);
+        }
         transaction.hide(userProfilePublicEditFragment);
         transaction.hide(playerSessionsFragment);
         transaction.hide(allUsersFragment);
@@ -253,6 +257,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                 transaction.hide(displaySessionFragment).addToBackStack("displaySessionFragment");
             }
         }
+        if (userProfilePublicFragment!=null) {
+            if (userProfilePublicFragment.isVisible()) {
+                transaction.hide(userProfilePublicFragment).addToBackStack("userProfilePublicFragment");
+            }
+        }
         if (inboxFragment.isVisible()) {
             transaction.hide(inboxFragment).addToBackStack("inboxFragment");
         }
@@ -262,12 +271,13 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         if (listSessionsFragment.isVisible()) {
             transaction.hide(listSessionsFragment).addToBackStack("listSessionsFragment");
         }
+        if (userAccountFragment.isVisible()) {
+            transaction.hide(userAccountFragment).addToBackStack("userAccountFragment");
+        }
         if (userProfileFragment.isVisible()) {
             transaction.hide(userProfileFragment).addToBackStack("userProfileFragment");
         }
-        if (userProfilePublicFragment.isVisible()) {
-            transaction.hide(userProfilePublicFragment).addToBackStack("userProfilePublicFragment");
-        }
+
         if (userProfilePublicEditFragment.isVisible()) {
             transaction.hide(userProfilePublicEditFragment);
         }
@@ -294,11 +304,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             // /super.onBackPressed();
             //additional code
         } else {
-            if (userProfilePublicFragment.isVisible()) {
+            if (userProfileFragment.isVisible()) {
                 bottomNavigation.setVisibility(View.VISIBLE);
             }
             // TODO Add Newsfeed fragment here later when exist
-            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userProfileFragment.isVisible()&&!inboxFragment.isVisible()){
+            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
         }
@@ -363,13 +373,13 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     }
 
     @Override
-    public void OnUserProfileFragmentInteraction() {
-        cleanMainActivityAndSwitch(userProfilePublicFragment);
+    public void OnUserAccountFragmentInteraction() {
+        cleanMainActivityAndSwitch(userProfileFragment);
         bottomNavigation.setVisibility(View.GONE);
     }
 
     @Override
-    public void OnUserProfilePublicFragmentInteraction() {
+    public void onUserProfileFragmentInteraction() {
         cleanMainActivityAndSwitch(userProfilePublicEditFragment);
         bottomNavigation.setVisibility(View.GONE);
     }
@@ -403,6 +413,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         cleanMainActivityAndSwitch(userProfilePublicFragment);
     }
+
 
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
 

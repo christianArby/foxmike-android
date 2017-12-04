@@ -1,45 +1,26 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
-import android.os.Build;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.rd.PageIndicatorView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicFragment.OnUserProfilePublicFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener{
+public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener{
 
     private FragmentManager fragmentManager;
-    private UserProfileFragment hostUserProfileFragment;
+    private UserAccountFragment hostUserAccountFragment;
     private MapsFragment hostMapsFragment;
     private DisplaySessionFragment hostDisplaySessionFragment;
     private InboxFragment hostInboxFragment;
     private HostSessionsFragment hostSessionsFragment;
+    private UserProfileFragment hostUserProfileFragment;
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
     private BottomBar bottomNavigation;
@@ -53,8 +34,8 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
 
-        if (hostUserProfileFragment==null) {
-            hostUserProfileFragment = UserProfileFragment.newInstance();
+        if (hostUserAccountFragment ==null) {
+            hostUserAccountFragment = UserAccountFragment.newInstance();
         }
         if (hostSessionsFragment==null) {
             hostSessionsFragment = HostSessionsFragment.newInstance();
@@ -71,8 +52,8 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
             hostMapsFragment.setArguments(bundle);
         }
 
-        if(hostUserProfilePublicFragment == null) {
-            hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        if(hostUserProfileFragment == null) {
+            hostUserProfileFragment = UserProfileFragment.newInstance();
         }
 
         if (hostUserProfilePublicEditFragment == null) {
@@ -81,8 +62,8 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
 
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (null == fragmentManager.findFragmentByTag("hostUserProfileFragment")) {
-            transaction.add(R.id.container_main_host, hostUserProfileFragment,"hostUserProfileFragment");
+        if (null == fragmentManager.findFragmentByTag("hostUserAccountFragment")) {
+            transaction.add(R.id.container_main_host, hostUserAccountFragment,"hostUserAccountFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("hostSessionsFragment")) {
@@ -97,8 +78,8 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
             transaction.add(R.id.container_main_host, hostInboxFragment,"hostInboxFragment");
         }
 
-        if (null == fragmentManager.findFragmentByTag("hostUserProfilePublicFragment")) {
-            transaction.add(R.id.container_main_host, hostUserProfilePublicFragment,"hostUserProfilePublicFragment");
+        if (null == fragmentManager.findFragmentByTag("hostUserProfileFragment")) {
+            transaction.add(R.id.container_main_host, hostUserProfileFragment,"hostUserProfileFragment");
         }
 
         if (null == fragmentManager.findFragmentByTag("hostUserProfilePublicEditFragment")) {
@@ -130,7 +111,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
                         cleanMainActivityAndSwitch(hostSessionsFragment);
                         break;
                     case R.id.menuProfile:
-                        cleanMainActivityAndSwitch(hostUserProfileFragment);
+                        cleanMainActivityAndSwitch(hostUserAccountFragment);
                         break;
                 }
             }
@@ -145,8 +126,11 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         }
         transaction.hide(hostInboxFragment);
         transaction.hide(hostMapsFragment);
+        transaction.hide(hostUserAccountFragment);
         transaction.hide(hostUserProfileFragment);
-        transaction.hide(hostUserProfilePublicFragment);
+        if (hostUserProfilePublicFragment!=null) {
+            transaction.hide(hostUserProfilePublicFragment);
+        }
         transaction.hide(hostUserProfilePublicEditFragment);
         transaction.hide(hostSessionsFragment);
         transaction.commit();
@@ -167,11 +151,16 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         if (hostMapsFragment.isVisible()) {
             transaction.hide(hostMapsFragment).addToBackStack("hostMapsFragment");
         }
+        if (hostUserAccountFragment.isVisible()) {
+            transaction.hide(hostUserAccountFragment).addToBackStack("hostUserAccountFragment");
+        }
         if (hostUserProfileFragment.isVisible()) {
             transaction.hide(hostUserProfileFragment).addToBackStack("hostUserProfileFragment");
         }
-        if (hostUserProfilePublicFragment.isVisible()) {
-            transaction.hide(hostUserProfilePublicFragment).addToBackStack("hostUserProfilePublicFragment");
+        if (hostUserProfileFragment!=null) {
+            if (hostUserProfilePublicFragment.isVisible()) {
+                transaction.hide(hostUserProfilePublicFragment).addToBackStack("hostUserProfilePublicFragment");
+            }
         }
         if (hostUserProfilePublicEditFragment.isVisible()) {
             transaction.hide(hostUserProfilePublicEditFragment);
@@ -198,13 +187,13 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     }
 
     @Override
-    public void OnUserProfileFragmentInteraction() {
-        cleanMainActivityAndSwitch(hostUserProfilePublicFragment);
+    public void OnUserAccountFragmentInteraction() {
+        cleanMainActivityAndSwitch(hostUserProfileFragment);
         bottomNavigation.setVisibility(View.GONE);
     }
 
     @Override
-    public void OnUserProfilePublicFragmentInteraction() {
+    public void onUserProfileFragmentInteraction() {
         cleanMainActivityAndSwitch(hostUserProfilePublicEditFragment);
         bottomNavigation.setVisibility(View.GONE);
     }
@@ -232,7 +221,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
                 bottomNavigation.setVisibility(View.VISIBLE);
             }
             // TODO Add Newsfeed fragment here later when exist
-            if (!hostUserProfileFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
+            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
         }
@@ -243,4 +232,6 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         cleanMainActivityAndSwitch(hostMapsFragment);
         bottomNavigation.setVisibility(View.GONE);
     }
+
+
 }

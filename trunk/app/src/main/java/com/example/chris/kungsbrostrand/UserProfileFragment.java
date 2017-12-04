@@ -1,13 +1,13 @@
 package com.example.chris.kungsbrostrand;
 
-
 import android.content.Context;
-import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,29 +16,23 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-/**
- * This Fragment creates the user profile view by using the xml files:
- *      - fragment_user_profile.xml
- *      - user_profile_info.xml
- *      - session_row_view.xml
- * The data (used to generate the views) is retrieved by using an object of the class PlayerSessionsContent in order to generate the fill the views with content in the correct order.
- */
 
 public class UserProfileFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
-    private OnUserProfileFragmentInteractionListener mListener;
-
     private LinearLayout list;
-    private LatLng sessionLatLng;
     private View profile;
+
+    private OnUserProfileFragmentInteractionListener onUserProfileFragmentInteractionListener;
 
     public UserProfileFragment() {
         // Required empty public constructor
@@ -46,8 +40,6 @@ public class UserProfileFragment extends Fragment {
 
     public static UserProfileFragment newInstance() {
         UserProfileFragment fragment = new UserProfileFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -61,131 +53,69 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
 
-        /* Get the view fragment_user_profile */
-        final View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
         mAuth = FirebaseAuth.getInstance();
 
-        /* Inflate the LinearLayout list (in fragment_user_profile) with the layout user_profile_info */
-        list = view.findViewById(R.id.list1);
-        profile = inflater.inflate(R.layout.user_profile_info,list,false);
+        /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_info */
+        list = view.findViewById(R.id.list_user_profile);
+        profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
         list.addView(profile);
 
-        final TextView userNameTV = profile.findViewById(R.id.profileTV);
-        TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
+        final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-        /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
-        final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
-        final View switchMode = view.findViewById(R.id.switchModeLL);
-        switchMode.setOnClickListener(new View.OnClickListener() {
+        ImageView editIconIV = view.findViewById(R.id.editIconIV);
+
+        usersDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User userDb = dataSnapshot.getValue(User.class);
+                userNameTV.setText(userDb.getName());
+                setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        editIconIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-                    @Override
-                    public void OnUserFound(User user) {
-                        if (user.trainerMode) {
-                            user.setTrainerMode(false);
-                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(false);
-                            changeMode(user.trainerMode);
-                        } else {
-                            user.setTrainerMode(true);
-                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(true);
-                            changeMode(user.trainerMode);
-                        }
-                    }
-                });
-            }
-        });
-
-        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-            @Override
-            public void OnUserFound(User user) {
-                userNameTV.setText(user.getName());
-                setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
-                if (user.trainerMode) {
-                    switchModeTV.setText("Switch to participant mode");
-                } else {
-                    switchModeTV.setText("Switch to trainer mode");
-                }
-            }
-        });
-
-        editProfileTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.OnUserProfileFragmentInteraction();
-                }
-            }
-        });
-
-        userNameTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.OnUserProfileFragmentInteraction();
-                }
+                onUserProfileFragmentInteractionListener.onUserProfileFragmentInteraction();
             }
         });
 
 
-        View logOutView = view.findViewById(R.id.logOutLL);
-        logOutView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logout();
-            }
-        });
-
-        // Inflate the layout for this fragment
-        return view;
+        return  view;
     }
 
-    // Method to set and scale an image into an imageView
-    private void setImage(String image, ImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
-    }
-    // Method to set and scale an image into an circular imageView
-    private void setCircleImage(String image, CircleImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
-    }
 
-    private void logout() {
-        mAuth.signOut();
-    }
-
-    private void changeMode(Boolean trainerMode) {
-
-        if (trainerMode) {
-            Intent intent = new Intent(getActivity(), MainHostActivity.class);
-            getActivity().startActivity(intent);
-        } else {
-            Intent intent = new Intent(getActivity(), MainPlayerActivity.class);
-            getActivity().startActivity(intent);
-        }
-
-
-    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof UserProfileFragment.OnUserProfileFragmentInteractionListener) {
-            mListener = (UserProfileFragment.OnUserProfileFragmentInteractionListener) context;
+        if (context instanceof OnUserProfileFragmentInteractionListener) {
+            onUserProfileFragmentInteractionListener = (OnUserProfileFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnUserProfileFragmentInteractionListener");
+                    + " must implement OnFragmentInteractionListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        onUserProfileFragmentInteractionListener = null;
     }
 
     public interface OnUserProfileFragmentInteractionListener {
-        void OnUserProfileFragmentInteraction();
+        void onUserProfileFragmentInteraction();
     }
 
+    // Method to set and scale an image into an circular imageView
+    private void setCircleImage(String image, CircleImageView imageView) {
+        Glide.with(this).load(image).into(imageView);
+    }
 }
