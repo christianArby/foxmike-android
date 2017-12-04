@@ -2,18 +2,13 @@ package com.example.chris.kungsbrostrand;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -59,7 +54,7 @@ public class PlayerSessionsFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
         /* Get the currents user's information from the database */
-        myFirebaseDatabase.getUser(new OnUserFoundListener() {
+        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(final User user) {
                 /* If user is not attending any sessions set that the sessionsAttending content has beeen found*/

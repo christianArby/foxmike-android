@@ -1,8 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,29 +9,22 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -86,7 +77,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
 
-        myFirebaseDatabase.getUser(new OnUserFoundListener() {
+        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
                 userNameET.setText(user.getName());

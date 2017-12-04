@@ -15,14 +15,16 @@ class User {
     public HashMap<String,Boolean> sessionsHosting;
     public String name;
     public String image;
+    public String thumb_image;
     public boolean trainerMode;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode, String thumb_image) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.name = name;
         this.image = image;
         this.trainerMode = trainerMode;
+        this.thumb_image = thumb_image;
     }
 
 
@@ -84,4 +86,11 @@ class User {
         this.trainerMode = trainerMode;
     }
 
+    public String getThumb_image() {
+        return thumb_image;
+    }
+
+    public void setThumb_image(String thumb_image) {
+        this.thumb_image = thumb_image;
+    }
 }

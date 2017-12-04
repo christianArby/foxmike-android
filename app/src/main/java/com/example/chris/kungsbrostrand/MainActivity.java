@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(loginIntent);
             } else {
-                myFirebaseDatabase.getUser(new OnUserFoundListener() {
+                myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
                     @Override
                     public void OnUserFound(User user) {
                         if (user.trainerMode) {

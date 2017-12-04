@@ -1,17 +1,17 @@
 package com.example.chris.kungsbrostrand;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.firebase.client.core.Context;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
@@ -20,32 +20,47 @@ import com.google.firebase.database.Query;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AllUsersActivity extends AppCompatActivity {
+public class AllUsersFragment extends Fragment {
 
     private RecyclerView allUsersList;
     private DatabaseReference mUsersDatabase;
+    OnUserClickedListener onUserClickedListener;
 
 
+    public AllUsersFragment() {
+        // Required empty public constructor
+    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_all_users);
-
-        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-
-        allUsersList = (RecyclerView) findViewById(R.id.allUsersList);
-        allUsersList.setHasFixedSize(true);
-        allUsersList.setLayoutManager(new LinearLayoutManager(this));
-
-
-
+    public static AllUsersFragment newInstance() {
+        AllUsersFragment fragment = new AllUsersFragment();
+        return fragment;
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_all_users, container, false);
+
+        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        allUsersList = (RecyclerView) view.findViewById(R.id.allUsersList);
+        allUsersList.setHasFixedSize(true);
+        allUsersList.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         Query query = mUsersDatabase;
 
         FirebaseRecyclerOptions<User> options =
@@ -65,26 +80,19 @@ public class AllUsersActivity extends AppCompatActivity {
             protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
                 holder.setName(model.getName());
                 holder.setStatus(model.getName());
+                holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+
+                final String userId = getRef(position).getKey();
+
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onUserClickedListener.OnUserClicked(userId);
+                    }
+                });
 
             }
         };
-
-
-        /*
-        // TODO update gradle with latest FirebaseUI which has different override methods than below
-        FirebaseRecyclerAdapter<User, UsersViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(
-                User.class,
-                R.layout.users_list_single_layout,
-                UsersViewHolder.class,
-                mUsersDatabase
-        ) {
-            @Override
-            protected void populateViewHolder(UsersViewHolder usersViewHolder, User user, int position) {
-
-                usersViewHolder.setName(user.getName());
-
-            }
-        }; */
 
         allUsersList.setAdapter(firebaseRecyclerAdapter);
 
@@ -111,12 +119,31 @@ public class AllUsersActivity extends AppCompatActivity {
             userStatusTV.setText(status);
         }
 
-        public void setUserImage(String name) {
+        public void setUserImage(String thumb_image, android.content.Context context) {
             CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.user_single_image);
+            Glide.with(context).load(thumb_image).into(userProfileImageIV);
         }
     }
-    // Method to set and scale an image into an imageView
-    public void setImage(String image, ImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnUserClickedListener) {
+            onUserClickedListener = (OnUserClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnUserClickedListener");
+        }
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onUserClickedListener = null;
+    }
+
+    public interface OnUserClickedListener {
+        void OnUserClicked(String otherUserID);
+    }
+
 }
