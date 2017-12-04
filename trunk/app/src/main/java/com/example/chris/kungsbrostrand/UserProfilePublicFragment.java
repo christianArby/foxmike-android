@@ -31,6 +31,10 @@ public class UserProfilePublicFragment extends Fragment {
     private LinearLayout list;
     private LatLng sessionLatLng;
     private View profile;
+    private String otherUserID;
+    private String userID;
+
+    private int current_state;
 
 
     public UserProfilePublicFragment() {
@@ -46,6 +50,8 @@ public class UserProfilePublicFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            Bundle bundle = getArguments();
+            otherUserID = bundle.getString("otherUserID");
         }
     }
 
@@ -66,7 +72,15 @@ public class UserProfilePublicFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         ImageView editIconIV = view.findViewById(R.id.editIconIV);
 
-        myFirebaseDatabase.getUser(new OnUserFoundListener() {
+        current_state=0;
+
+        if (otherUserID==null) {
+            userID = currentFirebaseUser.getUid();
+        } else {
+            userID = otherUserID;
+        }
+
+        myFirebaseDatabase.getUser(userID,new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
                 userNameTV.setText(user.getName());

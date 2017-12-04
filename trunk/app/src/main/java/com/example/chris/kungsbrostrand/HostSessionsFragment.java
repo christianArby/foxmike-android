@@ -11,8 +11,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,7 +69,7 @@ public class HostSessionsFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
         /* Get the currents user's information from the database */
-        myFirebaseDatabase.getUser(new OnUserFoundListener() {
+        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(final User user) {
                 /* If user is not hosting any sessions set that the sessionsHosting content has beeen found*/

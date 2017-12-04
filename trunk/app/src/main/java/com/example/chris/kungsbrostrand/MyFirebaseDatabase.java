@@ -66,8 +66,8 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-
-    public void getUser(final OnUserFoundListener onUserFoundListener){
+    /*
+    public void getCurrentUser(final OnUserFoundListener onUserFoundListener){
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -91,6 +91,34 @@ public class MyFirebaseDatabase extends Service{
             public void onCancelled(DatabaseError databaseError) {
                 //final User user = new User();
                 //onUserFoundListener.OnUserFound(user);
+            }
+        });
+    } */
+
+    public void getCurrentUser(final OnUserFoundListener onUserFoundListener){
+        dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User userDb = dataSnapshot.getValue(User.class);
+                onUserFoundListener.OnUserFound(userDb);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void getUser(String userID,final OnUserFoundListener onUserFoundListener){
+        dbRef.child("users").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User userDb = dataSnapshot.getValue(User.class);
+                onUserFoundListener.OnUserFound(userDb);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

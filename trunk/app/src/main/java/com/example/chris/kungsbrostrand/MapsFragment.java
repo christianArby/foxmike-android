@@ -43,9 +43,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private GoogleMap mMap;
     private MapView mapView;
     GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
     Marker mCurrLocationMarker;
-    LocationRequest mLocationRequest;
     static final int PICK_SESSION_REQUEST = 1;
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private LatLng clickedPosition;
@@ -73,12 +71,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         setRetainInstance(true);
         moveCamera=true;
         mAuth = FirebaseAuth.getInstance();
-
         mMarkerDbRef.keepSynced(true);
-
-
-
-
     }
 
     @Override
@@ -95,12 +88,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         createSessionMapTextTV = myView.findViewById(R.id.create_session_map_text);
         return myView;
-
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
     }
 
     @Override
@@ -136,8 +123,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mMap.setMyLocationEnabled(true);
         }
 
+        //  Get information of current user from database in order to determine if the user is in
+        //  "trainer mode" or not. If in trainer mode, set an onclicklistener to the map so that the
+        //  user can create sessions (start CreateOrEditSessionActivity by click), show also explanation text "Click on map to create session"
         MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-        myFirebaseDatabase.getUser(new OnUserFoundListener() {
+        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
                 if (user.trainerMode) {
@@ -157,13 +147,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         });
     }
 
+    // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
+    // Onclicklistener to the map in order to display session when marker is clicked.
     public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-
-
-
+        mMap.clear();
+        for (Session session: sessions) {
+            LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
+        }
 
         // when marker is clicked find latitude value in child in realtime database
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -174,24 +168,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 return false;
             }
         });
-
-        mMap.clear();
-        for (Session session: sessions) {
-            LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
-        }
     }
 
+    // Method to start CreateOrEditSessionActivity
     private void addSession() {
         Intent intent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
         intent.putExtra("LatLng", clickedPosition);
         startActivityForResult(intent, PICK_SESSION_REQUEST);
     }
 
-    private void displaySession(LatLng markerLatLng) {
-        onSessionClickedListener.OnSessionClicked(markerLatLng.latitude, markerLatLng.longitude);
-    }
-
+    // Method that adds a marker to the map when map is clicked and CreateOrEditSessionActivity
+    // has been started.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
@@ -203,7 +190,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
-
+    // Method to call the interface OnSessionClickedListener so that MainPlayerActivity knows that
+    // a session has been clicked and display session fragment should be created and switched to.
+    private void displaySession(LatLng markerLatLng) {
+        onSessionClickedListener.OnSessionClicked(markerLatLng.latitude, markerLatLng.longitude);
+    }
 
     //google  ONLY LONG AND LAT SET BELOW THIS
     private synchronized void buildGoogleApiClient() {
