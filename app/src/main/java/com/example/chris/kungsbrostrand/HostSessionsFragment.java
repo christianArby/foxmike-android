@@ -49,7 +49,7 @@ public class HostSessionsFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        /* Get the view fragment_user_profile */
+        /* Get the view fragment_user_account */
         final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
 
         list1 = view.findViewById(R.id.list1);
