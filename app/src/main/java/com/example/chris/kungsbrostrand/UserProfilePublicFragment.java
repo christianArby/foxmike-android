@@ -1,8 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
 
-import android.content.Context;
-import android.icu.text.DateFormat;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,13 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -40,15 +35,11 @@ public class UserProfilePublicFragment extends Fragment {
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
-
     private LinearLayout list;
-    private LatLng sessionLatLng;
     private View profile;
-    private String otherUserID;
     private String userID;
     private Button sendRequestBtn;
     private Button declineBtn;
-
     private int areFriends;
 
 
@@ -66,7 +57,7 @@ public class UserProfilePublicFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             Bundle bundle = getArguments();
-            otherUserID = bundle.getString("otherUserID");
+            userID = bundle.getString("otherUserID");
         }
     }
 
@@ -76,30 +67,31 @@ public class UserProfilePublicFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_profile_public, container, false);
 
+        // Get Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_info */
+        /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_public_info */
         list = view.findViewById(R.id.list_user_profile_public);
         profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
         list.addView(profile);
 
         final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-        ImageView editIconIV = view.findViewById(R.id.editIconIV);
         sendRequestBtn = view.findViewById(R.id.send_request_btn);
         declineBtn = view.findViewById(R.id.decline_request_btn);
 
+        // Set default visibility of decline button
         declineBtn.setVisibility(View.INVISIBLE);
         declineBtn.setEnabled(false);
 
+        // friend states:
+        // 0: not friends, no requests
+        // 1: not friends, user has sent a request
+        // 2: not friends, user has received a request
+        // 3: friends
+
         areFriends=0;
 
-        if (otherUserID==null) {
-            userID = currentFirebaseUser.getUid();
-        } else {
-            userID = otherUserID;
-        }
-
+        // get data of the userID clicked in previous activity
         usersDbRef.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -107,15 +99,14 @@ public class UserProfilePublicFragment extends Fragment {
                 userNameTV.setText(userDb.getName());
                 setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
-
-                // FRIENDS LIST / REQUEST FEATURE -----
+                // ------------ FRIENDS LIST / REQUEST FEATURE ------------
+                // Find out of there are any requests sent to the user or recieved from the user
                 friendReqDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         if(dataSnapshot.hasChild(userID)) {
                             String req_type = dataSnapshot.child(userID).child("request_type").getValue().toString();
-
                             if (req_type.equals("received")) {
                                 areFriends = 2;
                                 sendRequestBtn.setText("Accept friend Request");
@@ -132,35 +123,28 @@ public class UserProfilePublicFragment extends Fragment {
                             }
                         } else {
 
+                            // Find out if the user clicked is one of the current users friends
                             friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
 
-
                                     if (dataSnapshot.hasChild(userID)) {
-
                                         areFriends = 3;
                                         sendRequestBtn.setText("Unfriend this person");
 
                                         declineBtn.setVisibility(View.INVISIBLE);
                                         declineBtn.setEnabled(false);
-
                                     }
-
                                     // Progressbar dismiss
                                 }
 
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-
                                     // Progressbar dismiss
-
                                 }
                             });
                         }
-
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
@@ -175,21 +159,20 @@ public class UserProfilePublicFragment extends Fragment {
         });
 
 
+        // ONCLICKLISTENER ON BUTTON STARTS HERE
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                // When button is clicked, disable it until results from database so that multiple quires are not possible
                 sendRequestBtn.setEnabled(false);
 
                 // -------------- NOT FRIENDS STATE ----------------
-
+                // If not friends and button is clicked, send friend request by creating structure in database
                 if (areFriends==0) {
-
                     friendReqDbRef.child(currentFirebaseUser.getUid()).child(userID).child("request_type").setValue("sent")
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-
                             if (task.isSuccessful()) {
 
                                 friendReqDbRef.child(userID).child(currentFirebaseUser.getUid()).child("request_type").setValue("received")
@@ -218,6 +201,7 @@ public class UserProfilePublicFragment extends Fragment {
                 }
 
                 // -------------- CANCEL REQUEST STATE ----------------
+                // If friend request has been sent and button is clicked, cancel friend request by removing structure in database
 
                 if (areFriends==1) {
 
@@ -242,7 +226,7 @@ public class UserProfilePublicFragment extends Fragment {
                 }
 
                 // -------- REQUEST RECIEVED STATE ---------------
-
+                // If friend request has been recieved and button is clicked, accept friend request by adding friend in DB and removing friend request structure in DB
                 if (areFriends==2) {
 
                     final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
@@ -272,17 +256,14 @@ public class UserProfilePublicFragment extends Fragment {
                                             });
                                         }
                                     });
-
-
                                 }
                             });
-
                         }
                     });
                 }
 
                 // -------- FRIEND STATE ---------------
-
+                // If already friends, and button is clicked, unfriend the person by removing value in database
                 if (areFriends==3) {
                     friendsDbRef.child(currentFirebaseUser.getUid()).child(userID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -309,5 +290,4 @@ public class UserProfilePublicFragment extends Fragment {
     private void setCircleImage(String image, CircleImageView imageView) {
         Glide.with(this).load(image).into(imageView);
     }
-
 }
