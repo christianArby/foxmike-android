@@ -68,74 +68,61 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         fragmentManager = getSupportFragmentManager();
         mapOrListBtn = findViewById(R.id.map_or_list_button);
 
-        if (userAccountFragment ==null) {
-            userAccountFragment = new UserAccountFragment();
-        }
-        if (playerSessionsFragment==null) {
-            playerSessionsFragment = PlayerSessionsFragment.newInstance();
-        }
-        if (listSessionsFragment==null) {
-            listSessionsFragment = ListSessionsFragment.newInstance();
-        }
-
-        if (inboxFragment==null) {
-            inboxFragment = InboxFragment.newInstance();
-        }
-
-        if (userProfileFragment==null) {
-            userProfileFragment = UserProfileFragment.newInstance();
-        }
-
-        if (userProfilePublicEditFragment==null) {
-            userProfilePublicEditFragment = userProfilePublicEditFragment.newInstance();
-        }
-
-        if (allUsersFragment==null) {
-            allUsersFragment = allUsersFragment.newInstance();
-        }
-
-        if (mapsFragment==null) {
-            Bundle bundle = new Bundle();
-            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-            mapsFragment = MapsFragment.newInstance();
-            mapsFragment.setArguments(bundle);
-        }
-
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        userAccountFragment = new UserAccountFragment();
+        playerSessionsFragment = PlayerSessionsFragment.newInstance();
+        listSessionsFragment = ListSessionsFragment.newInstance();
+        inboxFragment = InboxFragment.newInstance();
+        userProfileFragment = UserProfileFragment.newInstance();
+        userProfilePublicEditFragment = userProfilePublicEditFragment.newInstance();
+        allUsersFragment = allUsersFragment.newInstance();
+        Bundle bundle = new Bundle();
+        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+        mapsFragment = MapsFragment.newInstance();
+        mapsFragment.setArguments(bundle);
 
         if (null == fragmentManager.findFragmentByTag("userAccountFragment")) {
             transaction.add(R.id.container_main_player, userAccountFragment,"userAccountFragment");
+            transaction.hide(userAccountFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("playerSessionsFragment")) {
             transaction.add(R.id.container_main_player, playerSessionsFragment,"playerSessionsFragment");
+            transaction.hide(playerSessionsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
             transaction.add(R.id.container_main_player, mapsFragment,"mapsFragment");
+            transaction.hide(mapsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
             transaction.add(R.id.container_main_player, listSessionsFragment,"ListSessionsFragment");
+            transaction.hide(listSessionsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("InboxFragment")) {
             transaction.add(R.id.container_main_player, inboxFragment,"InboxFragment");
+            transaction.hide(inboxFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
             transaction.add(R.id.container_main_player, userProfileFragment,"userProfileFragment");
+            transaction.hide(userProfileFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("userProfilePublicEditFragment")) {
             transaction.add(R.id.container_main_player, userProfilePublicEditFragment,"userProfilePublicEditFragment");
+            transaction.hide(userProfilePublicEditFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("allUsersFragment")) {
             transaction.add(R.id.container_main_player, allUsersFragment,"allUsersFragment");
+            transaction.hide(allUsersFragment);
         }
 
-        transaction.commit();
+        transaction.commitNow();
 
         WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
         weekdayViewpager.setAdapter(new weekdayViewpagerAdapter(fragmentManager));
@@ -185,8 +172,6 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             @Override
             public void onTabSelected(@IdRes final int tabId) {
                 weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
-
-                cleanMainActivity();
 
                 switch (tabId) {
                     case R.id.menuNewsFeed:
@@ -308,7 +293,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                 bottomNavigation.setVisibility(View.VISIBLE);
             }
             // TODO Add Newsfeed fragment here later when exist
-            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()){
+            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
         }
@@ -398,20 +383,32 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.remove(fragmentManager.findFragmentByTag("userProfilePublicFragment"));
             transaction.commitNow();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("otherUserID", otherUserID);
+            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            userProfilePublicFragment.setArguments(bundle);
+
+            FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+            transaction2.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
+            transaction2.hide(userProfilePublicFragment);
+            transaction2.commitNow();
+
+            cleanMainActivityAndSwitch(userProfilePublicFragment);
+        } else {
+
+            Bundle bundle = new Bundle();
+            bundle.putString("otherUserID", otherUserID);
+            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            userProfilePublicFragment.setArguments(bundle);
+
+            FragmentTransaction transaction3 = fragmentManager.beginTransaction();
+            transaction3.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
+            transaction3.hide(userProfilePublicFragment);
+            transaction3.commitNow();
+
+            cleanMainActivityAndSwitch(userProfilePublicFragment);
         }
-
-        Bundle bundle = new Bundle();
-        bundle.putString("otherUserID", otherUserID);
-        userProfilePublicFragment = UserProfilePublicFragment.newInstance();
-        userProfilePublicFragment.setArguments(bundle);
-
-        if (null == fragmentManager.findFragmentByTag("userProfilePublicFragment")) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
-            transaction.commit();
-        }
-
-        cleanMainActivityAndSwitch(userProfilePublicFragment);
     }
 
 
