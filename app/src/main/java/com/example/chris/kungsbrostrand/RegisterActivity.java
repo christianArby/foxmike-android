@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -126,17 +127,26 @@ public class RegisterActivity extends AppCompatActivity {
                         currentUserID = mAuth.getCurrentUser().getUid();
 
                         mDatabaseUsers.child(currentUserID).child("name").setValue(name);
-                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+
+                        mDatabaseUsers.child(currentUserID).child("deviceToken").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onUserImageSet() {
-                                myProgressBar.stopProgressBar();
-                                Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(mainIntent);
+                            public void onComplete(@NonNull Task<Void> task) {
+                                SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                                setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                                    @Override
+                                    public void onUserImageSet() {
+                                        myProgressBar.stopProgressBar();
+                                        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(mainIntent);
+                                    }
+                                });
+                                setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
                             }
                         });
-                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
+
+
                     } else {
                         myProgressBar.stopProgressBar();
                         FirebaseAuthException e = (FirebaseAuthException )task.getException();

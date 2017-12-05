@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -93,7 +94,17 @@ public class LoginActivity extends AppCompatActivity {
 
                         mProgress.dismiss();
 
-                        checkUserExist();
+                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                        String currentUserID = mAuth.getCurrentUser().getUid();
+
+                        mDatabaseUsers.child(currentUserID).child("deviceToken").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                checkUserExist();
+                            }
+                        });
+
+
 
                     } else {
 

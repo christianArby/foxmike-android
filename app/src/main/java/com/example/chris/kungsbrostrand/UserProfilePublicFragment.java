@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -33,6 +34,7 @@ public class UserProfilePublicFragment extends Fragment {
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference friendReqDbRef = FirebaseDatabase.getInstance().getReference().child("friend_requests");
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
+    private DatabaseReference notificationDbRef = FirebaseDatabase.getInstance().getReference().child("notifications");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
     private LinearLayout list;
@@ -179,13 +181,25 @@ public class UserProfilePublicFragment extends Fragment {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
+                                                HashMap<String,String> notificationData = new HashMap<String, String>();
+                                                notificationData.put("from", currentFirebaseUser.getUid());
+                                                notificationData.put("type", "request");
+
+                                                notificationDbRef.child(userID).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        areFriends = 1;
+                                                        sendRequestBtn.setText("Cancel friend Request");
+
+                                                        declineBtn.setVisibility(View.INVISIBLE);
+                                                        declineBtn.setEnabled(false);
+                                                    }
+                                                });
 
 
-                                                areFriends = 1;
-                                                sendRequestBtn.setText("Cancel friend Request");
 
-                                                declineBtn.setVisibility(View.INVISIBLE);
-                                                declineBtn.setEnabled(false);
+
+
 
                                                 //Toast.makeText(getActivity(),"Request sent successfully", Toast.LENGTH_SHORT).show();
                                             }
