@@ -12,7 +12,7 @@ import android.view.View;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
-public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener{
+public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener, AllUsersFragment.OnUserClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -23,6 +23,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     private UserProfileFragment hostUserProfileFragment;
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
+    private AllUsersFragment hostAllUsersFragment;
     private BottomBar bottomNavigation;
 
 
@@ -34,66 +35,58 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
         fragmentManager = getSupportFragmentManager();
 
-        if (hostUserAccountFragment ==null) {
-            hostUserAccountFragment = UserAccountFragment.newInstance();
-        }
-        if (hostSessionsFragment==null) {
-            hostSessionsFragment = HostSessionsFragment.newInstance();
-        }
-
-        if (hostInboxFragment==null) {
-            hostInboxFragment = InboxFragment.newInstance();
-        }
-
-        if (hostMapsFragment==null) {
-            Bundle bundle = new Bundle();
-            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-            hostMapsFragment = MapsFragment.newInstance();
-            hostMapsFragment.setArguments(bundle);
-        }
-
-        if(hostUserProfileFragment == null) {
-            hostUserProfileFragment = UserProfileFragment.newInstance();
-        }
-
-        if (hostUserProfilePublicEditFragment == null) {
-            hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
-        }
+        hostUserAccountFragment = UserAccountFragment.newInstance();
+        hostSessionsFragment = HostSessionsFragment.newInstance();
+        hostInboxFragment = InboxFragment.newInstance();
+        Bundle bundle = new Bundle();
+        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+        hostMapsFragment = MapsFragment.newInstance();
+        hostMapsFragment.setArguments(bundle);
+        hostUserProfileFragment = UserProfileFragment.newInstance();
+        hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
+        hostAllUsersFragment = AllUsersFragment.newInstance();
 
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if (null == fragmentManager.findFragmentByTag("hostUserAccountFragment")) {
             transaction.add(R.id.container_main_host, hostUserAccountFragment,"hostUserAccountFragment");
+            transaction.hide(hostUserAccountFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("hostSessionsFragment")) {
             transaction.add(R.id.container_main_host, hostSessionsFragment,"hostSessionsFragment");
+            transaction.hide(hostSessionsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("hostMapsFragment")) {
             transaction.add(R.id.container_main_host, hostMapsFragment,"hostMapsFragment");
+            transaction.hide(hostMapsFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("hostInboxFragment")) {
             transaction.add(R.id.container_main_host, hostInboxFragment,"hostInboxFragment");
+            transaction.hide(hostInboxFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("hostUserProfileFragment")) {
             transaction.add(R.id.container_main_host, hostUserProfileFragment,"hostUserProfileFragment");
+            transaction.hide(hostUserProfileFragment);
         }
 
         if (null == fragmentManager.findFragmentByTag("hostUserProfilePublicEditFragment")) {
             transaction.add(R.id.container_main_host, hostUserProfilePublicEditFragment,"hostUserProfilePublicEditFragment");
+            transaction.hide(hostUserProfilePublicEditFragment);
+        }
+
+        if (null == fragmentManager.findFragmentByTag("hostAllUsersFragment")) {
+            transaction.add(R.id.container_main_host, hostAllUsersFragment,"hostAllUsersFragment");
+            transaction.hide(hostAllUsersFragment);
         }
 
         transaction.commit();
 
         fragmentManager.executePendingTransactions();
-
         bottomNavigation.setAnimation(null);
-
-
-
 
         bottomNavigation.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -101,8 +94,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
 
                 switch (tabId){
                     case R.id.menuNewsFeed:
-                        cleanMainActivity();
-
+                        cleanMainActivityAndSwitch(hostAllUsersFragment);
                         break;
                     case R.id.menuInbox:
                         cleanMainActivityAndSwitch(hostInboxFragment);
@@ -157,16 +149,14 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         if (hostUserProfileFragment.isVisible()) {
             transaction.hide(hostUserProfileFragment).addToBackStack("hostUserProfileFragment");
         }
-        if (hostUserProfileFragment!=null) {
-            if (hostUserProfilePublicFragment.isVisible()) {
-                transaction.hide(hostUserProfilePublicFragment).addToBackStack("hostUserProfilePublicFragment");
-            }
-        }
         if (hostUserProfilePublicEditFragment.isVisible()) {
             transaction.hide(hostUserProfilePublicEditFragment);
         }
         if (hostSessionsFragment.isVisible()) {
             transaction.hide(hostSessionsFragment).addToBackStack("hostSessionsFragment");
+        }
+        if (hostAllUsersFragment.isVisible()) {
+            transaction.hide(hostAllUsersFragment).addToBackStack("hostAllUsersFragment");
         }
 
         transaction.show(fragment).addToBackStack("fragment");
@@ -221,7 +211,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
                 bottomNavigation.setVisibility(View.VISIBLE);
             }
             // TODO Add Newsfeed fragment here later when exist
-            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
+            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
         }
@@ -234,4 +224,37 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     }
 
 
+    @Override
+    public void OnUserClicked(String otherUserID) {
+        if (fragmentManager.findFragmentByTag("hostUserProfilePublicFragment") != null) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.remove(fragmentManager.findFragmentByTag("hostUserProfilePublicFragment"));
+            transaction.commitNow();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("otherUserID", otherUserID);
+            hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            hostUserProfilePublicFragment.setArguments(bundle);
+
+            FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+            transaction2.add(R.id.container_main_host, hostUserProfilePublicFragment,"hostUserProfilePublicFragment");
+            transaction2.hide(hostUserProfilePublicFragment);
+            transaction2.commitNow();
+
+            cleanMainActivityAndSwitch(hostUserProfilePublicFragment);
+        } else {
+
+            Bundle bundle = new Bundle();
+            bundle.putString("otherUserID", otherUserID);
+            hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            hostUserProfilePublicFragment.setArguments(bundle);
+
+            FragmentTransaction transaction3 = fragmentManager.beginTransaction();
+            transaction3.add(R.id.container_main_host, hostUserProfilePublicFragment,"hostUserProfilePublicFragment");
+            transaction3.hide(hostUserProfilePublicFragment);
+            transaction3.commitNow();
+
+            cleanMainActivityAndSwitch(hostUserProfilePublicFragment);
+        }
+    }
 }
