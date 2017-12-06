@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
 import com.rd.PageIndicatorView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -22,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+
+import static com.example.chris.kungsbrostrand.R.id.menuNewsFeed;
 
 public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, AllUsersFragment.OnUserClickedListener{
     private FragmentManager fragmentManager;
@@ -41,11 +45,18 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private BottomBar bottomNavigation;
     private Button mapOrListBtn;
     private RelativeLayout weekdayFilterContainer;
+    private String fromUserID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
+
+        fromUserID = getIntent().getStringExtra("notificationRequest");
+
+
+
+
 
         firstWeekdayHashMap = new HashMap<String,Boolean>();
         secondWeekdayHashMap = new HashMap<String,Boolean>();
@@ -175,7 +186,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
                 switch (tabId) {
                     case R.id.menuNewsFeed:
-                        cleanMainActivityAndSwitch(allUsersFragment);
+                        if (fromUserID!=null) {
+                            allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
+                        } else {
+                            cleanMainActivityAndSwitch(allUsersFragment);
+                        }
                         break;
                     case R.id.menuListOrMap:
                         cleanMainActivityAndSwitch(listSessionsFragment);
@@ -208,6 +223,13 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                 listSessionsFragment.generateSessionListView(sessions,location);
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
+
+        bottomNavigation.setDefaultTab(R.id.menuNewsFeed);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
     }
 

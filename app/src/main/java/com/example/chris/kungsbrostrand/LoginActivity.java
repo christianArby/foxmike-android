@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                         String deviceToken = FirebaseInstanceId.getInstance().getToken();
                         String currentUserID = mAuth.getCurrentUser().getUid();
 
-                        mDatabaseUsers.child(currentUserID).child("deviceToken").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 checkUserExist();
