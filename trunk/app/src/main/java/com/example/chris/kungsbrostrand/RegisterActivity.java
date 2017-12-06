@@ -129,7 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
                         mDatabaseUsers.child(currentUserID).child("name").setValue(name);
                         String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-                        mDatabaseUsers.child(currentUserID).child("deviceToken").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
