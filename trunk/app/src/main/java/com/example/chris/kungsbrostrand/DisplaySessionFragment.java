@@ -1,14 +1,12 @@
 package com.example.chris.kungsbrostrand;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -21,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -256,7 +253,7 @@ public class DisplaySessionFragment extends DialogFragment {
                     mParticipants.setText("Participants: " + session.getCountParticipants() +"/" + session.getMaxParticipants());
                     sessionID = dataSnapshot.getRef().getKey();
                     mSessionName.setText(session.getSessionName());
-                    mDescription.setText(session.getDescription());
+                    mDescription.setText(session.getmDescription());
 
                     String address = getAddress(session.getLatitude(),session.getLongitude());
                     mAddressAndSessionType.setText(address + "  |  " + session.getSessionType());

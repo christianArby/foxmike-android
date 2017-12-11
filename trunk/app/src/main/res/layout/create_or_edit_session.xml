@@ -91,7 +91,7 @@
         android:layout_marginTop="10dp"
         android:focusable="false"
         android:gravity="center_vertical"
-        android:hint="@string/level"
+        android:hint="@string/mlevel"
         android:inputType="textPersonName"
         android:longClickable="false"
         android:textSize="14sp" />
@@ -118,7 +118,7 @@
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
         android:gravity="center_vertical"
-        android:hint="@string/description"
+        android:hint="@string/mDescription"
         android:inputType="textMultiLine"
         android:textSize="14sp" />
 

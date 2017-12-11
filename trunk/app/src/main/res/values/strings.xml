@@ -143,7 +143,7 @@
         <item>Google</item>
     </string-array>
 
-    <string-array name="description">
+    <string-array name="mDescription">
         <item>Facebook Description</item>
         <item>Instagram Description</item>
         <item>Twitter Description</item>
@@ -171,9 +171,9 @@
     <string name="session_type">Session type</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
-    <string name="level">Level</string>
+    <string name="mlevel">Level</string>
     <string name="maximum_participants">Maximum participants</string>
-    <string name="description">Description</string>
+    <string name="mDescription">Description</string>
     <string name="create_session">Create session</string>
     <string name="set">Set</string>
     <string name="join_session">Join session</string>
