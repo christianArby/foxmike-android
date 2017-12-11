@@ -153,9 +153,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         updateLabel();
                         // Time
                         mTime.setText( existingSession.getSessionDate().hour + ":" + existingSession.getSessionDate().minute);
-                        mLevel.setText(existingSession.getLevel());
+                        mLevel.setText(existingSession.getMlevel());
                         mMaxParticipants.setText(existingSession.getMaxParticipants());
-                        mDescription.setText(existingSession.getDescription());
+                        mDescription.setText(existingSession.getmDescription());
                         mCreateSessionBtn.setText(R.string.update_session);
                         mAdvertised.setChecked(existingSession.isAdvertised());
                         if (existingSession.isAdvertised()) {
@@ -205,9 +205,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 session.setSessionName(mSessionName.getText().toString());
                 session.setSessionType(mSessionType.getText().toString());
                 session.setSessionDate(mSessionDate);
-                session.setLevel(mLevel.getText().toString());
+                session.setMlevel(mLevel.getText().toString());
                 session.setMaxParticipants(mMaxParticipants.getText().toString());
-                session.setDescription(mDescription.getEditableText().toString());
+                session.setmDescription(mDescription.getEditableText().toString());
                 session.setCountParticipants(0);
                 session.setLongitude(clickedLatLng.longitude);
                 session.setLatitude(clickedLatLng.latitude);

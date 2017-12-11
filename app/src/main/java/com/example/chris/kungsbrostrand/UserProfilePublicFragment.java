@@ -25,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,7 +35,7 @@ public class UserProfilePublicFragment extends Fragment {
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference friendReqDbRef = FirebaseDatabase.getInstance().getReference().child("friend_requests");
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
-    private DatabaseReference notificationDbRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+    private  DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
     private LinearLayout list;
@@ -171,44 +172,36 @@ public class UserProfilePublicFragment extends Fragment {
                 // -------------- NOT FRIENDS STATE ----------------
                 // If not friends and button is clicked, send friend request by creating structure in database
                 if (areFriends==0) {
-                    friendReqDbRef.child(currentFirebaseUser.getUid()).child(userID).child("request_type").setValue("sent")
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                    DatabaseReference newNotificationRef = rootDbRef.child("notifications").child(userID).push();
+                    String newNotificationID = newNotificationRef.getKey();
+
+                    HashMap<String,String> notificationData = new HashMap<String, String>();
+                    notificationData.put("from", currentFirebaseUser.getUid());
+                    notificationData.put("type", "request");
+
+                    Map requestMap = new HashMap<>();
+                    requestMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID + "/request_type", "sent");
+                    requestMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid() + "/request_type", "received");
+                    requestMap.put("notifications/" + userID + "/" + newNotificationID, notificationData);
+
+                    rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
-                                friendReqDbRef.child(userID).child(currentFirebaseUser.getUid()).child("request_type").setValue("received")
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                HashMap<String,String> notificationData = new HashMap<String, String>();
-                                                notificationData.put("from", currentFirebaseUser.getUid());
-                                                notificationData.put("type", "request");
-
-                                                notificationDbRef.child(userID).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        areFriends = 1;
-                                                        sendRequestBtn.setText("Cancel friend Request");
-
-                                                        declineBtn.setVisibility(View.INVISIBLE);
-                                                        declineBtn.setEnabled(false);
-                                                    }
-                                                });
-
-
-
-
-
-
-                                                //Toast.makeText(getActivity(),"Request sent successfully", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-
+                            if(databaseError != null){
+                                Toast.makeText(getActivity(), "There was an error when sending request", Toast.LENGTH_SHORT).show();
+                                sendRequestBtn.setEnabled(true);
                             } else {
-                                Toast.makeText(getActivity(),"Failed sending request", Toast.LENGTH_SHORT).show();
+                                areFriends = 1;
+                                sendRequestBtn.setText("Cancel friend Request");
+                                sendRequestBtn.setEnabled(true);
+
+                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setEnabled(false);
                             }
-                            sendRequestBtn.setEnabled(true);
+
+
                         }
                     });
 
@@ -244,52 +237,104 @@ public class UserProfilePublicFragment extends Fragment {
                 if (areFriends==2) {
 
                     final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                    friendsDbRef.child(currentFirebaseUser.getUid()).child(userID).setValue(currentDate).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                    Map friendsMap = new HashMap();
+                    friendsMap.put("friends/" + currentFirebaseUser.getUid() + "/" + userID + "/date", currentDate);
+                    friendsMap.put("friends/" + userID + "/" + currentFirebaseUser.getUid() + "/date", currentDate);
+
+                    friendsMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID, null);
+                    friendsMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid(), null);
+
+                    rootDbRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
-                            friendsDbRef.child(userID).child(currentFirebaseUser.getUid()).setValue(currentDate).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
+                            if (databaseError == null) {
 
-                                    friendReqDbRef.child(currentFirebaseUser.getUid()).child(userID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            friendReqDbRef.child(userID).child(currentFirebaseUser.getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
+                                areFriends = 3;
+                                sendRequestBtn.setText("Unfriend this person");
 
-                                                    sendRequestBtn.setEnabled(true);
-                                                    areFriends = 3;
-                                                    sendRequestBtn.setText("Unfriend this person");
+                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setEnabled(false);
+                            } else {
 
-                                                    declineBtn.setVisibility(View.INVISIBLE);
-                                                    declineBtn.setEnabled(false);
+                                String error = databaseError.getMessage();
 
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            });
+                                Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
+                            }
+
+                            sendRequestBtn.setEnabled(true);
                         }
                     });
                 }
 
-                // -------- FRIEND STATE ---------------
+                // -------- UNFRIENDS ---------------
                 // If already friends, and button is clicked, unfriend the person by removing value in database
+
                 if (areFriends==3) {
-                    friendsDbRef.child(currentFirebaseUser.getUid()).child(userID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                    Map unfriendMap = new HashMap();
+                    unfriendMap.put("friends/" + currentFirebaseUser.getUid() + "/" + userID, null);
+                    unfriendMap.put("friends/" + userID + "/" + currentFirebaseUser.getUid(), null);
+
+                    rootDbRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            friendsDbRef.child(userID).child(currentFirebaseUser.getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    sendRequestBtn.setEnabled(true);
-                                    areFriends = 0;
-                                    sendRequestBtn.setText("Send friend Request");
-                                }
-                            });
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                            if (databaseError == null) {
+
+                                areFriends = 0;
+                                sendRequestBtn.setText("Send friend Request");
+
+                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setEnabled(false);
+                            } else {
+
+                                String error = databaseError.getMessage();
+
+                                Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
+                            }
+
+                            sendRequestBtn.setEnabled(true);
+                        }
+                    });
+                }
+            }
+        });
+
+        declineBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                declineBtn.setEnabled(false);
+                // -------- DECLINE ---------------
+                // If already friends, and button is clicked, decline the friend request by removing value in database
+
+                if (areFriends==2) {
+
+                    Map unfriendMap = new HashMap();
+                    unfriendMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID, null);
+                    unfriendMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid(), null);
+
+                    rootDbRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                            if (databaseError == null) {
+
+                                areFriends = 0;
+                                sendRequestBtn.setText("Send friend Request");
+
+                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setEnabled(false);
+                            } else {
+
+                                String error = databaseError.getMessage();
+
+                                Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
+                            }
+
+                            declineBtn.setEnabled(true);
                         }
                     });
                 }

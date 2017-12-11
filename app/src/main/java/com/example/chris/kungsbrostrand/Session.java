@@ -1,7 +1,5 @@
 package com.example.chris.kungsbrostrand;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 
 
@@ -9,9 +7,9 @@ public class Session {
     private String host;
     private String sessionName;
     private String sessionType;
-    private String level;
+    private String mlevel;
     private String maxParticipants;
-    private String description;
+    private String mDescription;
     private double latitude;
     private double longitude;
     public String time;
@@ -23,11 +21,11 @@ public class Session {
     private HashMap<String,Boolean> participants;
     private String imageUri;
 
-    public Session(String host, String sessionName, String sessionType, String level, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String description, boolean advertised) {
+    public Session(String host, String sessionName, String sessionType, String mlevel, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String mDescription, boolean advertised) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
-        this.level = level;
+        this.mlevel = mlevel;
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -36,8 +34,16 @@ public class Session {
         this.countParticipants = countParticipants;
         this.participants = participants;
         this.imageUri = imageUri;
-        this.description = description;
+        this.mDescription = mDescription;
         this.advertised = advertised;
+    }
+
+    public String getmDescription() {
+        return mDescription;
+    }
+
+    public void setmDescription(String mDescription) {
+        this.mDescription = mDescription;
     }
 
     public boolean isAdvertised() {
@@ -50,14 +56,6 @@ public class Session {
 
     //required empty constructor
     public Session() {
-    }
-
-    String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getHost() {
@@ -84,12 +82,12 @@ public class Session {
         this.sessionType = sessionType;
     }
 
-    public String getLevel() {
-        return level;
+    public String getMlevel() {
+        return mlevel;
     }
 
-    public void setLevel(String level) {
-        this.level = level;
+    public void setMlevel(String mlevel) {
+        this.mlevel = mlevel;
     }
 
     public String getMaxParticipants() {

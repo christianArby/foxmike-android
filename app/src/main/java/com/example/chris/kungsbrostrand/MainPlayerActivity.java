@@ -227,12 +227,6 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         bottomNavigation.setDefaultTab(R.id.menuNewsFeed);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
     // TODO cleanMainActivity is probably useless once Newsfeed fragment has been created, delete this functionality then
     private void cleanMainActivity() {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
