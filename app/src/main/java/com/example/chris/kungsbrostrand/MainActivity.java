@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -40,44 +41,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (locationPermission) {
-            FirebaseAuth.AuthStateListener mAuthListener;
+
             myFirebaseDatabase= new MyFirebaseDatabase();
 
             mAuth = FirebaseAuth.getInstance();
-            mAuthListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                    if(firebaseAuth.getCurrentUser()== null){
-                        Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
-                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(loginIntent);
-                    }
-                }
-            };
-            mAuth.addAuthStateListener(mAuthListener);
-            myFirebaseDatabase.checkUserExist(mAuth, mDatabase, this);
-            if (mAuth.getCurrentUser()==null) {
-                Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
-                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
-            } else {
-                myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-                    @Override
-                    public void OnUserFound(User user) {
-                        if (user.trainerMode) {
-                            Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
-                            mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainHost);
-                        } else {
-                            Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
-                            mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainPlayer);
-                        }
-                    }
-                });
-            }
         }
 
     }
@@ -142,6 +109,37 @@ public class MainActivity extends AppCompatActivity {
 
             // other 'case' lines to check for other permissions this app might request.
             //You can add here other case statements according to your requirement.
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser!=null) {
+            // User is signed in
+            myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
+                @Override
+                public void OnUserFound(User user) {
+                    if (user.trainerMode) {
+                        Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+                        //mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(mainHost);
+                    } else {
+                        Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                        //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(mainPlayer);
+                    }
+                }
+            });
+        } else {
+            //User is signed out
+            Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+            //loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(loginIntent);
+            finish();
         }
     }
 }

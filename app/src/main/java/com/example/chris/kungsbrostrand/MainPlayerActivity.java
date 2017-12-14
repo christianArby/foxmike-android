@@ -16,6 +16,10 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rd.PageIndicatorView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -24,10 +28,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.example.chris.kungsbrostrand.R.id.menuNewsFeed;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, AllUsersFragment.OnUserClickedListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, OnUserClickedListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
@@ -46,17 +51,18 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private Button mapOrListBtn;
     private RelativeLayout weekdayFilterContainer;
     private String fromUserID;
+    private DatabaseReference userDbRef;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
 
+        mAuth = FirebaseAuth.getInstance();
+        userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+
         fromUserID = getIntent().getStringExtra("notificationRequest");
-
-
-
-
 
         firstWeekdayHashMap = new HashMap<String,Boolean>();
         secondWeekdayHashMap = new HashMap<String,Boolean>();
@@ -93,43 +99,43 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         mapsFragment = MapsFragment.newInstance();
         mapsFragment.setArguments(bundle);
 
-        if (null == fragmentManager.findFragmentByTag("userAccountFragment")) {
-            transaction.add(R.id.container_main_player, userAccountFragment,"userAccountFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
+            transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
             transaction.hide(userAccountFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("playerSessionsFragment")) {
-            transaction.add(R.id.container_main_player, playerSessionsFragment,"playerSessionsFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")) {
+            transaction.add(R.id.container_main_player, playerSessionsFragment,"xMainPlayerSessionsFragment");
             transaction.hide(playerSessionsFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("mapsFragment")) {
-            transaction.add(R.id.container_main_player, mapsFragment,"mapsFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
+            transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
             transaction.hide(mapsFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("ListSessionsFragment")) {
-            transaction.add(R.id.container_main_player, listSessionsFragment,"ListSessionsFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainListSessionsFragment")) {
+            transaction.add(R.id.container_main_player, listSessionsFragment,"xMainListSessionsFragment");
             transaction.hide(listSessionsFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("InboxFragment")) {
-            transaction.add(R.id.container_main_player, inboxFragment,"InboxFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
+            transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
             transaction.hide(inboxFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("userProfileFragment")) {
-            transaction.add(R.id.container_main_player, userProfileFragment,"userProfileFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainUserProfileFragment")) {
+            transaction.add(R.id.container_main_player, userProfileFragment,"xMainUserProfileFragment");
             transaction.hide(userProfileFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("userProfilePublicEditFragment")) {
-            transaction.add(R.id.container_main_player, userProfilePublicEditFragment,"userProfilePublicEditFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainUserProfilePublicEditFragment")) {
+            transaction.add(R.id.container_main_player, userProfilePublicEditFragment,"xMainUserProfilePublicEditFragment");
             transaction.hide(userProfilePublicEditFragment);
         }
 
-        if (null == fragmentManager.findFragmentByTag("allUsersFragment")) {
-            transaction.add(R.id.container_main_player, allUsersFragment,"allUsersFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainAllUsersFragment")) {
+            transaction.add(R.id.container_main_player, allUsersFragment,"xMainAllUsersFragment");
             transaction.hide(allUsersFragment);
         }
 
@@ -216,10 +222,10 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
-                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
                 mapsFragment.addMarkersToMap(sessions,location);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.generateSessionListView(sessions,location);
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
@@ -227,66 +233,17 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         bottomNavigation.setDefaultTab(R.id.menuNewsFeed);
     }
 
-    // TODO cleanMainActivity is probably useless once Newsfeed fragment has been created, delete this functionality then
-    private void cleanMainActivity() {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (displaySessionFragment!=null) {
-            transaction.remove(displaySessionFragment);
-        }
-        transaction.hide(inboxFragment);
-        transaction.hide(mapsFragment);
-        transaction.hide(listSessionsFragment);
-        transaction.hide(userAccountFragment);
-        transaction.hide(userProfileFragment);
-        if (userProfilePublicFragment!=null) {
-            transaction.hide(userProfilePublicFragment);
-        }
-        transaction.hide(userProfilePublicEditFragment);
-        transaction.hide(playerSessionsFragment);
-        transaction.hide(allUsersFragment);
-        transaction.commit();
-        weekdayFilterContainer.setVisibility(View.GONE);
-        mapOrListBtn.setVisibility(View.GONE);
-        bottomNavigation.setVisibility(View.VISIBLE);
-    }
-
     private void cleanMainActivityAndSwitch(Fragment fragment) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (displaySessionFragment!=null) {
-            if (displaySessionFragment.isVisible()) {
-                transaction.hide(displaySessionFragment).addToBackStack("displaySessionFragment");
-            }
-        }
-        if (userProfilePublicFragment!=null) {
-            if (userProfilePublicFragment.isVisible()) {
-                transaction.hide(userProfilePublicFragment).addToBackStack("userProfilePublicFragment");
-            }
-        }
-        if (inboxFragment.isVisible()) {
-            transaction.hide(inboxFragment).addToBackStack("inboxFragment");
-        }
-        if (mapsFragment.isVisible()) {
-            transaction.hide(mapsFragment).addToBackStack("mapsFragment");
-        }
-        if (listSessionsFragment.isVisible()) {
-            transaction.hide(listSessionsFragment).addToBackStack("listSessionsFragment");
-        }
-        if (userAccountFragment.isVisible()) {
-            transaction.hide(userAccountFragment).addToBackStack("userAccountFragment");
-        }
-        if (userProfileFragment.isVisible()) {
-            transaction.hide(userProfileFragment).addToBackStack("userProfileFragment");
-        }
+        List<Fragment> fragmentList = fragmentManager.getFragments();
 
-        if (userProfilePublicEditFragment.isVisible()) {
-            transaction.hide(userProfilePublicEditFragment);
-        }
-        if (playerSessionsFragment.isVisible()) {
-            transaction.hide(playerSessionsFragment).addToBackStack("playerSessionsFragment");
-        }
-        if (allUsersFragment.isVisible()) {
-            transaction.hide(allUsersFragment).addToBackStack("allUsersFragment");
+        for (Fragment frag:fragmentList) {
+            if (frag.getTag().substring(0,5).equals("xMain")) {
+                if (frag.isVisible()) {
+                    transaction.hide(frag);
+                }
+            }
         }
 
         transaction.show(fragment).addToBackStack("fragment");
@@ -349,10 +306,10 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
-                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("mapsFragment");
+                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
                 mapsFragment.addMarkersToMap(sessions,location);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("ListSessionsFragment");
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.generateSessionListView(sessions,location);
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
@@ -395,9 +352,9 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     @Override
     public void OnUserClicked(String otherUserID) {
 
-        if (fragmentManager.findFragmentByTag("userProfilePublicFragment") != null) {
+        if (fragmentManager.findFragmentByTag("xMainUserProfilePublicFragment") != null) {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.remove(fragmentManager.findFragmentByTag("userProfilePublicFragment"));
+            transaction.remove(fragmentManager.findFragmentByTag("xMainUserProfilePublicFragment"));
             transaction.commitNow();
 
             Bundle bundle = new Bundle();
@@ -406,7 +363,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             userProfilePublicFragment.setArguments(bundle);
 
             FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-            transaction2.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
+            transaction2.add(R.id.container_main_player, userProfilePublicFragment,"xMainUserProfilePublicFragment");
             transaction2.hide(userProfilePublicFragment);
             transaction2.commitNow();
 
@@ -419,7 +376,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             userProfilePublicFragment.setArguments(bundle);
 
             FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-            transaction3.add(R.id.container_main_player, userProfilePublicFragment,"userProfilePublicFragment");
+            transaction3.add(R.id.container_main_player, userProfilePublicFragment,"xMainUserProfilePublicFragment");
             transaction3.hide(userProfilePublicFragment);
             transaction3.commitNow();
 
@@ -458,5 +415,33 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser!=null) {
+            // User is signed in
+            userDbRef.child("online").setValue(true);
+
+        } else {
+            //User is signed out
+            Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
+            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(loginIntent);
+            finish();
+        }
+
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        userDbRef.child("online").setValue(false);
     }
 }

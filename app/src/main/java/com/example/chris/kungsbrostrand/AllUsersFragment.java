@@ -141,9 +141,4 @@ public class AllUsersFragment extends Fragment {
         super.onDetach();
         onUserClickedListener = null;
     }
-
-    public interface OnUserClickedListener {
-        void OnUserClicked(String otherUserID);
-    }
-
 }

@@ -72,12 +72,17 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private String mSessionId;
     private Session existingSession;
     private GeoFire geoFire;
+    private DatabaseReference currentUserDbRef;
+    private FirebaseAuth mAuth;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_or_edit_session);
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         /** Set and inflate "create session" layout*/
         View createSession;
@@ -444,5 +449,21 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void setImage(String image, ImageView imageView) {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser!=null) {
+            currentUserDbRef.child("online").setValue(true);
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        currentUserDbRef.child("online").setValue(false);
     }
 }
