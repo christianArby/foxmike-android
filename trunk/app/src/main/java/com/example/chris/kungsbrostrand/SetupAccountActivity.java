@@ -37,8 +37,6 @@ public class SetupAccountActivity extends AppCompatActivity {
 
     private ImageButton mSetupImageButton;
     private EditText mNameField;
-
-
     private Uri mImageUri = null;
 
     private static final int GALLERY_REQUEST = 1;
@@ -60,9 +58,7 @@ public class SetupAccountActivity extends AppCompatActivity {
         Button mSubmitBtn;
 
         mAuth = FirebaseAuth.getInstance();
-
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
-
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
 
         mProgress = new ProgressDialog(this);
@@ -70,8 +66,6 @@ public class SetupAccountActivity extends AppCompatActivity {
         mSetupImageButton = findViewById(R.id.setupImageButton);
         mNameField = findViewById(R.id.setupNameField);
         mSubmitBtn = findViewById(R.id.setupSubmitBtn);
-
-
 
         mSubmitBtn.setOnClickListener(new View.OnClickListener() {
             @Override

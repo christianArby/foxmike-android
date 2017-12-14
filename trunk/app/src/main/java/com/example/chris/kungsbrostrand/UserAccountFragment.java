@@ -153,6 +153,10 @@ public class UserAccountFragment extends Fragment {
 
     private void logout() {
         mAuth.signOut();
+        Intent loginIntent = new Intent(getActivity(),LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(loginIntent);
     }
 
     private void changeMode(Boolean trainerMode) {

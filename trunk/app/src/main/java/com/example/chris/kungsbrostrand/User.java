@@ -17,14 +17,16 @@ class User {
     public String image;
     public String thumb_image;
     public boolean trainerMode;
+    public boolean online;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode, String thumb_image) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode, String thumb_image, boolean online) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.name = name;
         this.image = image;
         this.trainerMode = trainerMode;
         this.thumb_image = thumb_image;
+        this.online = online;
     }
 
 
@@ -36,6 +38,14 @@ class User {
     public User() {
         this.sessionsAttending = new HashMap<String,Boolean>();
         this.sessionsHosting = new HashMap<String,Boolean>();
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 
     public HashMap<String, Boolean> getSessionsAttending() {

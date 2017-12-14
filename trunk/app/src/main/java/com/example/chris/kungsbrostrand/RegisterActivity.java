@@ -49,9 +49,6 @@ public class RegisterActivity extends AppCompatActivity {
     private ImageButton mRegisterImageButton;
 
     private static final int GALLERY_REQUEST = 1;
-
-
-
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
     private StorageReference mStorageImage;
@@ -99,9 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-
                 startRegister();
             }
         });
@@ -110,7 +104,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void startRegister() {
 
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
-
 
         final String name = mNameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
@@ -124,6 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                     if (task.isSuccessful()) {
+                        // Sign in success,  update Realtime Db with the signed-in user's information
                         currentUserID = mAuth.getCurrentUser().getUid();
 
                         mDatabaseUsers.child(currentUserID).child("name").setValue(name);

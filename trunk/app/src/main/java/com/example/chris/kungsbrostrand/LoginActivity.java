@@ -26,13 +26,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mLoginEmailField;
     private EditText mLoginPasswordField;
-
-
-
     private FirebaseAuth mAuth;
-
     private ProgressDialog mProgress;
-
     private DatabaseReference mDatabaseUsers;
 
 
@@ -51,7 +46,6 @@ public class LoginActivity extends AppCompatActivity {
         mDatabaseUsers.keepSynced(true);
 
         mProgress = new ProgressDialog(this);
-
 
         mLoginEmailField = findViewById(R.id.loginEmailField);
         mLoginPasswordField = findViewById(R.id.loginPasswordField);
@@ -100,7 +94,10 @@ public class LoginActivity extends AppCompatActivity {
                         mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                checkUserExist();
+                                checkIfUserExistsInDb();
+                                Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
+                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(mainIntent);
                             }
                         });
 
@@ -123,21 +120,15 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void checkUserExist() {
+    private void checkIfUserExistsInDb() {
 
         final String user_id = mAuth.getCurrentUser().getUid();
 
+        // TODO check how long this listener is alive
         mDatabaseUsers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild(user_id)){
-
-                    Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
-
-
-                } else {
+                if(!dataSnapshot.hasChild(user_id)){
 
                     Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
                     setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
