@@ -53,13 +53,10 @@
         android:layout_marginBottom="20dp"
         android:layout_centerHorizontal="true"
         android:background="@drawable/round_button"/>
-    <com.roughike.bottombar.BottomBar
+    <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:id="@+id/bottom_navigation_player"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        app:bb_tabXmlResource="@xml/custom_bottom_navigation_player"
-        app:bb_activeTabColor="@color/primaryDarkColor"
-        app:bb_behavior="underNavbar"/>
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

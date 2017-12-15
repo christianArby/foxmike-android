@@ -13,9 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -47,7 +50,7 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private MyFirebaseDatabase myFirebaseDatabase;
     public HashMap<String,Boolean> firstWeekdayHashMap;
     public HashMap<String,Boolean> secondWeekdayHashMap;
-    private BottomBar bottomNavigation;
+    private AHBottomNavigation bottomNavigation;
     private Button mapOrListBtn;
     private RelativeLayout weekdayFilterContainer;
     private String fromUserID;
@@ -58,6 +61,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
+
+        weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
 
         mAuth = FirebaseAuth.getInstance();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -82,6 +87,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         }
 
         bottomNavigation = findViewById(R.id.bottom_navigation_player);
+        AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation_player_items);
+        navigationAdapter.setupWithBottomNavigation(bottomNavigation);
+        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+        bottomNavigation.setAnimation(null);
+
         fragmentManager = getSupportFragmentManager();
         mapOrListBtn = findViewById(R.id.map_or_list_button);
 
@@ -185,37 +195,58 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         });
 
-        bottomNavigation.setOnTabSelectListener(new OnTabSelectListener() {
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
-            public void onTabSelected(@IdRes final int tabId) {
-                weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
+            public boolean onTabSelected(int position, boolean wasSelected) {
 
-                switch (tabId) {
-                    case R.id.menuNewsFeed:
-                        if (fromUserID!=null) {
-                            allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
-                        } else {
-                            cleanMainActivityAndSwitch(allUsersFragment);
+                switch (position) {
+                    case 0:
+                        if (!wasSelected) {
+                            if (fromUserID!=null) {
+                                allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
+                            } else {
+                                cleanMainActivityAndSwitch(allUsersFragment);
+                            }
+                            return true;
                         }
-                        break;
-                    case R.id.menuListOrMap:
-                        cleanMainActivityAndSwitch(listSessionsFragment);
-                        weekdayFilterContainer.setVisibility(View.VISIBLE);
-                        mapOrListBtn.setVisibility(View.VISIBLE);
-                        mapOrListBtn.setText("Map");
-                        break;
-                    case R.id.menuPlayerSessions:
-                        cleanMainActivityAndSwitch(playerSessionsFragment);
-                        break;
-                    case R.id.menuInbox:
-                        cleanMainActivityAndSwitch(inboxFragment);
-                        break;
-                    case R.id.menuProfile:
-                        cleanMainActivityAndSwitch(userAccountFragment);
-                        break;
+
+                    case 1:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(listSessionsFragment);
+                            weekdayFilterContainer.setVisibility(View.VISIBLE);
+                            mapOrListBtn.setVisibility(View.VISIBLE);
+                            mapOrListBtn.setText("Map");
+                            return true;
+                        }
+
+                    case 2:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(playerSessionsFragment);
+                            return true;
+                        }
+
+                    case 3:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(inboxFragment);
+                            return true;
+                        }
+                    case 4:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(userAccountFragment);
+                            return true;
+                        }
+
                 }
+                return false;
             }
         });
+
+        bottomNavigation.setCurrentItem(0);
+        if (fromUserID!=null) {
+            allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
+        } else {
+            cleanMainActivityAndSwitch(allUsersFragment);
+        }
 
         myFirebaseDatabase= new MyFirebaseDatabase();
 
@@ -230,7 +261,6 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
 
-        bottomNavigation.setDefaultTab(R.id.menuNewsFeed);
     }
 
     private void cleanMainActivityAndSwitch(Fragment fragment) {

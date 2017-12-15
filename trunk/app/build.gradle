@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.example.chris.kungsbrostrand"
         minSdkVersion 21
@@ -57,7 +57,7 @@ dependencies {
     compile 'com.android.support:design:26.1.0'
     compile 'com.romandanylyk:pageindicatorview:0.2.0@aar'
     compile 'de.hdodenhof:circleimageview:2.2.0'
-    compile 'com.roughike:bottom-bar:2.3.1'
+    compile 'com.aurelhubert:ahbottomnavigation:2.1.0'
     compile 'com.firebaseui:firebase-ui-database:3.1.0'
     compile 'id.zelory:compressor:2.1.0'
     androidTestCompile 'junit:junit:4.12'
