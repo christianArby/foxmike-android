@@ -18,8 +18,9 @@ class User {
     public String thumb_image;
     public boolean trainerMode;
     public boolean online;
+    public Long lastSeen;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode, String thumb_image, boolean online) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, String name, String image, boolean trainerMode, String thumb_image, boolean online, Long lastSeen) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.name = name;
@@ -27,6 +28,7 @@ class User {
         this.trainerMode = trainerMode;
         this.thumb_image = thumb_image;
         this.online = online;
+        this.lastSeen = lastSeen;
     }
 
 
@@ -42,6 +44,14 @@ class User {
 
     public boolean isOnline() {
         return online;
+    }
+
+    public Long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 
     public void setOnline(boolean online) {

@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -465,5 +466,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         currentUserDbRef.child("online").setValue(false);
+        currentUserDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
     }
 }

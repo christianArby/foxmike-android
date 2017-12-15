@@ -15,8 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnTabSelectListener;
+import com.google.firebase.database.ServerValue;
 
 public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener, OnUserClickedListener{
 
@@ -314,6 +313,13 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     @Override
     protected void onStop() {
         super.onStop();
-        userDbRef.child("online").setValue(false);
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            userDbRef.child("online").setValue(false);
+            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
+
+        }
     }
 }
