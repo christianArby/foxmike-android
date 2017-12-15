@@ -31,11 +31,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <service
-            android:name=".FirebaseMessagingService">
+        <service android:name=".FirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -57,8 +55,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
-                <action android:name="SportsAppTargetNotification"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="SportsAppTargetNotification" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
@@ -75,16 +74,6 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
-
-        <!--
-        <activity android:name=".LoginPage">
-            <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-        </activity>
-        -->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -112,7 +101,10 @@
             android:name=".MainHostActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".AllUsersActivity"></activity>
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".MainPlayerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

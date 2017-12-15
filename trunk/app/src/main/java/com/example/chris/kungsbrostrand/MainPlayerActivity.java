@@ -23,9 +23,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.rd.PageIndicatorView;
-import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnTabSelectListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -472,6 +471,12 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     protected void onStop() {
         super.onStop();
 
-        userDbRef.child("online").setValue(false);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            userDbRef.child("online").setValue(false);
+            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
+
+        }
     }
 }
