@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -28,7 +30,7 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
     private AllUsersFragment hostAllUsersFragment;
-    private BottomBar bottomNavigation;
+    private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
 
@@ -42,6 +44,13 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
+
+        AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation_host_items);
+        navigationAdapter.setupWithBottomNavigation(bottomNavigation);
+        bottomNavigation.setAnimation(null);
+        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+
+
         fragmentManager = getSupportFragmentManager();
 
         hostUserAccountFragment = UserAccountFragment.newInstance();
@@ -95,28 +104,45 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         transaction.commit();
 
         fragmentManager.executePendingTransactions();
-        bottomNavigation.setAnimation(null);
 
-        bottomNavigation.setOnTabSelectListener(new OnTabSelectListener() {
+
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
-            public void onTabSelected(@IdRes int tabId) {
+            public boolean onTabSelected(int position, boolean wasSelected) {
 
-                switch (tabId){
-                    case R.id.menuNewsFeed:
-                        cleanMainActivityAndSwitch(hostAllUsersFragment);
-                        break;
-                    case R.id.menuInbox:
-                        cleanMainActivityAndSwitch(hostInboxFragment);
-                        break;
-                    case R.id.menuHostSessions:
-                        cleanMainActivityAndSwitch(hostSessionsFragment);
-                        break;
-                    case R.id.menuProfile:
-                        cleanMainActivityAndSwitch(hostUserAccountFragment);
-                        break;
+                switch (position) {
+                    case 0:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(hostAllUsersFragment);
+                            return true;
+                        }
+
+                    case 1:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(hostInboxFragment);
+                            return true;
+                        }
+
+                    case 2:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(hostSessionsFragment);
+                            return true;
+                        }
+
+                    case 3:
+                        if (!wasSelected) {
+                            cleanMainActivityAndSwitch(hostUserAccountFragment);
+                            return true;
+                        }
+
                 }
+                return false;
+
             }
         });
+
+        bottomNavigation.setCurrentItem(0);
+        cleanMainActivityAndSwitch(hostAllUsersFragment);
     }
 
     // TODO cleanMainActivity is probably useless once Newsfeed fragment has been created, delete this functionality then
