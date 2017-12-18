@@ -18,6 +18,8 @@ public class Message {
         this.seen = seen;
     }
 
+    public Message() {}
+
     public String getMessage() {
         return message;
     }
