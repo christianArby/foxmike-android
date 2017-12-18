@@ -1,6 +1,7 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
@@ -49,12 +51,22 @@ public class ChatActivity extends AppCompatActivity {
     private ImageButton chatAddBtn;
 
     private RecyclerView messagesListRV;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private final List<Message> messageList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
 
     private DatabaseReference rootRefDb;
+
+    private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private int currentPage = 1;
+
+    private int itemPos = 0;
+    private String lastKey = "";
+    private String prevKey;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +109,7 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(messageList);
 
         messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
 
         linearLayoutManager = new LinearLayoutManager(this);
 
@@ -175,20 +188,108 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                currentPage++;
+
+                itemPos = 0;
+
+                loadMoreMessages();
+
+            }
+        });
+
+
+
+    }
+
+    private void loadMoreMessages() {
+
+        DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
+        Query messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
+
+        messageQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Message message = dataSnapshot.getValue(Message.class);
+                String messageKey = dataSnapshot.getKey();
+
+                if(!prevKey.equals(messageKey)) {
+                    messageList.add(itemPos++, message);
+                } else {
+                    prevKey = lastKey;
+                }
+
+                if(itemPos == 1) {
+
+                    lastKey = messageKey;
+
+                }
+
+
+
+                messageAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+
+                linearLayoutManager.scrollToPositionWithOffset(9,0);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
 
     }
 
     private void loadMessages() {
 
-        rootRefDb.child("messages").child(currentUserID).child(chatUserID).addChildEventListener(new ChildEventListener() {
+        DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
+        Query messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
+
+        messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Message message = dataSnapshot.getValue(Message.class);
 
+                itemPos++;
+
+                if(itemPos == 1) {
+
+                    lastKey = dataSnapshot.getKey();
+                    prevKey = dataSnapshot.getKey();
+
+                }
+
                 messageList.add(message);
                 messageAdapter.notifyDataSetChanged();
+
+                messagesListRV.scrollToPosition(messageList.size()-1);
+
+                swipeRefreshLayout.setRefreshing(false);
 
             }
 
