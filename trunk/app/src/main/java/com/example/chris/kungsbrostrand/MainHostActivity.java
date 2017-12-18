@@ -13,9 +13,12 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener, OnUserClickedListener{
 
@@ -211,9 +214,46 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     }
 
     @Override
-    public void OnUserAccountFragmentInteraction() {
-        cleanMainActivityAndSwitch(hostUserProfileFragment);
-        bottomNavigation.setVisibility(View.GONE);
+    public void OnUserAccountFragmentInteraction(String type) {
+
+        if (type.equals("edit")) {
+            cleanMainActivityAndSwitch(hostUserProfileFragment);
+            bottomNavigation.setVisibility(View.GONE);
+        }
+
+        if (type.equals("switchMode")) {
+
+            userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+
+                    User user = dataSnapshot.getValue(User.class);
+
+                    if (user.trainerMode) {
+                        user.setTrainerMode(false);
+                        usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(false);
+                        Intent intent = new Intent(getApplicationContext(), MainHostActivity.class);
+                        getApplicationContext().startActivity(intent);
+                    } else {
+                        user.setTrainerMode(true);
+                        usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true);
+                        Intent intent = new Intent(getApplicationContext(), MainPlayerActivity.class);
+                        getApplicationContext().startActivity(intent);
+                        //changeMode(user.trainerMode);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+        }
     }
 
     @Override
@@ -311,8 +351,8 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 

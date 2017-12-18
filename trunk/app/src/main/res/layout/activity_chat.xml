@@ -9,6 +9,14 @@
     <include layout="@layout/app_bar_layout"
         android:id="@+id/chat_app_bar"/>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/messages_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/linearLayout"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/chat_app_bar"></android.support.v7.widget.RecyclerView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,6 +26,7 @@
         android:id="@+id/linearLayout">
 
         <ImageButton
+            android:id="@+id/chatAddBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -26,8 +35,8 @@
             android:padding="10dp"
             app:srcCompat="@mipmap/ic_add_black_24dp" />
 
-        <TextView
-            android:id="@+id/textView"
+        <EditText
+            android:id="@+id/chat_message_ET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="8"
@@ -35,9 +44,10 @@
             android:paddingEnd="10dp"
             android:paddingStart="10dp"
             android:paddingTop="16dp"
-            android:text="TextView" />
+            android:hint="Enter chat message..."/>
 
         <ImageButton
+            android:id="@+id/chat_send_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
