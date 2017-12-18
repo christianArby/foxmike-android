@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -31,13 +32,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserAccountFragment extends Fragment {
 
-    private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-    private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
 
     private LinearLayout list;
-    private LatLng sessionLatLng;
     private View profile;
 
     public UserAccountFragment() {
@@ -81,20 +79,7 @@ public class UserAccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-                    @Override
-                    public void OnUserFound(User user) {
-                        if (user.trainerMode) {
-                            user.setTrainerMode(false);
-                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(false);
-                            changeMode(user.trainerMode);
-                        } else {
-                            user.setTrainerMode(true);
-                            usersDbRef.child(currentFirebaseUser.getUid()).child("trainerMode").setValue(true);
-                            changeMode(user.trainerMode);
-                        }
-                    }
-                });
+                mListener.OnUserAccountFragmentInteraction("switchMode");
             }
         });
 
@@ -115,7 +100,7 @@ public class UserAccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (mListener != null) {
-                    mListener.OnUserAccountFragmentInteraction();
+                    mListener.OnUserAccountFragmentInteraction("edit");
                 }
             }
         });
@@ -124,7 +109,7 @@ public class UserAccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (mListener != null) {
-                    mListener.OnUserAccountFragmentInteraction();
+                    mListener.OnUserAccountFragmentInteraction("edit");
                 }
             }
         });
@@ -142,35 +127,30 @@ public class UserAccountFragment extends Fragment {
         return view;
     }
 
-    // Method to set and scale an image into an imageView
-    private void setImage(String image, ImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
-    }
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
         Glide.with(this).load(image).into(imageView);
     }
 
     private void logout() {
-        mAuth.signOut();
         Intent loginIntent = new Intent(getActivity(),LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(loginIntent);
-    }
 
-    private void changeMode(Boolean trainerMode) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (trainerMode) {
-            Intent intent = new Intent(getActivity(), MainHostActivity.class);
-            getActivity().startActivity(intent);
-        } else {
-            Intent intent = new Intent(getActivity(), MainPlayerActivity.class);
-            getActivity().startActivity(intent);
+        DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+
+        if (currentUser != null) {
+            userDbRef.child("online").setValue(false);
+            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
+
         }
 
-
+        mAuth.signOut();
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -189,7 +169,7 @@ public class UserAccountFragment extends Fragment {
     }
 
     public interface OnUserAccountFragmentInteractionListener {
-        void OnUserAccountFragmentInteraction();
+        void OnUserAccountFragmentInteraction(String type);
     }
 
 }

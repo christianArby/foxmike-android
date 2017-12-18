@@ -27,23 +27,29 @@ public class Sportu extends Application {
 
         mAuth = FirebaseAuth.getInstance();
 
-        userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+        if (mAuth.getCurrentUser() != null) {
 
-        userDbRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
-                if (dataSnapshot != null) {
-                    userDbRef.child("online").onDisconnect().setValue(false);
-                    userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
+            userDbRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if (dataSnapshot != null) {
+                        userDbRef.child("online").onDisconnect().setValue(false);
+                        userDbRef.child("lastSeen").onDisconnect().setValue(ServerValue.TIMESTAMP);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+
+        }
+
+
     }
 
 }
