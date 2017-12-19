@@ -12,11 +12,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -27,7 +25,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,22 +46,18 @@ public class ChatActivity extends AppCompatActivity {
     private EditText chatMessage;
     private ImageButton chatSendBtn;
     private ImageButton chatAddBtn;
-
     private RecyclerView messagesListRV;
     private SwipeRefreshLayout swipeRefreshLayout;
-
     private final List<Message> messageList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
-
     private DatabaseReference rootRefDb;
-
     private static final int TOTAL_ITEMS_TO_LOAD = 10;
-    private int currentPage = 1;
 
+    private int currentPage = 1;
     private int itemPos = 0;
     private String lastKey = "";
-    private String prevKey;
+    private String prevKey = "";
 
 
 
@@ -137,9 +130,7 @@ public class ChatActivity extends AppCompatActivity {
                     String lastSeenText = getTimeAgo.getTimeAgo(friend.getLastSeen(), getApplicationContext());
                     lastSeenView.setText(lastSeenText);
                 }
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -229,12 +220,8 @@ public class ChatActivity extends AppCompatActivity {
 
                 }
 
-
-
                 messageAdapter.notifyDataSetChanged();
-
                 swipeRefreshLayout.setRefreshing(false);
-
                 linearLayoutManager.scrollToPositionWithOffset(9,0);
 
             }

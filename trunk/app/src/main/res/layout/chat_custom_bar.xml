@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primaryColor">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -10,7 +12,7 @@
         android:layout_height="36dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
         android:src="@mipmap/profile_picture" />
 
     <TextView
@@ -19,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Display name"
+        android:text="Display Name"
+        android:textColor="@android:color/white"
         android:textSize="18sp" />
 
     <TextView
@@ -28,7 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/custom_bar_name"
-        android:text="Last seen" />
+        android:text="Last Seen"
+        android:textColor="@android:color/white"
+        android:textSize="13sp" />
 
 
 </RelativeLayout>
