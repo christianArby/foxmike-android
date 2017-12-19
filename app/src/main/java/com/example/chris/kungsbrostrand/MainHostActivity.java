@@ -2,6 +2,7 @@ package com.example.chris.kungsbrostrand;
 
 import android.content.Intent;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -11,6 +12,8 @@ import android.view.View;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -219,40 +222,6 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
         if (type.equals("edit")) {
             cleanMainActivityAndSwitch(hostUserProfileFragment);
             bottomNavigation.setVisibility(View.GONE);
-        }
-
-        if (type.equals("switchMode")) {
-
-            userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-
-                    User user = dataSnapshot.getValue(User.class);
-
-                    if (user.trainerMode) {
-                        user.setTrainerMode(false);
-                        usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(false);
-                        Intent intent = new Intent(getApplicationContext(), MainHostActivity.class);
-                        getApplicationContext().startActivity(intent);
-                    } else {
-                        user.setTrainerMode(true);
-                        usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true);
-                        Intent intent = new Intent(getApplicationContext(), MainPlayerActivity.class);
-                        getApplicationContext().startActivity(intent);
-                        //changeMode(user.trainerMode);
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-
         }
     }
 
