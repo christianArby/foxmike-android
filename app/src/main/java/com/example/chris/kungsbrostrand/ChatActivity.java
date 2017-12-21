@@ -62,7 +62,6 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference chatCurrentUserIDDbRef;
     private DatabaseReference userDbRef;
 
-
     private ValueEventListener usersChatUserIDListener;
     private ValueEventListener chatCurrentUserIDListener;
     private ChildEventListener messageQueryChildListener1;
@@ -72,8 +71,6 @@ public class ChatActivity extends AppCompatActivity {
     private int itemPos = 0;
     private String lastKey = "";
     private String prevKey = "";
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,21 +82,15 @@ public class ChatActivity extends AppCompatActivity {
 
         rootRefDb = FirebaseDatabase.getInstance().getReference();
 
-
         chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
-
         setSupportActionBar(chatToolbar);
-
         ActionBar actionBar = getSupportActionBar();
-
-
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
         chatUserID = getIntent().getStringExtra("userID");
         chatUserName = getIntent().getStringExtra("userName");
         chatThumbImage = getIntent().getStringExtra("userThumbImage");
-        //getSupportActionBar().setTitle(chatUserName);
 
         usersChatUserIDDbRef= rootRefDb.child("users").child(chatUserID);
         chatCurrentUserIDDbRef = rootRefDb.child("chat").child(currentUserID);
@@ -119,23 +110,17 @@ public class ChatActivity extends AppCompatActivity {
 
 
         messageAdapter = new MessageAdapter(messageList);
-
         messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
-
         linearLayoutManager = new LinearLayoutManager(this);
-
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
-
         messagesListRV.setAdapter(messageAdapter);
 
         loadMessages();
 
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
-
-
 
         usersChatUserIDListener = usersChatUserIDDbRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -180,9 +165,7 @@ public class ChatActivity extends AppCompatActivity {
 
                         }
                     });
-
                 }
-
             }
 
             @Override
@@ -194,34 +177,24 @@ public class ChatActivity extends AppCompatActivity {
         chatSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 sendMessage();
-
             }
         });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 currentPage++;
-
                 itemPos = 0;
-
                 loadMoreMessages();
-
             }
         });
-
-
-
     }
 
     private void loadMoreMessages() {
 
         DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
         messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
-
         messageQueryChildListener1 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -236,9 +209,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
 
                 if(itemPos == 1) {
-
                     lastKey = messageKey;
-
                 }
 
                 messageAdapter.notifyDataSetChanged();
@@ -267,16 +238,12 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-
-
-
     }
 
     private void loadMessages() {
 
         DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
         messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
-
         messageQueryChildListener2 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -286,19 +253,14 @@ public class ChatActivity extends AppCompatActivity {
                 itemPos++;
 
                 if(itemPos == 1) {
-
                     lastKey = dataSnapshot.getKey();
                     prevKey = dataSnapshot.getKey();
-
                 }
 
                 messageList.add(message);
                 messageAdapter.notifyDataSetChanged();
-
                 messagesListRV.scrollToPosition(messageList.size()-1);
-
                 swipeRefreshLayout.setRefreshing(false);
-
             }
 
             @Override
@@ -321,25 +283,17 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-
-
-
     }
 
     private void sendMessage() {
 
         String message = chatMessage.getText().toString();
-
-
-
         if (!TextUtils.isEmpty(message)) {
 
             String currentUserRef = "messages/" + currentUserID + "/" + chatUserID;
             String chatUserRef = "messages/" + chatUserID + "/" + currentUserID;
-
             DatabaseReference userMessageDbRef = rootRefDb.child("messages")
                     .child(currentUserID).child(chatUserID).push();
-
             String userMessagePushID = userMessageDbRef.getKey();
 
             Map messageMap = new HashMap();
@@ -358,25 +312,17 @@ public class ChatActivity extends AppCompatActivity {
             rootRefDb.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-
                     if (databaseError!=null) {
                         Log.d("CHAT_LOG", databaseError.getMessage().toString());
                     }
-
                 }
             });
-
-
-
-
         }
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        messageAdapter.detachListener();
         usersChatUserIDDbRef.removeEventListener(usersChatUserIDListener);
         chatCurrentUserIDDbRef.removeEventListener(chatCurrentUserIDListener);
         if (messageQueryChildListener1!=null) {
@@ -404,7 +350,6 @@ public class ChatActivity extends AppCompatActivity {
             startActivity(loginIntent);
             finish();
         }
-
     }
 
     @Override
