@@ -17,9 +17,9 @@
 <resources>
 
     <color name="white">#ffffff</color>
-    <color name="primaryColor">#19d8a7</color>
+    <color name="primaryColor">#009b3a</color>
     <color name="primaryLightColor">#68ffd8</color>
-    <color name="primaryDarkColor">#00a578</color>
+    <color name="primaryDarkColor">#009b3a</color>
     <color name="secondaryColor">#f4ff81</color>
     <color name="secondaryLightColor">#ffffb3</color>
     <color name="secondaryDarkColor">#bfcc50</color>

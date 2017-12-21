@@ -43,6 +43,8 @@ public class FriendsFragment extends Fragment {
     private String currentUserID;
     private View mainView;
     private User friend;
+    private String friendUserID;
+    private ValueEventListener userListener;
 
     private OnUserClickedListener onUserClickedListener;
 
@@ -96,9 +98,13 @@ public class FriendsFragment extends Fragment {
 
                 holder.setDate(model.getDate());
 
-                final String friendUserID = getRef(position).getKey();
+                friendUserID = getRef(position).getKey();
 
-                usersDatabase.child(friendUserID).addValueEventListener(new ValueEventListener() {
+                if (userListener!=null) {
+                    usersDatabase.child(friendUserID).removeEventListener(userListener);
+                }
+
+                userListener = usersDatabase.child(friendUserID).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         friend = dataSnapshot.getValue(User.class);
@@ -114,6 +120,7 @@ public class FriendsFragment extends Fragment {
 
                     }
                 });
+
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -215,5 +222,8 @@ public class FriendsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
+        if (userListener!=null) {
+            usersDatabase.child(friendUserID).removeEventListener(userListener);
+        }
     }
 }
