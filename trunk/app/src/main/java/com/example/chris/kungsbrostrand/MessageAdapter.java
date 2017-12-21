@@ -35,9 +35,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private DatabaseReference mUserDatabase;
     private FirebaseAuth mAuth;
     private String currentUserID;
-    private ValueEventListener chatUserListener;
-    private Context ctx;
-
 
     public MessageAdapter(List<Message> messageList) {
         this.messageList = messageList;
@@ -74,13 +71,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         String fromUser = c.getFrom();
 
         mAuth = FirebaseAuth.getInstance();
-
         currentUserID = mAuth.getCurrentUser().getUid();
 
-
-
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(fromUser);
-
         mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -91,11 +84,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 String image = user.getThumb_image();
 
                 holder.messageUser.setText(name);
-
                 Glide.with(holder.profileImage.getContext()).load(image).into(holder.profileImage);
-
-                ctx = holder.profileImage.getContext();
-
             }
 
             @Override
@@ -119,26 +108,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.messageText.setTextColor(Color.BLACK);
             holder.profileImage.setVisibility(View.VISIBLE);
             holder.messageUser.setVisibility(View.VISIBLE);
-
-
         }
 
         GetTimeAgo getTimeAgo = new GetTimeAgo();
-
         String timeText = getTimeAgo.getTimeAgo(c.getTime(),holder.messageText.getContext());
-
         holder.messageText.setText(c.getMessage());
         holder.messageTime.setText(timeText);
-
-        //Glide.with(ctx).load(holder.get).into(userProfileImageIV);
-
-    }
-
-    public void detachListener () {
-
-        //mUserDatabase.removeEventListener(chatUserListener);
-        //Glide.get(ctx).clearMemory();
-
     }
 
     @Override
