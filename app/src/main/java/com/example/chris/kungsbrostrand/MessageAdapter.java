@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -22,6 +23,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.util.LayoutDirection.LTR;
+
 /**
  * Created by chris on 2017-12-18.
  */
@@ -30,6 +33,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private List<Message> messageList;
     private DatabaseReference mUserDatabase;
+    private FirebaseAuth mAuth;
+    private String currentUserID;
+    private ValueEventListener chatUserListener;
+    private Context ctx;
 
 
     public MessageAdapter(List<Message> messageList) {
@@ -48,6 +55,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView messageText;
         public CircleImageView profileImage;
         public TextView messageTime;
+        public RelativeLayout singleMessageContainer;
 
         public MessageViewHolder(View view) {
             super(view);
@@ -56,6 +64,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             messageText = (TextView) view.findViewById(R.id.message_text);
             messageTime = (TextView) view.findViewById(R.id.message_time);
             profileImage = (CircleImageView) view.findViewById(R.id.message_profile_image);
+            singleMessageContainer = (RelativeLayout) view.findViewById(R.id.message_relative_layout);
 
         }
     }
@@ -64,9 +73,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Message c = messageList.get(position);
         String fromUser = c.getFrom();
 
+        mAuth = FirebaseAuth.getInstance();
+
+        currentUserID = mAuth.getCurrentUser().getUid();
+
+
+
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(fromUser);
 
-        mUserDatabase.addValueEventListener(new ValueEventListener() {
+        mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -79,6 +94,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
                 Glide.with(holder.profileImage.getContext()).load(image).into(holder.profileImage);
 
+                ctx = holder.profileImage.getContext();
+
             }
 
             @Override
@@ -87,29 +104,40 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         });
 
+        if (fromUser.equals(currentUserID)) {
 
-
-
-
-
-
-        /*if (fromUser.equals(currentUserID)) {
-
-            holder.messageText.setBackgroundColor(Color.WHITE);
+            holder.singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            holder.messageText.setBackgroundResource(R.drawable.message_text_background_host);
+            holder.messageText.setTextColor(Color.WHITE);
+            holder.profileImage.setVisibility(View.GONE);
+            holder.messageUser.setVisibility(View.GONE);
+            holder.messageTime.setVisibility(View.GONE);
 
         } else {
-
+            holder.singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             holder.messageText.setBackgroundResource(R.drawable.message_text_background);
+            holder.messageText.setTextColor(Color.BLACK);
+            holder.profileImage.setVisibility(View.VISIBLE);
+            holder.messageUser.setVisibility(View.VISIBLE);
 
 
-        }*/
+        }
+
+        GetTimeAgo getTimeAgo = new GetTimeAgo();
+
+        String timeText = getTimeAgo.getTimeAgo(c.getTime(),holder.messageText.getContext());
 
         holder.messageText.setText(c.getMessage());
-
-
-
+        holder.messageTime.setText(timeText);
 
         //Glide.with(ctx).load(holder.get).into(userProfileImageIV);
+
+    }
+
+    public void detachListener () {
+
+        //mUserDatabase.removeEventListener(chatUserListener);
+        //Glide.get(ctx).clearMemory();
 
     }
 

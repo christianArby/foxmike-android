@@ -1,6 +1,8 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Context;
+import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -53,6 +56,17 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private DatabaseReference rootRefDb;
     private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private Query messageQuery;
+
+    private DatabaseReference usersChatUserIDDbRef;
+    private DatabaseReference chatCurrentUserIDDbRef;
+    private DatabaseReference userDbRef;
+
+
+    private ValueEventListener usersChatUserIDListener;
+    private ValueEventListener chatCurrentUserIDListener;
+    private ChildEventListener messageQueryChildListener1;
+    private ChildEventListener messageQueryChildListener2;
 
     private int currentPage = 1;
     private int itemPos = 0;
@@ -71,6 +85,7 @@ public class ChatActivity extends AppCompatActivity {
 
         rootRefDb = FirebaseDatabase.getInstance().getReference();
 
+
         chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
 
         setSupportActionBar(chatToolbar);
@@ -85,6 +100,10 @@ public class ChatActivity extends AppCompatActivity {
         chatUserName = getIntent().getStringExtra("userName");
         chatThumbImage = getIntent().getStringExtra("userThumbImage");
         //getSupportActionBar().setTitle(chatUserName);
+
+        usersChatUserIDDbRef= rootRefDb.child("users").child(chatUserID);
+        chatCurrentUserIDDbRef = rootRefDb.child("chat").child(currentUserID);
+        userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View action_bar_view = inflater.inflate(R.layout.chat_custom_bar, null);
@@ -116,7 +135,9 @@ public class ChatActivity extends AppCompatActivity {
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
 
-        rootRefDb.child("users").child(chatUserID).addValueEventListener(new ValueEventListener() {
+
+
+        usersChatUserIDListener = usersChatUserIDDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -137,7 +158,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        rootRefDb.child("chat").child(currentUserID).addValueEventListener(new ValueEventListener() {
+        chatCurrentUserIDListener = chatCurrentUserIDDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -199,9 +220,9 @@ public class ChatActivity extends AppCompatActivity {
     private void loadMoreMessages() {
 
         DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
-        Query messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
+        messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
 
-        messageQuery.addChildEventListener(new ChildEventListener() {
+        messageQueryChildListener1 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -254,9 +275,9 @@ public class ChatActivity extends AppCompatActivity {
     private void loadMessages() {
 
         DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
-        Query messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
+        messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
 
-        messageQuery.addChildEventListener(new ChildEventListener() {
+        messageQueryChildListener2 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -350,5 +371,52 @@ public class ChatActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        messageAdapter.detachListener();
+        usersChatUserIDDbRef.removeEventListener(usersChatUserIDListener);
+        chatCurrentUserIDDbRef.removeEventListener(chatCurrentUserIDListener);
+        if (messageQueryChildListener1!=null) {
+            messageQuery.removeEventListener(messageQueryChildListener1);
+        }
+        if (messageQueryChildListener2!=null) {
+            messageQuery.removeEventListener(messageQueryChildListener2);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser!=null) {
+            // User is signed in
+            userDbRef.child("online").setValue(true);
+
+        } else {
+            //User is signed out
+            Intent loginIntent = new Intent(ChatActivity.this,LoginActivity.class);
+            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(loginIntent);
+            finish();
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            userDbRef.child("online").setValue(false);
+            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
+
+        }
     }
 }
