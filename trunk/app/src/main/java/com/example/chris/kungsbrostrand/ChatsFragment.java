@@ -97,6 +97,9 @@ public class ChatsFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        childEventListenerMap = new HashMap<>();
+        valueEventListenerMap = new HashMap<>();
+
         Query conversationQuery = mConversationDatabase.orderByChild("time");
 
         FirebaseRecyclerOptions<Conversation> options =

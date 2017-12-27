@@ -488,4 +488,19 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
 
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (getSupportFragmentManager().findFragmentByTag("xMainInboxFragment") !=null) {
+            InboxFragment inboxFragment = (InboxFragment) getSupportFragmentManager().findFragmentByTag("xMainInboxFragment");
+            inboxFragment.cleanInboxListeners();
+        }
+
+        if (getSupportFragmentManager().findFragmentByTag("displaySessionFragment")!=null) {
+            DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("displaySessionFragment");
+            displaySessionFragment.cleanListeners();
+        }
+    }
 }
