@@ -16,16 +16,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.client.Firebase;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.common.data.Freezable;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -45,6 +50,8 @@ public class FriendsFragment extends Fragment {
     private User friend;
     private String friendUserID;
     private ValueEventListener userListener;
+    FirebaseRecyclerAdapter<Friends,FriendsViewHolder> firebaseRecyclerAdapter;
+    private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
 
     private OnUserClickedListener onUserClickedListener;
 
@@ -62,6 +69,8 @@ public class FriendsFragment extends Fragment {
 
         friendsList = (RecyclerView) mainView.findViewById(R.id.friends_list);
         mAuth = FirebaseAuth.getInstance();
+
+        valueEventListenerMap = new HashMap<>();
 
         currentUserID = mAuth.getCurrentUser().getUid();
 
@@ -86,7 +95,7 @@ public class FriendsFragment extends Fragment {
                         .build();
 
 
-        FirebaseRecyclerAdapter<Friends,FriendsViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
             @Override
             public FriendsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
@@ -100,18 +109,22 @@ public class FriendsFragment extends Fragment {
 
                 friendUserID = getRef(position).getKey();
 
-                if (userListener!=null) {
-                    usersDatabase.child(friendUserID).removeEventListener(userListener);
-                }
-
                 userListener = usersDatabase.child(friendUserID).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        friend = dataSnapshot.getValue(User.class);
 
-                        holder.setName(friend.getName());
-                        holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                        holder.setOnlineIcon(friend.isOnline());
+                        if (getActivity()!=null) {
+
+                            friend = dataSnapshot.getValue(User.class);
+
+                            holder.setName(friend.getName());
+                            holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
+                            holder.setOnlineIcon(friend.isOnline());
+
+                        }
+
+                        valueEventListenerMap.put(dataSnapshot.getRef(), userListener);
+
 
                     }
 
@@ -222,8 +235,19 @@ public class FriendsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
-        if (userListener!=null) {
-            usersDatabase.child(friendUserID).removeEventListener(userListener);
+        firebaseRecyclerAdapter.stopListening();
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
+    }
+
+    public void cleanListeners () {
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
         }
     }
 }

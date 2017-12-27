@@ -31,6 +31,7 @@ public class Sportu extends Application {
 
             userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
+            // TODO Check this listener
             userDbRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

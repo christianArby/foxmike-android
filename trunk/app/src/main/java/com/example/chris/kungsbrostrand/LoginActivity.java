@@ -125,7 +125,8 @@ public class LoginActivity extends AppCompatActivity {
         final String user_id = mAuth.getCurrentUser().getUid();
 
         // TODO check how long this listener is alive
-        mDatabaseUsers.addValueEventListener(new ValueEventListener() {
+
+        mDatabaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.hasChild(user_id)){
@@ -135,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(setupIntent);
 
                 }
+
             }
 
             @Override
