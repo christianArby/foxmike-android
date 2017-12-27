@@ -62,6 +62,9 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference chatCurrentUserIDDbRef;
     private DatabaseReference userDbRef;
 
+    private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
+    private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
+
     private ValueEventListener usersChatUserIDListener;
     private ValueEventListener chatCurrentUserIDListener;
     private ChildEventListener messageQueryChildListener1;
@@ -77,6 +80,9 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        valueEventListenerMap = new HashMap<>();
+        childEventListenerMap = new HashMap<>();
+
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
@@ -88,12 +94,13 @@ public class ChatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
+        // Get extra sent from previous activity
         chatUserID = getIntent().getStringExtra("userID");
         chatUserName = getIntent().getStringExtra("userName");
         chatThumbImage = getIntent().getStringExtra("userThumbImage");
 
         usersChatUserIDDbRef= rootRefDb.child("users").child(chatUserID);
-        chatCurrentUserIDDbRef = rootRefDb.child("chat").child(currentUserID);
+        chatCurrentUserIDDbRef = rootRefDb.child("Chat").child(currentUserID);
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -117,11 +124,17 @@ public class ChatActivity extends AppCompatActivity {
         messagesListRV.setLayoutManager(linearLayoutManager);
         messagesListRV.setAdapter(messageAdapter);
 
+
+        // Set the ChatID to seen at current user
+        rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
+
+        // Load messages function
         loadMessages();
 
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
 
+        // Listen to Online change of friend
         usersChatUserIDListener = usersChatUserIDDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -136,6 +149,8 @@ public class ChatActivity extends AppCompatActivity {
                     String lastSeenText = getTimeAgo.getTimeAgo(friend.getLastSeen(), getApplicationContext());
                     lastSeenView.setText(lastSeenText);
                 }
+
+                valueEventListenerMap.put(dataSnapshot.getRef(), usersChatUserIDListener);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -143,6 +158,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // see if current user has a chat with the friend already, if not add a chatmap (both to current users id in and friends
         chatCurrentUserIDListener = chatCurrentUserIDDbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -166,6 +182,8 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     });
                 }
+
+                valueEventListenerMap.put(dataSnapshot.getRef(), chatCurrentUserIDListener);
             }
 
             @Override
@@ -174,6 +192,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // When button is clicked send message to database
         chatSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -215,6 +234,8 @@ public class ChatActivity extends AppCompatActivity {
                 messageAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
                 linearLayoutManager.scrollToPositionWithOffset(9,0);
+
+                childEventListenerMap.put(dataSnapshot.getRef(), messageQueryChildListener1);
 
             }
 
@@ -261,6 +282,8 @@ public class ChatActivity extends AppCompatActivity {
                 messageAdapter.notifyDataSetChanged();
                 messagesListRV.scrollToPosition(messageList.size()-1);
                 swipeRefreshLayout.setRefreshing(false);
+
+                childEventListenerMap.put(dataSnapshot.getRef(), messageQueryChildListener2);
             }
 
             @Override
@@ -309,6 +332,12 @@ public class ChatActivity extends AppCompatActivity {
 
             chatMessage.setText("");
 
+            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
+            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+
+            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("seen").setValue(false);
+            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+
             rootRefDb.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
@@ -323,13 +352,17 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        usersChatUserIDDbRef.removeEventListener(usersChatUserIDListener);
-        chatCurrentUserIDDbRef.removeEventListener(chatCurrentUserIDListener);
-        if (messageQueryChildListener1!=null) {
-            messageQuery.removeEventListener(messageQueryChildListener1);
+
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
         }
-        if (messageQueryChildListener2!=null) {
-            messageQuery.removeEventListener(messageQueryChildListener2);
+
+        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ChildEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
         }
     }
 

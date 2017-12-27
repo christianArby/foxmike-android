@@ -31,12 +31,6 @@ class User {
         this.lastSeen = lastSeen;
     }
 
-
-
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-
-
-
     public User() {
         this.sessionsAttending = new HashMap<String,Boolean>();
         this.sessionsHosting = new HashMap<String,Boolean>();

@@ -29,8 +29,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -39,6 +41,7 @@ public class DisplaySessionFragment extends DialogFragment {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mSessionName;
@@ -56,6 +59,7 @@ public class DisplaySessionFragment extends DialogFragment {
     private static final String SESSION_LONGITUDE = "sessionLongitude";
     private Double sessionLatitude;
     private Double sessionLongitude;
+    private ChildEventListener sessionChildEventListener;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -94,6 +98,8 @@ public class DisplaySessionFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
+
+        childEventListenerMap = new HashMap<>();
 
         LinearLayout displaySessionContainer;
         View displaySession;
@@ -238,11 +244,14 @@ public class DisplaySessionFragment extends DialogFragment {
      */
 
     private void findSessionAndFillInUI(final Double latitude, final Double longitude){
-        //
-        mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
+
+        sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 final Session session = dataSnapshot.getValue(Session.class);
+
+                childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
+
                 if(session.getLongitude()==longitude) {
 
                     String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
@@ -404,5 +413,24 @@ public class DisplaySessionFragment extends DialogFragment {
 
         return returnAddress;
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ChildEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
+    }
+
+    public void cleanListeners () {
+
+        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ChildEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
     }
 }
