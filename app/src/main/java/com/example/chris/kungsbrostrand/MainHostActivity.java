@@ -331,4 +331,16 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
 
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        InboxFragment inboxFragment = (InboxFragment) getSupportFragmentManager().findFragmentByTag("hostInboxFragment");
+        inboxFragment.cleanInboxListeners();
+
+        DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("hostDisplaySessionFragment");
+        displaySessionFragment.cleanListeners();
+
+    }
 }
