@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +58,11 @@ public class ChatsFragment extends Fragment {
     private ChildEventListener messageChildEventListener;
     private ValueEventListener usersValueEventListener;
 
+    private OnNewMessageListener onNewMessageListener;
+
     private View mMainView;
+
+    private ArrayList<User> users = new ArrayList<User>();
 
 
     public ChatsFragment() {
@@ -90,6 +95,15 @@ public class ChatsFragment extends Fragment {
         mConvList.setHasFixedSize(true);
         mConvList.setLayoutManager(linearLayoutManager);
 
+        // ------------------download user information and notify item changed
+
+        //Query conversationQuery = mConversationDatabase.orderByChild("time");
+
+
+
+
+
+
         return mMainView;
     }
 
@@ -117,74 +131,35 @@ public class ChatsFragment extends Fragment {
             @Override
             protected void onBindViewHolder(final ConversationViewHolder holder, int position, final Conversation model) {
 
+                // from messageDB
+                String test = model.getLastMessage();
+                holder.setMessage(model.getLastMessage(), model.isSeen());
+
                 final String list_user_id = getRef(position).getKey();
 
-                lastMessageQuery = mMessageDatabase.child(list_user_id).limitToLast(1);
+                // from userDB
 
-                messageChildEventListener = lastMessageQuery.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                        String data = dataSnapshot.child("message").getValue().toString();
-                        holder.setMessage(data, model.isSeen());
-
-                        childEventListenerMap.put(dataSnapshot.getRef(), messageChildEventListener);
-
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                usersChatUserDbRef = mUsersDatabase.child(list_user_id);
-
-                usersValueEventListener =  usersChatUserDbRef.addValueEventListener(new ValueEventListener() {
+                mUsersDatabase.child(list_user_id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        final User user = dataSnapshot.getValue(User.class);
+                        holder.setUserOnline(user.isOnline());
 
-                        if (getContext()!=null) {
-                            User user = dataSnapshot.getValue(User.class);
+                        holder.setName(user.getName());
+                        holder.setUserImage(user.getThumb_image(), getContext());
 
-                            final String userName = user.getName();
-                            final String userThumb = user.getThumb_image();
+                        holder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
 
-                            holder.setUserOnline(user.isOnline());
+                                Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                chatIntent.putExtra("userID", list_user_id);
+                                chatIntent.putExtra("userName", user.getName());
+                                chatIntent.putExtra("userThumbImage", user.getThumb_image());
+                                startActivity(chatIntent);
+                            }
+                        });
 
-                            holder.setName(userName);
-                            holder.setUserImage(userThumb, getContext());
-
-                            holder.mView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    Intent chatIntent = new Intent(getContext(), ChatActivity.class);
-                                    chatIntent.putExtra("userID", list_user_id);
-                                    chatIntent.putExtra("userName", userName);
-                                    chatIntent.putExtra("userThumbImage", userThumb);
-                                    startActivity(chatIntent);
-                                }
-                            });
-
-                            valueEventListenerMap.put(dataSnapshot.getRef(), usersValueEventListener);
-
-                        }
                     }
 
                     @Override
@@ -287,5 +262,22 @@ public class ChatsFragment extends Fragment {
             ref.removeEventListener(listener);
         }
         firebaseConversationAdapter.stopListening();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnNewMessageListener) {
+            onNewMessageListener = (OnNewMessageListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnNewMessageListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onNewMessageListener = null;
     }
 }
