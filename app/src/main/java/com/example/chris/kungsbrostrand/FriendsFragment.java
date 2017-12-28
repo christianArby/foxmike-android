@@ -47,8 +47,6 @@ public class FriendsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private String currentUserID;
     private View mainView;
-    private User friend;
-    private String friendUserID;
     private ValueEventListener userListener;
     FirebaseRecyclerAdapter<Friends,FriendsViewHolder> firebaseRecyclerAdapter;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
@@ -107,7 +105,7 @@ public class FriendsFragment extends Fragment {
 
                 holder.setDate(model.getDate());
 
-                friendUserID = getRef(position).getKey();
+                final String friendUserID = getRef(position).getKey();
 
                 userListener = usersDatabase.child(friendUserID).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -115,11 +113,49 @@ public class FriendsFragment extends Fragment {
 
                         if (getActivity()!=null) {
 
-                            friend = dataSnapshot.getValue(User.class);
+                            final User friend = dataSnapshot.getValue(User.class);
 
                             holder.setName(friend.getName());
                             holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                             holder.setOnlineIcon(friend.isOnline());
+
+                            holder.mView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
+
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                                    builder.setTitle("Select option");
+                                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            if (i == 0) {
+                                                onUserClickedListener.OnUserClicked(friendUserID);
+                                            }
+
+                                            if (i == 1) {
+
+                                                Intent chatIntent = new Intent(getContext(),ChatActivity.class);
+                                                chatIntent.putExtra("userID", friendUserID);
+                                                chatIntent.putExtra("userName", friend.getName());
+                                                chatIntent.putExtra("userThumbImage", friend.getThumb_image());
+                                                chatIntent.putExtra("userLastSeen", friend.getLastSeen());
+                                                startActivity(chatIntent);
+
+                                            }
+
+
+                                        }
+                                    });
+
+                                    builder.show();
+
+
+                                }
+                            });
 
                         }
 
@@ -135,43 +171,7 @@ public class FriendsFragment extends Fragment {
                 });
 
 
-                holder.mView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                        CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-                        builder.setTitle("Select option");
-                        builder.setItems(options, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                                if (i == 0) {
-                                    onUserClickedListener.OnUserClicked(friendUserID);
-                                }
-
-                                if (i == 1) {
-
-                                    Intent chatIntent = new Intent(getContext(),ChatActivity.class);
-                                    chatIntent.putExtra("userID", friendUserID);
-                                    chatIntent.putExtra("userName", friend.getName());
-                                    chatIntent.putExtra("userThumbImage", friend.getThumb_image());
-                                    chatIntent.putExtra("userLastSeen", friend.getLastSeen());
-                                    startActivity(chatIntent);
-
-                                }
-
-
-                            }
-                        });
-
-                        builder.show();
-
-
-                    }
-                });
 
             }
         };
