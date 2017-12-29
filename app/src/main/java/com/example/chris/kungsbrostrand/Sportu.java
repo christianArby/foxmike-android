@@ -1,7 +1,9 @@
 package com.example.chris.kungsbrostrand;
 
 import android.app.Application;
+import android.util.Log;
 
+import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -10,46 +12,50 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by chris on 2017-08-16.
  */
 
 public class Sportu extends Application {
 
-    private DatabaseReference userDbRef;
+
+
+    private DatabaseReference rootDbRef;
     private FirebaseAuth mAuth;
+
+
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+
+
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         mAuth = FirebaseAuth.getInstance();
+        String currentUserID = mAuth.getCurrentUser().getUid();
 
-        if (mAuth.getCurrentUser() != null) {
+        final DatabaseReference onlineRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        final DatabaseReference currentUserRef = rootDbRef.child("/presence/" + currentUserID);
 
-            userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
-            // TODO Check this listener
-            userDbRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    if (dataSnapshot != null) {
-                        userDbRef.child("online").onDisconnect().setValue(false);
-                        userDbRef.child("lastSeen").onDisconnect().setValue(ServerValue.TIMESTAMP);
-                    }
+        onlineRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue(Boolean.class)){
+                    currentUserRef.setValue(true);
+                    currentUserRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
                 }
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-        }
-
+            @Override
+            public void onCancelled(final DatabaseError databaseError) {
+                Log.d(TAG, "DatabaseError:" + databaseError);
+            }
+        });
 
     }
 

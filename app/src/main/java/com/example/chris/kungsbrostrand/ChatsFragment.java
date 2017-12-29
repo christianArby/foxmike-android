@@ -40,29 +40,33 @@ public class ChatsFragment extends Fragment {
 
     private RecyclerView mConvList;
 
-    private DatabaseReference mConversationDatabase;
+    private DatabaseReference chatMembersDatabase;
     private DatabaseReference mMessageDatabase;
     private DatabaseReference mUsersDatabase;
+    private DatabaseReference rootDbRef;
     private DatabaseReference usersChatUserDbRef;
     private Query lastMessageQuery;
 
-    FirebaseRecyclerAdapter<Conversation, ConversationViewHolder> firebaseConversationAdapter;
 
     private FirebaseAuth mAuth;
 
     private String mCurrent_user_id;
+    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    private HashMap<DatabaseReference, String> singleListenerMap = new HashMap<DatabaseReference, String>();
 
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
-
-    private ChildEventListener messageChildEventListener;
-    private ValueEventListener usersValueEventListener;
 
     private OnNewMessageListener onNewMessageListener;
 
     private View mMainView;
 
-    private ArrayList<User> users = new ArrayList<User>();
+    private ArrayList<String> chatIDs = new ArrayList<String>();
+    private HashMap<Integer, Chats> chats = new HashMap<Integer, Chats>();
+    private HashMap<Integer, User> users = new HashMap<Integer, User>();
+    private HashMap<Integer, String> userIDs = new HashMap<Integer, String>();
+
+    private RecyclerView.Adapter<chatsViewHolder> chatsViewHolderAdapter;
 
 
     public ChatsFragment() {
@@ -81,9 +85,11 @@ public class ChatsFragment extends Fragment {
 
         mCurrent_user_id = mAuth.getCurrentUser().getUid();
 
-        mConversationDatabase = FirebaseDatabase.getInstance().getReference().child("Chat").child(mCurrent_user_id);
+        chatMembersDatabase = FirebaseDatabase.getInstance().getReference().child("chatMembers");
 
-        mConversationDatabase.keepSynced(true);
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
+
+        chatMembersDatabase.keepSynced(true);
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mCurrent_user_id);
         mUsersDatabase.keepSynced(true);
@@ -95,106 +101,206 @@ public class ChatsFragment extends Fragment {
         mConvList.setHasFixedSize(true);
         mConvList.setLayoutManager(linearLayoutManager);
 
-        // ------------------download user information and notify item changed
-
-        //Query conversationQuery = mConversationDatabase.orderByChild("time");
-
-
-
-
-
-
-        return mMainView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        childEventListenerMap = new HashMap<>();
-        valueEventListenerMap = new HashMap<>();
-
-        Query conversationQuery = mConversationDatabase.orderByChild("time");
-
-        FirebaseRecyclerOptions<Conversation> options =
-                new FirebaseRecyclerOptions.Builder<Conversation>()
-                        .setQuery(conversationQuery, Conversation.class)
-                        .build();
-
-        firebaseConversationAdapter = new FirebaseRecyclerAdapter<Conversation, ConversationViewHolder>(options) {
+        // Lyssnare triggas varje gång någon chat som användaren hör till ändras (eller skapas en ny
+        mUsersDatabase.child(mCurrent_user_id).child("chats").addValueEventListener(new ValueEventListener() {
             @Override
-            public ConversationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.users_list_single_layout, parent, false);
-                return new ConversationViewHolder(view);
-            }
-            @Override
-            protected void onBindViewHolder(final ConversationViewHolder holder, int position, final Conversation model) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                // from messageDB
-                String test = model.getLastMessage();
-                holder.setMessage(model.getLastMessage(), model.isSeen());
+                chatIDs.clear();
 
-                final String list_user_id = getRef(position).getKey();
+                // Samla alla ChatIDs som användaren är en del av i chatIDs
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    chatIDs.add(child.getKey());
+                }
 
-                // from userDB
+                for (String key : chatIDs) {
+                    // Triggas när chat lagts till eller när någon chat ändrats
+                    if (!listenerMap.containsKey(rootDbRef.child("chats").child(key))) {
 
-                mUsersDatabase.child(list_user_id).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        final User user = dataSnapshot.getValue(User.class);
-                        holder.setUserOnline(user.isOnline());
-
-                        holder.setName(user.getName());
-                        holder.setUserImage(user.getThumb_image(), getContext());
-
-                        holder.mView.setOnClickListener(new View.OnClickListener() {
+                        ValueEventListener chatsListener = rootDbRef.child("chats").child(key).addValueEventListener(new ValueEventListener() {
                             @Override
-                            public void onClick(View view) {
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Chats chat = dataSnapshot.getValue(Chats.class);
 
-                                Intent chatIntent = new Intent(getContext(), ChatActivity.class);
-                                chatIntent.putExtra("userID", list_user_id);
-                                chatIntent.putExtra("userName", user.getName());
-                                chatIntent.putExtra("userThumbImage", user.getThumb_image());
-                                startActivity(chatIntent);
+                                // Om det inte är en chat som tagits bort
+                                if (chat!=null) {
+
+                                    // hitta positionen i chatIDs (kommer alltid att finnas)
+                                    int pos = chatIDs.indexOf(dataSnapshot.getKey());
+                                    if (chats.containsKey(pos)) {
+                                        chats.put(pos,chat);
+                                        chatsViewHolderAdapter.notifyItemChanged(pos);
+                                    } else {
+                                        chats.put(pos,chat);
+                                    }
+
+                                    for (String userID : chat.getUsers().keySet()) {
+                                        if (!userID.equals(mCurrent_user_id)) {
+                                            userIDs.put(pos,userID);
+                                        }
+                                    }
+                                }
+
+
+                                if (chats.size() == chatIDs.size()) {
+
+                                    for (final String userID : userIDs.values()) {
+
+                                        if (!singleListenerMap.containsKey(rootDbRef.child("users").child(userID))) {
+                                            singleListenerMap.put(rootDbRef.child("users").child(userID),"addedSingleListener");
+
+                                            rootDbRef.child("users").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    User user = dataSnapshot.getValue(User.class);
+
+                                                    for (String friendChats : user.getChats().keySet()) {
+                                                        if (chatIDs.contains(friendChats)) {
+                                                            int pos = chatIDs.indexOf(friendChats);
+                                                            if (users.containsKey(pos)) {
+                                                                users.put(pos,user);
+                                                                chatsViewHolderAdapter.notifyItemChanged(pos);
+                                                            } else {
+                                                                users.put(pos,user);
+                                                                if (users.size()==chats.size()) {
+                                                                    chatsViewHolderAdapter.notifyDataSetChanged();
+                                                                }
+                                                            }
+
+                                                        }
+                                                    }
+
+                                                    if (!listenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
+                                                        ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                if (dataSnapshot.getValue()!=null) {
+                                                                    String isOnline = dataSnapshot.getValue().toString();
+                                                                    for (Integer userIdInt : userIDs.keySet()) {
+                                                                        if (userIDs.get(userIdInt) == dataSnapshot.getKey()) {
+                                                                            if (isOnline.equals("true")) {
+                                                                                users.get(userIdInt).setOnline(true);
+                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                            } else {
+                                                                                users.get(userIdInt).setOnline(false);
+                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+                                                        listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
                             }
                         });
-
+                        listenerMap.put(rootDbRef.child("chats").child(key), chatsListener);
                     }
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        chatsViewHolderAdapter = new RecyclerView.Adapter<chatsViewHolder>() {
+            @Override
+            public chatsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.users_list_single_layout, parent, false);
+                return new chatsViewHolder(view);
+            }
+
+            @Override
+            public void onBindViewHolder(chatsViewHolder holder, int position) {
+
+                // from messageDB
+                holder.setMessage(chats.get(position).getLastMessage(), true);
+
+                String chatFriend = "none";
+
+                for (String chatMember : chats.get(position).getUsers().keySet()) {
+                    if (!chatMember.equals(mCurrent_user_id)) {
+                        chatFriend = chatMember;
+                    }
+                }
+
+                holder.setUserOnline(users.get(position).isOnline());
+                holder.setName(users.get(position).getName());
+                holder.setUserImage(users.get(position).getThumb_image(), getContext());
+
+                final String finalChatFriend = chatFriend;
+
+                final String chatFriendName = users.get(position).getName();
+                final String chatFriendImage = users.get(position).getThumb_image();
+                final String chatID = chatIDs.get(position);
+
+                holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onClick(View view) {
 
+                        Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                        chatIntent.putExtra("userID", finalChatFriend);
+                        chatIntent.putExtra("userName", chatFriendName);
+                        chatIntent.putExtra("userThumbImage", chatFriendImage);
+                        chatIntent.putExtra("chatID", chatID);
+                        startActivity(chatIntent);
                     }
                 });
+
+            }
+
+            @Override
+            public int getItemCount() {
+                return chats.size();
             }
         };
 
-        mConvList.setAdapter(firebaseConversationAdapter);
-
-        // TODO Väldigt bra, vi kan stoppa lyssnaren (och ha addvalue eventlisteners kanske?)
-        firebaseConversationAdapter.startListening();
-
-
+        mConvList.setAdapter(chatsViewHolderAdapter);
+        return mMainView;
     }
 
-    public static class ConversationViewHolder extends RecyclerView.ViewHolder {
+    public static class chatsViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
 
-        public ConversationViewHolder(View itemView) {
+        public chatsViewHolder(View itemView) {
             super(itemView);
 
             mView = itemView;
 
         }
 
-        public void setMessage(String message, boolean isSeen){
+        public void setMessage(String message, boolean isSeen) {
 
             TextView userStatusView = (TextView) mView.findViewById(R.id.user_single_status);
             userStatusView.setText(message);
 
-            if(!isSeen){
+            if (!isSeen) {
                 userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.BOLD);
             } else {
                 userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.NORMAL);
@@ -202,14 +308,14 @@ public class ChatsFragment extends Fragment {
 
         }
 
-        public void setName(String name){
+        public void setName(String name) {
 
             TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
             userNameView.setText(name);
 
         }
 
-        public void setUserImage(String thumb_image, Context ctx){
+        public void setUserImage(String thumb_image, Context ctx) {
 
             CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.user_single_image);
             Glide.with(ctx).load(thumb_image).into(userImageView);
@@ -220,7 +326,7 @@ public class ChatsFragment extends Fragment {
 
             ImageView userOnlineView = (ImageView) mView.findViewById(R.id.user_single_online_iconIV);
 
-            if(online_status){
+            if (online_status) {
 
                 userOnlineView.setVisibility(View.VISIBLE);
 
@@ -233,35 +339,14 @@ public class ChatsFragment extends Fragment {
         }
     }
 
-    public void cleanListeners () {
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
+    public void cleanListeners() {
 
-        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ChildEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
 
-        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ChildEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
-        firebaseConversationAdapter.stopListening();
     }
 
     @Override

@@ -75,6 +75,8 @@ public class ChatActivity extends AppCompatActivity {
     private String lastKey = "";
     private String prevKey = "";
 
+    private String chatID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,14 +96,22 @@ public class ChatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
+
+
         // Get extra sent from previous activity
         chatUserID = getIntent().getStringExtra("userID");
         chatUserName = getIntent().getStringExtra("userName");
         chatThumbImage = getIntent().getStringExtra("userThumbImage");
+        chatID = getIntent().getStringExtra("chatID");
+        if (chatID==null) {
+            chatID = rootRefDb.child("chats").push().getKey();
+        }
 
         usersChatUserIDDbRef= rootRefDb.child("users").child(chatUserID);
-        chatCurrentUserIDDbRef = rootRefDb.child("Chat").child(currentUserID);
+        chatCurrentUserIDDbRef = rootRefDb.child("chats").child(currentUserID);
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+
+
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View action_bar_view = inflater.inflate(R.layout.chat_custom_bar, null);
@@ -126,7 +136,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
         // Set the ChatID to seen at current user
-        rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
+        //rootRefDb.child("chats").child(currentUserID).child(chatUserID).child("seen").setValue(true);
 
         // Load messages function
         loadMessages();
@@ -159,38 +169,6 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         // see if current user has a chat with the friend already, if not add a chatmap (both to current users id in and friends
-        chatCurrentUserIDListener = chatCurrentUserIDDbRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (!dataSnapshot.hasChild(chatUserID)) {
-                    Map chatAddMap =new HashMap();
-                    chatAddMap.put("seen", false);
-                    chatAddMap.put("time", ServerValue.TIMESTAMP);
-
-                    Map chatUserMap = new HashMap();
-                    chatUserMap.put("Chat/" + currentUserID + "/" + chatUserID, chatAddMap);
-                    chatUserMap.put("Chat/" + chatUserID + "/" + currentUserID, chatAddMap);
-
-                    rootRefDb.updateChildren(chatUserMap, new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                            if (databaseError != null) {
-                                Log.d("CHAT_LOG", databaseError.getMessage().toString());
-                            }
-
-                        }
-                    });
-                }
-
-                valueEventListenerMap.put(dataSnapshot.getRef(), chatCurrentUserIDListener);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         // When button is clicked send message to database
         chatSendBtn.setOnClickListener(new View.OnClickListener() {
@@ -210,9 +188,66 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private void sendMessage() {
+
+        String message = chatMessage.getText().toString();
+        if (!TextUtils.isEmpty(message)) {
+
+            String messageID = rootRefDb.child("messages").push().getKey();
+
+            String currentUserRef = "messages/" + currentUserID + "/" + chatUserID;
+            String chatUserRef = "messages/" + chatUserID + "/" + currentUserID;
+            DatabaseReference userMessageDbRef = rootRefDb.child("messages")
+                    .child(currentUserID).child(chatUserID).push();
+            String userMessagePushID = userMessageDbRef.getKey();
+
+            Map messageMap = new HashMap();
+            messageMap.put("message", message);
+            messageMap.put("seen", false);
+            messageMap.put("type", "text");
+            messageMap.put("time", ServerValue.TIMESTAMP);
+            messageMap.put("from", currentUserID);
+
+            rootRefDb.child("messages").child(chatID).child(messageID).setValue(messageMap);
+            rootRefDb.child("chats").child(chatID).child("lastMessage").setValue(message);
+            rootRefDb.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            rootRefDb.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+            rootRefDb.child("chats").child(chatID).child("users").child(chatUserID).setValue(true);
+            rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
+            rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
+            rootRefDb.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+            rootRefDb.child("users").child(chatUserID).child("chats").child(chatID).setValue(true);
+
+            chatMessage.setText("");
+
+            /*Map messageUserMap = new HashMap();
+            messageUserMap.put(currentUserRef + "/" + userMessagePushID, messageMap);
+            messageUserMap.put( chatUserRef + "/" + userMessagePushID, messageMap);
+
+
+
+            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
+            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("lastMessage").setValue(message);
+
+            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("seen").setValue(false);
+            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("lastMessage").setValue(message);
+
+            rootRefDb.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError!=null) {
+                        Log.d("CHAT_LOG", databaseError.getMessage().toString());
+                    }
+                }
+            });*/
+        }
+    }
+
     private void loadMoreMessages() {
 
-        DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
+        DatabaseReference messageRef = rootRefDb.child("messages").child(chatID);
         messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
         messageQueryChildListener1 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -263,7 +298,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void loadMessages() {
 
-        DatabaseReference messageRef = rootRefDb.child("messages").child(currentUserID).child(chatUserID);
+        DatabaseReference messageRef = rootRefDb.child("messages").child(chatID);
         messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
         messageQueryChildListener2 = messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -306,47 +341,6 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void sendMessage() {
-
-        String message = chatMessage.getText().toString();
-        if (!TextUtils.isEmpty(message)) {
-
-            String currentUserRef = "messages/" + currentUserID + "/" + chatUserID;
-            String chatUserRef = "messages/" + chatUserID + "/" + currentUserID;
-            DatabaseReference userMessageDbRef = rootRefDb.child("messages")
-                    .child(currentUserID).child(chatUserID).push();
-            String userMessagePushID = userMessageDbRef.getKey();
-
-            Map messageMap = new HashMap();
-            messageMap.put("message", message);
-            messageMap.put("seen", false);
-            messageMap.put("type", "text");
-            messageMap.put("time", ServerValue.TIMESTAMP);
-            messageMap.put("from", currentUserID);
-
-            Map messageUserMap = new HashMap();
-            messageUserMap.put(currentUserRef + "/" + userMessagePushID, messageMap);
-            messageUserMap.put( chatUserRef + "/" + userMessagePushID, messageMap);
-
-            chatMessage.setText("");
-
-            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
-            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
-
-            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("seen").setValue(false);
-            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
-
-            rootRefDb.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    if (databaseError!=null) {
-                        Log.d("CHAT_LOG", databaseError.getMessage().toString());
-                    }
-                }
-            });
-        }
     }
 
     @Override
