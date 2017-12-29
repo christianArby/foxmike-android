@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.provider.ContactsContract;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -24,10 +26,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.rd.PageIndicatorView;
@@ -38,9 +42,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
 import static com.example.chris.kungsbrostrand.R.id.menuNewsFeed;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, OnUserClickedListener{
+public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, OnUserClickedListener, OnNewMessageListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
@@ -61,6 +66,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
     private String fromUserID;
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
+    private DatabaseReference mMessageDatabase;
+    private DatabaseReference rootDbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -247,6 +254,9 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         });
 
         bottomNavigation.setCurrentItem(0);
+
+        bottomNavigation.setNotification("1", 3);
+
         if (fromUserID!=null) {
             allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
         } else {
@@ -265,6 +275,8 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
                 listSessionsFragment.generateSessionListView(sessions,location);
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
+
+
 
     }
 
@@ -423,6 +435,11 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
         }
     }
 
+    @Override
+    public void OnNewMessage() {
+        Toast.makeText(this, "hej",Toast.LENGTH_LONG).show();
+    }
+
 
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
 
@@ -503,4 +520,62 @@ public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayC
             displaySessionFragment.cleanListeners();
         }
     }
+
+    /*public void listenToInbox() {
+
+        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mAuth.getCurrentUser().getUid());
+
+        mMessageDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for dataSnapshot.getChildren()
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        Query lastMessageQuery = mMessageDatabase.child(list_user_id).limitToLast(1);
+
+        messageChildEventListener = lastMessageQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                String data = dataSnapshot.child("message").getValue().toString();
+                holder.setMessage(data, model.isSeen());
+                if (!model.isSeen()) {
+                    onNewMessageListener.OnNewMessage();
+                }
+
+                childEventListenerMap.put(dataSnapshot.getRef(), messageChildEventListener);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }*/
 }

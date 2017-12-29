@@ -1,30 +1,24 @@
 package com.example.chris.kungsbrostrand;
 
+import java.util.HashMap;
+
 /**
- * Created by chris on 2017-12-25.
+ * Created by chris on 2017-12-28.
  */
 
-public class Conversation {
+public class Chats {
 
-    public boolean seen;
     public long timestamp;
     public String lastMessage;
+    public HashMap<String,Boolean> users;
 
-    public Conversation() {
+    public Chats() {
     }
 
-    public Conversation(boolean seen, long timestamp, String lastMessage) {
-        this.seen = seen;
+    public Chats(long timestamp, String lastMessage, HashMap<String, Boolean> users) {
         this.timestamp = timestamp;
         this.lastMessage = lastMessage;
-    }
-
-    public boolean isSeen() {
-        return seen;
-    }
-
-    public void setSeen(boolean seen) {
-        this.seen = seen;
+        this.users = users;
     }
 
     public long getTimestamp() {
@@ -41,5 +35,13 @@ public class Conversation {
 
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public HashMap<String, Boolean> getUsers() {
+        return users;
+    }
+
+    public void setUsers(HashMap<String, Boolean> users) {
+        this.users = users;
     }
 }
