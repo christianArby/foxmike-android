@@ -55,19 +55,6 @@ public class InboxFragment extends Fragment {
     }
 
     public void cleanInboxListeners() {
-        if (getChildFragmentManager().findFragmentByTag(makeFragmentName(R.id.inboxPager,1)) != null) {
-            ChatsFragment chatsFragment = (ChatsFragment) getChildFragmentManager().findFragmentByTag(makeFragmentName(R.id.inboxPager,1));
-            chatsFragment.cleanListeners();
-        }
-        if (getChildFragmentManager().findFragmentByTag(makeFragmentName(R.id.inboxPager,2)) != null) {
-            FriendsFragment friendsFragment = (FriendsFragment) getChildFragmentManager().findFragmentByTag(makeFragmentName(R.id.inboxPager,2));
-            friendsFragment.cleanListeners();
-        }
 
     }
-
-    private static String makeFragmentName(int viewPagerId, int index) {
-        return "android:switcher:" + viewPagerId + ":" + index;
-    }
-
 }

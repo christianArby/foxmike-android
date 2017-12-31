@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -53,27 +54,17 @@ public class ChatActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private final List<Message> messageList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
-    private MessageAdapter messageAdapter;
-    private DatabaseReference rootRefDb;
+    private MessageFirebaseAdapter messageFirebaseAdapter;
+    private DatabaseReference rootDbRef;
     private static final int TOTAL_ITEMS_TO_LOAD = 10;
     private Query messageQuery;
 
-    private DatabaseReference usersChatUserIDDbRef;
-    private DatabaseReference chatCurrentUserIDDbRef;
     private DatabaseReference userDbRef;
+    private DatabaseReference friendDbRef;
 
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
-    private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
 
     private ValueEventListener usersChatUserIDListener;
-    private ValueEventListener chatCurrentUserIDListener;
-    private ChildEventListener messageQueryChildListener1;
-    private ChildEventListener messageQueryChildListener2;
-
-    private int currentPage = 1;
-    private int itemPos = 0;
-    private String lastKey = "";
-    private String prevKey = "";
 
     private String chatID;
 
@@ -82,36 +73,13 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        valueEventListenerMap = new HashMap<>();
-        childEventListenerMap = new HashMap<>();
-
-        mAuth = FirebaseAuth.getInstance();
-        currentUserID = mAuth.getCurrentUser().getUid();
-
-        rootRefDb = FirebaseDatabase.getInstance().getReference();
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
         setSupportActionBar(chatToolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
-
-
-
-        // Get extra sent from previous activity
-        chatUserID = getIntent().getStringExtra("userID");
-        chatUserName = getIntent().getStringExtra("userName");
-        chatThumbImage = getIntent().getStringExtra("userThumbImage");
-        chatID = getIntent().getStringExtra("chatID");
-        if (chatID==null) {
-            chatID = rootRefDb.child("chats").push().getKey();
-        }
-
-        usersChatUserIDDbRef= rootRefDb.child("users").child(chatUserID);
-        chatCurrentUserIDDbRef = rootRefDb.child("chats").child(currentUserID);
-        userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
-
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View action_bar_view = inflater.inflate(R.layout.chat_custom_bar, null);
@@ -125,222 +93,185 @@ public class ChatActivity extends AppCompatActivity {
         chatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
         chatAddBtn = (ImageButton) findViewById(R.id.chatAddBtn);
 
-
-        messageAdapter = new MessageAdapter(messageList);
         messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
         linearLayoutManager = new LinearLayoutManager(this);
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
-        messagesListRV.setAdapter(messageAdapter);
 
+        valueEventListenerMap = new HashMap<>();
 
-        // Set the ChatID to seen at current user
-        //rootRefDb.child("chats").child(currentUserID).child(chatUserID).child("seen").setValue(true);
+        mAuth = FirebaseAuth.getInstance();
+        currentUserID = mAuth.getCurrentUser().getUid();
 
-        // Load messages function
-        loadMessages();
+        // Get extra sent from previous activity
+        chatUserID = getIntent().getStringExtra("userID");
+        chatUserName = getIntent().getStringExtra("userName");
+        chatThumbImage = getIntent().getStringExtra("userThumbImage");
+        chatID = getIntent().getStringExtra("chatID");
 
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
 
-        // Listen to Online change of friend
-        usersChatUserIDListener = usersChatUserIDDbRef.addValueEventListener(new ValueEventListener() {
+        userDbRef = rootDbRef.child("users").child(currentUserID);
+        friendDbRef = rootDbRef.child("users").child(chatUserID);
+
+        // see if current user has a chat with the friend already, add listener to send message button
+        userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                final User currentUser = dataSnapshot.getValue(User.class);
 
-                User friend = dataSnapshot.getValue(User.class);
+                friendDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User friendUser = dataSnapshot.getValue(User.class);
 
-                if (friend.isOnline()) {
-                    lastSeenView.setText("Online");
+                        if (chatID==null) {
+                            if (currentUser.getChats()!=null) {
+                                for (String userChatID : currentUser.getChats().keySet()) {
+                                    if (friendUser.getChats()!= null) {
+                                        if (friendUser.getChats().containsKey(userChatID)) {
+                                            chatID = userChatID;
+                                        }
+                                    }
+                                }
+                            }
+                            if (chatID==null) {
+                                chatID = rootDbRef.child("chats").push().getKey();
+                            }
+                        }
 
-                } else {
-                    GetTimeAgo getTimeAgo = new GetTimeAgo();
-                    String lastSeenText = getTimeAgo.getTimeAgo(friend.getLastSeen(), getApplicationContext());
-                    lastSeenView.setText(lastSeenText);
-                }
+                        // --------------- chatID SET ----------------
 
-                valueEventListenerMap.put(dataSnapshot.getRef(), usersChatUserIDListener);
+                        DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
+                        messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
+
+                        //messageAdapter = new MessageAdapter(messageList);
+                        FirebaseRecyclerOptions<Message> options =
+                                new FirebaseRecyclerOptions.Builder<Message>()
+                                        .setQuery(messageQuery, Message.class)
+                                        .build();
+                        messageFirebaseAdapter = new MessageFirebaseAdapter(options);
+
+                        messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onItemRangeInserted(int positionStart, int itemCount) {
+                                super.onItemRangeInserted(positionStart, itemCount);
+                                messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
+                            }
+                        });
+
+                        messagesListRV.setAdapter(messageFirebaseAdapter);
+
+                        // When button is clicked send message to database
+                        chatSendBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                sendMessage(currentUser.getName(), currentUser.getThumb_image());
+                            }
+                        });
+
+                        messageFirebaseAdapter.startListening();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
 
-        // see if current user has a chat with the friend already, if not add a chatmap (both to current users id in and friends
-
-        // When button is clicked send message to database
-        chatSendBtn.setOnClickListener(new View.OnClickListener() {
+        // Listen to Online change of friend
+        usersChatUserIDListener = rootDbRef.child("presence").child(chatUserID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View view) {
-                sendMessage();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue().toString().equals("true")) {
+                    lastSeenView.setText("Online");
+                } else {
+                    GetTimeAgo getTimeAgo = new GetTimeAgo();
+                    String lastSeenText = getTimeAgo.getTimeAgo(Long.valueOf(dataSnapshot.getValue().toString()), getApplicationContext());
+                    lastSeenView.setText(lastSeenText);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
+        valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                currentPage++;
-                itemPos = 0;
-                loadMoreMessages();
+
+                final int currentItems = messageFirebaseAdapter.getItemCount();
+
+                messageFirebaseAdapter.stopListening();
+
+                DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
+                messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
+
+                FirebaseRecyclerOptions<Message> options =
+                        new FirebaseRecyclerOptions.Builder<Message>()
+                                .setQuery(messageQuery, Message.class)
+                                .build();
+                messageFirebaseAdapter = new MessageFirebaseAdapter(options);
+
+                messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                    @Override
+                    public void onItemRangeInserted(int positionStart, int itemCount) {
+                        super.onItemRangeInserted(positionStart, itemCount);
+                        messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                    }
+                });
+
+                messagesListRV.setAdapter(messageFirebaseAdapter);
+
+                messageFirebaseAdapter.startListening();
+
+                swipeRefreshLayout.setRefreshing(false);
+
             }
         });
+
     }
 
-    private void sendMessage() {
+    private void sendMessage(String userName, String userThumbImage) {
 
         String message = chatMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
 
-            String messageID = rootRefDb.child("messages").push().getKey();
-
-            String currentUserRef = "messages/" + currentUserID + "/" + chatUserID;
-            String chatUserRef = "messages/" + chatUserID + "/" + currentUserID;
-            DatabaseReference userMessageDbRef = rootRefDb.child("messages")
-                    .child(currentUserID).child(chatUserID).push();
-            String userMessagePushID = userMessageDbRef.getKey();
+            String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
 
             Map messageMap = new HashMap();
             messageMap.put("message", message);
-            messageMap.put("seen", false);
-            messageMap.put("type", "text");
             messageMap.put("time", ServerValue.TIMESTAMP);
-            messageMap.put("from", currentUserID);
+            messageMap.put("seen", false);
+            messageMap.put("senderUserID", currentUserID);
+            messageMap.put("senderName", userName);
+            messageMap.put("senderThumbImage", userThumbImage);
 
-            rootRefDb.child("messages").child(chatID).child(messageID).setValue(messageMap);
-            rootRefDb.child("chats").child(chatID).child("lastMessage").setValue(message);
-            rootRefDb.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
-            rootRefDb.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-            rootRefDb.child("chats").child(chatID).child("users").child(chatUserID).setValue(true);
-            rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
-            rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
-            rootRefDb.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
-            rootRefDb.child("users").child(chatUserID).child("chats").child(chatID).setValue(true);
+            rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
+            rootDbRef.child("chats").child(chatID).child("lastMessage").setValue(message);
+            rootDbRef.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+            rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(true);
+            //rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
+            //rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
+            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+            rootDbRef.child("users").child(chatUserID).child("chats").child(chatID).setValue(true);
 
             chatMessage.setText("");
-
-            /*Map messageUserMap = new HashMap();
-            messageUserMap.put(currentUserRef + "/" + userMessagePushID, messageMap);
-            messageUserMap.put( chatUserRef + "/" + userMessagePushID, messageMap);
-
-
-
-            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("seen").setValue(true);
-            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
-            rootRefDb.child("Chat").child(currentUserID).child(chatUserID).child("lastMessage").setValue(message);
-
-            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("seen").setValue(false);
-            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("timestamp").setValue(ServerValue.TIMESTAMP);
-            rootRefDb.child("Chat").child(chatUserID).child(currentUserID).child("lastMessage").setValue(message);
-
-            rootRefDb.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    if (databaseError!=null) {
-                        Log.d("CHAT_LOG", databaseError.getMessage().toString());
-                    }
-                }
-            });*/
         }
-    }
-
-    private void loadMoreMessages() {
-
-        DatabaseReference messageRef = rootRefDb.child("messages").child(chatID);
-        messageQuery = messageRef.orderByKey().endAt(lastKey).limitToLast(10);
-        messageQueryChildListener1 = messageQuery.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                Message message = dataSnapshot.getValue(Message.class);
-                String messageKey = dataSnapshot.getKey();
-
-                if(!prevKey.equals(messageKey)) {
-                    messageList.add(itemPos++, message);
-                } else {
-                    prevKey = lastKey;
-                }
-
-                if(itemPos == 1) {
-                    lastKey = messageKey;
-                }
-
-                messageAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-                linearLayoutManager.scrollToPositionWithOffset(9,0);
-
-                childEventListenerMap.put(dataSnapshot.getRef(), messageQueryChildListener1);
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void loadMessages() {
-
-        DatabaseReference messageRef = rootRefDb.child("messages").child(chatID);
-        messageQuery = messageRef.limitToLast(currentPage*TOTAL_ITEMS_TO_LOAD);
-        messageQueryChildListener2 = messageQuery.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                Message message = dataSnapshot.getValue(Message.class);
-
-                itemPos++;
-
-                if(itemPos == 1) {
-                    lastKey = dataSnapshot.getKey();
-                    prevKey = dataSnapshot.getKey();
-                }
-
-                messageList.add(message);
-                messageAdapter.notifyDataSetChanged();
-                messagesListRV.scrollToPosition(messageList.size()-1);
-                swipeRefreshLayout.setRefreshing(false);
-
-                childEventListenerMap.put(dataSnapshot.getRef(), messageQueryChildListener2);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override
@@ -350,12 +281,6 @@ public class ChatActivity extends AppCompatActivity {
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
-
-        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ChildEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
     }
