@@ -23,7 +23,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-public class MainHostActivity extends AppCompatActivity implements OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, HostSessionsFragment.OnCreateSessionClickedListener, OnUserClickedListener{
+public class MainHostActivity extends AppCompatActivity implements
+        OnSessionClickedListener,
+        UserAccountFragment.OnUserAccountFragmentInteractionListener,
+        UserProfileFragment.OnUserProfileFragmentInteractionListener,
+        UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
+        HostSessionsFragment.OnCreateSessionClickedListener,
+        OnUserClickedListener,
+        OnNewMessageListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -336,11 +343,10 @@ public class MainHostActivity extends AppCompatActivity implements OnSessionClic
     protected void onDestroy() {
         super.onDestroy();
 
-        InboxFragment inboxFragment = (InboxFragment) getSupportFragmentManager().findFragmentByTag("hostInboxFragment");
-        inboxFragment.cleanInboxListeners();
+    }
 
-        DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("hostDisplaySessionFragment");
-        displaySessionFragment.cleanListeners();
+    @Override
+    public void OnNewMessage() {
 
     }
 }

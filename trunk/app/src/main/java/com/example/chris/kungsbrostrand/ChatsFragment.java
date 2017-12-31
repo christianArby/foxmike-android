@@ -41,24 +41,15 @@ public class ChatsFragment extends Fragment {
     private RecyclerView mConvList;
 
     private DatabaseReference chatMembersDatabase;
-    private DatabaseReference mMessageDatabase;
     private DatabaseReference mUsersDatabase;
     private DatabaseReference rootDbRef;
-    private DatabaseReference usersChatUserDbRef;
-    private Query lastMessageQuery;
-
-
     private FirebaseAuth mAuth;
 
     private String mCurrent_user_id;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private HashMap<DatabaseReference, String> singleListenerMap = new HashMap<DatabaseReference, String>();
 
-    private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
-    private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
-
     private OnNewMessageListener onNewMessageListener;
-
     private View mMainView;
 
     private ArrayList<String> chatIDs = new ArrayList<String>();
@@ -91,7 +82,6 @@ public class ChatsFragment extends Fragment {
 
         chatMembersDatabase.keepSynced(true);
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mCurrent_user_id);
         mUsersDatabase.keepSynced(true);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -101,11 +91,11 @@ public class ChatsFragment extends Fragment {
         mConvList.setHasFixedSize(true);
         mConvList.setLayoutManager(linearLayoutManager);
 
-        // Lyssnare triggas varje gång någon chat som användaren hör till ändras (eller skapas en ny
+        // Lyssnare triggas varje gång någon chat som användaren hör till ändras (eller då det skapas en ny)
         mUsersDatabase.child(mCurrent_user_id).child("chats").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                //nollställ alla IDs
                 chatIDs.clear();
 
                 // Samla alla ChatIDs som användaren är en del av i chatIDs
@@ -113,19 +103,21 @@ public class ChatsFragment extends Fragment {
                     chatIDs.add(child.getKey());
                 }
 
+                // Loopa alla chatIDs
                 for (String key : chatIDs) {
-                    // Triggas när chat lagts till eller när någon chat ändrats
+
                     if (!listenerMap.containsKey(rootDbRef.child("chats").child(key))) {
 
+                        // Läggs till och triggas när någon chat har lagts till eller när någon chat ändrats
                         ValueEventListener chatsListener = rootDbRef.child("chats").child(key).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Chats chat = dataSnapshot.getValue(Chats.class);
 
-                                // Om det inte är en chat som tagits bort
+                                // Om det inte är en chat som tagits bort //TODO lägg till ta bort chat
                                 if (chat!=null) {
 
-                                    // hitta positionen i chatIDs (kommer alltid att finnas)
+                                    // hitta positionen i chatIDs
                                     int pos = chatIDs.indexOf(dataSnapshot.getKey());
                                     if (chats.containsKey(pos)) {
                                         chats.put(pos,chat);
@@ -141,7 +133,7 @@ public class ChatsFragment extends Fragment {
                                     }
                                 }
 
-
+                                // om size chats är lika med ChatIDs betyder det att alla lyssnare har triggats
                                 if (chats.size() == chatIDs.size()) {
 
                                     for (final String userID : userIDs.values()) {
@@ -238,11 +230,8 @@ public class ChatsFragment extends Fragment {
             @Override
             public void onBindViewHolder(chatsViewHolder holder, int position) {
 
-                // from messageDB
                 holder.setMessage(chats.get(position).getLastMessage(), true);
-
                 String chatFriend = "none";
-
                 for (String chatMember : chats.get(position).getUsers().keySet()) {
                     if (!chatMember.equals(mCurrent_user_id)) {
                         chatFriend = chatMember;
@@ -254,7 +243,6 @@ public class ChatsFragment extends Fragment {
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());
 
                 final String finalChatFriend = chatFriend;
-
                 final String chatFriendName = users.get(position).getName();
                 final String chatFriendImage = users.get(position).getThumb_image();
                 final String chatID = chatIDs.get(position);

@@ -6,19 +6,24 @@ package com.example.chris.kungsbrostrand;
 
 public class Message {
 
-    private String message, type, from;
+    private String message;
     private long time;
     private boolean seen;
+    private String senderUserID;
+    private String senderName;
+    private String senderThumbImage;
 
-    public Message(String message, String type, String from, long time, boolean seen) {
+    public Message(String message, long time, boolean seen, String senderUserID, String senderName, String senderThumbImage) {
         this.message = message;
-        this.type = type;
-        this.from = from;
         this.time = time;
         this.seen = seen;
+        this.senderUserID = senderUserID;
+        this.senderName = senderName;
+        this.senderThumbImage = senderThumbImage;
     }
 
-    public Message() {}
+    public Message() {
+    }
 
     public String getMessage() {
         return message;
@@ -26,22 +31,6 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getFrom() {
-        return from;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
     }
 
     public long getTime() {
@@ -58,5 +47,29 @@ public class Message {
 
     public void setSeen(boolean seen) {
         this.seen = seen;
+    }
+
+    public String getSenderUserID() {
+        return senderUserID;
+    }
+
+    public void setSenderUserID(String senderUserID) {
+        this.senderUserID = senderUserID;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getSenderThumbImage() {
+        return senderThumbImage;
+    }
+
+    public void setSenderThumbImage(String senderThumbImage) {
+        this.senderThumbImage = senderThumbImage;
     }
 }

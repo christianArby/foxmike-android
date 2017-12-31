@@ -45,7 +45,15 @@ import java.util.List;
 import static android.content.ContentValues.TAG;
 import static com.example.chris.kungsbrostrand.R.id.menuNewsFeed;
 
-public class MainPlayerActivity extends AppCompatActivity implements  OnWeekdayChangedListener, OnWeekdayButtonClickedListener, OnSessionClickedListener, UserAccountFragment.OnUserAccountFragmentInteractionListener, UserProfileFragment.OnUserProfileFragmentInteractionListener, UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener, OnUserClickedListener, OnNewMessageListener{
+public class MainPlayerActivity extends AppCompatActivity implements
+        OnWeekdayChangedListener,
+        OnWeekdayButtonClickedListener,
+        OnSessionClickedListener,
+        UserAccountFragment.OnUserAccountFragmentInteractionListener,
+        UserProfileFragment.OnUserProfileFragmentInteractionListener,
+        UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
+        OnUserClickedListener,
+        OnNewMessageListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
