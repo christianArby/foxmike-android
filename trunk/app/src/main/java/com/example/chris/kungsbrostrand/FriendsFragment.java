@@ -29,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,8 +51,15 @@ public class FriendsFragment extends Fragment {
     private ValueEventListener userListener;
     FirebaseRecyclerAdapter<Friends,FriendsViewHolder> firebaseRecyclerAdapter;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
+    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    private DatabaseReference rootDbRef;
+
+    private ArrayList<String> userIDs = new ArrayList<String>();
+    private HashMap<Integer, User> users = new HashMap<Integer, User>();
 
     private OnUserClickedListener onUserClickedListener;
+
+    private RecyclerView.Adapter<FriendsViewHolder> friendsViewHolderAdapter;
 
 
     public FriendsFragment() {
@@ -65,6 +73,8 @@ public class FriendsFragment extends Fragment {
         // Inflate the layout for this fragment
         mainView = inflater.inflate(R.layout.fragment_friends, container, false);
 
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
+
         friendsList = (RecyclerView) mainView.findViewById(R.id.friends_list);
         mAuth = FirebaseAuth.getInstance();
 
@@ -72,114 +82,157 @@ public class FriendsFragment extends Fragment {
 
         currentUserID = mAuth.getCurrentUser().getUid();
 
-        myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
+
         usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
 
         friendsList.setHasFixedSize(true);
         friendsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        return mainView;
-    }
+        myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
+        ValueEventListener friendsListener = myFriendsDbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //nollställ alla IDs
+                userIDs.clear();
 
-    @Override
-    public void onStart() {
-        super.onStart();
+                // Samla alla userIDs som användaren är vän med
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    userIDs.add(child.getKey());
+                }
 
-        Query query = myFriendsDbRef;
+                // Loopa alla userIDs
+                for (String key : userIDs) {
 
-        FirebaseRecyclerOptions<Friends> options =
-                new FirebaseRecyclerOptions.Builder<Friends>()
-                        .setQuery(query, Friends.class)
-                        .build();
+                    usersDatabase.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
+                            User user = dataSnapshot.getValue(User.class);
 
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
+                            // hitta positionen i userIDs
+                            int pos = userIDs.indexOf(dataSnapshot.getKey());
+                            if (users.containsKey(pos)) {
+                                users.put(pos,user);
+                                friendsViewHolderAdapter.notifyItemChanged(pos);
+                            } else {
+                                users.put(pos,user);
+                                if (users.size()==userIDs.size()) {
+                                    friendsViewHolderAdapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            if (!listenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
+                                ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.getValue()!=null) {
+                                            String isOnline = dataSnapshot.getValue().toString();
+
+                                            int pos = userIDs.indexOf(dataSnapshot.getKey());
+
+                                            if (isOnline.equals("true")) {
+                                                users.get(pos).setOnline(true);
+                                                friendsViewHolderAdapter.notifyItemChanged(pos);
+                                            } else {
+                                                users.get(pos).setOnline(false);
+                                                friendsViewHolderAdapter.notifyItemChanged(pos);
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                                listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        listenerMap.put(myFriendsDbRef,friendsListener);
+
+        friendsViewHolderAdapter = new RecyclerView.Adapter<FriendsViewHolder>() {
             @Override
             public FriendsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.users_list_single_layout, parent, false);
                 return new FriendsViewHolder(view);
             }
+
             @Override
-            protected void onBindViewHolder(final FriendsViewHolder holder, int position, Friends model) {
+            public void onBindViewHolder(FriendsViewHolder holder, final int position) {
 
-                holder.setDate(model.getDate());
+                holder.setDate("nothing");
 
-                final String friendUserID = getRef(position).getKey();
+                final User friend = users.get(position);
 
-                userListener = usersDatabase.child(friendUserID).addValueEventListener(new ValueEventListener() {
+                holder.setName(friend.getName());
+                holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
+                holder.setOnlineIcon(friend.isOnline());
+
+                holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onClick(View view) {
 
-                        if (getActivity()!=null) {
+                        CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
 
-                            final User friend = dataSnapshot.getValue(User.class);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-                            holder.setName(friend.getName());
-                            holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                            holder.setOnlineIcon(friend.isOnline());
+                        builder.setTitle("Select option");
+                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                            holder.mView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
+                                if (i == 0) {
+                                    onUserClickedListener.OnUserClicked(userIDs.get(position));
+                                }
 
-                                    CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
+                                if (i == 1) {
 
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-                                    builder.setTitle("Select option");
-                                    builder.setItems(options, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            if (i == 0) {
-                                                onUserClickedListener.OnUserClicked(friendUserID);
-                                            }
-
-                                            if (i == 1) {
-
-                                                Intent chatIntent = new Intent(getContext(),ChatActivity.class);
-                                                chatIntent.putExtra("userID", friendUserID);
-                                                chatIntent.putExtra("userName", friend.getName());
-                                                chatIntent.putExtra("userThumbImage", friend.getThumb_image());
-                                                chatIntent.putExtra("userLastSeen", friend.getLastSeen());
-                                                startActivity(chatIntent);
-
-                                            }
-
-
-                                        }
-                                    });
-
-                                    builder.show();
-
+                                    Intent chatIntent = new Intent(getContext(),ChatActivity.class);
+                                    chatIntent.putExtra("userID", userIDs.get(position));
+                                    chatIntent.putExtra("userName", friend.getName());
+                                    chatIntent.putExtra("userThumbImage", friend.getThumb_image());
+                                    chatIntent.putExtra("userLastSeen", friend.getLastSeen());
+                                    startActivity(chatIntent);
 
                                 }
-                            });
-
-                        }
-
-                        valueEventListenerMap.put(dataSnapshot.getRef(), userListener);
 
 
-                    }
+                            }
+                        });
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                        builder.show();
+
 
                     }
                 });
 
+            }
 
-
-
+            @Override
+            public int getItemCount() {
+                return users.size();
             }
         };
 
-        friendsList.setAdapter(firebaseRecyclerAdapter);
+        friendsList.setAdapter(friendsViewHolderAdapter);
 
-        firebaseRecyclerAdapter.startListening();
-
+        return mainView;
     }
 
     public static class FriendsViewHolder extends RecyclerView.ViewHolder {
@@ -235,8 +288,7 @@ public class FriendsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
-        firebaseRecyclerAdapter.stopListening();
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
@@ -244,7 +296,7 @@ public class FriendsFragment extends Fragment {
     }
 
     public void cleanListeners () {
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
