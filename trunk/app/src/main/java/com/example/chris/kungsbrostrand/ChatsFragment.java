@@ -166,17 +166,15 @@ public class ChatsFragment extends Fragment {
                                                         ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                if (dataSnapshot.getValue()!=null) {
-                                                                    String isOnline = dataSnapshot.getValue().toString();
-                                                                    for (Integer userIdInt : userIDs.keySet()) {
-                                                                        if (userIDs.get(userIdInt) == dataSnapshot.getKey()) {
-                                                                            if (isOnline.equals("true")) {
-                                                                                users.get(userIdInt).setOnline(true);
-                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
-                                                                            } else {
-                                                                                users.get(userIdInt).setOnline(false);
-                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
-                                                                            }
+
+                                                                for (Integer userIdInt : userIDs.keySet()) {
+                                                                    if (userIDs.get(userIdInt) == dataSnapshot.getKey()) {
+                                                                        if (dataSnapshot.child("connections").getChildrenCount()!=0) {
+                                                                            users.get(userIdInt).setOnline(true);
+                                                                            chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                        } else {
+                                                                            users.get(userIdInt).setOnline(false);
+                                                                            chatsViewHolderAdapter.notifyItemChanged(userIdInt);
                                                                         }
                                                                     }
                                                                 }
