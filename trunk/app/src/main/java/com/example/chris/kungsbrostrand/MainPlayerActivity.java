@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.provider.ContactsContract;
+import android.renderscript.Sampler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 import static com.example.chris.kungsbrostrand.R.id.menuNewsFeed;
@@ -76,6 +78,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private DatabaseReference mMessageDatabase;
     private DatabaseReference rootDbRef;
+    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +89,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
         mAuth = FirebaseAuth.getInstance();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         fromUserID = getIntent().getStringExtra("notificationRequest");
 
@@ -263,8 +267,6 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
         bottomNavigation.setCurrentItem(0);
 
-        bottomNavigation.setNotification("1", 3);
-
         if (fromUserID!=null) {
             allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
         } else {
@@ -284,7 +286,34 @@ public class MainPlayerActivity extends AppCompatActivity implements
             }
         }, firstWeekdayHashMap, secondWeekdayHashMap, this);
 
+        ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                if (dataSnapshot.hasChildren()) {
+                    int nrOfUnreadChats = 0;
+                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                        Boolean read = (Boolean) chatID.getValue();
+                        if (!read) {
+                            nrOfUnreadChats++;
+                        }
+
+                        if (nrOfUnreadChats>0) {
+                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),3);
+                        } else {
+                            bottomNavigation.setNotification("",3);
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
 
     }
 
@@ -500,6 +529,12 @@ public class MainPlayerActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
 
         if (getSupportFragmentManager().findFragmentByTag("xMainInboxFragment") !=null) {
             InboxFragment inboxFragment = (InboxFragment) getSupportFragmentManager().findFragmentByTag("xMainInboxFragment");

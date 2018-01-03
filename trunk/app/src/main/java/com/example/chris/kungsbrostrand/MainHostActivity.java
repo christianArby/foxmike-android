@@ -23,6 +23,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
@@ -45,6 +48,8 @@ public class MainHostActivity extends AppCompatActivity implements
     private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
+    private DatabaseReference rootDbRef;
+    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
 
 
     @Override
@@ -54,6 +59,7 @@ public class MainHostActivity extends AppCompatActivity implements
 
         mAuth = FirebaseAuth.getInstance();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
 
@@ -155,6 +161,35 @@ public class MainHostActivity extends AppCompatActivity implements
 
         bottomNavigation.setCurrentItem(0);
         cleanMainActivityAndSwitch(hostAllUsersFragment);
+
+        ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.hasChildren()) {
+                    int nrOfUnreadChats = 0;
+                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                        Boolean read = (Boolean) chatID.getValue();
+                        if (!read) {
+                            nrOfUnreadChats++;
+                        }
+
+                        if (nrOfUnreadChats>0) {
+                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),2);
+                        } else {
+                            bottomNavigation.setNotification("",2);
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
     }
 
     // TODO cleanMainActivity is probably useless once Newsfeed fragment has been created, delete this functionality then
@@ -325,6 +360,12 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
 
     }
 
