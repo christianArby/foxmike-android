@@ -173,6 +173,9 @@ public class ChatActivity extends AppCompatActivity {
                         });
 
                         messageFirebaseAdapter.startListening();
+
+                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                     }
 
                     @Override
@@ -269,7 +272,7 @@ public class ChatActivity extends AppCompatActivity {
             rootDbRef.child("chats").child(chatID).child("lastMessage").setValue(message);
             rootDbRef.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-            rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(true);
+            rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(false);
             //rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
             //rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
             rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);

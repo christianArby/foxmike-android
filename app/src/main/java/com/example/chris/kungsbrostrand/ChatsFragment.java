@@ -228,7 +228,9 @@ public class ChatsFragment extends Fragment {
             @Override
             public void onBindViewHolder(chatsViewHolder holder, int position) {
 
-                holder.setMessage(chats.get(position).getLastMessage(), true);
+                Boolean isSeen = chats.get(position).getUsers().get(mCurrent_user_id);
+
+                holder.setMessage(chats.get(position).getLastMessage(), isSeen);
                 String chatFriend = "none";
                 for (String chatMember : chats.get(position).getUsers().keySet()) {
                     if (!chatMember.equals(mCurrent_user_id)) {
