@@ -193,12 +193,17 @@ public class ChatActivity extends AppCompatActivity {
         usersChatUserIDListener = rootDbRef.child("presence").child(chatUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue().toString().equals("true")) {
+                if (dataSnapshot.child("connections").getChildrenCount()!=0) {
                     lastSeenView.setText("Online");
                 } else {
                     GetTimeAgo getTimeAgo = new GetTimeAgo();
-                    String lastSeenText = getTimeAgo.getTimeAgo(Long.valueOf(dataSnapshot.getValue().toString()), getApplicationContext());
-                    lastSeenView.setText(lastSeenText);
+                    if (dataSnapshot.hasChild("lastOnline")) {
+                        String lastSeenText = getTimeAgo.getTimeAgo(Long.valueOf(dataSnapshot.child("lastOnline").getValue().toString()), getApplicationContext());
+                        lastSeenView.setText(lastSeenText);
+                    } else {
+                        lastSeenView.setText("");
+                    }
+
                 }
             }
 
@@ -291,29 +296,12 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser!=null) {
-            // User is signed in
-            userDbRef.child("online").setValue(true);
-
-        } else {
             //User is signed out
             Intent loginIntent = new Intent(ChatActivity.this,LoginActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);
             finish();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            userDbRef.child("online").setValue(false);
-            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
-
         }
     }
 }

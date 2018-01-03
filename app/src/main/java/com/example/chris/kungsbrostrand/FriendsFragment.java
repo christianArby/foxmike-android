@@ -125,19 +125,17 @@ public class FriendsFragment extends Fragment {
                                 ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.getValue()!=null) {
-                                            String isOnline = dataSnapshot.getValue().toString();
 
-                                            int pos = userIDs.indexOf(dataSnapshot.getKey());
+                                        int pos = userIDs.indexOf(dataSnapshot.getKey());
 
-                                            if (isOnline.equals("true")) {
-                                                users.get(pos).setOnline(true);
-                                                friendsViewHolderAdapter.notifyItemChanged(pos);
-                                            } else {
-                                                users.get(pos).setOnline(false);
-                                                friendsViewHolderAdapter.notifyItemChanged(pos);
-                                            }
+                                        if (dataSnapshot.child("connections").getChildrenCount()!=0) {
+                                            users.get(pos).setOnline(true);
+                                            friendsViewHolderAdapter.notifyItemChanged(pos);
+                                        } else {
+                                            users.get(pos).setOnline(false);
+                                            friendsViewHolderAdapter.notifyItemChanged(pos);
                                         }
+
                                     }
 
                                     @Override

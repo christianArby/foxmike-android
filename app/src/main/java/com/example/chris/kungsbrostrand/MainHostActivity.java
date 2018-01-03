@@ -312,30 +312,13 @@ public class MainHostActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser!=null) {
-            // User is signed in
-            userDbRef.child("online").setValue(true);
-
-        } else {
+        if (currentUser==null) {
             //User is signed out
             Intent loginIntent = new Intent(MainHostActivity.this,LoginActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);
             finish();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            userDbRef.child("online").setValue(false);
-            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
-
         }
     }
 
