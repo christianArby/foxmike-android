@@ -273,7 +273,7 @@ public class ChatActivity extends AppCompatActivity {
             //rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
             //rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
             rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
-            rootDbRef.child("users").child(chatUserID).child("chats").child(chatID).setValue(true);
+            rootDbRef.child("users").child(chatUserID).child("chats").child(chatID).setValue(false);
 
             chatMessage.setText("");
         }
@@ -295,7 +295,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser!=null) {
+        if (currentUser==null) {
             //User is signed out
             Intent loginIntent = new Intent(ChatActivity.this,LoginActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
