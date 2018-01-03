@@ -57,7 +57,7 @@ public class ChatsFragment extends Fragment {
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
     private HashMap<Integer, String> userIDs = new HashMap<Integer, String>();
 
-    private RecyclerView.Adapter<chatsViewHolder> chatsViewHolderAdapter;
+    private RecyclerView.Adapter<UsersViewHolder> chatsViewHolderAdapter;
 
 
     public ChatsFragment() {
@@ -217,20 +217,19 @@ public class ChatsFragment extends Fragment {
         });
 
 
-        chatsViewHolderAdapter = new RecyclerView.Adapter<chatsViewHolder>() {
+        chatsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {
             @Override
-            public chatsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.users_list_single_layout, parent, false);
-                return new chatsViewHolder(view);
+                return new UsersViewHolder(view);
             }
 
             @Override
-            public void onBindViewHolder(chatsViewHolder holder, int position) {
+            public void onBindViewHolder(UsersViewHolder holder, int position) {
 
                 Boolean isSeen = chats.get(position).getUsers().get(mCurrent_user_id);
-
-                holder.setMessage(chats.get(position).getLastMessage(), isSeen);
+                holder.setText(chats.get(position).getLastMessage(), isSeen);
                 String chatFriend = "none";
                 for (String chatMember : chats.get(position).getUsers().keySet()) {
                     if (!chatMember.equals(mCurrent_user_id)) {
@@ -238,8 +237,8 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
-                holder.setUserOnline(users.get(position).isOnline());
-                holder.setName(users.get(position).getName());
+                holder.setOnlineIcon(users.get(position).isOnline());
+                holder.setHeading(users.get(position).getName());
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());
 
                 final String finalChatFriend = chatFriend;
@@ -272,60 +271,6 @@ public class ChatsFragment extends Fragment {
         return mMainView;
     }
 
-    public static class chatsViewHolder extends RecyclerView.ViewHolder {
-
-        View mView;
-
-        public chatsViewHolder(View itemView) {
-            super(itemView);
-
-            mView = itemView;
-
-        }
-
-        public void setMessage(String message, boolean isSeen) {
-
-            TextView userStatusView = (TextView) mView.findViewById(R.id.user_single_status);
-            userStatusView.setText(message);
-
-            if (!isSeen) {
-                userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.BOLD);
-            } else {
-                userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.NORMAL);
-            }
-
-        }
-
-        public void setName(String name) {
-
-            TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
-            userNameView.setText(name);
-
-        }
-
-        public void setUserImage(String thumb_image, Context ctx) {
-
-            CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.user_single_image);
-            Glide.with(ctx).load(thumb_image).into(userImageView);
-
-        }
-
-        public void setUserOnline(Boolean online_status) {
-
-            ImageView userOnlineView = (ImageView) mView.findViewById(R.id.user_single_online_iconIV);
-
-            if (online_status) {
-
-                userOnlineView.setVisibility(View.VISIBLE);
-
-            } else {
-
-                userOnlineView.setVisibility(View.INVISIBLE);
-
-            }
-
-        }
-    }
 
     public void cleanListeners() {
 

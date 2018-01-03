@@ -49,7 +49,6 @@ public class FriendsFragment extends Fragment {
     private String currentUserID;
     private View mainView;
     private ValueEventListener userListener;
-    FirebaseRecyclerAdapter<Friends,FriendsViewHolder> firebaseRecyclerAdapter;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private DatabaseReference rootDbRef;
@@ -59,7 +58,7 @@ public class FriendsFragment extends Fragment {
 
     private OnUserClickedListener onUserClickedListener;
 
-    private RecyclerView.Adapter<FriendsViewHolder> friendsViewHolderAdapter;
+    private RecyclerView.Adapter<UsersViewHolder> friendsViewHolderAdapter;
 
 
     public FriendsFragment() {
@@ -163,22 +162,22 @@ public class FriendsFragment extends Fragment {
         });
         listenerMap.put(myFriendsDbRef,friendsListener);
 
-        friendsViewHolderAdapter = new RecyclerView.Adapter<FriendsViewHolder>() {
+        friendsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {
             @Override
-            public FriendsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.users_list_single_layout, parent, false);
-                return new FriendsViewHolder(view);
+                return new UsersViewHolder(view);
             }
 
             @Override
-            public void onBindViewHolder(FriendsViewHolder holder, final int position) {
+            public void onBindViewHolder(UsersViewHolder holder, final int position) {
 
-                holder.setDate("nothing");
+                holder.setText("nothing", true);
 
                 final User friend = users.get(position);
 
-                holder.setName(friend.getName());
+                holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                 holder.setOnlineIcon(friend.isOnline());
 
@@ -231,44 +230,6 @@ public class FriendsFragment extends Fragment {
         friendsList.setAdapter(friendsViewHolderAdapter);
 
         return mainView;
-    }
-
-    public static class FriendsViewHolder extends RecyclerView.ViewHolder {
-
-        View mView;
-
-        public FriendsViewHolder(View itemView) {
-            super(itemView);
-
-            mView = itemView;
-        }
-
-        public void setName(String name) {
-            TextView userNameTV = (TextView) mView.findViewById(R.id.user_single_name);
-            userNameTV.setText(name);
-        }
-
-        public void setDate(String date) {
-            TextView userStatusTV = (TextView) mView.findViewById(R.id.user_single_status);
-            userStatusTV.setText(date);
-        }
-
-        public void setUserImage(String thumb_image, android.content.Context context) {
-            CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.user_single_image);
-            Glide.with(context).load(thumb_image).into(userProfileImageIV);
-        }
-
-        public void setOnlineIcon(boolean userOnlineStatus) {
-
-            ImageView userOnlineView = (ImageView) mView.findViewById(R.id.user_single_online_iconIV);
-
-            if (userOnlineStatus) {
-                userOnlineView.setVisibility(View.VISIBLE);
-            } else {
-                userOnlineView.setVisibility(View.INVISIBLE);
-            }
-
-        }
     }
 
     @Override
