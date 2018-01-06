@@ -79,7 +79,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private Session session;
 
     private GoogleMap mMap;
-    private MapView mapView;
     private RecyclerView postList;
 
     private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
@@ -159,76 +158,61 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
+                /**
+                 If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
+                 and send the session key to that activity as bundle.
+                 */
 
-                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        Session session = dataSnapshot.getValue(Session.class);
-
-                        /**
-                         If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
-                         and send the session key to that activity as bundle.
-                         */
-
-                        if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                            Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
+                if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                    Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
 
 
-                            Bundle sessionIdBundle = new Bundle();
-                            sessionIdBundle.putString("key",sessionID);
-                            createSessionIntent.putExtras(sessionIdBundle);
-                            createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(createSessionIntent);
-                        }
+                    Bundle sessionIdBundle = new Bundle();
+                    sessionIdBundle.putString("key",sessionID);
+                    createSessionIntent.putExtras(sessionIdBundle);
+                    createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(createSessionIntent);
+                }
 
-                        /**
-                         Else if current user is a participant in the session (button will display cancel booking) and button is clicked
-                         remove the current user from that session participant list and go back to main activity.
-                         */
+                /**
+                 Else if current user is a participant in the session (button will display cancel booking) and button is clicked
+                 remove the current user from that session participant list and go back to main activity.
+                 */
 
-                        else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
-                            mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
-                            mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(dataSnapshot.getKey()).removeValue();
+                else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+                    mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
+                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).removeValue();
+                    countParticipants();
+                    Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
+                    startActivity(mainIntent);
+                }
+
+                else {
+
+                    /**
+                     Else (button will show join session) add the user id to the session participant list and
+                     the user sessions attending list when button is clicked.
+                     After user is added, count participants of the current session.
+                     */
+
+                    final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
+                    sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
+                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
+
+                    sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
                             countParticipants();
-                            Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
-                            startActivity(mainIntent);
                         }
 
-                        else {
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                            /**
-                             Else (button will show join session) add the user id to the session participant list and
-                             the user sessions attending list when button is clicked.
-                             After user is added, count participants of the current session.
-                             */
-
-                            final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
-                            sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
-                            mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
-
-                            sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    countParticipants();
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-                            Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
-                            startActivity(mainIntent);
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                    });
+                    Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
+                    startActivity(mainIntent);
+                }
 
             }
         });
@@ -366,20 +350,23 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
     private void findSessionAndFillInUI(final Double latitude, final Double longitude){
 
+        // Get the session information
         sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 session = dataSnapshot.getValue(Session.class);
 
-                childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
-
                 if(session.getLongitude()==longitude) {
+
+                    childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
+
 
                     String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
                     String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + sessionTime;
                     sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                     mDateAndTime.setText(sessionDateAndTime);
 
+                    // Set the session information in UI
                     mParticipants.setText("Participants: " + session.getCountParticipants() +"/" + session.getMaxParticipants());
                     sessionID = dataSnapshot.getRef().getKey();
                     mSessionName.setText(session.getSessionName());
@@ -415,17 +402,13 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                         public void onClick(View view) {
 
                             ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(session.getParticipants());
-
                             FragmentManager fragmentManager = getChildFragmentManager();
-
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
-
                             if (participantsFragment!=null) {
                                 transaction.remove(participantsFragment);
                             }
 
                             participantsFragment.show(transaction,"participantsFragment");
-
                         }
                     });
 
@@ -444,12 +427,10 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                      If the current user is the session host change the button text to "Edit session"
                      */
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-
                         mDisplaySessionBtn.setText("Edit session");
                     }
 
                     ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
-
                     setImage(session.getImageUri(), sessionImage);
 
                 }
