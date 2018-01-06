@@ -24,5 +24,6 @@
     <color name="secondaryLightColor">#ffffb3</color>
     <color name="secondaryDarkColor">#bfcc50</color>
     <color name="primaryTextColor">#000000</color>
-    <color name="secondaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#928f9b</color>
+    <color name="lightGreyBackgroundColor">#e0e0e0</color>
 </resources>

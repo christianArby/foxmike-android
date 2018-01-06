@@ -2,16 +2,23 @@ package com.example.chris.kungsbrostrand;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,6 +26,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -37,7 +54,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class DisplaySessionFragment extends DialogFragment {
+public class DisplaySessionFragment extends DialogFragment implements OnMapReadyCallback {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -53,13 +70,20 @@ public class DisplaySessionFragment extends DialogFragment {
     private String sessionID;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private Long participantsCount;
-    private ImageView mSessionMapImage;
     private View view;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
     private Double sessionLatitude;
     private Double sessionLongitude;
     private ChildEventListener sessionChildEventListener;
+    private Session session;
+
+    private GoogleMap mMap;
+    private MapView mapView;
+    private RecyclerView postList;
+
+    private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
+    User user;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -113,7 +137,6 @@ public class DisplaySessionFragment extends DialogFragment {
         mSessionName = displaySession.findViewById(R.id.sessionName);
         mDescription = displaySession.findViewById(R.id.descriptionTW);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
-        mSessionMapImage = displaySession.findViewById(R.id.session_map_image);
 
 
         /**
@@ -210,9 +233,107 @@ public class DisplaySessionFragment extends DialogFragment {
             }
         });
 
+        // ---------------- TEMPORARY
+
+        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mUserDbRef.child(currentUser).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+                postsViewHolderAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        // -----------------------------------
+
+        postList = (RecyclerView) view.findViewById(R.id.post_list);
+        postList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        postsViewHolderAdapter = new RecyclerView.Adapter<PostsViewHolder>() {
+            @Override
+            public PostsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.session_post_single_layout, parent, false);
+                return new PostsViewHolder(view);
+            }
+
+            @Override
+            public void onBindViewHolder(PostsViewHolder holder, int position) {
+                if (user!=null) {
+                    if (user.getName()!=null) {
+                        holder.setHeading("Erik öhrn");
+                        holder.setTime("4 juli 2017 kl. 07:36");
+                        holder.setUserImage(user.getThumb_image(), getContext());
+                        holder.setMessage("Amanda och jag får antagligen besök av kompisar sth, men skulle det bli ändrade planer kommer vi!");
+                    }
+
+                }
+            }
+
+            @Override
+            public int getItemCount() {
+                return 2;
+            }
+        };
+
+        postList.setAdapter(postsViewHolderAdapter);
+
+        // Map
+        GoogleMapOptions options = new GoogleMapOptions();
+        options.liteMode(true);
+
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.child_fragment_container, mapFragment).commit();
+
+        mapFragment.getMapAsync(this);
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
+        mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
+    }
+
+    public class PostsViewHolder extends RecyclerView.ViewHolder {
+
+        View mView;
+
+        public PostsViewHolder(View itemView) {
+            super(itemView);
+
+            mView = itemView;
+        }
+
+        public void setHeading(String heading) {
+            TextView headingTV = (TextView) mView.findViewById(R.id.session_post_name);
+            headingTV.setText(heading);
+        }
+
+        public void setTime(String text) {
+            TextView messageView = (TextView) mView.findViewById(R.id.session_post_time);
+            messageView.setText(text);
+        }
+
+        public void setMessage(String text) {
+            TextView messageView = (TextView) mView.findViewById(R.id.session_post_message);
+            messageView.setText(text);
+        }
+
+        public void setUserImage(String thumb_image, android.content.Context context) {
+            CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.session_post_image);
+            Glide.with(context).load(thumb_image).into(userProfileImageIV);
+        }
     }
 
     /**
@@ -248,7 +369,7 @@ public class DisplaySessionFragment extends DialogFragment {
         sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                final Session session = dataSnapshot.getValue(Session.class);
+                session = dataSnapshot.getValue(Session.class);
 
                 childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
 
@@ -289,11 +410,6 @@ public class DisplaySessionFragment extends DialogFragment {
                         }
                     });
 
-                    String sessionLat = Double.toString(session.getLatitude());
-                    String sessionLong = Double.toString(session.getLongitude());
-                    String url = "http://maps.google.com/maps/api/staticmap?center=" + sessionLat + "," + sessionLong + "&zoom=15&size=400x400&sensor=false";
-                    setImage(url,mSessionMapImage);
-
                     mParticipants.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -313,19 +429,6 @@ public class DisplaySessionFragment extends DialogFragment {
                         }
                     });
 
-                    mSessionMapImage.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            String label = session.getSessionName();
-                            String uriBegin = "geo:" + sessionLatitude + "," + sessionLongitude;
-                            String query = sessionLatitude + "," + sessionLongitude + "(" + label + ")";
-                            String encodedQuery = Uri.encode(query);
-                            String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
-                            Uri uri = Uri.parse(uriString);
-                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
-                            startActivity(intent);
-                        }
-                    });
 
                     /**
                      If participants are more than zero, see if the current user is one of the participants and if so

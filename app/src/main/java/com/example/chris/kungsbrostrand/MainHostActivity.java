@@ -175,9 +175,9 @@ public class MainHostActivity extends AppCompatActivity implements
                         }
 
                         if (nrOfUnreadChats>0) {
-                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),2);
+                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),1);
                         } else {
-                            bottomNavigation.setNotification("",2);
+                            bottomNavigation.setNotification("",1);
                         }
 
                     }
