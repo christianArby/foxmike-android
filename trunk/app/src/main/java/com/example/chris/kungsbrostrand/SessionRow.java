@@ -39,7 +39,7 @@ public class SessionRow {
             TextView myDescription = sessionRowView.findViewById(R.id.text2);
             myTitle.setText(sessionArray.get(i).getSessionName());
             myDescription.setText(sessionArray.get(i).getSessionType());
-            setImage(sessionArray.get(i).getImageUri(),images);
+            setImage(sessionArray.get(i).getImageUrl(),images);
             // set item content in view
             listSessions.addView(sessionRowView);
             final int t = i;

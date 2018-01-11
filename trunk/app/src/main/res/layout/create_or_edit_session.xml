@@ -83,20 +83,6 @@
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/levelET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="@string/mlevel"
-        android:inputType="textPersonName"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-    <EditText
         android:id="@+id/maxParticipantsET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -111,19 +97,54 @@
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/descriptionET"
+        android:id="@+id/durationET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="Duration"
+        android:inputType="number"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/whatET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
         android:gravity="center_vertical"
-        android:hint="@string/mDescription"
+        android:hint="What will you do"
         android:inputType="textMultiLine"
         android:textSize="14sp" />
 
+    <EditText
+        android:id="@+id/whoET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="Who can attend"
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
 
-
+    <EditText
+        android:id="@+id/whereET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="Where will you be"
+        android:inputType="textMultiLine"
+        android:textSize="14sp" />
 
     <Button
         android:id="@+id/createSessionBtn"

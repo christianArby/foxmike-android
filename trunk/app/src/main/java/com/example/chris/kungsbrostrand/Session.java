@@ -7,54 +7,35 @@ public class Session {
     private String host;
     private String sessionName;
     private String sessionType;
-    private String mlevel;
     private String maxParticipants;
-    private String mDescription;
     private double latitude;
     private double longitude;
-    public String time;
     private SessionDate sessionDate;
-    private int countParticipants;
     private boolean advertised;
-
-
     private HashMap<String,Boolean> participants;
-    private String imageUri;
+    private String imageUrl;
+    private String what;
+    private String who;
+    private String where;
+    private String duration;
 
-    public Session(String host, String sessionName, String sessionType, String mlevel, String maxParticipants, double latitude, double longitude, String time, SessionDate sessionDate, int countParticipants, HashMap<String, Boolean> participants, String imageUri, String mDescription, boolean advertised) {
+    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, SessionDate sessionDate, boolean advertised, HashMap<String, Boolean> participants, String imageUrl, String what, String who, String where, String duration) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
-        this.mlevel = mlevel;
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.time = time;
         this.sessionDate = sessionDate;
-        this.countParticipants = countParticipants;
+        this.advertised = advertised;
         this.participants = participants;
-        this.imageUri = imageUri;
-        this.mDescription = mDescription;
-        this.advertised = advertised;
+        this.imageUrl = imageUrl;
+        this.what = what;
+        this.who = who;
+        this.where = where;
+        this.duration = duration;
     }
 
-    public String getmDescription() {
-        return mDescription;
-    }
-
-    public void setmDescription(String mDescription) {
-        this.mDescription = mDescription;
-    }
-
-    public boolean isAdvertised() {
-        return advertised;
-    }
-
-    public void setAdvertised(boolean advertised) {
-        this.advertised = advertised;
-    }
-
-    //required empty constructor
     public Session() {
     }
 
@@ -64,6 +45,11 @@ public class Session {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String textTime() {
+        String time = "hej";//String.format("%02d:%02d", this.sessionDate.hour, this.sessionDate.minute);
+        return time;
     }
 
     public String getSessionName() {
@@ -80,14 +66,6 @@ public class Session {
 
     public void setSessionType(String sessionType) {
         this.sessionType = sessionType;
-    }
-
-    public String getMlevel() {
-        return mlevel;
-    }
-
-    public void setMlevel(String mlevel) {
-        this.mlevel = mlevel;
     }
 
     public String getMaxParticipants() {
@@ -114,14 +92,6 @@ public class Session {
         this.longitude = longitude;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
     public SessionDate getSessionDate() {
         return sessionDate;
     }
@@ -130,16 +100,56 @@ public class Session {
         this.sessionDate = sessionDate;
     }
 
-    public int getCountParticipants() {
-        return countParticipants;
+    public boolean isAdvertised() {
+        return advertised;
     }
 
-    public void setCountParticipants(int countParticipants) {
-        this.countParticipants = countParticipants;
+    public void setAdvertised(boolean advertised) {
+        this.advertised = advertised;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getWhat() {
+        return what;
+    }
+
+    public void setWhat(String what) {
+        this.what = what;
+    }
+
+    public String getWho() {
+        return who;
+    }
+
+    public void setWho(String who) {
+        this.who = who;
+    }
+
+    public String getWhere() {
+        return where;
+    }
+
+    public void setWhere(String where) {
+        this.where = where;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
     public HashMap<String, Boolean> getParticipants() {
-        if (participants==null) {
+        if (this.participants==null) {
             participants = new HashMap<String, Boolean>();
         }
         return participants;
@@ -147,13 +157,5 @@ public class Session {
 
     public void setParticipants(HashMap<String, Boolean> participants) {
         this.participants = participants;
-    }
-
-    public String getImageUri() {
-        return imageUri;
-    }
-
-    public void setImageUri(String imageUri) {
-        this.imageUri = imageUri;
     }
 }
