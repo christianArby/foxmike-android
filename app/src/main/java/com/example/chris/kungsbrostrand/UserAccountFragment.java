@@ -186,12 +186,6 @@ public class UserAccountFragment extends Fragment {
 
         DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
-        if (currentUser != null) {
-            userDbRef.child("online").setValue(false);
-            userDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
-
-        }
-
         mAuth.signOut();
     }
 

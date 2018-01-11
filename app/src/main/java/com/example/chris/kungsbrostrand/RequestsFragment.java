@@ -49,6 +49,7 @@ public class RequestsFragment extends Fragment {
     private ArrayList<String> userIDs = new ArrayList<String>();
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
     private HashMap<String, String> requests = new HashMap<String, String>();
+    private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
 
     private RecyclerView.Adapter<UsersViewHolder> requestsViewHolderAdapter;
     private OnUserClickedListener onUserClickedListener;
@@ -111,15 +112,13 @@ public class RequestsFragment extends Fragment {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
 
+                                        Presence presence = dataSnapshot.getValue(Presence.class);
+
                                         int pos = userIDs.indexOf(dataSnapshot.getKey());
 
-                                        if (dataSnapshot.child("connections").getChildrenCount()!=0) {
-                                            users.get(pos).setOnline(true);
-                                            requestsViewHolderAdapter.notifyItemChanged(pos);
-                                        } else {
-                                            users.get(pos).setOnline(false);
-                                            requestsViewHolderAdapter.notifyItemChanged(pos);
-                                        }
+                                        presenceHashMap.put(pos,presence);
+
+                                        requestsViewHolderAdapter.notifyItemChanged(pos);
 
                                     }
 
@@ -165,7 +164,7 @@ public class RequestsFragment extends Fragment {
 
                 holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                holder.setOnlineIcon(friend.isOnline());
+                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override

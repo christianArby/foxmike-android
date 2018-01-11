@@ -18,10 +18,9 @@ class User {
     public String image;
     public String thumb_image;
     public boolean trainerMode;
-    public boolean online;
-    public Long lastSeen;
+    public String aboutMe;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String name, String image, String thumb_image, boolean trainerMode, boolean online, Long lastSeen) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String name, String image, String thumb_image, boolean trainerMode, Long lastSeen, String aboutMe) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
@@ -29,8 +28,7 @@ class User {
         this.image = image;
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
-        this.online = online;
-        this.lastSeen = lastSeen;
+        this.aboutMe = aboutMe;
     }
 
     public User() {
@@ -56,6 +54,14 @@ class User {
 
     public HashMap<String, Boolean> getChats() {
         return chats;
+    }
+
+    public String getAboutMe() {
+        return aboutMe;
+    }
+
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
     }
 
     public void setChats(HashMap<String, Boolean> chats) {
@@ -94,19 +100,4 @@ class User {
         this.trainerMode = trainerMode;
     }
 
-    public boolean isOnline() {
-        return online;
-    }
-
-    public void setOnline(boolean online) {
-        this.online = online;
-    }
-
-    public Long getLastSeen() {
-        return lastSeen;
-    }
-
-    public void setLastSeen(Long lastSeen) {
-        this.lastSeen = lastSeen;
-    }
 }

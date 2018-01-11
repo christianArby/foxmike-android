@@ -56,6 +56,7 @@ public class ChatsFragment extends Fragment {
     private HashMap<Integer, Chats> chats = new HashMap<Integer, Chats>();
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
     private HashMap<Integer, String> userIDs = new HashMap<Integer, String>();
+    private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
 
     private RecyclerView.Adapter<UsersViewHolder> chatsViewHolderAdapter;
 
@@ -166,16 +167,12 @@ public class ChatsFragment extends Fragment {
                                                         ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                Presence presence = dataSnapshot.getValue(Presence.class);
 
                                                                 for (Integer userIdInt : userIDs.keySet()) {
                                                                     if (userIDs.get(userIdInt) == dataSnapshot.getKey()) {
-                                                                        if (dataSnapshot.child("connections").getChildrenCount()!=0) {
-                                                                            users.get(userIdInt).setOnline(true);
-                                                                            chatsViewHolderAdapter.notifyItemChanged(userIdInt);
-                                                                        } else {
-                                                                            users.get(userIdInt).setOnline(false);
-                                                                            chatsViewHolderAdapter.notifyItemChanged(userIdInt);
-                                                                        }
+                                                                        presenceHashMap.put(userIdInt,presence);
+                                                                        chatsViewHolderAdapter.notifyItemChanged(userIdInt);
                                                                     }
                                                                 }
                                                             }
@@ -237,7 +234,7 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
-                holder.setOnlineIcon(users.get(position).isOnline());
+                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
                 holder.setHeading(users.get(position).getName());
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());
 

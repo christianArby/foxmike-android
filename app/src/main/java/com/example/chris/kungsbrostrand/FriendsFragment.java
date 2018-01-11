@@ -55,6 +55,7 @@ public class FriendsFragment extends Fragment {
 
     private ArrayList<String> userIDs = new ArrayList<String>();
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
+    private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
 
     private OnUserClickedListener onUserClickedListener;
 
@@ -127,13 +128,10 @@ public class FriendsFragment extends Fragment {
 
                                         int pos = userIDs.indexOf(dataSnapshot.getKey());
 
-                                        if (dataSnapshot.child("connections").getChildrenCount()!=0) {
-                                            users.get(pos).setOnline(true);
-                                            friendsViewHolderAdapter.notifyItemChanged(pos);
-                                        } else {
-                                            users.get(pos).setOnline(false);
-                                            friendsViewHolderAdapter.notifyItemChanged(pos);
-                                        }
+                                        Presence presence = dataSnapshot.getValue(Presence.class);
+
+                                        presenceHashMap.put(pos,presence);
+                                        friendsViewHolderAdapter.notifyItemChanged(pos);
 
                                     }
 
@@ -179,7 +177,9 @@ public class FriendsFragment extends Fragment {
 
                 holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                holder.setOnlineIcon(friend.isOnline());
+                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
+
+                final String lastSeen = presenceHashMap.get(position).getLastOnline();
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -204,7 +204,7 @@ public class FriendsFragment extends Fragment {
                                     chatIntent.putExtra("userID", userIDs.get(position));
                                     chatIntent.putExtra("userName", friend.getName());
                                     chatIntent.putExtra("userThumbImage", friend.getThumb_image());
-                                    chatIntent.putExtra("userLastSeen", friend.getLastSeen());
+                                    chatIntent.putExtra("userLastSeen", lastSeen);
                                     startActivity(chatIntent);
 
                                 }

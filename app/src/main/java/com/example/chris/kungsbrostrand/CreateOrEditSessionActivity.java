@@ -53,9 +53,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private EditText mSessionType;
     private EditText mDate;
     private EditText mTime;
-    private EditText mLevel;
     private EditText mMaxParticipants;
-    private EditText mDescription;
+    private EditText mDuration;
+    private EditText mWhat;
+    private EditText mWho;
+    private EditText mWhere;
     private CheckedTextView mAdvertised;
     private Button mCreateSessionBtn;
     private final Calendar myCalendar = Calendar.getInstance();
@@ -95,9 +97,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
         mTime = createSession.findViewById(R.id.timeET);
-        mLevel = createSession.findViewById(R.id.levelET);
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
-        mDescription = createSession.findViewById(R.id.descriptionET);
+        mDuration = createSession.findViewById(R.id.durationET);
+        mWhat = createSession.findViewById(R.id.whatET);
+        mWho = createSession.findViewById(R.id.whoET);
+        mWhere = createSession.findViewById(R.id.whereET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
@@ -149,7 +153,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         existingSession = dataSnapshot.getValue(Session.class);
 
                         clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-                        setImage(existingSession.getImageUri(),mSessionImageButton);
+                        setImage(existingSession.getImageUrl(),mSessionImageButton);
                         mSessionName.setText(existingSession.getSessionName());
                         mSessionType.setText(existingSession.getSessionType());
                         // Date
@@ -159,15 +163,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         updateLabel();
                         // Time
                         mTime.setText( existingSession.getSessionDate().hour + ":" + existingSession.getSessionDate().minute);
-                        mLevel.setText(existingSession.getMlevel());
                         mMaxParticipants.setText(existingSession.getMaxParticipants());
-                        mDescription.setText(existingSession.getmDescription());
+                        mDuration.setText(existingSession.getDuration());
+                        mWhat.setText(existingSession.getWhat());
+                        mWho.setText(existingSession.getWho());
+                        mWhere.setText(existingSession.getWhere());
+
                         mCreateSessionBtn.setText(R.string.update_session);
                         mAdvertised.setChecked(existingSession.isAdvertised());
                         if (existingSession.isAdvertised()) {
                             mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+                            mAdvertised.setChecked(true);
                         } else {
                             mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
+                            mAdvertised.setChecked(false);
                         }
                     }
 
@@ -210,11 +219,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 mSessionDate = new SessionDate(myCalendar);
                 session.setSessionName(mSessionName.getText().toString());
                 session.setSessionType(mSessionType.getText().toString());
+                session.setWhat(mWhat.getText().toString());
+                session.setWho(mWho.getText().toString());
+                session.setWhere(mWhere.getText().toString());
                 session.setSessionDate(mSessionDate);
-                session.setMlevel(mLevel.getText().toString());
                 session.setMaxParticipants(mMaxParticipants.getText().toString());
-                session.setmDescription(mDescription.getEditableText().toString());
-                session.setCountParticipants(0);
+                session.setDuration(mDuration.getText().toString());
                 session.setLongitude(clickedLatLng.longitude);
                 session.setLatitude(clickedLatLng.latitude);
                 session.setHost(currentFirebaseUser.getUid());
@@ -295,10 +305,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
         });
 
-        mLevel.setOnClickListener(new View.OnClickListener() {
+        mDuration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createDialog("Choose level", R.array.level_array,mLevel);
+                createDialog("Choose level", R.array.level_array,mDuration);
             }
         });
 
@@ -322,7 +332,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mSessionId = mMarkerDbRef.push().getKey();
         }
 
-        /**If imageUri exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
+        /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/
         if(mImageUri != null){
             StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
@@ -332,7 +342,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     String downloadUri = taskSnapshot.getDownloadUrl().toString();
                     /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
                      * to the main activity*/
-                    session.setImageUri(downloadUri);
+                    session.setImageUrl(downloadUri);
 
                     if (session.getSessionDate() != null){
                         mMarkerDbRef.child(mSessionId).setValue(session);
@@ -353,7 +363,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
              * and send the user back to the main activity*/
             if (sessionExist==1) {
-                session.setImageUri(existingSession.getImageUri());
+                session.setImageUrl(existingSession.getImageUrl());
                 mProgress.dismiss();
 
                 if (session.getSessionDate() != null){
@@ -450,22 +460,5 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void setImage(String image, ImageView imageView) {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser!=null) {
-            currentUserDbRef.child("online").setValue(true);
-        }
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        currentUserDbRef.child("online").setValue(false);
-        currentUserDbRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
     }
 }

@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser!=null) {
@@ -122,14 +123,20 @@ public class MainActivity extends AppCompatActivity {
             myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
                 @Override
                 public void OnUserFound(User user) {
-                    if (user.trainerMode) {
-                        Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
-                        //mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(mainHost);
-                    } else {
-                        Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                    if (user==null) {
+                        Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
                         //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(mainPlayer);
+                        startActivity(setupAccount);
+                    } else {
+                        if (user.trainerMode) {
+                            Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+                            //mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(mainHost);
+                        } else {
+                            Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                            //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(mainPlayer);
+                        }
                     }
                 }
             });

@@ -65,11 +65,9 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
     private TextView mHost;
-    private TextView mDescription;
     private TextView mAddressAndSessionType;
     private String sessionID;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private Long participantsCount;
     private View view;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
@@ -134,7 +132,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
         mSessionName = displaySession.findViewById(R.id.sessionName);
-        mDescription = displaySession.findViewById(R.id.descriptionTW);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
 
 
@@ -182,7 +179,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                 else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                     mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).removeValue();
-                    countParticipants();
                     Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
                     startActivity(mainIntent);
                 }
@@ -192,24 +188,11 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     /**
                      Else (button will show join session) add the user id to the session participant list and
                      the user sessions attending list when button is clicked.
-                     After user is added, count participants of the current session.
                      */
 
                     final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
                     sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
-
-                    sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            countParticipants();
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
                     Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
                     startActivity(mainIntent);
                 }
@@ -285,7 +268,8 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
-        mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.time));
+        mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).
+                snippet(session.textTime()));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
     }
 
@@ -321,30 +305,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     }
 
     /**
-     Count participants of the current session with sessionID found in method findSessionAndFillInUI
-     and set the countParticipants value in the database.
-     */
-
-    private void countParticipants() {
-        mSessionDbRef.child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild("participants")) {
-                    participantsCount = dataSnapshot.child("participants").getChildrenCount();
-                    mSessionDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(participantsCount);
-                }
-                else {
-                    mSessionDbRef.child(dataSnapshot.getKey()).child("countParticipants").setValue(0);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    /**
      Find the session with the argument latitude value in firebase under the child sessions and fill view with session details
      */
 
@@ -356,21 +316,30 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 session = dataSnapshot.getValue(Session.class);
 
+                long countParticipants;
+
+                if (dataSnapshot.hasChild("participants")) {
+                    countParticipants = dataSnapshot.child("participants").getChildrenCount();
+                } else {
+                    countParticipants = 0;
+                }
+
+
                 if(session.getLongitude()==longitude) {
 
                     childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
 
 
-                    String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
-                    String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + sessionTime;
+                    String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + session.textTime();
                     sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                     mDateAndTime.setText(sessionDateAndTime);
 
+
+
                     // Set the session information in UI
-                    mParticipants.setText("Participants: " + session.getCountParticipants() +"/" + session.getMaxParticipants());
+                    mParticipants.setText("Participants: " + countParticipants +"/" + session.getMaxParticipants());
                     sessionID = dataSnapshot.getRef().getKey();
                     mSessionName.setText(session.getSessionName());
-                    mDescription.setText(session.getmDescription());
 
                     String address = getAddress(session.getLatitude(),session.getLongitude());
                     mAddressAndSessionType.setText(address + "  |  " + session.getSessionType());
@@ -431,7 +400,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     }
 
                     ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
-                    setImage(session.getImageUri(), sessionImage);
+                    setImage(session.getImageUrl(), sessionImage);
 
                 }
             }

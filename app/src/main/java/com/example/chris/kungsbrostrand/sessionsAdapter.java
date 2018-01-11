@@ -55,10 +55,9 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
         String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
         holder.setTitle(session.getSessionName());
         holder.setDesc(session.getSessionType());
-        String sessionTime = String.format("%02d:%02d", session.getSessionDate().hour, session.getSessionDate().minute);
-        holder.setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + sessionTime);
+        holder.setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + session.textTime());
         holder.setAddress(address);
-        holder.setImage(this.context,session.getImageUri());
+        holder.setImage(this.context,session.getImageUrl());
 
         /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
 
