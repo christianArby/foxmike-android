@@ -234,6 +234,11 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
+                if (presenceHashMap.get(position) == null) {
+                    Presence noPresence = new Presence();
+                    presenceHashMap.put(position,noPresence);
+                }
+
                 holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
                 holder.setHeading(users.get(position).getName());
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());

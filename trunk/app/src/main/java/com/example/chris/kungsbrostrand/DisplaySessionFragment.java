@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,6 +47,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -58,6 +63,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
     private TextView mDateAndTime;
     private TextView mParticipants;
@@ -69,12 +75,15 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private String sessionID;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
+    private FrameLayout writePostLsyout;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
     private Double sessionLatitude;
     private Double sessionLongitude;
     private ChildEventListener sessionChildEventListener;
     private Session session;
+    ArrayList<Post> postArrayList;
+    private LinearLayoutManager linearLayoutManager;
 
     private GoogleMap mMap;
     private RecyclerView postList;
@@ -120,6 +129,8 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
 
+        postArrayList = new ArrayList<Post>();
+
         childEventListenerMap = new HashMap<>();
 
         LinearLayout displaySessionContainer;
@@ -133,6 +144,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mHost = displaySession.findViewById(R.id.hostName);
         mSessionName = displaySession.findViewById(R.id.sessionName);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
+        writePostLsyout = displaySession.findViewById(R.id.write_post_layout);
 
 
         /**
@@ -200,23 +212,21 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             }
         });
 
-        // ---------------- TEMPORARY
-
-        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        mUserDbRef.child(currentUser).addValueEventListener(new ValueEventListener() {
+        writePostLsyout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(User.class);
-                postsViewHolderAdapter.notifyDataSetChanged();
-            }
+            public void onClick(View view) {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                WritePostFragment writePostFragment = WritePostFragment.newInstance(sessionID);
+                FragmentManager fragmentManager = getChildFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (writePostFragment!=null) {
+                    transaction.remove(writePostFragment);
+                }
+
+                writePostFragment.show(transaction,"writePostFragment");
 
             }
         });
-
-        // -----------------------------------
 
         postList = (RecyclerView) view.findViewById(R.id.post_list);
         postList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -231,23 +241,28 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
             @Override
             public void onBindViewHolder(PostsViewHolder holder, int position) {
-                if (user!=null) {
-                    if (user.getName()!=null) {
-                        holder.setHeading("Erik öhrn");
-                        holder.setTime("4 juli 2017 kl. 07:36");
-                        holder.setUserImage(user.getThumb_image(), getContext());
-                        holder.setMessage("Amanda och jag får antagligen besök av kompisar sth, men skulle det bli ändrade planer kommer vi!");
-                    }
-
+                if (postArrayList.size()>0) {
+                    holder.setHeading(postArrayList.get(position).getSenderName());
+                    String time = GetTimeAgo.getTimeAgo((long) postArrayList.get(position).getTimestamp(), getContext());
+                    holder.setTime(time);
+                    holder.setUserImage(postArrayList.get(position).getSenderThumbImage(), getContext());
+                    holder.setMessage(postArrayList.get(position).getMessage());
                 }
             }
 
             @Override
             public int getItemCount() {
-                return 2;
+                return postArrayList.size();
             }
         };
 
+
+
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+
+        postList.setLayoutManager(linearLayoutManager);
         postList.setAdapter(postsViewHolderAdapter);
 
         // Map
@@ -315,6 +330,82 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 session = dataSnapshot.getValue(Session.class);
+
+                mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        Session session = new Session();
+
+                        postArrayList.clear();
+
+                        session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+
+                        if (dataSnapshot.getChildrenCount()>0) {
+
+                            for (String postID : session.getPosts().keySet()) {
+
+                                rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        Post post = dataSnapshot.getValue(Post.class);
+
+                                        postArrayList.add(post);
+
+                                        Collections.sort(postArrayList);
+
+                                        postsViewHolderAdapter.notifyDataSetChanged();
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                            }
+
+                        }
+
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                /*// Get posts
+                if (session.getPosts().size()>0) {
+                    for (String postID : session.getPosts().keySet()) {
+
+                        rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                Post post = dataSnapshot.getValue(Post.class);
+
+                                postArrayList.add(post);
+
+                                // TODO Sort postarraylist?
+
+                                postsViewHolderAdapter.notifyDataSetChanged();
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                }
+                // posts finished*/
 
                 long countParticipants;
 
