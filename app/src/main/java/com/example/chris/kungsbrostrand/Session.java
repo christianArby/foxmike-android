@@ -13,13 +13,14 @@ public class Session {
     private SessionDate sessionDate;
     private boolean advertised;
     private HashMap<String,Boolean> participants;
+    private HashMap<String,Boolean> posts;
     private String imageUrl;
     private String what;
     private String who;
     private String where;
     private String duration;
 
-    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, SessionDate sessionDate, boolean advertised, HashMap<String, Boolean> participants, String imageUrl, String what, String who, String where, String duration) {
+    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, SessionDate sessionDate, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts,String imageUrl, String what, String who, String where, String duration) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -29,6 +30,7 @@ public class Session {
         this.sessionDate = sessionDate;
         this.advertised = advertised;
         this.participants = participants;
+        this.posts = posts;
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
@@ -157,5 +159,16 @@ public class Session {
 
     public void setParticipants(HashMap<String, Boolean> participants) {
         this.participants = participants;
+    }
+
+    public HashMap<String, Boolean> getPosts() {
+        if (this.posts==null) {
+            posts = new HashMap<String, Boolean>();
+        }
+        return posts;
+    }
+
+    public void setPosts(HashMap<String, Boolean> posts) {
+        this.posts = posts;
     }
 }

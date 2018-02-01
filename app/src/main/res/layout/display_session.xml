@@ -133,6 +133,35 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@color/lightGreyBackgroundColor"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/write_post_layout">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/session_post_current_user_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="13dp"
+            android:layout_marginTop="20dp"
+            android:src="@mipmap/profile_picture" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="Write something"
+            android:textSize="16sp"
+            android:layout_marginStart="60dp"
+            android:layout_gravity="center_vertical"/>
+
+    </FrameLayout>
+
 
 
     <android.support.v7.widget.RecyclerView

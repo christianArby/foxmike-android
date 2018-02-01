@@ -138,6 +138,8 @@ public class FriendsFragment extends Fragment {
                                     @Override
                                     public void onCancelled(DatabaseError databaseError) {
 
+                                        String test = "hej";
+
                                     }
                                 });
                                 listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
@@ -177,8 +179,12 @@ public class FriendsFragment extends Fragment {
 
                 holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
+                if (presenceHashMap.get(position) == null) {
+                    Presence noPresence = new Presence();
+                    presenceHashMap.put(position,noPresence);
+                }
 
+                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
                 final String lastSeen = presenceHashMap.get(position).getLastOnline();
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
