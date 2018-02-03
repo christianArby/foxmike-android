@@ -185,7 +185,7 @@ public class FriendsFragment extends Fragment {
                 }
 
                 holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
-                final String lastSeen = presenceHashMap.get(position).getLastOnline();
+                final long lastSeen = presenceHashMap.get(position).getLastOnline();
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override

@@ -152,7 +152,7 @@ public class ChatActivity extends AppCompatActivity {
                                 new FirebaseRecyclerOptions.Builder<Message>()
                                         .setQuery(messageQuery, Message.class)
                                         .build();
-                        messageFirebaseAdapter = new MessageFirebaseAdapter(options);
+                        messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
 
                         messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                             @Override
@@ -232,7 +232,7 @@ public class ChatActivity extends AppCompatActivity {
                         new FirebaseRecyclerOptions.Builder<Message>()
                                 .setQuery(messageQuery, Message.class)
                                 .build();
-                messageFirebaseAdapter = new MessageFirebaseAdapter(options);
+                messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
 
                 messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                     @Override

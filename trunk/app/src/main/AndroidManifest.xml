@@ -105,6 +105,7 @@
             android:name=".ChatActivity"
             android:parentActivityName=".MainPlayerActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".CommentActivity"></activity>
     </application>
 
 </manifest>

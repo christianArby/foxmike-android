@@ -20,14 +20,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, MessageFirebaseAdapter.MessageViewHolder> {
 
+    boolean slalom;
+
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
      * @param options
      */
-    public MessageFirebaseAdapter(FirebaseRecyclerOptions<Message> options) {
+    public MessageFirebaseAdapter(FirebaseRecyclerOptions<Message> options, boolean slalom) {
         super(options);
+        this.slalom = slalom;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Mes
         holder.messageUser.setText(model.getSenderName());
         Glide.with(holder.profileImage.getContext()).load(model.getSenderThumbImage()).into(holder.profileImage);
 
-        if (fromUser.equals(currentUserID)) {
+        if (fromUser.equals(currentUserID) && slalom) {
 
             holder.singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             holder.messageText.setBackgroundResource(R.drawable.message_text_background_host);

@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 public class Presence {
     private HashMap<String,Boolean> connections;
-    private String lastOnline;
+    private long lastOnline;
 
-    public Presence(HashMap<String, Boolean> connections, String lastOnline) {
+    public Presence(HashMap<String, Boolean> connections, long lastOnline) {
         this.connections = connections;
         this.lastOnline = lastOnline;
     }
@@ -26,11 +26,11 @@ public class Presence {
         this.connections = connections;
     }
 
-    public String getLastOnline() {
+    public long getLastOnline() {
         return lastOnline;
     }
 
-    public void setLastOnline(String lastOnline) {
+    public void setLastOnline(long lastOnline) {
         this.lastOnline = lastOnline;
     }
 
