@@ -76,6 +76,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
     private FrameLayout writePostLsyout;
+    private LinearLayout commentLayout;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
     private Double sessionLatitude;
@@ -84,6 +85,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private Session session;
     ArrayList<Post> postArrayList;
     private LinearLayoutManager linearLayoutManager;
+    private Map<Long, String> postIDs = new HashMap<Long, String>();
 
     private GoogleMap mMap;
     private RecyclerView postList;
@@ -145,6 +147,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mSessionName = displaySession.findViewById(R.id.sessionName);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
         writePostLsyout = displaySession.findViewById(R.id.write_post_layout);
+
 
 
         /**
@@ -228,6 +231,8 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             }
         });
 
+
+
         postList = (RecyclerView) view.findViewById(R.id.post_list);
         postList.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -247,6 +252,8 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     holder.setTime(time);
                     holder.setUserImage(postArrayList.get(position).getSenderThumbImage(), getContext());
                     holder.setMessage(postArrayList.get(position).getMessage());
+                    holder.setCommentClickListener(postIDs.get(postArrayList.get(position).getTimestamp()));
+
                 }
             }
 
@@ -317,6 +324,26 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.session_post_image);
             Glide.with(context).load(thumb_image).into(userProfileImageIV);
         }
+
+        public void setCommentClickListener(final String postID) {
+            LinearLayout commentLayout = mView.findViewById(R.id.comment_layout);
+            commentLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Intent commentIntent = new Intent(getContext(),CommentActivity.class);
+                    commentIntent.putExtra("postID", postID);
+                    startActivity(commentIntent);
+
+                }
+            });
+
+        }
+
+        public void writeNrOfComments(int nr) {
+            TextView commentLayout = mView.findViewById(R.id.post_nr_comments_text);
+            commentLayout.setText(nr+" kommentarer");
+        }
     }
 
     /**
@@ -331,14 +358,14 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 session = dataSnapshot.getValue(Session.class);
 
+                // Listen for posts and add add them to wall
                 mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         Session session = new Session();
-
                         postArrayList.clear();
-
+                        postIDs.clear();
                         session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
 
                         if (dataSnapshot.getChildrenCount()>0) {
@@ -350,13 +377,12 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                                         Post post = dataSnapshot.getValue(Post.class);
-
                                         postArrayList.add(post);
-
+                                        postIDs.put((Long) post.getTimestamp(), dataSnapshot.getKey());
                                         Collections.sort(postArrayList);
-
                                         postsViewHolderAdapter.notifyDataSetChanged();
 
+                                        //TODO fix number of comments listener
                                     }
 
                                     @Override
@@ -364,48 +390,17 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
                                     }
                                 });
-
                             }
-
                         }
-
-
-
                     }
+
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
-
-                /*// Get posts
-                if (session.getPosts().size()>0) {
-                    for (String postID : session.getPosts().keySet()) {
-
-                        rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                Post post = dataSnapshot.getValue(Post.class);
-
-                                postArrayList.add(post);
-
-                                // TODO Sort postarraylist?
-
-                                postsViewHolderAdapter.notifyDataSetChanged();
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    }
-                }
-                // posts finished*/
+                // Posts end
 
                 long countParticipants;
 
@@ -424,8 +419,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + session.textTime();
                     sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                     mDateAndTime.setText(sessionDateAndTime);
-
-
 
                     // Set the session information in UI
                     mParticipants.setText("Participants: " + countParticipants +"/" + session.getMaxParticipants());

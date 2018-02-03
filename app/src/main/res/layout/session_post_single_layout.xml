@@ -2,50 +2,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <View
+
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:background="@color/lightGreyBackgroundColor"/>
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/session_post_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginLeft="13dp"
-        android:layout_marginTop="20dp"
-        android:src="@mipmap/profile_picture" />
-
-    <TextView
-        android:id="@+id/session_post_name"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/session_post_image"
-        android:layout_marginStart="8dp"
-        android:layout_toEndOf="@+id/session_post_image"
-        android:text="@string/loading"
-        android:textColor="@color/primaryTextColor"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:id="@+id/postTopInfo">
 
-    <TextView
-        android:id="@+id/session_post_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/session_post_name"
-        android:layout_below="@+id/session_post_name"
-        android:layout_marginTop="4dp"
-        android:text="@string/loading"
-        android:textColor="@color/secondaryTextColor"
-        android:textSize="14sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@color/lightGreyBackgroundColor"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/session_post_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginStart="13dp"
+            android:layout_marginTop="20dp"
+            android:src="@mipmap/profile_picture" />
+
+        <TextView
+            android:id="@+id/session_post_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/session_post_image"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@+id/session_post_image"
+            android:text="@string/loading"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/session_post_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/session_post_name"
+            android:layout_below="@+id/session_post_name"
+            android:layout_marginTop="4dp"
+            android:text="@string/loading"
+            android:textColor="@color/secondaryTextColor"
+            android:textSize="14sp" />
+
+
+    </RelativeLayout>
+
+
 
     <TextView
         android:id="@+id/session_post_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/session_post_time"
+        android:layout_below="@+id/postTopInfo"
         android:layout_marginEnd="13dp"
         android:layout_marginStart="13dp"
         android:layout_marginTop="8dp"
@@ -54,5 +66,101 @@
         android:text="Amanda och jag får antagligen besök av kompisar sth, men skulle det bli ändrade planer kommer vi!"
         android:textColor="@color/primaryTextColor"
         android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/post_bottom_info_layout"
+        android:layout_alignEnd="@+id/session_post_message"
+        android:layout_below="@id/session_post_message"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="7dp"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/post_nr_comments_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="8dp"
+            android:text="2 Kommentarer"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="14sp" />
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/border"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:layout_below="@+id/post_bottom_info_layout"
+        android:background="@color/lightGreyBackgroundColor" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/border2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/border">
+
+        <ImageView
+            android:id="@+id/session_post_like_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="13dp"
+            app:srcCompat="@mipmap/ic_thumb_up_black_24dp" />
+
+        <TextView
+            android:id="@+id/session_post_like_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:text="Gilla"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/comment_layout"
+            android:gravity="right">
+
+            <ImageView
+                android:id="@+id/session_post_comment_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                app:srcCompat="@mipmap/ic_chat_bubble_black_24dp" />
+
+            <TextView
+                android:id="@+id/session_post_comment_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="40dp"
+                android:layout_marginStart="8dp"
+                android:text="Kommentera"
+                android:textColor="@color/primaryTextColor"
+                android:textSize="14sp" />
+
+
+        </LinearLayout>
+
+
+
+
+
+
+    </LinearLayout>
+
+
+
+
 
 </RelativeLayout>
