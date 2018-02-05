@@ -9,6 +9,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -83,9 +84,12 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private Double sessionLongitude;
     private ChildEventListener sessionChildEventListener;
     private Session session;
-    ArrayList<Post> postArrayList;
+    //ArrayList<Post> postArrayList;
+    ArrayList<PostBranch> postBranchArrayList;
     private LinearLayoutManager linearLayoutManager;
     private Map<Long, String> postIDs = new HashMap<Long, String>();
+    private Map<String, Long> nrOfComments = new HashMap<String, Long>();
+    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
 
     private GoogleMap mMap;
     private RecyclerView postList;
@@ -131,7 +135,8 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
 
-        postArrayList = new ArrayList<Post>();
+        //postArrayList = new ArrayList<Post>();
+        postBranchArrayList = new ArrayList<>();
 
         childEventListenerMap = new HashMap<>();
 
@@ -246,20 +251,20 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
             @Override
             public void onBindViewHolder(PostsViewHolder holder, int position) {
-                if (postArrayList.size()>0) {
-                    holder.setHeading(postArrayList.get(position).getSenderName());
-                    String time = GetTimeAgo.getTimeAgo((long) postArrayList.get(position).getTimestamp(), getContext());
+                if (postBranchArrayList.size()>0) {
+                    holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
+                    String time = GetTimeAgo.getTimeAgo((long) postBranchArrayList.get(position).getPost().getTimestamp(), getContext());
                     holder.setTime(time);
-                    holder.setUserImage(postArrayList.get(position).getSenderThumbImage(), getContext());
-                    holder.setMessage(postArrayList.get(position).getMessage());
-                    holder.setCommentClickListener(postIDs.get(postArrayList.get(position).getTimestamp()));
-
+                    holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
+                    holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
+                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID());
+                    holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
                 }
             }
 
             @Override
             public int getItemCount() {
-                return postArrayList.size();
+                return postBranchArrayList.size();
             }
         };
 
@@ -327,6 +332,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
         public void setCommentClickListener(final String postID) {
             LinearLayout commentLayout = mView.findViewById(R.id.comment_layout);
+            TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -337,12 +343,25 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
                 }
             });
+            NrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent commentIntent = new Intent(getContext(),CommentActivity.class);
+                    commentIntent.putExtra("postID", postID);
+                    startActivity(commentIntent);
+                }
+            });
 
         }
 
-        public void writeNrOfComments(int nr) {
-            TextView commentLayout = mView.findViewById(R.id.post_nr_comments_text);
-            commentLayout.setText(nr+" kommentarer");
+        public void setNrOfComments(Long nr) {
+            TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
+            if (nr==null || nr<1) {
+                NrOfCommentsLayout.setVisibility(View.GONE);
+            } else {
+                NrOfCommentsLayout.setVisibility(View.VISIBLE);
+                NrOfCommentsLayout.setText(nr+" kommentarer");
+            }
         }
     }
 
@@ -359,47 +378,86 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                 session = dataSnapshot.getValue(Session.class);
 
                 // Listen for posts and add add them to wall
-                mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!listenerMap.containsKey(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"))) {
 
-                        Session session = new Session();
-                        postArrayList.clear();
-                        postIDs.clear();
-                        session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+                    ValueEventListener postsListener = mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        if (dataSnapshot.getChildrenCount()>0) {
+                            Session session = new Session();
+                            postBranchArrayList.clear();
+                            //postArrayList.clear();
+                            //postIDs.clear();
+                            session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
 
-                            for (String postID : session.getPosts().keySet()) {
+                            if (dataSnapshot.getChildrenCount()>0) {
 
-                                rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (final String postID : session.getPosts().keySet()) {
 
-                                        Post post = dataSnapshot.getValue(Post.class);
-                                        postArrayList.add(post);
-                                        postIDs.put((Long) post.getTimestamp(), dataSnapshot.getKey());
-                                        Collections.sort(postArrayList);
-                                        postsViewHolderAdapter.notifyDataSetChanged();
+                                    rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                        //TODO fix number of comments listener
-                                    }
+                                            Post post = dataSnapshot.getValue(Post.class);
+                                            PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                                            postBranchArrayList.add(postBranch);
+                                            Collections.sort(postBranchArrayList);
+                                            //postArrayList.add(post);
+                                            //postIDs.put((Long) post.getTimestamp(), dataSnapshot.getKey());
+                                            //Collections.sort(postArrayList);
+                                            postsViewHolderAdapter.notifyDataSetChanged();
 
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
+                                            //TODO fix number of comments listener
+                                            if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
 
-                                    }
-                                });
+                                                ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        nrOfComments.put(dataSnapshot.getKey(),dataSnapshot.getChildrenCount());
+
+                                                        for (int i = 0; i < postBranchArrayList.size(); i++) {
+
+                                                            if (postBranchArrayList.get(i).postID.equals(dataSnapshot.getKey())) {
+                                                                postsViewHolderAdapter.notifyItemChanged(i);
+                                                            }
+                                                        }
+
+                                                        postsViewHolderAdapter.notifyDataSetChanged();
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+                                                listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+
+                                            }
+
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
                             }
                         }
-                    }
 
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
+
+                }
+
                 // Posts end
 
                 long countParticipants;
@@ -568,6 +626,41 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
             DatabaseReference ref = entry.getKey();
             ChildEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
+        }
+    }
+
+    public class PostBranch implements Comparable<PostBranch>{
+
+        String postID;
+        Post post;
+
+        public PostBranch(String postID, Post post) {
+            this.postID = postID;
+            this.post = post;
+        }
+
+        public PostBranch() {
+        }
+
+        public String getPostID() {
+            return postID;
+        }
+
+        public void setPostID(String postID) {
+            this.postID = postID;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        @Override
+        public int compareTo(@NonNull PostBranch postBranch) {
+            return ((int) (long) this.post.getTimestamp() - (int) (long) postBranch.post.getTimestamp());
         }
     }
 }
