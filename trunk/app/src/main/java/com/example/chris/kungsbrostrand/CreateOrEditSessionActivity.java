@@ -326,6 +326,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         /**If session exists get the existing session id */
         if (sessionExist==1) {
             mSessionId = existingSessionID;
+            session.setPosts(existingSession.getPosts());
         }
         /**If session not exists create a new random session key*/
         else {
