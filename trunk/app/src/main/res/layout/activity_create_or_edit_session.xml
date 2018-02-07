@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <FrameLayout
+
+        android:id="@+id/container_maps_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true" />
+
     <ScrollView
         android:id="@+id/scrollview_create_session"
         android:layout_width="match_parent"
