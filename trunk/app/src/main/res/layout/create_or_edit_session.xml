@@ -10,7 +10,7 @@
         android:id="@+id/sessionImageBtn"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="#414141"
+        android:background="@color/secondaryBackgroundColor"
         android:contentDescription="@string/choose_session_image"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
@@ -236,8 +236,8 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
-        android:background="#263238"
+        android:background="@color/secondaryColor"
         android:text="@string/create_session"
-        android:textColor="@android:color/white" />
+        android:textColor="@color/secondaryTextColor" />
 
 </android.support.constraint.ConstraintLayout>

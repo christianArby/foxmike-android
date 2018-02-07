@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="0dp"
-        android:background="@color/white"
+        android:background="@color/secondaryBackgroundColor"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture"
         android:contentDescription="@string/choose_profile_picture"/>
@@ -59,8 +59,8 @@
         android:layout_marginTop="10dp"
         android:layout_below="@+id/passwordField"
         android:layout_centerHorizontal="true"
-        android:background="#263238"
-        android:textColor="@android:color/white"/>
+        android:background="@color/secondaryColor"
+        android:textColor="@color/secondaryTextColor"/>
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"

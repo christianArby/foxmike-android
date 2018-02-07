@@ -34,8 +34,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/join_session"
-        android:background="#ff3366"
-        android:textColor="@android:color/white" />
+        android:background="@color/secondaryColor"
+        android:textColor="@color/secondaryTextColor" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -104,7 +104,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="15dp"
         android:text="@string/loading"
-        android:textColor="#ff3366"
+        android:textColor="@color/secondaryLightColor"
         android:textSize="14sp"
         android:clickable="true"/>
 

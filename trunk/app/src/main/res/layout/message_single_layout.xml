@@ -46,7 +46,6 @@
         android:background="@drawable/message_text_background"
         android:padding="10dp"
         android:text="Message Text"
-        android:textColor="#444444"
         android:textSize="16sp" />
 
 
