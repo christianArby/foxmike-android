@@ -9,7 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -19,7 +19,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -29,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -39,7 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -49,7 +49,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -59,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
@@ -69,7 +69,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/background_light"
+        android:background="@color/secondaryBackgroundColor"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />

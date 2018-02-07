@@ -28,7 +28,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:text="Medium Text"
-            android:textColor="#00514c" />
+            android:textColor="@color/secondaryLightColor" />
 
         <TextView
             android:id="@+id/text2"

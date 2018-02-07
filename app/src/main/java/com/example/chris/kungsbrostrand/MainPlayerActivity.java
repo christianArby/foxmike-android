@@ -182,7 +182,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
         pageIndicatorView.setViewPager(weekdayViewpager);
 
-        int selectedColor = Color.parseColor("#003d00");
+        int selectedColor = Color.parseColor(String.format("#%06X", 0xFFFFFF & R.color.primaryColor));
         int unSelectedColor = Color.parseColor("#E0E0E0");
         pageIndicatorView.setSelectedColor(selectedColor);
         pageIndicatorView.setUnselectedColor(unSelectedColor);
@@ -266,6 +266,8 @@ public class MainPlayerActivity extends AppCompatActivity implements
         });
 
         bottomNavigation.setCurrentItem(0);
+
+        bottomNavigation.setAccentColor(R.color.secondaryLightColor);
 
         if (fromUserID!=null) {
             allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);

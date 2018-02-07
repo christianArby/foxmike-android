@@ -37,6 +37,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="21dp"
         android:text="@string/login"
-        android:background="#263238"
-        android:textColor="@android:color/white"/>
+        android:background="@color/secondaryColor"
+        android:textColor="@color/secondaryTextColor"/>
 </RelativeLayout>

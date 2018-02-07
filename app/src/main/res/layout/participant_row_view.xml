@@ -28,7 +28,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:text="John Doe"
-            android:textColor="#00514c" />
+            android:textColor="@color/secondaryLightColor" />
 
         <TextView
             android:id="@+id/participant_info"

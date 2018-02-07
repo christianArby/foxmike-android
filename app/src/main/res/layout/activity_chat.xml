@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
+    android:background="@color/primaryBackgroundColor"
     tools:context="com.example.chris.kungsbrostrand.ChatActivity">
 
     <include layout="@layout/app_bar_layout"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@android:color/white"
+        android:background="@color/secondaryBackgroundColor"
         android:orientation="horizontal"
         android:weightSum="10">
 
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:alpha="0.5"
-            android:background="@android:color/white"
+            android:background="@color/secondaryBackgroundColor"
             android:padding="10dp"
             app:srcCompat="@mipmap/ic_add_black_24dp" />
 
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:background="@android:color/white"
+            android:background="@color/secondaryBackgroundColor"
             android:inputType="textCapSentences"
             android:ems="10"
             android:hint="Enter Message..."
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:alpha="0.5"
-            android:background="@android:color/white"
+            android:background="@color/secondaryBackgroundColor"
             android:padding="10dp"
             app:srcCompat="@mipmap/ic_send_black_24dp" />
 
