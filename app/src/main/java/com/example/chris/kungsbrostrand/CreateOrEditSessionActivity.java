@@ -4,7 +4,11 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,21 +38,27 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
-public class CreateOrEditSessionActivity extends AppCompatActivity {
+public class CreateOrEditSessionActivity extends AppCompatActivity implements OnSessionClickedListener{
 
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private TextView mLocation;
     private EditText mSessionName;
     private EditText mSessionType;
     private EditText mDate;
@@ -78,6 +88,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private DatabaseReference currentUserDbRef;
     private FirebaseAuth mAuth;
 
+    private MapsFragment mapsFragment;
+    private FragmentManager fragmentManager;
+    private FrameLayout mapsFragmentContainer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +107,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
         createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
 
+        mLocation = createSession.findViewById(R.id.locationTV);
         mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
@@ -107,6 +122,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mAdvertised = createSession.findViewById(R.id.advertised);
+        mapsFragmentContainer = findViewById(R.id.container_maps_fragment);
+
+        mapsFragmentContainer.setVisibility(View.GONE);
 
         mAdvertised.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,6 +150,25 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mUserDbRef.keepSynced(true);
         mMarkerDbRef.keepSynced(true);
 
+        mLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mapsFragmentContainer.setVisibility(View.VISIBLE);
+                fragmentManager = getSupportFragmentManager();
+                final FragmentTransaction transaction = fragmentManager.beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+                bundle.putInt("CHANGELOCATION", 1);
+
+                mapsFragment = MapsFragment.newInstance();
+                mapsFragment.setArguments(bundle);
+                if (null == fragmentManager.findFragmentByTag("mapsFragmentChange")) {
+                    transaction.add(R.id.container_maps_fragment, mapsFragment,"mapsFragmentChange");
+                    transaction.commit();
+                }
+            }
+        });
+
 
         Bundle sessionIdBundle = getIntent().getExtras();
         existingSessionID = "new";
@@ -153,6 +190,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         existingSession = dataSnapshot.getValue(Session.class);
 
                         clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
+                        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+                        mLocation.setText(address);
                         setImage(existingSession.getImageUrl(),mSessionImageButton);
                         mSessionName.setText(existingSession.getSessionName());
                         mSessionType.setText(existingSession.getSessionType());
@@ -192,6 +231,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             else {
 
                 clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
+                String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+                mLocation.setText(address);
                 mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
             }
         }
@@ -318,6 +359,19 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 createDialog("Choose nr of participants", R.array.max_participants_array,mMaxParticipants);
             }
         });
+    }
+
+
+    // If location has been changed through opening MapsFragment catch the clickedLatLng from OnSessionClickedListener
+    @Override
+    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
+        clickedLatLng = new LatLng(sessionLatitude, sessionLongitude);
+        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+        mLocation.setText(address);
+        FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+        transaction2.remove(fragmentManager.findFragmentByTag("mapsFragmentChange"));
+        transaction2.commit();
+        mapsFragmentContainer.setVisibility(View.GONE);
     }
 
     /**Send session object to database */
@@ -462,4 +516,42 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
     }
+
+    private String getAddress(double latitude, double longitude) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String returnAddress;
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+            String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
+
+            if (street != null) {
+
+                if (!street.equals(knownName)) {
+                    returnAddress = street + " " + knownName;
+                } else {
+                    returnAddress = street;
+                }
+            } else {
+                returnAddress = "Unknown area";
+            }
+
+        } catch (IOException ex) {
+
+            returnAddress = "failed";
+        }
+
+        return returnAddress;
+
+    }
+
 }

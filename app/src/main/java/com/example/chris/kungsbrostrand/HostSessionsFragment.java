@@ -3,6 +3,7 @@ package com.example.chris.kungsbrostrand;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,7 @@ public class HostSessionsFragment extends Fragment {
     private LinearLayout list1;
     private OnSessionClickedListener onSessionClickedListener;
     private OnCreateSessionClickedListener onCreateSessionClickedListener;
-    private Button createSessionBtn;
+    private FloatingActionButton createSessionBtn;
 
     public HostSessionsFragment() {
         // Required empty public constructor

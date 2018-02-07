@@ -1,65 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/sessionImageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#414141"
+        android:contentDescription="@string/choose_session_image"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
     <EditText
         android:id="@+id/sessionNameET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
         android:gravity="center_vertical"
         android:hint="@string/session_name"
         android:inputType="textCapSentences|textPersonName"
         android:scrollHorizontally="false"
-        android:textSize="14sp" />
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/sessionImageBtn" />
 
-    <ImageButton
-        android:contentDescription="@string/choose_session_image"
-        android:id="@+id/sessionImageBtn"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="@drawable/background"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
+    <ImageView
+        android:id="@+id/locationIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_edit_location_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sessionNameET" />
 
-    <CheckedTextView
-        android:checkMark="@mipmap/ic_check_box_outline_blank_black_24dp"
-        android:id="@+id/advertised"
-        android:layout_marginLeft="5dp"
+    <TextView
+        android:id="@+id/locationTV"
+        app:layout_constraintTop_toBottomOf="@id/sessionNameET"
+        app:layout_constraintStart_toEndOf="@id/locationIcon"
+        android:layout_marginLeft="8dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading"/>
+
+    <CheckedTextView
+        android:id="@+id/advertised"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Advertised"/>
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:checkMark="@mipmap/ic_check_box_outline_blank_black_24dp"
+        android:text="Advertised"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationTV" />
 
     <EditText
         android:id="@+id/sessionTypeET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="@string/session_type"
         android:inputType="textCapSentences|textPersonName"
         android:longClickable="false"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/advertised" />
+
+    <ImageView
+        android:id="@+id/dateIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/ic_date_range_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sessionTypeET" />
 
 
     <EditText
+        app:layout_constraintStart_toEndOf="@id/dateIcon"
+        app:layout_constraintTop_toBottomOf="@id/sessionTypeET"
         android:id="@+id/dateET"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="@string/date"
@@ -67,14 +106,27 @@
         android:longClickable="false"
         android:textSize="14sp" />
 
+    <ImageView
+        android:id="@+id/timeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/ic_access_time_black_24dp"
+        app:layout_constraintStart_toEndOf="@+id/dateIcon"
+        app:layout_constraintTop_toBottomOf="@id/sessionTypeET" />
+
 
     <EditText
+        app:layout_constraintStart_toEndOf="@id/timeIcon"
+        app:layout_constraintTop_toBottomOf="@id/sessionTypeET"
         android:id="@+id/timeET"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="@string/time"
@@ -82,13 +134,53 @@
         android:longClickable="false"
         android:textSize="14sp" />
 
+    <ImageView
+        android:id="@+id/durationIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/ic_timelapse_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dateIcon" />
+
     <EditText
-        android:id="@+id/maxParticipantsET"
-        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/dateIcon"
+        app:layout_constraintStart_toEndOf="@id/durationIcon"
+        android:id="@+id/durationET"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:hint="Duration"
+        android:inputType="number"
+        android:longClickable="false"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/maxParticipantsIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/ic_people_black_24dp"
+        app:layout_constraintStart_toEndOf="@id/durationIcon"
+        app:layout_constraintTop_toBottomOf="@id/dateIcon" />
+
+    <EditText
+        app:layout_constraintStart_toEndOf="@id/maxParticipantsIcon"
+        app:layout_constraintTop_toBottomOf="@id/dateIcon"
+        android:id="@+id/maxParticipantsET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:gravity="center_vertical"
         android:hint="@string/maximum_participants"
@@ -97,20 +189,7 @@
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/durationET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:hint="Duration"
-        android:inputType="number"
-        android:longClickable="false"
-        android:textSize="14sp" />
-
-    <EditText
+        app:layout_constraintTop_toBottomOf="@id/maxParticipantsET"
         android:id="@+id/whatET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -123,6 +202,7 @@
         android:textSize="14sp" />
 
     <EditText
+        app:layout_constraintTop_toBottomOf="@id/whatET"
         android:id="@+id/whoET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -135,6 +215,7 @@
         android:textSize="14sp" />
 
     <EditText
+        app:layout_constraintTop_toBottomOf="@id/whoET"
         android:id="@+id/whereET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -147,6 +228,7 @@
         android:textSize="14sp" />
 
     <Button
+        app:layout_constraintTop_toBottomOf="@id/whereET"
         android:id="@+id/createSessionBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -158,4 +240,4 @@
         android:text="@string/create_session"
         android:textColor="@android:color/white" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

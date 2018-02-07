@@ -54,6 +54,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private View myView;
     private OnSessionClickedListener onSessionClickedListener;
     private TextView createSessionMapTextTV;
+    private int changeLocation;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -67,6 +68,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            changeLocation = bundle.getInt("CHANGELOCATION", 0);
+        }
 
         setRetainInstance(true);
         moveCamera=true;
@@ -136,8 +142,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override
                         public void onMapClick(LatLng point) {
-                            clickedPosition = point;
-                            addSession();
+                            if (changeLocation==1) {
+                                onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
+                            } else {
+                                clickedPosition = point;
+                                addSession();
+                            }
                         }
                     });
                 } else {
