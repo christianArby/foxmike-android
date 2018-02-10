@@ -54,8 +54,8 @@ public class MainPlayerActivity extends AppCompatActivity implements
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
-        OnUserClickedListener,
-        OnNewMessageListener{
+        OnNewMessageListener,
+        OnUserClickedListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
@@ -267,7 +267,10 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
         bottomNavigation.setCurrentItem(0);
 
-        bottomNavigation.setAccentColor(R.color.secondaryLightColor);
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+
+        // Set background color
+        //bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryColor));
 
         if (fromUserID!=null) {
             allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
@@ -476,9 +479,8 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
     @Override
     public void OnNewMessage() {
-        Toast.makeText(this, "hej",Toast.LENGTH_LONG).show();
-    }
 
+    }
 
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
 

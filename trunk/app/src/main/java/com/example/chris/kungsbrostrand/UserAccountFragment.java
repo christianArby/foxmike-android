@@ -32,7 +32,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * This Fragment creates the user profile view by using the xml files:
  *      - fragment_user_account.xml
  *      - user_profile_info.xml
- *      - session_row_view.xml
+ *      - session_small_single_layout.xml_layout.xml
  * The data (used to generate the views) is retrieved by using an object of the class PlayerSessionsContent in order to generate the fill the views with content in the correct order.
  */
 

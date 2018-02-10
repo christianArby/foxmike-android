@@ -4,7 +4,9 @@ package com.example.chris.kungsbrostrand;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 
@@ -28,6 +31,9 @@ public class HostSessionsFragment extends Fragment {
     private OnSessionClickedListener onSessionClickedListener;
     private OnCreateSessionClickedListener onCreateSessionClickedListener;
     private FloatingActionButton createSessionBtn;
+    private ViewPager hostSessionsPager;
+    private HostSessionsPagerAdapter hostSessionsPagerAdapter;
+    private TabLayout tabLayout;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -53,11 +59,9 @@ public class HostSessionsFragment extends Fragment {
         /* Get the view fragment_user_account */
         final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
 
-        list1 = view.findViewById(R.id.list1);
-        View list1HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
-        TextView list1Heading = list1HeadingView.findViewById(R.id.yourSessionsHeadingTV);
-        list1Heading.setText("Sessions advertised within 2 weeeks");
-        list1.addView(list1HeadingView);
+
+
+
         createSessionBtn = view.findViewById(R.id.add_session_btn);
 
         createSessionBtn.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +87,7 @@ public class HostSessionsFragment extends Fragment {
 
                         ArrayList<Session> sessionsAdvWithin2weeks = new ArrayList<Session>();
                         ArrayList<Session> sessionsAdvNotWithin2weeks = new ArrayList<Session>();
+                        ArrayList<Session> sessionsAdv = new ArrayList<Session>();
                         ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         final Calendar cal = Calendar.getInstance();
@@ -93,46 +98,39 @@ public class HostSessionsFragment extends Fragment {
                         int n1=0;
                         int n2=0;
                         for (Session session: sessions) {
-                            try {
-                                Date sessionDate = sdf.parse(session.getSessionDate().textSDF());
 
-                                if (session.isAdvertised()) {
-                                    if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
-                                        sessionsAdvWithin2weeks.add(n, session);
-                                        n++;
-                                    } else {
-                                        sessionsAdvNotWithin2weeks.add(n1, session);
-                                        n1++;
-                                    }
-                                } else {
-                                    sessionsNotAdv.add(n2, session);
-                                }
-
-                            } catch (ParseException e) {
-                                //handle exception
+                            if (session.isAdvertised()) {
+                                sessionsAdv.add(session);
+                            } else {
+                                sessionsNotAdv.add(session);
                             }
+
+                            /*if (session.isAdvertised()) {
+                                if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
+                                    sessionsAdvWithin2weeks.add(n, session);
+                                    n++;
+                                } else {
+                                    sessionsAdvNotWithin2weeks.add(n1, session);
+                                    n1++;
+                                }
+                            } else {
+                                sessionsNotAdv.add(n2, session);
+                            }*/
+
                         }
 
+                        hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
 
+                        Collections.sort(sessionsAdv);
+                        Collections.sort(sessionsNotAdv);
 
-                        SessionRow sessionRow1 = new SessionRow();
-                        sessionRow1.populateList(sessionsAdvWithin2weeks, getActivity(),list1, onSessionClickedListener);
+                        hostSessionsPagerAdapter = new HostSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv);
 
-                        View list2HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
-                        TextView list2Heading = list2HeadingView.findViewById(R.id.yourSessionsHeadingTV);
-                        list2Heading.setText("Sessions advertised Not within 2 weeeks");
-                        list1.addView(list2HeadingView);
+                        hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
 
-                        SessionRow sessionRow2 = new SessionRow();
-                        sessionRow2.populateList(sessionsAdvNotWithin2weeks, getActivity(),list1, onSessionClickedListener);
+                        tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
 
-                        View list3HeadingView = inflater.inflate(R.layout.your_sessions_heading,list1,false);
-                        TextView list3Heading = list3HeadingView.findViewById(R.id.yourSessionsHeadingTV);
-                        list3Heading.setText("Sessions not advertised");
-                        list1.addView(list3HeadingView);
-
-                        SessionRow sessionRow3 = new SessionRow();
-                        sessionRow3.populateList(sessionsNotAdv, getActivity(),list1, onSessionClickedListener);
+                        tabLayout.setupWithViewPager(hostSessionsPager);
 
                     }
                 },user.sessionsHosting);

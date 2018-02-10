@@ -20,7 +20,7 @@ public class ParticipantsRow {
 
     public ParticipantsRow () {}
 
-    // Method to populate the LinearLayout list with multiple session_row_view's
+    // Method to populate the LinearLayout list with multiple session_small_single_layout's
     public void populateList(final HashMap<String,Boolean> participantsHashmap, Context context, final LinearLayout listParticipants) {
         this.context = context;
         final LayoutInflater inflater = LayoutInflater.from(context);

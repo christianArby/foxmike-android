@@ -1,7 +1,6 @@
 package com.example.chris.kungsbrostrand;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,13 +26,13 @@ public class SessionRow {
 
     }
 
-    // Method to populate the LinearLayout list with multiple session_row_view's
+    // Method to populate the LinearLayout list with multiple session_small_single_layout's
     public void populateList(final ArrayList<Session> sessionArray, Context context, LinearLayout listSessions, OnSessionClickedListener onSessionClickedListener) {
         this.onSessionClickedListener =onSessionClickedListener;
         this.context = context;
         LayoutInflater inflater = LayoutInflater.from(context);
         for (int i=0; i < sessionArray.size(); i++) {
-            View sessionRowView  = inflater.inflate(R.layout.session_row_view, listSessions, false);
+            View sessionRowView  = inflater.inflate(R.layout.session_small_single_layout, listSessions, false);
             ImageView images = sessionRowView.findViewById(R.id.icon);
             TextView myTitle = sessionRowView.findViewById(R.id.text1);
             TextView myDescription = sessionRowView.findViewById(R.id.text2);
@@ -44,7 +43,7 @@ public class SessionRow {
             listSessions.addView(sessionRowView);
             final int t = i;
 
-            // When session_row_view is clicked start the DisplaySessionActivity
+            // When session_small_single_layout is clicked start the DisplaySessionActivity
             sessionRowView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
