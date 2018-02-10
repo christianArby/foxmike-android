@@ -1,9 +1,16 @@
 package com.example.chris.kungsbrostrand;
 
+import android.support.annotation.NonNull;
+
+import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 
-public class Session {
+public class Session implements Comparable<Session> {
     private String host;
     private String sessionName;
     private String sessionType;
@@ -50,7 +57,7 @@ public class Session {
     }
 
     public String textTime() {
-        String time = "hej";//String.format("%02d:%02d", this.sessionDate.hour, this.sessionDate.minute);
+        String time = String.format("%02d:%02d", this.sessionDate.hour, this.sessionDate.minute);
         return time;
     }
 
@@ -170,5 +177,20 @@ public class Session {
 
     public void setPosts(HashMap<String, Boolean> posts) {
         this.posts = posts;
+    }
+
+    @Override
+    public int compareTo(@NonNull Session session) {
+
+        Calendar otherSessioncal = Calendar.getInstance();
+        otherSessioncal.set(session.sessionDate.year, session.sessionDate.month, session.sessionDate.day, session.sessionDate.hour, session.sessionDate.minute);
+        Date dateOfOtherSession = otherSessioncal.getTime();
+
+        Calendar sessionCal = Calendar.getInstance();
+        sessionCal.set(this.sessionDate.year, this.sessionDate.month, this.sessionDate.day, this.sessionDate.hour, this.sessionDate.minute);
+        Date dateOfThisSession = sessionCal.getTime();
+
+        return (dateOfThisSession.compareTo(dateOfOtherSession));
+
     }
 }
