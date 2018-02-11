@@ -164,7 +164,12 @@ public class RequestsFragment extends Fragment {
 
                 holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
+                if (presenceHashMap.get(position)!=null) {
+                    holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
+                } else {
+                    holder.setOnlineIcon(false);
+                }
+
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
