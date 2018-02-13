@@ -1,7 +1,9 @@
 package com.example.chris.kungsbrostrand;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by chris on 2017-06-14.
@@ -55,5 +57,17 @@ public class SessionDate {
         cal.set(this.year, this.month, this.day) ;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime());
+    }
+
+    public Date getDateOfSession () {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date sessionDate = sdf.parse(this.textSDF());
+            return sessionDate;
+        } catch (ParseException e) {
+            //handle exception
+            e.printStackTrace();
+            return null;
+        }
     }
 }
