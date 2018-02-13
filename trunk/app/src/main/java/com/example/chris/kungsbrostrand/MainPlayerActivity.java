@@ -182,11 +182,6 @@ public class MainPlayerActivity extends AppCompatActivity implements
         PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
         pageIndicatorView.setViewPager(weekdayViewpager);
 
-        int selectedColor = Color.parseColor(String.format("#%06X", 0xFFFFFF & R.color.primaryColor));
-        int unSelectedColor = Color.parseColor("#E0E0E0");
-        pageIndicatorView.setSelectedColor(selectedColor);
-        pageIndicatorView.setUnselectedColor(unSelectedColor);
-
         fragmentManager.executePendingTransactions();
 
         mapOrListBtn.setOnClickListener(new View.OnClickListener() {
@@ -270,7 +265,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
 
         // Set background color
-        //bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryColor));
+        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
         if (fromUserID!=null) {
             allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);

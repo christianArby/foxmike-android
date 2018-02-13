@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by chris on 2018-02-07.
@@ -12,13 +13,17 @@ import java.util.ArrayList;
 
 public class HostSessionsPagerAdapter extends FragmentPagerAdapter{
 
-    private ArrayList<Session> AdvSessionsArrayList;
-    private ArrayList<Session> NotAdvSessionsArrayList;
+    private ArrayList<Session> advSessionsArrayList;
+    private ArrayList<Session> notAdvSessionsArrayList;
+    private HashMap<Integer,String> advSessionsSectionHeaders;
+    private HashMap<Integer,String> notAdvSessionsSectionHeaders;
 
-    public HostSessionsPagerAdapter(FragmentManager fm, ArrayList<Session> AdvSessionsArrayList, ArrayList<Session> NotAdvSessionsArrayList) {
+    public HostSessionsPagerAdapter(FragmentManager fm, ArrayList<Session> advSessionsArrayList, HashMap<Integer,String> advSessionsSectionHeaders, ArrayList<Session> notAdvSessionsArrayList, HashMap<Integer,String> notAdvSessionsSectionHeaders) {
         super(fm);
-        this.AdvSessionsArrayList = AdvSessionsArrayList;
-        this.NotAdvSessionsArrayList = NotAdvSessionsArrayList;
+        this.advSessionsArrayList = advSessionsArrayList;
+        this.notAdvSessionsArrayList = notAdvSessionsArrayList;
+        this.advSessionsSectionHeaders = advSessionsSectionHeaders;
+        this.notAdvSessionsSectionHeaders = notAdvSessionsSectionHeaders;
     }
 
     @Override
@@ -26,11 +31,11 @@ public class HostSessionsPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                ListSmallSessionsFragment advListSessions = ListSmallSessionsFragment.newInstance(this.AdvSessionsArrayList);
+                ListSmallSessionsFragment advListSessions = ListSmallSessionsFragment.newInstance(this.advSessionsArrayList, this.advSessionsSectionHeaders);
                 return advListSessions;
 
             case 1:
-                ListSmallSessionsFragment notAdvListSessions = ListSmallSessionsFragment.newInstance(this.NotAdvSessionsArrayList);
+                ListSmallSessionsFragment notAdvListSessions = ListSmallSessionsFragment.newInstance(this.notAdvSessionsArrayList, this.notAdvSessionsSectionHeaders);
                 return notAdvListSessions;
 
             default:

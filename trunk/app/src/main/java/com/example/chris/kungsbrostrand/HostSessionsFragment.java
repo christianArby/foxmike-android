@@ -14,12 +14,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class HostSessionsFragment extends Fragment {
 
@@ -77,21 +80,71 @@ public class HostSessionsFragment extends Fragment {
 
                         ArrayList<Session> sessionsAdv = new ArrayList<Session>();
                         ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
+                        HashMap<Integer,String> sessionsAdvSectionHeaders = new HashMap<>();
+                        HashMap<Integer,String> sessionsNotAdvSectionHeaders = new HashMap<>();
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        final Calendar cal = Calendar.getInstance();
+                        Date todaysDate = cal.getTime();
+                        cal.add(Calendar.DATE,14);
+                        Date twoWeeksDate = cal.getTime();
 
                         for (Session session: sessions) {
-                            if (session.isAdvertised()) {
+                            if (session.isAdvertised() && session.getSessionDate().getDateOfSession().after(todaysDate)) {
                                 sessionsAdv.add(session);
                             } else {
                                 sessionsNotAdv.add(session);
                             }
                         }
 
-                        hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
-
                         Collections.sort(sessionsAdv);
                         Collections.sort(sessionsNotAdv);
 
-                        hostSessionsPagerAdapter = new HostSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv);
+                        int n = 0;
+                        Boolean keepLooking = true;
+                        List<Integer> rows = new ArrayList<Integer>();
+
+                        for (Session session: sessionsAdv) {
+
+                            if (session.getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
+                                rows.add(n);
+                                sessionsAdvSectionHeaders.put(n, "Kommande annonseringar");
+                                keepLooking=false;
+                            }
+                            n++;
+                        }
+
+                        for (Integer row: rows) {
+                            Session dummySession = new Session();
+                            sessionsAdv.add(row, dummySession);
+                        }
+
+
+
+                        /*int n2 = 0;
+                        Boolean keepLooking2 = true;
+                        List<Integer> rows2 = new ArrayList<Integer>();
+                        for (Session session: sessionsNotAdv) {
+
+                            if (session.getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking2) {
+                                rows2.add(n2);
+                                sessionsNotAdvSectionHeaders.put(n2, "Kommande annonseringar");
+                                keepLooking2=false;
+                            }
+                            n2++;
+
+                        }
+
+                        for (Integer row: rows2) {
+                            Session dummySession = new Session();
+                            sessionsNotAdv.add(row, dummySession);
+                        }*/
+
+
+
+                        hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
+
+                        hostSessionsPagerAdapter = new HostSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsAdvSectionHeaders, sessionsNotAdv, sessionsNotAdvSectionHeaders);
 
                         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
 
