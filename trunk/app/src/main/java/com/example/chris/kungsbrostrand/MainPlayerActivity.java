@@ -55,6 +55,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         OnNewMessageListener,
+        ListSessionsFragment.OnRefreshSessionsListener,
         OnUserClickedListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -79,6 +80,8 @@ public class MainPlayerActivity extends AppCompatActivity implements
     private DatabaseReference mMessageDatabase;
     private DatabaseReference rootDbRef;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    private ArrayList<Session> sessionListArrayList = new ArrayList<>();
+    private Location locationClosetoSessions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -275,7 +278,28 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
         myFirebaseDatabase= new MyFirebaseDatabase();
 
-        myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+        myFirebaseDatabase.getNearSessions(this, new OnNearSessionsFoundListener() {
+            @Override
+            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
+
+                sessionListArrayList.clear();
+                sessionListArrayList = nearSessions;
+                locationClosetoSessions = location;
+
+                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
+                    @Override
+                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
+                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                        mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+
+                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                        listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                    }
+                });
+            }
+        });
+
+        /*myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
@@ -284,7 +308,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.generateSessionListView(sessions,location);
             }
-        }, firstWeekdayHashMap, secondWeekdayHashMap, this);
+        }, firstWeekdayHashMap, secondWeekdayHashMap, this);*/
 
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
             @Override
@@ -387,17 +411,16 @@ public class MainPlayerActivity extends AppCompatActivity implements
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessions(new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
             @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions, Location location) {
+            public void OnSessionsFiltered(ArrayList<Session> sessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions,location);
+                mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.generateSessionListView(sessions,location);
+                listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
             }
-        }, firstWeekdayHashMap, secondWeekdayHashMap, this);
-
+        });
     }
 
     @Override
@@ -474,6 +497,35 @@ public class MainPlayerActivity extends AppCompatActivity implements
 
     @Override
     public void OnNewMessage() {
+
+    }
+
+    @Override
+    public void OnRefreshSessions() {
+
+        myFirebaseDatabase= new MyFirebaseDatabase();
+
+        myFirebaseDatabase.getNearSessions(this, new OnNearSessionsFoundListener() {
+            @Override
+            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
+
+                sessionListArrayList.clear();
+                sessionListArrayList = nearSessions;
+                locationClosetoSessions = location;
+
+                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
+                    @Override
+                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
+                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                        mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+
+                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                        listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                        listSessionsFragment.stopSwipeRefreshingSymbol();
+                    }
+                });
+            }
+        });
 
     }
 

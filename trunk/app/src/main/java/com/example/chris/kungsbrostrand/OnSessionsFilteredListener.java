@@ -10,5 +10,5 @@ import java.util.ArrayList;
 
 public interface OnSessionsFilteredListener {
 
-    void OnSessionsFiltered(ArrayList<Session> sessions, Location location);
+    void OnSessionsFiltered(ArrayList<Session> sessions);
 }
