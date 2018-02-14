@@ -36,10 +36,11 @@ public class MyFirebaseDatabase extends Service{
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+    private TreeMap<Integer,String> nearSessionsIDs = new TreeMap<Integer,String>();
 
     private Location currentLocation;
     private GeoFire geoFire;
-    private TreeMap<Integer,String> nearSessions;
+
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
 
@@ -143,15 +144,37 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-    public void filterSessions(final OnSessionsFilteredListener onSessionsFilteredListener,final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, Activity activity) {
+    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, final OnSessionsFilteredListener onSessionsFilteredListener) {
+
+        ArrayList<Session> sessions = new ArrayList<>();
+
+        for (Session session: nearSessions) {
+            if (firstWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
+                if (firstWeekdayHashMap.get(session.getSessionDate().textSDF())) {
+                    sessions.add(session);
+                }
+            }
+
+            if (secondWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
+                if (secondWeekdayHashMap.get(session.getSessionDate().textSDF())) {
+                    sessions.add(session);
+                }
+            }
+        }
+
+        onSessionsFilteredListener.OnSessionsFiltered(sessions);
+
+    }
+
+
+
+    public void getNearSessions(Activity activity, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+
+
 
         FusedLocationProviderClient mFusedLocationClient;
-
         geoFire = new GeoFire(mGeofireDbRef);
-        nearSessions = new TreeMap<Integer,String>();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-
-
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -160,19 +183,15 @@ public class MyFirebaseDatabase extends Service{
                         if (location != null) {
 
                             currentLocation = location;
-                            // ...
-
                             GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), 3000);
-
                             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                                 @Override
                                 public void onKeyEntered(String key, GeoLocation location) {
                                     //Any location key which is within 3000km from the user's location will show up here as the key parameter in this method
                                     //You can fetch the actual data for this location by creating another firebase query here
-
                                     String distString = getDistance(location.latitude,location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
-                                    nearSessions.put(dist,key);
+                                    nearSessionsIDs.put(dist,key);
                                 }
 
                                 @Override
@@ -185,43 +204,21 @@ public class MyFirebaseDatabase extends Service{
                                 public void onGeoQueryReady() {
 
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
+                                    for (final Integer str : nearSessionsIDs.keySet()) {
 
-                                    for (final Integer str : nearSessions.keySet()) {
-
-                                        dbRef.child("sessions").child(nearSessions.get(str)).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        dbRef.child("sessions").child(nearSessionsIDs.get(str)).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Session session;
                                                 session = dataSnapshot.getValue(Session.class);
-
                                                 if (session.isAdvertised()) {
-                                                    if (firstWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
-                                                        if (firstWeekdayHashMap.get(session.getSessionDate().textSDF())) {
-                                                            sessions.add(session);
-                                                        } else {
-                                                            nearSessions.remove(str);
-                                                        }
-                                                    }
-
-                                                    if (secondWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
-
-                                                        if (secondWeekdayHashMap.get(session.getSessionDate().textSDF())) {
-                                                            sessions.add(session);
-                                                        } else {
-                                                            nearSessions.remove(str);
-                                                        }
-                                                    }
-
-                                                    if (!firstWeekdayHashMap.containsKey(session.getSessionDate().textSDF()) && !secondWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
-                                                        nearSessions.remove(str);
-                                                    }
-
+                                                    sessions.add(session);
                                                 } else {
-                                                    nearSessions.remove(str);
+                                                    nearSessionsIDs.remove(str);
                                                 }
 
-                                                if (sessions.size() == nearSessions.size()) {///////TODO //KOLLA DETTA
-                                                    onSessionsFilteredListener.OnSessionsFiltered(sessions,location);
+                                                if (sessions.size() == nearSessionsIDs.size()) {///////TODO //KOLLA DETTA
+                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions,location);
                                                 }
                                             }
                                             @Override

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +20,8 @@ public class ListSessionsFragment extends Fragment {
     private RecyclerView.Adapter sessionsAdapter;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
+    private OnRefreshSessionsListener onRefreshSessionsListener;
+    private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -44,8 +47,19 @@ public class ListSessionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = view.findViewById(R.id.session_list);
+        listSessionsSwipeRefreshLayout = view.findViewById(R.id.session_list_swipe_layout);
         mSessionList.setHasFixedSize(true);
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        listSessionsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onRefreshSessionsListener.OnRefreshSessions();
+            }
+        });
+
+
         return view;
     }
 
@@ -64,6 +78,10 @@ public class ListSessionsFragment extends Fragment {
         }
     }
 
+    public void stopSwipeRefreshingSymbol() {
+        listSessionsSwipeRefreshLayout.setRefreshing(false);
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -73,11 +91,22 @@ public class ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
+        if (context instanceof OnRefreshSessionsListener) {
+            onRefreshSessionsListener = (OnRefreshSessionsListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnRefreshSessionsListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
+        onRefreshSessionsListener = null;
+    }
+
+    public interface OnRefreshSessionsListener {
+        void OnRefreshSessions();
     }
 }

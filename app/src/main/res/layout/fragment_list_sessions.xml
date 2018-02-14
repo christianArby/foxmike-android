@@ -3,12 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:background="@color/primaryBackgroundColor"
-        android:id="@+id/session_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/session_list_swipe_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:background="@color/primaryBackgroundColor"
+            android:id="@+id/session_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            />
+
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
 
 </FrameLayout>
