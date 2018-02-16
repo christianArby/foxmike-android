@@ -79,6 +79,7 @@ public class ListSessionsFragment extends Fragment {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
+        spinner.setPrompt("Title");
 
         return view;
     }

@@ -161,15 +161,9 @@ public class HostSessionsFragment extends Fragment {
         return view;
     }
 
-    /*@Override
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnSessionClickedListener) {
-            onSessionClickedListener = (OnSessionClickedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSessionClickedListener");
-        }
 
         if (context instanceof OnCreateSessionClickedListener) {
             onCreateSessionClickedListener = (OnCreateSessionClickedListener) context;
@@ -182,9 +176,8 @@ public class HostSessionsFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        onSessionClickedListener = null;
         onCreateSessionClickedListener = null;
-    }*/
+    }
 
     public interface OnCreateSessionClickedListener {
         void OnCreateSessionClicked();

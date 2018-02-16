@@ -15,10 +15,10 @@
 
             <Spinner
                 android:id="@+id/sortOnSpinner"
+                style="@style/SpinnerTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/primaryColor">
-            </Spinner>
+                android:paddingEnd="40dp"></Spinner>
 
 
         </android.support.v7.widget.Toolbar>
