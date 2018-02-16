@@ -11,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 
@@ -22,6 +24,7 @@ public class ListSessionsFragment extends Fragment {
     private OnSessionClickedListener onSessionClickedListener;
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
+    private OnListSessionsScrollListener onListSessionsScrollListener;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -51,6 +54,14 @@ public class ListSessionsFragment extends Fragment {
         mSessionList.setHasFixedSize(true);
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                onListSessionsScrollListener.OnListSessionsScroll(dy);
+            }
+        });
+
 
         listSessionsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -58,6 +69,15 @@ public class ListSessionsFragment extends Fragment {
                 onRefreshSessionsListener.OnRefreshSessions();
             }
         });
+
+        Spinner spinner = (Spinner) view.findViewById(R.id.sortOnSpinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.sort_list_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
 
 
         return view;
@@ -97,6 +117,12 @@ public class ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnRefreshSessionsListener");
         }
+        if (context instanceof OnListSessionsScrollListener) {
+            onListSessionsScrollListener = (OnListSessionsScrollListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListSessionsScrollListener");
+        }
     }
 
     @Override
@@ -108,5 +134,9 @@ public class ListSessionsFragment extends Fragment {
 
     public interface OnRefreshSessionsListener {
         void OnRefreshSessions();
+    }
+
+    public interface OnListSessionsScrollListener {
+        void OnListSessionsScroll(int dy);
     }
 }
