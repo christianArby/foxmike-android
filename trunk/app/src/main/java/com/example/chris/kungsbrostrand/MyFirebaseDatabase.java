@@ -43,8 +43,6 @@ public class MyFirebaseDatabase extends Service{
 
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
-
-
     public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String,Boolean> sessionsHashMap) {
 
         final ArrayList<Session> sessions = new ArrayList<Session>();
@@ -66,35 +64,6 @@ public class MyFirebaseDatabase extends Service{
             });
         }
     }
-
-    /*
-    public void getCurrentUser(final OnUserFoundListener onUserFoundListener){
-        dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final User user = new User();
-                User userDb = dataSnapshot.getValue(User.class);
-                if (userDb!=null) {
-                    if (userDb.sessionsHosting != null) {
-                        user.setSessionsHosting(userDb.sessionsHosting); //FIXA DETTA ´, FULT
-                    }
-                    if (userDb.sessionsAttending != null) {
-                        user.setSessionsAttending(userDb.sessionsAttending); //FIXA DETTA ´, FULT
-                    }
-
-                    user.setUserName(userDb.name);
-                    user.setUserImageURL(userDb.image);
-                    user.setTrainerMode(userDb.isTrainerMode());
-                }
-                onUserFoundListener.OnUserFound(user);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //final User user = new User();
-                //onUserFoundListener.OnUserFound(user);
-            }
-        });
-    } */
 
     public void getCurrentUser(final OnUserFoundListener onUserFoundListener){
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -161,12 +130,8 @@ public class MyFirebaseDatabase extends Service{
                 }
             }
         }
-
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
-
     }
-
-
 
     public void getNearSessions(Activity activity, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
 

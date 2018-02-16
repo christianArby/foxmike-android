@@ -8,6 +8,7 @@ import android.provider.ContactsContract;
 import android.renderscript.Sampler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,9 +17,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -56,7 +59,8 @@ public class MainPlayerActivity extends AppCompatActivity implements
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         OnNewMessageListener,
         ListSessionsFragment.OnRefreshSessionsListener,
-        OnUserClickedListener{
+        OnUserClickedListener,
+        ListSessionsFragment.OnListSessionsScrollListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
@@ -72,7 +76,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
     public HashMap<String,Boolean> firstWeekdayHashMap;
     public HashMap<String,Boolean> secondWeekdayHashMap;
     private AHBottomNavigation bottomNavigation;
-    private Button mapOrListBtn;
+    private FloatingActionButton mapOrListBtn;
     private RelativeLayout weekdayFilterContainer;
     private String fromUserID;
     private DatabaseReference userDbRef;
@@ -195,13 +199,13 @@ public class MainPlayerActivity extends AppCompatActivity implements
                     transaction1.hide(mapsFragment);
                     transaction1.show(listSessionsFragment);
                     transaction1.commit();
-                    mapOrListBtn.setText("Map");
+                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                 } else if (listSessionsFragment.isVisible()) {
                     FragmentTransaction transaction2 = fragmentManager.beginTransaction();
                     transaction2.hide(listSessionsFragment);
                     transaction2.show(mapsFragment);
                     transaction2.commit();
-                    mapOrListBtn.setText("List");
+                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
 
                     // Ska detta finnas?
                 } else {
@@ -211,7 +215,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                     transaction3.show(listSessionsFragment);
                     transaction3.commit();
                     mapOrListBtn.setVisibility(View.VISIBLE);
-                    mapOrListBtn.setText("Map");
+                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                 }
             }
 
@@ -237,7 +241,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                             cleanMainActivityAndSwitch(listSessionsFragment);
                             weekdayFilterContainer.setVisibility(View.VISIBLE);
                             mapOrListBtn.setVisibility(View.VISIBLE);
-                            mapOrListBtn.setText("Map");
+                            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                             return true;
                         }
 
@@ -266,6 +270,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         bottomNavigation.setCurrentItem(0);
 
         bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+        bottomNavigation.setBehaviorTranslationEnabled(false);
 
         // Set background color
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
@@ -527,6 +532,14 @@ public class MainPlayerActivity extends AppCompatActivity implements
             }
         });
 
+    }
+
+    @Override
+    public void OnListSessionsScroll(int dy) {
+        if (dy > 0)
+            mapOrListBtn.hide();
+        else if (dy < 0)
+            mapOrListBtn.show();
     }
 
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {

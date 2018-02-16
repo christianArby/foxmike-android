@@ -48,7 +48,7 @@
         android:layout_above="@+id/bottom_navigation_player"
         android:layout_alignParentStart="true" />
 
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/map_or_list_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
