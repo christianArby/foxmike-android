@@ -23,7 +23,7 @@ import java.util.Locale;
  * This adapter retrieves the data ArrayList<Session>, context and currentLocation as input, given in the constructor, and generates the view in layout.fragment_list_sessions
  */
 
-public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.SessionViewHolder>{
+public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private final ArrayList<Session> sessions;
     private final Context context;
@@ -40,41 +40,78 @@ public class sessionsAdapter extends RecyclerView.Adapter<sessionsAdapter.Sessio
     /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
 
     @Override
-    public sessionsAdapter.SessionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
-        return  new sessionsAdapter.SessionViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        if (viewType==1) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_list_date_header,parent,false);
+            return  new sessionsAdapter.SessionListHeaderViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
+            return  new sessionsAdapter.SessionViewHolder(v);
+        }
     }
 
     @Override
-    public void onBindViewHolder(sessionsAdapter.SessionViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         /**Get the current session inflated in the sessionViewHolder from the session arraylist" */
         final Session session = sessions.get(position);
 
-        /**Fill the cardview with information of the session" */
-        final LatLng sessionLatLng = new LatLng(session.getLatitude(),session.getLongitude());
-        String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
-        holder.setTitle(session.getSessionName());
-        holder.setDesc(session.getSessionType());
-        holder.setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + session.textTime());
-        holder.setAddress(address);
-        holder.setImage(this.context,session.getImageUrl());
+        if (session.getImageUrl().equals("dateHeader")) {
+            ((SessionListHeaderViewHolder) holder).setHeader(session.getSessionDate().textSDF());
+        } else {
 
-        /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
+            /**Fill the cardview with information of the session" */
+            final LatLng sessionLatLng = new LatLng(session.getLatitude(),session.getLongitude());
+            String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
+            ((SessionViewHolder) holder).setTitle(session.getSessionName());
+            ((SessionViewHolder) holder).setDesc(session.getSessionType());
+            ((SessionViewHolder) holder).setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth() + " " + session.textTime());
+            ((SessionViewHolder) holder).setAddress(address);
+            ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSessionClickedListener.OnSessionClicked(session.getLatitude(),session.getLongitude());
-                //displaySession(sessionLatLng);
-            }
-        });
+            /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
 
+            ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onSessionClickedListener.OnSessionClicked(session.getLatitude(),session.getLongitude());
+                    //displaySession(sessionLatLng);
+                }
+            });
+
+        }
+
+
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (sessions.get(position).getImageUrl().equals("dateHeader")) {
+            return 1;
+        }
+        return 0;
     }
 
     /**Change getItemCount to return the number of items this sessionsAdapter should adapt*/
     @Override
     public int getItemCount() {
         return sessions.size();
+    }
+
+    public class SessionListHeaderViewHolder extends RecyclerView.ViewHolder {
+
+        View mView;
+
+        public SessionListHeaderViewHolder(View itemView) {
+            super(itemView);
+            mView = itemView;
+        }
+
+        public void setHeader(String header) {
+            TextView headerTV = mView.findViewById(R.id.listSessionsDateHeader);
+            headerTV.setText(header);
+        }
     }
 
     /**Innerclass which extends RecyclerView.ViewHolder. An object of this class is created in the above OnBindViewholder where all the items are set to the session information" */

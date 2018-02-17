@@ -24,7 +24,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -113,23 +115,45 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, int sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
         ArrayList<Session> sessions = new ArrayList<>();
 
-        for (Session session: nearSessions) {
-            if (firstWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
-                if (firstWeekdayHashMap.get(session.getSessionDate().textSDF())) {
-                    sessions.add(session);
+        for (Session nearSession: nearSessions) {
+            if (firstWeekdayHashMap.containsKey(nearSession.getSessionDate().textSDF())) {
+                if (firstWeekdayHashMap.get(nearSession.getSessionDate().textSDF())) {
+                    sessions.add(nearSession);
                 }
             }
 
-            if (secondWeekdayHashMap.containsKey(session.getSessionDate().textSDF())) {
-                if (secondWeekdayHashMap.get(session.getSessionDate().textSDF())) {
-                    sessions.add(session);
+            if (secondWeekdayHashMap.containsKey(nearSession.getSessionDate().textSDF())) {
+                if (secondWeekdayHashMap.get(nearSession.getSessionDate().textSDF())) {
+                    sessions.add(nearSession);
                 }
             }
         }
+
+        if (sortType==0) {
+            Collections.sort(sessions);
+            SessionDate prevSessionDate = new SessionDate();
+            HashMap<Integer,Session> headerSessions = new HashMap<>();
+
+            int i = 0;
+            while (i< sessions.size()) {
+                if (!prevSessionDate.textSDF().equals(sessions.get(i).getSessionDate().textSDF())) {
+                    Session dummySession = new Session();
+                    dummySession.setImageUrl("dateHeader");
+                    dummySession.setSessionDate(sessions.get(i).getSessionDate());
+                    sessions.add(i,dummySession);
+                    prevSessionDate=sessions.get(i).getSessionDate();
+                }
+                i++;
+            }
+        }
+
+
+
+
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
     }
 
