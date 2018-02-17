@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -25,6 +26,7 @@ public class ListSessionsFragment extends Fragment {
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
+    private OnListSessionsSortListener onListSessionsSortListener;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -70,16 +72,31 @@ public class ListSessionsFragment extends Fragment {
             }
         });
 
-        Spinner spinner = (Spinner) view.findViewById(R.id.sortOnSpinner);
+        final Spinner sortOnSpinner = (Spinner) view.findViewById(R.id.sortOnSpinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.sort_list_array, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
+        sortOnSpinner.setAdapter(adapter);
 
-        spinner.setPrompt("Title");
+        sortOnSpinner.setPrompt("Title");
+
+        sortOnSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                int sortType = i;
+                onListSessionsSortListener.OnListSessionsSort(sortType);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                onListSessionsSortListener.OnListSessionsSort(0);
+
+            }
+        });
 
         return view;
     }
@@ -124,6 +141,12 @@ public class ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListSessionsScrollListener");
         }
+        if (context instanceof OnListSessionsSortListener) {
+            onListSessionsSortListener = (OnListSessionsSortListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListSessionsSortListener");
+        }
     }
 
     @Override
@@ -131,6 +154,8 @@ public class ListSessionsFragment extends Fragment {
         super.onDetach();
         onSessionClickedListener = null;
         onRefreshSessionsListener = null;
+        onListSessionsScrollListener = null;
+        onListSessionsSortListener = null;
     }
 
     public interface OnRefreshSessionsListener {
@@ -139,5 +164,9 @@ public class ListSessionsFragment extends Fragment {
 
     public interface OnListSessionsScrollListener {
         void OnListSessionsScroll(int dy);
+    }
+
+    public interface OnListSessionsSortListener {
+        void OnListSessionsSort(int sortType);
     }
 }

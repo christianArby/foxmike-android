@@ -60,6 +60,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         OnNewMessageListener,
         ListSessionsFragment.OnRefreshSessionsListener,
         OnUserClickedListener,
+        ListSessionsFragment.OnListSessionsSortListener,
         ListSessionsFragment.OnListSessionsScrollListener{
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -86,6 +87,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private ArrayList<Session> sessionListArrayList = new ArrayList<>();
     private Location locationClosetoSessions;
+    private int sortType = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,7 +293,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                 sessionListArrayList = nearSessions;
                 locationClosetoSessions = location;
 
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
+                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
                     @Override
                     public void OnSessionsFiltered(ArrayList<Session> sessions) {
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
@@ -416,7 +418,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
@@ -518,7 +520,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                 sessionListArrayList = nearSessions;
                 locationClosetoSessions = location;
 
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, new OnSessionsFilteredListener() {
+                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
                     @Override
                     public void OnSessionsFiltered(ArrayList<Session> sessions) {
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
@@ -540,6 +542,22 @@ public class MainPlayerActivity extends AppCompatActivity implements
             mapOrListBtn.hide();
         else if (dy < 0)
             mapOrListBtn.show();
+    }
+
+    @Override
+    public void OnListSessionsSort(int sortType) {
+        this.sortType = sortType;
+        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+            @Override
+            public void OnSessionsFiltered(ArrayList<Session> sessions) {
+                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                listSessionsFragment.stopSwipeRefreshingSymbol();
+            }
+        });
     }
 
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
