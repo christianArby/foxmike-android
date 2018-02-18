@@ -425,7 +425,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                 mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
             }
         });
     }
@@ -527,7 +527,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                         mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
 
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                        listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
                         listSessionsFragment.stopSwipeRefreshingSymbol();
                     }
                 });
@@ -554,7 +554,7 @@ public class MainPlayerActivity extends AppCompatActivity implements
                 mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
+                listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
         });
