@@ -23,9 +23,9 @@ import java.util.Locale;
  * This adapter retrieves the data ArrayList<Session>, context and currentLocation as input, given in the constructor, and generates the view in layout.fragment_list_sessions
  */
 
-public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface{
 
-    private final ArrayList<Session> sessions;
+    private ArrayList<Session> sessions;
     private final Context context;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
@@ -35,6 +35,12 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.context = context;
         this.currentLocation=currentLocation;
         this.onSessionClickedListener = onSessionClickedListener;
+    }
+
+    public void refreshData(ArrayList<Session> sessions, Location currentLocation) {
+        this.sessions = sessions;
+        this.currentLocation=currentLocation;
+        notifyDataSetChanged();
     }
 
     /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
@@ -57,7 +63,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         final Session session = sessions.get(position);
 
         if (session.getImageUrl().equals("dateHeader")) {
-            ((SessionListHeaderViewHolder) holder).setHeader(session.getSessionDate().textSDF());
+            ((SessionListHeaderViewHolder) holder).setHeader(session.getSessionDate().textFullDay() + " " + session.getSessionDate().day + " " + session.getSessionDate().textMonth());
         } else {
 
             /**Fill the cardview with information of the session" */
@@ -97,6 +103,93 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         return sessions.size();
+    }
+
+    /**
+     * This method gets called by {@link HeaderItemDecoration} to fetch the position of the header item in the adapter
+     * that is used for (represents) item at specified position.
+     * @param itemPosition int. Adapter's position of the item for which to do the search of the position of the header item.
+     * @return int. Position of the header item in the adapter.
+     */
+    @Override
+    public int getHeaderPositionForItem(int itemPosition) {
+
+        /*int headerPosition = 0;
+        if (sessions.get(itemPosition).getImageUrl().equals("dateHeader")) {
+            headerPosition = itemPosition;
+        }*/
+
+        int headerPosition = 0;
+        do {
+            if (this.isHeader(itemPosition)) {
+                headerPosition = itemPosition;
+                break;
+            }
+            itemPosition -= 1;
+        } while (itemPosition >= 0);
+        return headerPosition;
+
+
+
+    }
+
+    /**
+     * This method gets called by {@link HeaderItemDecoration} to get layout resource id for the header item at specified adapter's position.
+     * @param headerPosition int. Position of the header item in the adapter.
+     * @return int. Layout resource id.
+     */
+    @Override
+    public int getHeaderLayout(int headerPosition) {
+        int layoutResource = 0;
+        if (sessions.size() > 0  && sessions.get(0).getImageUrl().equals("dateHeader")) {
+            layoutResource = R.layout.session_list_date_header;
+            int test = layoutResource;
+        } else {
+            layoutResource = R.layout.blank_dummy_for_header_list;
+        }
+
+        return layoutResource;
+    }
+
+
+
+    /**
+     * This method gets called by {@link HeaderItemDecoration} to setup the header View.
+     * @param header View. Header to set the data on.
+     * @param headerPosition int. Position of the header item in the adapter.
+     */
+
+    @Override
+    public void bindHeaderData(View header, int headerPosition) {
+        if (sessions.size()>headerPosition && sessions.get(0).getImageUrl().equals("dateHeader")) {
+            TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
+            headerTV.setText(sessions.get(headerPosition).getSessionDate().textFullDay() + " " + sessions.get(headerPosition).getSessionDate().day + " " + sessions.get(headerPosition).getSessionDate().textMonth());
+        } else {
+            //header.setVisibility(View.GONE);
+        }
+
+
+    }
+
+
+    /**
+     * This method gets called by {@link HeaderItemDecoration} to verify whether the item represents a header.
+     * @param itemPosition int.
+     * @return true, if item at the specified adapter's position represents a header.
+     */
+    @Override
+    public boolean isHeader(int itemPosition) {
+
+        if (sessions.size()>itemPosition) {
+            if (sessions.get(itemPosition).getImageUrl().equals("dateHeader")) {
+                return true;
+            } else {
+                return false;
+            }
+        } else  {
+            return false;
+        }
+
     }
 
     public class SessionListHeaderViewHolder extends RecyclerView.ViewHolder {

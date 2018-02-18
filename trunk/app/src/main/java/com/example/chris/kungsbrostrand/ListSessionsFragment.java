@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class ListSessionsFragment extends Fragment {
 
     private RecyclerView mSessionList;
-    private RecyclerView.Adapter sessionsAdapter;
+    private sessionsAdapter sessionsAdapter;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
     private OnRefreshSessionsListener onRefreshSessionsListener;
@@ -104,15 +104,36 @@ public class ListSessionsFragment extends Fragment {
     /** Use sessionsAdapter to generate view mSessionList*/
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mSessionList.setAdapter(sessionsAdapter);
+
+        //mSessionList.setAdapter(sessionsAdapter);
+
+        //HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
+        //mSessionList.addItemDecoration(headerItemDecoration);
+        //mSessionList.setAdapter(sessionsAdapter);
+
+
     }
+
+    public void updateSessionListView(ArrayList<Session> sessions, Location location) {
+
+        sessionsAdapter.refreshData(sessions,location);
+
+    }
+
 
     /** Generate view in RecyclerView with sessionsAdapter*/
     public void generateSessionListView(ArrayList<Session> sessions, Location location) {
+
         currentLocation =location;
+
         sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation, onSessionClickedListener);
         if (mSessionList!=null) {
+            //mSessionList.setAdapter(sessionsAdapter);
+
+            HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
+            mSessionList.addItemDecoration(headerItemDecoration);
             mSessionList.setAdapter(sessionsAdapter);
+
         }
     }
 
