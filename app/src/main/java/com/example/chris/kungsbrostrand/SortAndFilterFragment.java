@@ -24,7 +24,7 @@ public class SortAndFilterFragment extends DialogFragment {
     private static final String ARG_SORT= "sort";
     private static final String ARG_FILTER = "filter";
     private String mSortType;
-    private int mFilterDistance;
+    private int mFilterDistance = 3000;
     private ImageButton closeButton;
 
     public SortAndFilterFragment() {
@@ -84,7 +84,7 @@ public class SortAndFilterFragment extends DialogFragment {
             }
         });
 
-        // Set initial state
+        // Set initial state of sort buttons
         if (mSortType.equals("distance")) {
             sortDistanceTB.setChecked(true);
             sortDateTB.setChecked(false);
@@ -122,6 +122,26 @@ public class SortAndFilterFragment extends DialogFragment {
                 onListSessionsFilterListener.OnListSessionsFilter(mFilterDistance);
             }
         });
+
+        // Set initial state of filter buttons
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance1)) {
+            radioGroup.check(R.id.distance1);
+        }
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance2)) {
+            radioGroup.check(R.id.distance2);
+        }
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance3)) {
+            radioGroup.check(R.id.distance3);
+        }
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance4)) {
+            radioGroup.check(R.id.distance4);
+        }
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance5)) {
+            radioGroup.check(R.id.distance5);
+        }
+        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distanceMax)) {
+            radioGroup.check(R.id.distance6);
+        }
 
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
