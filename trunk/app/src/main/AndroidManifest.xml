@@ -53,7 +53,7 @@
             android:name=".MainPlayerActivity"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/foxmike">
             <intent-filter>
                 <action android:name="SportsAppTargetNotification" />
 
@@ -64,7 +64,7 @@
             android:name=".MainActivity"
             android:label="splash"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/foxmike">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -100,11 +100,11 @@
         <activity
             android:name=".MainHostActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/foxmike"/>
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MainPlayerActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/foxmike"/>
         <activity android:name=".CommentActivity"></activity>
     </application>
 
