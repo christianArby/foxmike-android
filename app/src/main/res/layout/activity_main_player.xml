@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primaryColor"
-        android:id="@+id/barLayout">
+        android:id="@+id/barLayout"
+        app:elevation="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -44,7 +45,30 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        app:backgroundTint="@color/primaryColor"
+        android:tint="@color/darkIconColor"
 
+        android:src="@drawable/ic_my_location_black_24dp"
+        android:id="@+id/my_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_alignEnd="@id/barLayout"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="80dp"/>
+
+    <android.support.design.widget.FloatingActionButton
+        app:backgroundTint="@color/secondaryColor"
+        android:tint="@color/white"
+        android:src="@drawable/ic_filter_list_black_24dp"
+        android:id="@+id/sort_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_alignEnd="@id/barLayout"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp" />
 
     <FrameLayout
 
@@ -56,6 +80,8 @@
         android:layout_alignParentStart="true" />
 
     <android.support.design.widget.FloatingActionButton
+        app:backgroundTint="@color/secondaryColor"
+        android:tint="@color/white"
         android:id="@+id/map_or_list_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

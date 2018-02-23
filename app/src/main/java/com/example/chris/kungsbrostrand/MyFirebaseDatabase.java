@@ -115,7 +115,7 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, int sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
         ArrayList<Session> sessions = new ArrayList<>();
 
@@ -133,7 +133,7 @@ public class MyFirebaseDatabase extends Service{
             }
         }
 
-        if (sortType==0) {
+        if (sortType.equals("date")) {
             Collections.sort(sessions);
             SessionDate prevSessionDate = new SessionDate();
             HashMap<Integer,Session> headerSessions = new HashMap<>();
@@ -153,11 +153,10 @@ public class MyFirebaseDatabase extends Service{
 
 
 
-
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
     }
 
-    public void getNearSessions(Activity activity, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
 
 
 
@@ -172,11 +171,11 @@ public class MyFirebaseDatabase extends Service{
                         if (location != null) {
 
                             currentLocation = location;
-                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), 3000);
+                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
                             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                                 @Override
                                 public void onKeyEntered(String key, GeoLocation location) {
-                                    //Any location key which is within 3000km from the user's location will show up here as the key parameter in this method
+                                    //Any location key which is within 60km from the user's location will show up here as the key parameter in this method
                                     //You can fetch the actual data for this location by creating another firebase query here
                                     String distString = getDistance(location.latitude,location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
@@ -214,6 +213,10 @@ public class MyFirebaseDatabase extends Service{
                                             public void onCancelled(DatabaseError databaseError) {
                                             }
                                         });
+                                    }
+
+                                    if (nearSessionsIDs.size()<1) {
+                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions,location);
                                     }
                                 }
                                 @Override

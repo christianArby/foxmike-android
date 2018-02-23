@@ -5,7 +5,7 @@
     android:layout_height="200dp">
 
     <FrameLayout
-        android:layout_marginBottom="5dp"
+        android:id="@+id/sessionCardViewFrame"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical">
