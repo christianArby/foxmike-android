@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -22,7 +23,6 @@ import java.util.Locale;
 /**
  * This adapter retrieves the data ArrayList<Session>, context and currentLocation as input, given in the constructor, and generates the view in layout.fragment_list_sessions
  */
-
 public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface{
 
     private ArrayList<Session> sessions;
@@ -40,11 +40,10 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void refreshData(ArrayList<Session> sessions, Location currentLocation) {
         this.sessions = sessions;
         this.currentLocation=currentLocation;
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 
     /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -75,8 +74,12 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((SessionViewHolder) holder).setAddress(address);
             ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
+            if (position > 0 && !sessions.get(position-1).getImageUrl().equals("dateHeader")) {
+                ((SessionViewHolder) holder).setMargin();
+            } else {
+                ((SessionViewHolder) holder).resetMargin();
+            }
             /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
-
             ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -84,11 +87,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //displaySession(sessionLatLng);
                 }
             });
-
         }
-
-
-
     }
 
     @Override
@@ -114,11 +113,6 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getHeaderPositionForItem(int itemPosition) {
 
-        /*int headerPosition = 0;
-        if (sessions.get(itemPosition).getImageUrl().equals("dateHeader")) {
-            headerPosition = itemPosition;
-        }*/
-
         int headerPosition = 0;
         do {
             if (this.isHeader(itemPosition)) {
@@ -128,9 +122,6 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             itemPosition -= 1;
         } while (itemPosition >= 0);
         return headerPosition;
-
-
-
     }
 
     /**
@@ -142,16 +133,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getHeaderLayout(int headerPosition) {
         int layoutResource = 0;
         if (sessions.size() > 0  && sessions.get(0).getImageUrl().equals("dateHeader")) {
-            layoutResource = R.layout.session_list_date_header;
-            int test = layoutResource;
+            return R.layout.session_list_date_header;
         } else {
-            layoutResource = R.layout.blank_dummy_for_header_list;
+            return R.layout.blank_dummy_for_header_list;
         }
-
-        return layoutResource;
     }
-
-
 
     /**
      * This method gets called by {@link HeaderItemDecoration} to setup the header View.
@@ -164,11 +150,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (sessions.size()>headerPosition && sessions.get(0).getImageUrl().equals("dateHeader")) {
             TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
             headerTV.setText(sessions.get(headerPosition).getSessionDate().textFullDay() + " " + sessions.get(headerPosition).getSessionDate().day + " " + sessions.get(headerPosition).getSessionDate().textMonth());
-        } else {
-            //header.setVisibility(View.GONE);
         }
-
-
     }
 
 
@@ -243,6 +225,32 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             session_image.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
         }
 
+        public void setMargin(){
+            FrameLayout frameLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            int dpValue = 5; // margin in dips
+            float d = context.getResources().getDisplayMetrics().density;
+            int margin = (int)(dpValue * d);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+            );
+            params.setMargins(0, margin, 0, 0);
+            frameLayout.setLayoutParams(params);
+        }
+
+        public void resetMargin(){
+            FrameLayout frameLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            int dpValue = 0; // margin in dips
+            float d = context.getResources().getDisplayMetrics().density;
+            int margin = (int)(dpValue * d);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+            );
+            params.setMargins(0, margin, 0, 0);
+            frameLayout.setLayoutParams(params);
+        }
+
     }
 
     /**Method get address from latitude and longitude" */
@@ -253,7 +261,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         geocoder = new Geocoder(this.context, Locale.getDefault());
 
         try {
-            /**I have written some of these funtions just in case we will use the further on" */
+            /**I have written some of these funtions just in case we will use them further on" */
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
             String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()

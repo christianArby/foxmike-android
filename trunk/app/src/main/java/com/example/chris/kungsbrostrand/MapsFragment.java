@@ -18,6 +18,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -55,6 +56,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private OnSessionClickedListener onSessionClickedListener;
     private TextView createSessionMapTextTV;
     private int changeLocation;
+    private Location mLastLocation;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -122,6 +124,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
             }
         }
         else {
@@ -241,7 +244,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-        Location mLastLocation = location;
+        mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
@@ -253,6 +256,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             moveCamera=false;
+        }
+    }
+
+    public void goToMyLocation() {
+
+        if (mLastLocation!=null) {
+            Double latitudeDouble = mLastLocation.getLatitude();
+            Double longitudeDouble = mLastLocation.getLongitude();
+            LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18);
+            mMap.animateCamera(cameraUpdate);
         }
     }
 

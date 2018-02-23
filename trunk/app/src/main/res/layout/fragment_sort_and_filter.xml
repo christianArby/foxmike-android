@@ -1,0 +1,114 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/edit_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <ImageButton
+        android:padding="5dp"
+        android:id="@+id/closeImageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:src="@drawable/ic_close_black_24dp"/>
+
+    <TextView
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:id="@+id/sortText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sortera på:" />
+
+    <ToggleButton
+        app:layout_constraintStart_toStartOf="@id/sortText"
+        android:layout_marginTop="20dp"
+        android:id="@+id/sortDateToggle"
+        app:layout_constraintTop_toBottomOf="@+id/sortText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color"
+        style="?android:attr/borderlessButtonStyle"/>
+    <ToggleButton
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/sortDistanceToggle"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintStart_toEndOf="@+id/sortDateToggle"
+        app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color"
+        style="?android:attr/borderlessButtonStyle"/>
+
+    <TextView
+        app:layout_constraintStart_toStartOf="@id/sortText"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
+        android:id="@+id/filterText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filtrera på avstånd:"/>
+
+    <RadioGroup
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="@id/filterText"
+        app:layout_constraintTop_toBottomOf="@id/filterText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/filterDistanceRadioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance1"
+            android:text="@string/distance1"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance2"
+            android:text="@string/distance2"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance3"
+            android:text="@string/distance3"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance4"
+            android:text="@string/distance4"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance5"
+            android:text="@string/distance5"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distance6"
+            android:text="@string/distanceMax"/>
+
+    </RadioGroup>
+
+
+
+</android.support.constraint.ConstraintLayout>

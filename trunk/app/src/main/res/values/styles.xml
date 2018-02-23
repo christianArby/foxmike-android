@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#212121</item>
         <item name="colorPrimaryDark">#000000</item>
-        <item name="colorAccent">#63a4ff</item>
+        <item name="colorAccent">#FF0000</item>
     </style>
 
     <style name="SpinnerTheme" parent="android:Widget.Spinner">

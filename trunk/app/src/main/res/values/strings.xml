@@ -155,7 +155,20 @@
         <item>Distance</item>
     </string-array>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <string-array name="filter_list_array">
+        <item>600 km</item>
+        <item>3 km</item>
+        <item>1 km</item>
+    </string-array>
+
+    <string name="distance1">3 km</string>
+    <string name="distance2">8 km</string>
+    <string name="distance3">16 km</string>
+    <string name="distance4">40 km</string>
+    <string name="distance5">80 km</string>
+    <string name="distance6">150 km</string>
+    <string name="distanceMax">3000 km</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="choose_profile_picture">Choose profile picture</string>
     <string name="choose_session_image">Choose session image</string>

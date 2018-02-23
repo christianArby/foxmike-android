@@ -4,16 +4,20 @@ package com.example.chris.kungsbrostrand;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -26,7 +30,7 @@ public class ListSessionsFragment extends Fragment {
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
-    private OnListSessionsSortListener onListSessionsSortListener;
+    private int distance = 600000;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -53,7 +57,7 @@ public class ListSessionsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = view.findViewById(R.id.session_list);
         listSessionsSwipeRefreshLayout = view.findViewById(R.id.session_list_swipe_layout);
-        mSessionList.setHasFixedSize(true);
+        //mSessionList.setHasFixedSize(true);
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -72,32 +76,6 @@ public class ListSessionsFragment extends Fragment {
             }
         });
 
-        final Spinner sortOnSpinner = (Spinner) view.findViewById(R.id.sortOnSpinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.sort_list_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        sortOnSpinner.setAdapter(adapter);
-
-        sortOnSpinner.setPrompt("Title");
-
-        sortOnSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                int sortType = i;
-                onListSessionsSortListener.OnListSessionsSort(sortType);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-                onListSessionsSortListener.OnListSessionsSort(0);
-
-            }
-        });
-
         return view;
     }
 
@@ -106,18 +84,16 @@ public class ListSessionsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         //mSessionList.setAdapter(sessionsAdapter);
-
         //HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
         //mSessionList.addItemDecoration(headerItemDecoration);
         //mSessionList.setAdapter(sessionsAdapter);
-
-
     }
 
     public void updateSessionListView(ArrayList<Session> sessions, Location location) {
 
-        sessionsAdapter.refreshData(sessions,location);
-
+        if (sessionsAdapter!=null) {
+            sessionsAdapter.refreshData(sessions,location);
+        }
     }
 
 
@@ -128,8 +104,6 @@ public class ListSessionsFragment extends Fragment {
 
         sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation, onSessionClickedListener);
         if (mSessionList!=null) {
-            //mSessionList.setAdapter(sessionsAdapter);
-
             HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
             mSessionList.addItemDecoration(headerItemDecoration);
             mSessionList.setAdapter(sessionsAdapter);
@@ -162,12 +136,6 @@ public class ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListSessionsScrollListener");
         }
-        if (context instanceof OnListSessionsSortListener) {
-            onListSessionsSortListener = (OnListSessionsSortListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListSessionsSortListener");
-        }
     }
 
     @Override
@@ -176,7 +144,6 @@ public class ListSessionsFragment extends Fragment {
         onSessionClickedListener = null;
         onRefreshSessionsListener = null;
         onListSessionsScrollListener = null;
-        onListSessionsSortListener = null;
     }
 
     public interface OnRefreshSessionsListener {
@@ -185,9 +152,5 @@ public class ListSessionsFragment extends Fragment {
 
     public interface OnListSessionsScrollListener {
         void OnListSessionsScroll(int dy);
-    }
-
-    public interface OnListSessionsSortListener {
-        void OnListSessionsSort(int sortType);
     }
 }

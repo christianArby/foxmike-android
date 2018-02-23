@@ -30,4 +30,10 @@
 
     <color name="primaryBackgroundColor">#fafafa</color>
     <color name="secondaryBackgroundColor">#ffffff</color>
+
+    <color name="darkIconColor">#8d8d8d</color>
+    <color name="red">#FF0000</color>
+
+
+
 </resources>

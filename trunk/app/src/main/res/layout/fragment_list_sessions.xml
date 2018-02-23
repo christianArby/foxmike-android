@@ -4,48 +4,21 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
-        app:elevation="0dp">
-
-        <android.support.v7.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways"
-            android:clipToPadding="false">
-
-            <Spinner
-                android:id="@+id/sortOnSpinner"
-                style="@style/SpinnerTheme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingEnd="40dp"></Spinner>
-
-
-        </android.support.v7.widget.Toolbar>
-
-    </android.support.design.widget.AppBarLayout>
-
-
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/session_list_swipe_layout"
+        android:clipToPadding="false"
+        android:background="@color/primaryColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
-            android:background="@color/primaryBackgroundColor"
+            android:clipToPadding="false"
+            android:background="@color/primaryColor"
             android:id="@+id/session_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
-
-
     </android.support.v4.widget.SwipeRefreshLayout>
-
-
 
 </android.support.design.widget.CoordinatorLayout>
