@@ -88,11 +88,14 @@
         <activity
             android:name=".CreateOrEditSessionActivity"
             android:label="@string/title_activity_training_session" />
-        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/foxmike"/>
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/foxmike"/>
         <activity android:name=".SetupAccountActivity" />
 
         <service android:name=".MyFirebaseDatabase" />

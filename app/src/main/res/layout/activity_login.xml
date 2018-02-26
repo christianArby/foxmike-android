@@ -7,6 +7,7 @@
     tools:context="com.example.chris.kungsbrostrand.LoginActivity">
 
     <EditText
+        android:layout_margin="20dp"
         android:id="@+id/loginEmailField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,17 +19,17 @@
         android:inputType="textEmailAddress" />
 
     <EditText
+        android:layout_margin="20dp"
         android:id="@+id/loginPasswordField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/loginEmailField"
         android:layout_below="@+id/loginEmailField"
-        android:layout_marginTop="14dp"
         android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword" />
 
     <Button
+        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/loginBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,6 +39,8 @@
         android:text="@string/login" />
 
     <Button
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:background="@color/secondaryColor"
         android:id="@+id/createAccountBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

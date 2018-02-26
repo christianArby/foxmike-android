@@ -19,16 +19,17 @@ class InboxPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                RequestsFragment requestsFragment = new RequestsFragment();
-                return requestsFragment;
-
-            case 1:
                 ChatsFragment chatsFragment = new ChatsFragment();
                 return chatsFragment;
 
-            case 2:
+            case 1:
                 FriendsFragment friendsFragment = new FriendsFragment();
                 return friendsFragment;
+
+
+            case 2:
+                RequestsFragment requestsFragment = new RequestsFragment();
+                return requestsFragment;
 
             default:
                 return null;
@@ -45,11 +46,11 @@ class InboxPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                return "REQUESTS";
+                return "MEDDELANDEN";
             case 1:
-                return "CHATS";
+                return "VÄNNER";
             case 2:
-                return "FRIENDS";
+                return "NOTISER";
             default:
                 return null;
         }
