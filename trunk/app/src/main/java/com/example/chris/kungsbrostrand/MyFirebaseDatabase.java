@@ -150,16 +150,10 @@ public class MyFirebaseDatabase extends Service{
                 i++;
             }
         }
-
-
-
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
     }
 
     public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
-
-
-
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -175,7 +169,7 @@ public class MyFirebaseDatabase extends Service{
                             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                                 @Override
                                 public void onKeyEntered(String key, GeoLocation location) {
-                                    //Any location key which is within 60km from the user's location will show up here as the key parameter in this method
+                                    //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
                                     //You can fetch the actual data for this location by creating another firebase query here
                                     String distString = getDistance(location.latitude,location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
@@ -184,13 +178,10 @@ public class MyFirebaseDatabase extends Service{
 
                                 @Override
                                 public void onKeyExited(String key) {}
-
                                 @Override
                                 public void onKeyMoved(String key, GeoLocation location) {}
-
                                 @Override
                                 public void onGeoQueryReady() {
-
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
                                     for (final Integer str : nearSessionsIDs.keySet()) {
 

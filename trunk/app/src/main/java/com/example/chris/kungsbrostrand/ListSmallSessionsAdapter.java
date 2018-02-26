@@ -34,13 +34,11 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
     ArrayList<Session> sessionArrayList;
     private OnSessionClickedListener onSessionClickedListener;
     private Context context;
-    private HashMap<Integer,String> sessionsSectionHeaders;
 
-    public ListSmallSessionsAdapter(ArrayList<Session> sessionArrayList, HashMap<Integer,String> sessionsSectionHeaders, OnSessionClickedListener onSessionClickedListener, Context context) {
+    public ListSmallSessionsAdapter(ArrayList<Session> sessionArrayList, OnSessionClickedListener onSessionClickedListener, Context context) {
         this.sessionArrayList = sessionArrayList;
         this.onSessionClickedListener = onSessionClickedListener;
         this.context = context;
-        this.sessionsSectionHeaders = sessionsSectionHeaders;
     }
 
     @Override
@@ -60,9 +58,9 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (sessionsSectionHeaders.get(position)!=null) {
+        if (sessionArrayList.get(position).getImageUrl().equals("sectionHeader")) {
 
-            ((ListSmallSessionsSectionHeaderViewHolder) holder).setHeader(sessionsSectionHeaders.get(position));
+            ((ListSmallSessionsSectionHeaderViewHolder) holder).setHeader(sessionArrayList.get(position).getSessionName());
 
         } else {
             if (sessionArrayList.size()>0) {
@@ -96,7 +94,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemViewType(int position) {
-        if (sessionsSectionHeaders.get(position) != null) {
+        if (sessionArrayList.get(position).getImageUrl().equals("sectionHeader")) {
             return 1;
         }
         return 0;

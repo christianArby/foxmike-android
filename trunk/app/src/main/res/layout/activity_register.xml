@@ -52,15 +52,14 @@
         android:layout_marginTop="10dp" />
 
     <Button
+        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/registerBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sign_up"
         android:layout_marginTop="10dp"
         android:layout_below="@+id/passwordField"
-        android:layout_centerHorizontal="true"
-        android:background="@color/secondaryColor"
-        android:textColor="@color/secondaryTextColor"/>
+        android:layout_centerHorizontal="true" />
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"

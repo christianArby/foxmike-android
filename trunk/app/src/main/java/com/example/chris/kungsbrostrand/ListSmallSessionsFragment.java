@@ -47,22 +47,19 @@ public class ListSmallSessionsFragment extends Fragment {
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
     private ArrayList<Session> sessionArrayList = new ArrayList<>();
-    private HashMap<Integer,String> sessionsSectionHeaders;
 
 
     public ListSmallSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static ListSmallSessionsFragment newInstance(ArrayList<Session> sessionArrayList, HashMap<Integer,String> sessionsSectionHeaders) {
+    public static ListSmallSessionsFragment newInstance(ArrayList<Session> sessionArrayList) {
 
 
         ListSmallSessionsFragment fragment = new ListSmallSessionsFragment();
         Bundle args = new Bundle();
         String strSessionArrayList = new Gson().toJson(sessionArrayList);
         args.putString("sessionArrayList",strSessionArrayList);
-        String strSessionsSectionHeaders = new Gson().toJson(sessionsSectionHeaders);
-        args.putString("sessionsSectionHeaders",strSessionsSectionHeaders);
         fragment.setArguments(args);
         return fragment;
     }
@@ -73,8 +70,6 @@ public class ListSmallSessionsFragment extends Fragment {
         if (getArguments() != null) {
             String strSessionArrayList = getArguments().getString("sessionArrayList");
             sessionArrayList = new Gson().fromJson(strSessionArrayList, new TypeToken<ArrayList<Session>>(){}.getType());
-            String strSessionsSectionHeaders = getArguments().getString("sessionsSectionHeaders");
-            sessionsSectionHeaders = new Gson().fromJson(strSessionsSectionHeaders, new TypeToken<HashMap<Integer,String>>(){}.getType());
         }
     }
 
@@ -86,7 +81,7 @@ public class ListSmallSessionsFragment extends Fragment {
 
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionArrayList, sessionsSectionHeaders, onSessionClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionArrayList, onSessionClickedListener, getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
 
         return view;
