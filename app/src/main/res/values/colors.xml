@@ -25,7 +25,7 @@
     <color name="secondaryLightColor">#67daff</color>
     <color name="secondaryDarkColor">#007ac1</color>
     <color name="primaryTextColor">#000000</color>
-    <color name="secondaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#ffffff</color>
     <color name="lightGreyBackgroundColor">#e0e0e0</color>
 
     <color name="primaryBackgroundColor">#fafafa</color>
