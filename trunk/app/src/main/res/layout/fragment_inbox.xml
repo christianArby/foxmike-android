@@ -4,18 +4,26 @@
     android:layout_height="match_parent"
     tools:context="com.example.chris.kungsbrostrand.InboxFragment">
 
-    <include layout="@layout/inbox_bar_layout" android:id="@+id/inbox_page_toolbar"/>
-
-    <android.support.design.widget.TabLayout
-        android:id="@+id/inbox_tabs"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    
+        android:layout_height="wrap_content"
+        android:id="@+id/inboxBar">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/inbox_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+    </android.support.design.widget.AppBarLayout>
+
+
+
     <android.support.v4.view.ViewPager
         android:id="@+id/inboxPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/inbox_page_toolbar">
+        android:layout_below="@+id/inboxBar">
 
     </android.support.v4.view.ViewPager>
 

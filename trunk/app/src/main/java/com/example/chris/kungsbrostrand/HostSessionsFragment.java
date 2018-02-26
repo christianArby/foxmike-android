@@ -65,63 +65,63 @@ public class HostSessionsFragment extends Fragment {
             @Override
             public void OnUserFound(final User user) {
                 /* If user is not hosting any sessions set that the sessionsHosting content has beeen found*/
-                if (user.sessionsHosting.size()==0){
+                if (user.sessionsHosting.size()!=0){
+
+                    myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
+                        @Override
+                        public void OnSessionsFound(ArrayList<Session> sessions) {
+
+                            ArrayList<Session> sessionsAdv = new ArrayList<Session>();
+                            ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
+                            //HashMap<Integer,String> sessionsAdvSectionHeaders = new HashMap<>();
+                            //HashMap<Integer,String> sessionsNotAdvSectionHeaders = new HashMap<>();
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                            final Calendar cal = Calendar.getInstance();
+                            Date todaysDate = cal.getTime();
+                            cal.add(Calendar.DATE,14);
+                            Date twoWeeksDate = cal.getTime();
+
+                            for (Session session: sessions) {
+                                if (session.isAdvertised() && session.getSessionDate().getDateOfSession().after(todaysDate)) {
+                                    sessionsAdv.add(session);
+                                } else {
+                                    sessionsNotAdv.add(session);
+                                }
+                            }
+
+                            Collections.sort(sessionsAdv);
+                            Collections.sort(sessionsNotAdv);
+
+                            int n = 0;
+                            Boolean keepLooking = true;
+                            while (n < sessionsAdv.size() && keepLooking) {
+                                if (sessionsAdv.get(n).getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
+                                    Session dummySession = new Session();
+                                    dummySession.setImageUrl("sectionHeader");
+                                    dummySession.setSessionName("Kommande annonseringar");
+                                    sessionsAdv.add(n, dummySession);
+                                    keepLooking=false;
+                                }
+                                n++;
+                            }
+
+
+                            hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
+
+                            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
+
+                            hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
+
+                            tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
+
+                            tabLayout.setupWithViewPager(hostSessionsPager);
+
+                        }
+                    },user.sessionsHosting);
 
                 }
-                myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
-                    @Override
-                    public void OnSessionsFound(ArrayList<Session> sessions) {
 
-                        ArrayList<Session> sessionsAdv = new ArrayList<Session>();
-                        ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
-                        //HashMap<Integer,String> sessionsAdvSectionHeaders = new HashMap<>();
-                        //HashMap<Integer,String> sessionsNotAdvSectionHeaders = new HashMap<>();
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        final Calendar cal = Calendar.getInstance();
-                        Date todaysDate = cal.getTime();
-                        cal.add(Calendar.DATE,14);
-                        Date twoWeeksDate = cal.getTime();
-
-                        for (Session session: sessions) {
-                            if (session.isAdvertised() && session.getSessionDate().getDateOfSession().after(todaysDate)) {
-                                sessionsAdv.add(session);
-                            } else {
-                                sessionsNotAdv.add(session);
-                            }
-                        }
-
-                        Collections.sort(sessionsAdv);
-                        Collections.sort(sessionsNotAdv);
-
-                        int n = 0;
-                        Boolean keepLooking = true;
-                        List<Integer> rows = new ArrayList<Integer>();
-
-                        for (Session session: sessionsAdv) {
-
-                            if (session.getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
-                                Session dummySession = new Session();
-                                dummySession.setImageUrl("sectionHeader");
-                                dummySession.setSessionName("Kommande annonseringar");
-                                sessionsAdv.add(n, dummySession);
-                                keepLooking=false;
-                            }
-                            n++;
-                        }
-
-                        hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
-
-                        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
-
-                        hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-
-                        tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
-
-                        tabLayout.setupWithViewPager(hostSessionsPager);
-
-                    }
-                },user.sessionsHosting);
             }
         });
 
