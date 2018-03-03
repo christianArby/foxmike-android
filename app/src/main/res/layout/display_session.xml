@@ -25,16 +25,152 @@
                 android:scaleType="centerCrop"
                 android:src="@mipmap/add_btn" />
 
+            <TextView
+
+                android:textColor="@color/secondaryTextColor"
+                android:id="@+id/sessionType"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/display_session_marginStart"
+                android:textAllCaps="true"
+                android:text="Löpning"
+                android:layout_marginTop="120dp"/>
+
+            <TextView
+
+                android:id="@+id/sessionName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="135dp"
+                android:textAllCaps="true"
+                android:padding="@dimen/display_session_marginStart"
+                android:text="@string/session_name_goes_here"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
         </FrameLayout>
 
     </android.support.v7.widget.CardView>
+
+    <android.support.constraint.ConstraintLayout
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:layout_width="match_parent"
+        android:background="#000000"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:tint="@color/white"
+            android:id="@+id/locationIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/ic_edit_location_black_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            
+            app:layout_constraintStart_toEndOf="@id/locationIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/addressAndSessionTypeTW"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:text="@string/address"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/dateIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:layout_marginTop="16dp"
+            android:src="@mipmap/ic_date_range_black_24dp"
+            android:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/locationIcon" />
+
+        <TextView
+            
+            android:id="@+id/dateAndTimeTW"
+            app:layout_constraintStart_toEndOf="@id/dateIcon"
+            app:layout_constraintTop_toBottomOf="@id/locationIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:text="@string/loading"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:tint="@color/white"
+            android:id="@+id/maxParticipantsIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="200dp"
+            android:layout_marginTop="16dp"
+            android:src="@mipmap/ic_people_black_24dp"
+            app:layout_constraintStart_toEndOf="@id/locationIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            
+            app:layout_constraintBottom_toBottomOf="@+id/addressAndSessionTypeTW"
+            app:layout_constraintStart_toEndOf="@id/maxParticipantsIcon"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/participantsTW"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:textColor="@color/secondaryColor"
+            android:textSize="14sp"
+            android:clickable="true"/>
+
+
+
+        <ImageView
+            android:tint="@color/white"
+            android:id="@+id/durationIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:src="@mipmap/ic_timelapse_black_24dp"
+            app:layout_constraintStart_toStartOf="@id/maxParticipantsIcon"
+            app:layout_constraintTop_toBottomOf="@id/locationIcon" />
+
+        <TextView
+            
+            app:layout_constraintBottom_toBottomOf="@id/dateAndTimeTW"
+            app:layout_constraintStart_toStartOf="@id/participantsTW"
+            android:textColor="@color/secondaryTextColor"
+            android:text="40 min"
+            android:id="@+id/durationTW"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:textSize="14sp" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <Button
         android:id="@+id/displaySessionBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/join_session"
         android:background="@color/secondaryColor"
+        android:text="@string/join_session"
         android:textColor="@color/secondaryTextColor" />
 
     <FrameLayout
@@ -42,103 +178,138 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/sessionName"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:text="@string/session_name_goes_here"
-            android:textAllCaps="true"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/addressAndSessionTypeTW"
-            android:layout_marginTop="60dp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:text="@string/address"
-            android:textSize="14sp" />
-        <TextView
+            android:textColor="@color/primaryTextColor"
             android:id="@+id/hostName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|bottom"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="90dp"
-            android:layout_marginBottom="15dp"
-            android:text="@string/trainer_name" />
+            android:layout_gravity="start|top"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:layout_marginTop="15dp"
+            android:text="@string/trainer_name"
+            android:textSize="@dimen/display_session_heading_size"
+            android:textStyle="bold" />
+        <TextView
+
+            android:id="@+id/sendMessageToHost"
+            android:textColor="@color/secondaryColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/display_session_text_size"
+            android:layout_marginStart="@dimen/display_session_marginStart"
+            android:layout_marginTop="40dp"
+            android:text="Skicka meddelande" />
 
         <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_marginTop="10dp"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/displaySessionHostImage"
-            android:layout_marginBottom="15dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="@dimen/display_session_marginStart"
             android:layout_gravity="bottom|end"
             android:src="@drawable/background" />
 
     </FrameLayout>
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
-
-    <TextView
-        android:id="@+id/dateAndTimeTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:fontFamily="sans-serif"
-        android:text="@string/loading"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/participantsTW"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="15dp"
-        android:text="@string/loading"
-        android:textColor="@color/secondaryLightColor"
-        android:textSize="14sp"
-        android:clickable="true"/>
-
-    <View
         android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/display_session_marginStart"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
-
+        android:background="@color/lightGrayLine"/>
 
     <TextView
-        android:id="@+id/descriptionHeadingTW"
+        android:textColor="@color/primaryTextColor"
+        android:id="@+id/whatHeadingTW"
+        android:textStyle="bold"
+        android:textSize="@dimen/display_session_heading_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Description:"
-        android:layout_marginStart="15dp"
+        android:text="Vad vi ska göra"
+        android:layout_marginStart="@dimen/display_session_marginStart"
         android:layout_marginTop="10dp" />
 
     <TextView
-        android:id="@+id/descriptionTW"
+        android:textColor="@color/primaryTextColor"
+        android:id="@+id/whatTW"
+        android:layout_width="match_parent"
+        android:textSize="@dimen/display_session_text_size"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical"
+        android:layout_marginStart="@dimen/display_session_marginStart"
+         />
+
+    <View
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/display_session_marginStart"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:layout_height="1dp"
+        android:background="@color/lightGrayLine"/>
+
+    <TextView
+        android:textColor="@color/primaryTextColor"
+        android:id="@+id/whoHeadingTW"
+        android:textSize="@dimen/display_session_heading_size"
+        android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"/>
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:text="Vem som kan vara med"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical" />
+
+    <TextView
+        android:textColor="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical"
+        android:id="@+id/whoTW"
+        android:layout_width="match_parent"
+        android:textSize="@dimen/display_session_text_size"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/display_session_marginStart"/>
+
+    <View
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/display_session_marginStart"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:layout_height="1dp"
+        android:background="@color/lightGrayLine"/>
+
+    <TextView
+        android:textColor="@color/primaryTextColor"
+        android:id="@+id/whereHeadingTW"
+        android:textSize="@dimen/display_session_heading_size"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:text="Var vi ska vara"
+        android:layout_marginStart="@dimen/display_session_marginStart"
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical" />
+
+    <TextView
+        android:textColor="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical"
+        android:layout_marginEnd="@dimen/display_session_marginStart"
+        android:id="@+id/whereTW"
+        android:textSize="@dimen/display_session_text_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/display_session_marginStart"/>
+
+
 
     <FrameLayout
+        android:layout_marginTop="@dimen/display_session_textSpaceVertical"
         android:id="@+id/child_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:background="@color/lightGreyBackgroundColor"/>
-
     <FrameLayout
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/write_post_layout">
@@ -148,15 +319,15 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="15dp"
-            android:layout_marginLeft="13dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="@dimen/display_session_marginStart"
             android:src="@mipmap/profile_picture" />
 
         <TextView
+            android:textColor="@color/primaryTextColor"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:hint="Write something"
-            android:textSize="16sp"
+            android:hint="Skriv något"
+            android:textSize="@dimen/display_session_heading_size"
             android:layout_marginStart="60dp"
             android:layout_gravity="center_vertical"/>
 

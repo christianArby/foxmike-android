@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menuNewsFeed"
-        android:enabled="true"
-        android:icon="@mipmap/ic_tv_black_24dp"
-        android:title="Newsfeed"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/menuInbox"
         android:enabled="true"
         android:icon="@mipmap/ic_chat_bubble_outline_black_24dp"

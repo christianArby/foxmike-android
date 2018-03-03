@@ -131,23 +131,17 @@ public class MainHostActivity extends AppCompatActivity implements
                 switch (position) {
                     case 0:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(hostAllUsersFragment);
+                            cleanMainActivityAndSwitch(hostInboxFragment);
                             return true;
                         }
 
                     case 1:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(hostInboxFragment);
-                            return true;
-                        }
-
-                    case 2:
-                        if (!wasSelected) {
                             cleanMainActivityAndSwitch(hostSessionsFragment);
                             return true;
                         }
 
-                    case 3:
+                    case 2:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(hostUserAccountFragment);
                             return true;
@@ -160,6 +154,9 @@ public class MainHostActivity extends AppCompatActivity implements
         });
 
         bottomNavigation.setCurrentItem(0);
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+        bottomNavigation.setBehaviorTranslationEnabled(false);
+        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
         cleanMainActivityAndSwitch(hostAllUsersFragment);
 
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
@@ -175,9 +172,9 @@ public class MainHostActivity extends AppCompatActivity implements
                         }
 
                         if (nrOfUnreadChats>0) {
-                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),1);
+                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),0);
                         } else {
-                            bottomNavigation.setNotification("",1);
+                            bottomNavigation.setNotification("",0);
                         }
 
                     }
@@ -349,7 +346,7 @@ public class MainHostActivity extends AppCompatActivity implements
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser==null) {
             //User is signed out
-            Intent loginIntent = new Intent(MainHostActivity.this,LoginActivity.class);
+            Intent loginIntent = new Intent(MainHostActivity.this, com.example.chris.kungsbrostrand.LoginActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);

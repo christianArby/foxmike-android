@@ -26,6 +26,7 @@
             android:src="@mipmap/profile_picture" />
 
         <TextView
+            android:textColor="@color/primaryTextColor"
             android:id="@+id/session_post_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,6 +53,7 @@
 
 
     <TextView
+        android:textColor="@color/primaryTextColor"
         android:id="@+id/session_post_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,7 +64,7 @@
         android:layout_marginBottom="8dp"
         android:fontFamily="sans-serif"
         android:text="Amanda och jag får antagligen besök av kompisar sth, men skulle det bli ändrade planer kommer vi!"
-        android:textSize="16sp" />
+        android:textSize="@dimen/display_session_text_size" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -21,10 +21,11 @@
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@+id/user_single_image"
         android:text="@string/loading"
-        android:textColor="?attr/colorPrimaryDark"
+        android:textColor="@color/primaryTextColor"
         android:textSize="18sp" />
 
     <TextView
+        android:textColor="@color/primaryTextColor"
         android:id="@+id/user_single_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

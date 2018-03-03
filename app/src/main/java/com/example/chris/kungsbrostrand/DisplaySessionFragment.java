@@ -3,6 +3,7 @@ package com.example.chris.kungsbrostrand;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chris.kungsbrostrand.activities.CommentActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -71,7 +73,11 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private TextView mSessionName;
     private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
+    private CircleImageView mCurrentUserPostImage;
     private TextView mHost;
+    private TextView mWhatTW;
+    private TextView mWhoTW;
+    private TextView mWhereTW;
     private TextView mAddressAndSessionType;
     private String sessionID;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -152,6 +158,10 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mSessionName = displaySession.findViewById(R.id.sessionName);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
         writePostLsyout = displaySession.findViewById(R.id.write_post_layout);
+        mWhatTW = displaySession.findViewById(R.id.whatTW);
+        mWhoTW = displaySession.findViewById(R.id.whoTW);
+        mWhereTW = displaySession.findViewById(R.id.whereTW);
+        mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
 
 
 
@@ -286,6 +296,19 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         transaction.replace(R.id.child_fragment_container, mapFragment).commit();
 
         mapFragment.getMapAsync(this);
+
+        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                setImage(user.getThumb_image(), mCurrentUserPostImage);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Inflate the layout for this fragment
         return view;
@@ -479,12 +502,15 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     mDateAndTime.setText(sessionDateAndTime);
 
                     // Set the session information in UI
-                    mParticipants.setText("Participants: " + countParticipants +"/" + session.getMaxParticipants());
+                    mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
                     sessionID = dataSnapshot.getRef().getKey();
                     mSessionName.setText(session.getSessionName());
 
                     String address = getAddress(session.getLatitude(),session.getLongitude());
-                    mAddressAndSessionType.setText(address + "  |  " + session.getSessionType());
+                    mAddressAndSessionType.setText(address);
+                    mWhatTW.setText(session.getWhat());
+                    mWhoTW.setText(session.getWho());
+                    mWhereTW.setText(session.getWhere());
 
 
                     /**
@@ -497,7 +523,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                             User user = dataSnapshot.getValue(User.class);
 
                             setImage(user.getImage(), mHostImage);
-                            String hostText = user.getName() + getString(R.string.is_you_trainer);
+                            String hostText = "Möt din tränare, " + user.getName();
                             mHost.setText(hostText);
 
                         }
@@ -543,6 +569,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
                     ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
                     setImage(session.getImageUrl(), sessionImage);
+                    sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
 
                 }
             }

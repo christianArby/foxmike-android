@@ -1,4 +1,4 @@
-package com.example.chris.kungsbrostrand;
+package com.example.chris.kungsbrostrand.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +17,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chris.kungsbrostrand.Message;
+import com.example.chris.kungsbrostrand.MessageFirebaseAdapter;
+import com.example.chris.kungsbrostrand.R;
+import com.example.chris.kungsbrostrand.User;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -202,7 +206,7 @@ public class CommentActivity extends AppCompatActivity {
 
         if (currentUser==null) {
             //User is signed out
-            Intent loginIntent = new Intent(CommentActivity.this,LoginActivity.class);
+            Intent loginIntent = new Intent(CommentActivity.this, com.example.chris.kungsbrostrand.LoginActivity.class);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);

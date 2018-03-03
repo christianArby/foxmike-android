@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- dimensions -->
+    <dimen name="image_width">120dp</dimen>
+    <dimen name="image_final_width">32dp</dimen>
+    <dimen name="spacing_normal">16dp</dimen>
+
+    <dimen name="display_session_heading_size">18sp</dimen>
+    <dimen name="display_session_text_size">14sp</dimen>
+    <dimen name="display_session_textSpaceVertical">10dp</dimen>
+    <dimen name="display_session_font">@font/rubik_light</dimen>
+    <dimen name="display_session_marginStart">13dp</dimen>
+
+
+</resources>

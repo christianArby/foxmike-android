@@ -105,7 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance6"
-            android:text="@string/distanceMax"/>
+            android:text="150 km"/>
 
     </RadioGroup>
 

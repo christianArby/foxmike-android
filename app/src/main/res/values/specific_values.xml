@@ -6,5 +6,5 @@
     <integer name="distance4">40</integer>
     <integer name="distance5">80</integer>
     <integer name="distance6">150</integer>
-    <integer name="distanceMax">3000</integer>
+    <integer name="distanceMax">30000</integer>
 </resources>
