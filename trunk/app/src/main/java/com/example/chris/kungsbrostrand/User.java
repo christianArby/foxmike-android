@@ -9,7 +9,7 @@ import java.util.HashMap;
  * Created by chris on 2017-06-28.
  */
 
-class User {
+public class User {
 
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;

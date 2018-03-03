@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             });
         } else {
             //User is signed out
-            Intent loginIntent = new Intent(MainActivity.this,LoginActivity.class);
+            Intent loginIntent = new Intent(MainActivity.this, com.example.chris.kungsbrostrand.LoginActivity.class);
             //loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             //loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);

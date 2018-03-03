@@ -212,15 +212,6 @@ public class MainPlayerActivity extends AppCompatActivity
                 switch (position) {
                     case 0:
                         if (!wasSelected) {
-                            if (fromUserID!=null) {
-                                allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
-                            } else {
-                                cleanMainActivityAndSwitch(allUsersFragment);
-                            }
-                            return true;
-                        }
-                    case 1:
-                        if (!wasSelected) {
                             cleanMainActivityAndSwitch(listSessionsFragment);
                             weekdayFilterContainer.setVisibility(View.VISIBLE);
                             mapOrListBtn.setVisibility(View.VISIBLE);
@@ -228,17 +219,17 @@ public class MainPlayerActivity extends AppCompatActivity
                             sortAndFilterFAB.setVisibility(View.VISIBLE);
                             return true;
                         }
-                    case 2:
+                    case 1:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(playerSessionsFragment);
                             return true;
                         }
-                    case 3:
+                    case 2:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(inboxFragment);
                             return true;
                         }
-                    case 4:
+                    case 3:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(userAccountFragment);
                             return true;
@@ -266,9 +257,9 @@ public class MainPlayerActivity extends AppCompatActivity
                         }
 
                         if (nrOfUnreadChats>0) {
-                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),3);
+                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),2);
                         } else {
-                            bottomNavigation.setNotification("",3);
+                            bottomNavigation.setNotification("",2);
                         }
 
                     }

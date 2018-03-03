@@ -349,7 +349,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         mDuration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createDialog("Choose level", R.array.level_array,mDuration);
+                createDialog("Hur länge kommer passet pågå?", R.array.duration_array,mDuration);
             }
         });
 

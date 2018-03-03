@@ -40,7 +40,7 @@ public class UserProfilePublicFragment extends Fragment {
     private FirebaseAuth mAuth;
     private LinearLayout list;
     private View profile;
-    private String userID;
+    private String otherUserID;
     private Button sendRequestBtn;
     private Button declineBtn;
     private int areFriends;
@@ -60,7 +60,7 @@ public class UserProfilePublicFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             Bundle bundle = getArguments();
-            userID = bundle.getString("otherUserID");
+            otherUserID = bundle.getString("otherUserID");
         }
     }
 
@@ -82,36 +82,41 @@ public class UserProfilePublicFragment extends Fragment {
         sendRequestBtn = view.findViewById(R.id.send_request_btn);
         declineBtn = view.findViewById(R.id.decline_request_btn);
 
-        // Set default visibility of decline button
+        // Set initial visibility of decline button
         declineBtn.setVisibility(View.INVISIBLE);
         declineBtn.setEnabled(false);
 
-        // friend states:
+        // areFriends states:
         // 0: not friends, no requests
         // 1: not friends, user has sent a request
         // 2: not friends, user has received a request
         // 3: friends
 
+        // set the initial state, if the relationship is otherwise it will change further down in the code
         areFriends=0;
+        // Set initial visibility of decline button
+        declineBtn.setVisibility(View.INVISIBLE);
+        declineBtn.setEnabled(false);
 
-        // get data of the userID clicked in previous activity
-        usersDbRef.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+        // get data of the otherUserID clicked in previous activity
+        usersDbRef.child(otherUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Fill the user profile page with the info from otherUser
                 User userDb = dataSnapshot.getValue(User.class);
                 userNameTV.setText(userDb.getName());
                 setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
-                // Find out of there are any requests sent to the user or recieved from the user
+                // Find out if there are any requests sent or recieved from the other user in the database/"friend_requests"/currentUserID
                 friendReqDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        if(dataSnapshot.hasChild(userID)) {
-                            String req_type = dataSnapshot.child(userID).child("request_type").getValue().toString();
+                        if(dataSnapshot.hasChild(otherUserID)) {
+                            String req_type = dataSnapshot.child(otherUserID).child("request_type").getValue().toString();
                             if (req_type.equals("received")) {
-                                areFriends = 2;
+                                areFriends = 2;     // If there are a recieved friend request
                                 sendRequestBtn.setText("Accept friend Request");
 
                                 declineBtn.setVisibility(View.VISIBLE);
@@ -126,12 +131,12 @@ public class UserProfilePublicFragment extends Fragment {
                             }
                         } else {
 
-                            // Find out if the user clicked is one of the current users friends
+                            // Find out if the user clicked is one of the current users friends by looking in database/"friends"/currentUserID
                             friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                    if (dataSnapshot.hasChild(userID)) {
+                                    if (dataSnapshot.hasChild(otherUserID)) {
                                         areFriends = 3;
                                         sendRequestBtn.setText("Unfriend this person");
 
@@ -153,16 +158,14 @@ public class UserProfilePublicFragment extends Fragment {
 
                     }
                 });
-
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
 
-
-        // ONCLICKLISTENER ON BUTTON STARTS HERE
+        // -------------- SEND FRIEND REQUEST BUTTON -------------------
+        // Set the on click listener for the send friend request button
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -172,8 +175,7 @@ public class UserProfilePublicFragment extends Fragment {
                 // -------------- NOT FRIENDS STATE ----------------
                 // If not friends and button is clicked, send friend request by creating structure in database
                 if (areFriends==0) {
-
-                    DatabaseReference newNotificationRef = rootDbRef.child("notifications").child(userID).push();
+                    DatabaseReference newNotificationRef = rootDbRef.child("notifications").child(otherUserID).push();
                     String newNotificationID = newNotificationRef.getKey();
 
                     HashMap<String,String> notificationData = new HashMap<String, String>();
@@ -181,9 +183,9 @@ public class UserProfilePublicFragment extends Fragment {
                     notificationData.put("type", "request");
 
                     Map requestMap = new HashMap<>();
-                    requestMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID + "/request_type", "sent");
-                    requestMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid() + "/request_type", "received");
-                    requestMap.put("notifications/" + userID + "/" + newNotificationID, notificationData);
+                    requestMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + otherUserID + "/request_type", "sent");
+                    requestMap.put("friend_requests/" + otherUserID + "/" + currentFirebaseUser.getUid() + "/request_type", "received");
+                    requestMap.put("notifications/" + otherUserID + "/" + newNotificationID, notificationData);
 
                     rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -200,8 +202,6 @@ public class UserProfilePublicFragment extends Fragment {
                                 declineBtn.setVisibility(View.INVISIBLE);
                                 declineBtn.setEnabled(false);
                             }
-
-
                         }
                     });
 
@@ -212,10 +212,10 @@ public class UserProfilePublicFragment extends Fragment {
 
                 if (areFriends==1) {
 
-                    friendReqDbRef.child(currentFirebaseUser.getUid()).child(userID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    friendReqDbRef.child(currentFirebaseUser.getUid()).child(otherUserID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            friendReqDbRef.child(userID).child(currentFirebaseUser.getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            friendReqDbRef.child(otherUserID).child(currentFirebaseUser.getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
 
@@ -239,11 +239,11 @@ public class UserProfilePublicFragment extends Fragment {
                     final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
 
                     Map friendsMap = new HashMap();
-                    friendsMap.put("friends/" + currentFirebaseUser.getUid() + "/" + userID + "/date", currentDate);
-                    friendsMap.put("friends/" + userID + "/" + currentFirebaseUser.getUid() + "/date", currentDate);
+                    friendsMap.put("friends/" + currentFirebaseUser.getUid() + "/" + otherUserID + "/date", currentDate);
+                    friendsMap.put("friends/" + otherUserID + "/" + currentFirebaseUser.getUid() + "/date", currentDate);
 
-                    friendsMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID, null);
-                    friendsMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid(), null);
+                    friendsMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + otherUserID, null);
+                    friendsMap.put("friend_requests/" + otherUserID + "/" + currentFirebaseUser.getUid(), null);
 
                     rootDbRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -274,8 +274,8 @@ public class UserProfilePublicFragment extends Fragment {
                 if (areFriends==3) {
 
                     Map unfriendMap = new HashMap();
-                    unfriendMap.put("friends/" + currentFirebaseUser.getUid() + "/" + userID, null);
-                    unfriendMap.put("friends/" + userID + "/" + currentFirebaseUser.getUid(), null);
+                    unfriendMap.put("friends/" + currentFirebaseUser.getUid() + "/" + otherUserID, null);
+                    unfriendMap.put("friends/" + otherUserID + "/" + currentFirebaseUser.getUid(), null);
 
                     rootDbRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -302,6 +302,8 @@ public class UserProfilePublicFragment extends Fragment {
             }
         });
 
+        // -------------- DECLINE BUTTON -------------------
+        // Set the on click listener for the decline request button
         declineBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -313,8 +315,8 @@ public class UserProfilePublicFragment extends Fragment {
                 if (areFriends==2) {
 
                     Map unfriendMap = new HashMap();
-                    unfriendMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + userID, null);
-                    unfriendMap.put("friend_requests/" + userID + "/" + currentFirebaseUser.getUid(), null);
+                    unfriendMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + otherUserID, null);
+                    unfriendMap.put("friend_requests/" + otherUserID + "/" + currentFirebaseUser.getUid(), null);
 
                     rootDbRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
                         @Override

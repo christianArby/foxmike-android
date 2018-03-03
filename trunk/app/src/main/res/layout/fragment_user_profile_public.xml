@@ -21,6 +21,7 @@
     </ScrollView>
 
     <Button
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/send_request_btn"
@@ -28,6 +29,7 @@
         android:layout_gravity="center_horizontal"/>
 
     <Button
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/decline_request_btn"

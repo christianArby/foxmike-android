@@ -26,7 +26,6 @@ public class AllUsersFragment extends Fragment {
     private DatabaseReference mUsersDatabase;
     OnUserClickedListener onUserClickedListener;
 
-
     public AllUsersFragment() {
         // Required empty public constructor
     }
@@ -53,7 +52,6 @@ public class AllUsersFragment extends Fragment {
         allUsersList = (RecyclerView) view.findViewById(R.id.allUsersList);
         allUsersList.setHasFixedSize(true);
         allUsersList.setLayoutManager(new LinearLayoutManager(getActivity()));
-
 
         return view;
     }
