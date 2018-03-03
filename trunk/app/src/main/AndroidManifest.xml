@@ -95,7 +95,7 @@
             android:name=".LoginActivity"
             android:theme="@style/foxmike"/>
         <activity
-            android:name=".RegisterActivity"
+            android:name=".activities.RegisterActivity"
             android:label="@string/title_activity_register"
             android:screenOrientation="portrait"
             android:theme="@style/foxmike"/>
