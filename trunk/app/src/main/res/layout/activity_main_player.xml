@@ -23,7 +23,7 @@
             <view
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                class="com.example.chris.kungsbrostrand.WrapContentViewPager"
+                class="com.foxmike.androidapp.kungsbrostrand.WrapContentViewPager"
                 android:id="@+id/weekdayPager"
                 android:layout_alignParentTop="true"/>
 
