@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
-        applicationId "com.foxmike.androidapp.kungsbrostrand"
+        applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
