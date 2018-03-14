@@ -1,21 +1,25 @@
 package com.foxmike.android.adapters;
-
+//Checked
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.foxmike.android.R;
 import com.foxmike.android.fragments.ChatsFragment;
 import com.foxmike.android.fragments.FriendsFragment;
 import com.foxmike.android.fragments.RequestsFragment;
 
 /**
- * Created by chris on 2017-11-18.
+ * This adapter sets up the three tabs in Inbox fragment and fill those pages with corresponding fragments
  */
 
 public class InboxPagerAdapter extends FragmentPagerAdapter{
+    Context context;
 
-    public InboxPagerAdapter(FragmentManager fm) {
+    public InboxPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
+        this.context = context;
     }
 
     @Override
@@ -25,19 +29,14 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
             case 0:
                 ChatsFragment chatsFragment = new ChatsFragment();
                 return chatsFragment;
-
             case 1:
                 FriendsFragment friendsFragment = new FriendsFragment();
                 return friendsFragment;
-
-
             case 2:
                 RequestsFragment requestsFragment = new RequestsFragment();
                 return requestsFragment;
-
             default:
                 return null;
-
         }
     }
 
@@ -50,11 +49,11 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                return "MEDDELANDEN";
+                return context.getResources().getString(R.string.tab_messages);
             case 1:
-                return "VÄNNER";
+                return context.getString(R.string.tab_friends);
             case 2:
-                return "NOTISER";
+                return context.getString(R.string.tab_notifications);
             default:
                 return null;
         }

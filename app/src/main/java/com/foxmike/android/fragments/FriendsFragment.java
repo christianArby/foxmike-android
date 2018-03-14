@@ -186,7 +186,9 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
 
-                        CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
+                        onUserClickedListener.OnUserClicked(userIDs.get(position));
+
+                        /*CharSequence options[] = new CharSequence[]{"Open profile", "Send message"};
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -196,7 +198,7 @@ public class FriendsFragment extends Fragment {
                             public void onClick(DialogInterface dialogInterface, int i) {
 
                                 if (i == 0) {
-                                    onUserClickedListener.OnUserClicked(userIDs.get(position));
+
                                 }
 
                                 if (i == 1) {
@@ -214,7 +216,7 @@ public class FriendsFragment extends Fragment {
                             }
                         });
 
-                        builder.show();
+                        builder.show();*/
 
 
                     }

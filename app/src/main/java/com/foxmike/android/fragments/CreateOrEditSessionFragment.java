@@ -1,22 +1,40 @@
-package com.foxmike.android.activities;
-//Checked
+package com.foxmike.android.fragments;
+// Checked
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
-import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionDate;
@@ -34,30 +52,18 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class CreateOrEditSessionActivity extends AppCompatActivity implements OnSessionClickedListener {
+import static android.app.Activity.RESULT_OK;
+/**
+ * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
+ * It also updates existing sessions.
+ */
+public class CreateOrEditSessionFragment extends Fragment implements OnSessionClickedListener{
 
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
@@ -95,17 +101,36 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
     private MapsFragment mapsFragment;
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
+    private OnHostSessionChangedListener onHostSessionChangedListener;
 
+    public CreateOrEditSessionFragment() {
+        // Required empty public constructor
+    }
+
+    public static CreateOrEditSessionFragment newInstance() {
+        CreateOrEditSessionFragment fragment = new CreateOrEditSessionFragment();
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_or_edit_session);
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            existingSessionID = bundle.getString("sessionID");
+            clickedLatLng = bundle.getParcelable("LatLng");
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_create_or_edit_session, container, false);
 
         /** Set and inflate "create session" layout*/
         View createSession;
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
+        LinearLayout createSessionContainer = view.findViewById(R.id.create_session_container);
         createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
 
         // Setup views
@@ -121,11 +146,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
-        mProgress = new ProgressDialog(this);
+        mProgress = new ProgressDialog(getActivity());
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mAdvertised = createSession.findViewById(R.id.advertised);
-        mapsFragmentContainer = findViewById(R.id.container_maps_fragment);
+        mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -164,7 +189,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             @Override
             public void onClick(View view) {
                 mapsFragmentContainer.setVisibility(View.VISIBLE);
-                fragmentManager = getSupportFragmentManager();
+                fragmentManager = getChildFragmentManager();
                 final FragmentTransaction transaction = fragmentManager.beginTransaction();
                 Bundle bundle = new Bundle();
                 bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
@@ -179,71 +204,63 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             }
         });
 
-        Bundle sessionIdBundle = getIntent().getExtras();
-        existingSessionID = "new";
-        sessionExist=0;
-        if (sessionIdBundle != null) {
-            existingSessionID = sessionIdBundle.getString("key");
 
+        sessionExist=0;
+        if (existingSessionID != null) {
             /**If this activity was started from clicking on an edit session the previous activity should have sent a bundle with the session key, if so
              * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
-            if (existingSessionID != null){
+            sessionExist=1;
 
-                sessionExist=1;
+            final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
+            sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
 
-                final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
-                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    existingSession = dataSnapshot.getValue(Session.class);
 
-                        existingSession = dataSnapshot.getValue(Session.class);
+                    clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
+                    String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+                    mLocation.setText(address);
+                    setImage(existingSession.getImageUrl(),mSessionImageButton);
+                    mSessionName.setText(existingSession.getSessionName());
+                    mSessionType.setText(existingSession.getSessionType());
+                    // Date
+                    myCalendar.set(Calendar.YEAR, existingSession.getSessionDate().getYear());
+                    myCalendar.set(Calendar.MONTH, existingSession.getSessionDate().getMonth());
+                    myCalendar.set(Calendar.DAY_OF_MONTH, existingSession.getSessionDate().getDay());
+                    updateLabel();
+                    // Time
+                    mTime.setText( existingSession.getSessionDate().getHour() + ":" + existingSession.getSessionDate().getMinute());
+                    mMaxParticipants.setText(existingSession.getMaxParticipants());
+                    mDuration.setText(existingSession.getDuration());
+                    mWhat.setText(existingSession.getWhat());
+                    mWho.setText(existingSession.getWho());
+                    mWhere.setText(existingSession.getWhere());
 
-                        clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-                        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-                        mLocation.setText(address);
-                        setImage(existingSession.getImageUrl(),mSessionImageButton);
-                        mSessionName.setText(existingSession.getSessionName());
-                        mSessionType.setText(existingSession.getSessionType());
-                        // Date
-                        myCalendar.set(Calendar.YEAR, existingSession.getSessionDate().getYear());
-                        myCalendar.set(Calendar.MONTH, existingSession.getSessionDate().getMonth());
-                        myCalendar.set(Calendar.DAY_OF_MONTH, existingSession.getSessionDate().getDay());
-                        updateLabel();
-                        // Time
-                        mTime.setText( existingSession.getSessionDate().getHour() + ":" + existingSession.getSessionDate().getMinute());
-                        mMaxParticipants.setText(existingSession.getMaxParticipants());
-                        mDuration.setText(existingSession.getDuration());
-                        mWhat.setText(existingSession.getWhat());
-                        mWho.setText(existingSession.getWho());
-                        mWhere.setText(existingSession.getWhere());
-
-                        mCreateSessionBtn.setText(R.string.update_session);
-                        mAdvertised.setChecked(existingSession.isAdvertised());
-                        if (existingSession.isAdvertised()) {
-                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-                            mAdvertised.setChecked(true);
-                        } else {
-                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
-                            mAdvertised.setChecked(false);
-                        }
+                    mCreateSessionBtn.setText(R.string.update_session);
+                    mAdvertised.setChecked(existingSession.isAdvertised());
+                    if (existingSession.isAdvertised()) {
+                        mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+                        mAdvertised.setChecked(true);
+                    } else {
+                        mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
+                        mAdvertised.setChecked(false);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
-            }
+                }
+            });
 
-            /** If no bundle exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
-             * if so extract the LatLng and set the image to the default image (Create view)*/
-            else {
+        } /** If no bundle exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
+         * if so extract the LatLng and set the image to the default image (Create view)*/
+        else {
 
-                clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
-                String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-                mLocation.setText(address);
-                mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
-            }
+            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            mLocation.setText(address);
+            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
         }
 
         /**When imagebutton is clicked start gallery in phone to let user choose photo/image*/
@@ -317,7 +334,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                new DatePickerDialog(CreateOrEditSessionActivity.this, date, myCalendar
+                new DatePickerDialog(getContext(), date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -333,7 +350,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(CreateOrEditSessionActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         mTime.setText( selectedHour + ":" + selectedMinute);
@@ -368,8 +385,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
             }
         });
-    }
 
+        return view;
+    }
 
     // If location has been changed through opening MapsFragment catch the clickedLatLng from OnSessionClickedListener
     @Override
@@ -416,7 +434,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                         goToMain();
 
                     }   else    {
-                        Toast.makeText(getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                     }
                     mProgress.dismiss();
                 }
@@ -437,24 +455,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
 
                     goToMain();
                 }   else    {
-                    Toast.makeText(getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                 }
 
             }
             /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
                 mProgress.dismiss();
-                Toast.makeText(getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
             }
         }
     }
 
     private void goToMain() {
-        FragmentManager fm = getSupportFragmentManager();
-        if (fm.findFragmentByTag("xMainHostSessionsFragment")!=null) {
-            Toast.makeText(this, "whaat", Toast.LENGTH_LONG).show();
-        }
-        finish();
+        onHostSessionChangedListener.OnHostSessionChanged();
         /*Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(mainIntent);*/
@@ -469,14 +483,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialog.setView(convertView);
         alertDialog.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(CreateOrEditSessionActivity.this,android.R.layout.simple_list_item_1,values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialog.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -490,7 +504,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
     }
 
     /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
@@ -500,7 +514,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(2,1)
-                    .start(this);
+                    .start(getActivity());
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -528,7 +542,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;
-        geocoder = new Geocoder(this, Locale.getDefault());
+        geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
@@ -559,6 +573,23 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
 
         return returnAddress;
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnHostSessionChangedListener) {
+            onHostSessionChangedListener = (OnHostSessionChangedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnHostSessionChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onHostSessionChangedListener = null;
     }
 
 }

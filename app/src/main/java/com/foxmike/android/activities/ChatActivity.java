@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -59,16 +59,12 @@ public class ChatActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private MessageFirebaseAdapter messageFirebaseAdapter;
     private DatabaseReference rootDbRef;
-    private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private static final int TOTAL_ITEMS_TO_LOAD = R.integer.TOTAL_ITEMS_TO_LOAD;
     private Query messageQuery;
-
     private DatabaseReference userDbRef;
     private DatabaseReference friendDbRef;
-
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
-
     private ValueEventListener usersChatUserIDListener;
-
     private String chatID;
 
     @Override
@@ -76,35 +72,33 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        rootDbRef = FirebaseDatabase.getInstance().getReference();
-
         chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
+        chatMessage = (EditText) findViewById(R.id.chat_message_ET);
+        chatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
+        chatAddBtn = (ImageButton) findViewById(R.id.chatAddBtn);
+        messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
+
+        // Setup toolbar
         setSupportActionBar(chatToolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         chatToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         actionBar.setDisplayShowCustomEnabled(true);
-
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View action_bar_view = inflater.inflate(R.layout.chat_custom_bar, null);
-
         actionBar.setCustomView(action_bar_view);
 
         titleView = (TextView) findViewById(R.id.custom_bar_name);
-        lastSeenView = (TextView) findViewById(R.id.custom_bar_lastSeen);
         profileImage = (CircleImageView) findViewById(R.id.custom_bar_image);
-        chatMessage = (EditText) findViewById(R.id.chat_message_ET);
-        chatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
-        chatAddBtn = (ImageButton) findViewById(R.id.chatAddBtn);
+        lastSeenView = (TextView) findViewById(R.id.custom_bar_lastSeen);
 
-        messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
+        // Setup meessage recyclerview
         linearLayoutManager = new LinearLayoutManager(this);
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
 
         valueEventListenerMap = new HashMap<>();
-
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
@@ -114,23 +108,26 @@ public class ChatActivity extends AppCompatActivity {
         chatThumbImage = getIntent().getStringExtra("userThumbImage");
         chatID = getIntent().getStringExtra("chatID");
 
+        // Fill toolbar
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
 
+        // Set database references
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
         userDbRef = rootDbRef.child("users").child(currentUserID);
         friendDbRef = rootDbRef.child("users").child(chatUserID);
 
-        // see if current user has a chat with the friend already, add listener to send message button
+        // see if current user has a chat with the friend already and add listener to send message button
         userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final User currentUser = dataSnapshot.getValue(User.class);
-
                 friendDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User friendUser = dataSnapshot.getValue(User.class);
 
+                        // If chatID is null it means that the activity was started by clicking on friend, check if chat with friend exists
                         if (chatID==null) {
                             if (currentUser.getChats()!=null) {
                                 for (String userChatID : currentUser.getChats().keySet()) {
@@ -141,6 +138,7 @@ public class ChatActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                            // If chat did not exist between users create a new chatID
                             if (chatID==null) {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
@@ -148,16 +146,15 @@ public class ChatActivity extends AppCompatActivity {
 
                         // --------------- chatID SET ----------------
 
+                        // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                         messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
-
-                        //messageAdapter = new MessageAdapter(messageList);
                         FirebaseRecyclerOptions<Message> options =
                                 new FirebaseRecyclerOptions.Builder<Message>()
                                         .setQuery(messageQuery, Message.class)
                                         .build();
+                        //Setup message firebase adapter which loads 10 first messages
                         messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
-
                         messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                             @Override
                             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -165,10 +162,9 @@ public class ChatActivity extends AppCompatActivity {
                                 messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
                             }
                         });
-
                         messagesListRV.setAdapter(messageFirebaseAdapter);
 
-                        // When button is clicked send message to database
+                        // Setup send button, when button is clicked send message to database
                         chatSendBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -176,8 +172,10 @@ public class ChatActivity extends AppCompatActivity {
                             }
                         });
 
+                        // Start listening to changes in database
                         messageFirebaseAdapter.startListening();
 
+                        // Set current user as a participant in the chat and set the values to true meaning current user has seen the messages
                         rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
                         rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                     }
@@ -196,7 +194,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        // Listen to Online change of friend
+        // Listen to Online change of friend and change status in toolbar
         usersChatUserIDListener = rootDbRef.child("presence").child(chatUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -221,17 +219,17 @@ public class ChatActivity extends AppCompatActivity {
         });
         valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);
 
+        // Setup refresh event
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
                 final int currentItems = messageFirebaseAdapter.getItemCount();
-
                 messageFirebaseAdapter.stopListening();
 
+                // Set query to current messages + 10 more items
                 DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                 messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
-
                 FirebaseRecyclerOptions<Message> options =
                         new FirebaseRecyclerOptions.Builder<Message>()
                                 .setQuery(messageQuery, Message.class)
@@ -247,16 +245,14 @@ public class ChatActivity extends AppCompatActivity {
                 });
 
                 messagesListRV.setAdapter(messageFirebaseAdapter);
-
                 messageFirebaseAdapter.startListening();
-
                 swipeRefreshLayout.setRefreshing(false);
-
             }
         });
 
     }
 
+    /* This function writes the message and its parameters to the database */
     private void sendMessage(String userName, String userThumbImage) {
 
         String message = chatMessage.getText().toString();
@@ -275,13 +271,14 @@ public class ChatActivity extends AppCompatActivity {
             rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
             rootDbRef.child("chats").child(chatID).child("lastMessage").setValue(message);
             rootDbRef.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            // Current users ID is set to true in chats/users since current user has seen the message
             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+            // Other users ID is set to false in chats/users since other user has not seen the message
             rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(false);
-            //rootRefDb.child("chatMembers").child(chatID).child(currentUserID).setValue(true);
-            //rootRefDb.child("chatMembers").child(chatID).child(chatUserID).setValue(false);
+            // Same thing as above but in the users objects
             rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
             rootDbRef.child("users").child(chatUserID).child("chats").child(chatID).setValue(false);
-
+            // Clear the input field
             chatMessage.setText("");
         }
     }

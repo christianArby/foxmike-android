@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.location.Address;
@@ -46,7 +47,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import android.support.v4.app.Fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,14 +60,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-
-public class DisplaySessionFragment extends DialogFragment implements OnMapReadyCallback {
+/**
+ * This fragment takes a longitude and latitude and displays the corresponding session with that longitude and latitude.
+ */
+public class DisplaySessionFragment extends Fragment implements OnMapReadyCallback {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-    private HashMap<DatabaseReference, ChildEventListener> childEventListenerMap;
+    private HashMap<Query, ChildEventListener> childEventListenerMap;
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mSessionName;
@@ -87,23 +91,20 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     private Double sessionLongitude;
     private ChildEventListener sessionChildEventListener;
     private Session session;
-    //ArrayList<Post> postArrayList;
     ArrayList<PostBranch> postBranchArrayList;
     private LinearLayoutManager linearLayoutManager;
     private Map<Long, String> postIDs = new HashMap<Long, String>();
     private Map<String, Long> nrOfComments = new HashMap<String, Long>();
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
-
     private GoogleMap mMap;
     private RecyclerView postList;
-
     private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
     User user;
+    private OnEditSessionListener onEditSessionListener;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
     }
-
 
     public static DisplaySessionFragment newInstance(double sessionLatitude, double sessionLongitude) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
@@ -119,18 +120,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Dialog d = getDialog();
-        if (d!=null){
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = ViewGroup.LayoutParams.MATCH_PARENT;
-            d.getWindow().setLayout(width, height);
-        }
     }
 
     @Override
@@ -138,9 +127,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
 
-        //postArrayList = new ArrayList<Post>();
         postBranchArrayList = new ArrayList<>();
-
         childEventListenerMap = new HashMap<>();
 
         LinearLayout displaySessionContainer;
@@ -160,9 +147,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         mWhereTW = displaySession.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
 
-
-
-        /**
+        /*
          Get latitude and longitude of session from previous activity.
          Use latitiude and longitude in method findSessionAndFillInUI to fill view
          with session details.
@@ -172,37 +157,32 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         if (sessionLatitude!=null) {
             findSessionAndFillInUI(sessionLatitude, sessionLongitude);
         } else {
-            Toast toast = Toast.makeText(getActivity(),"Session not found, please try again later...",Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
 
         mDisplaySessionBtn = displaySession.findViewById(R.id.displaySessionBtn);
         displaySessionContainer.addView(displaySession);
-
         mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**
+                /*
                  If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
                  and send the session key to that activity as bundle.
                  */
-
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                    Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
-
-
+                    onEditSessionListener.OnEditSession(sessionID);
+                    /*Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
                     Bundle sessionIdBundle = new Bundle();
                     sessionIdBundle.putString("key",sessionID);
                     createSessionIntent.putExtras(sessionIdBundle);
                     createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(createSessionIntent);
+                    startActivity(createSessionIntent);*/
                 }
-
-                /**
+                /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                  remove the current user from that session participant list and go back to main activity.
                  */
-
                 else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
                     mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
                     mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).removeValue();
@@ -212,7 +192,7 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
                 else {
 
-                    /**
+                    /*
                      Else (button will show join session) add the user id to the session participant list and
                      the user sessions attending list when button is clicked.
                      */
@@ -223,7 +203,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                     Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
                     startActivity(mainIntent);
                 }
-
             }
         });
 
@@ -242,8 +221,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
 
             }
         });
-
-
 
         postList = (RecyclerView) view.findViewById(R.id.post_list);
         postList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -274,8 +251,6 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
                 return postBranchArrayList.size();
             }
         };
-
-
 
         linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setReverseLayout(true);
@@ -395,202 +370,186 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                session = dataSnapshot.getValue(Session.class);
-
-                // Listen for posts and add add them to wall
-                if (!listenerMap.containsKey(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"))) {
-
-                    ValueEventListener postsListener = mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                            Session session = new Session();
-                            postBranchArrayList.clear();
-                            //postArrayList.clear();
-                            //postIDs.clear();
-                            session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
-
-                            if (dataSnapshot.getChildrenCount()>0) {
-
-                                for (final String postID : session.getPosts().keySet()) {
-
-                                    rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                            Post post = dataSnapshot.getValue(Post.class);
-                                            PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
-                                            postBranchArrayList.add(postBranch);
-                                            Collections.sort(postBranchArrayList);
-                                            //postArrayList.add(post);
-                                            //postIDs.put((Long) post.getTimestamp(), dataSnapshot.getKey());
-                                            //Collections.sort(postArrayList);
-                                            postsViewHolderAdapter.notifyDataSetChanged();
-
-                                            //TODO fix number of comments listener
-                                            if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
-
-                                                ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        nrOfComments.put(dataSnapshot.getKey(),dataSnapshot.getChildrenCount());
-
-                                                        for (int i = 0; i < postBranchArrayList.size(); i++) {
-
-                                                            if (postBranchArrayList.get(i).postID.equals(dataSnapshot.getKey())) {
-                                                                postsViewHolderAdapter.notifyItemChanged(i);
-                                                            }
-                                                        }
-
-                                                        postsViewHolderAdapter.notifyDataSetChanged();
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
-                                                listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
-
-                                            }
-
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-                                }
-                            }
-                        }
-
-
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                    listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
-
-                }
-
-                // Posts end
-
-                long countParticipants;
-
-                if (dataSnapshot.hasChild("participants")) {
-                    countParticipants = dataSnapshot.child("participants").getChildrenCount();
-                } else {
-                    countParticipants = 0;
-                }
-
-
-                if(session.getLongitude()==longitude) {
-
-                    childEventListenerMap.put(dataSnapshot.getRef(), sessionChildEventListener);
-
-
-                    String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth() + " " + session.textTime();
-                    sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
-                    mDateAndTime.setText(sessionDateAndTime);
-
-                    // Set the session information in UI
-                    mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
-                    sessionID = dataSnapshot.getRef().getKey();
-                    mSessionName.setText(session.getSessionName());
-
-                    String address = getAddress(session.getLatitude(),session.getLongitude());
-                    mAddressAndSessionType.setText(address);
-                    mWhatTW.setText(session.getWhat());
-                    mWhoTW.setText(session.getWho());
-                    mWhereTW.setText(session.getWhere());
-
-
-                    /**
-                     Get the host image from the database (found under users with the userID=session.host)
-                     */
-                    mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                            User user = dataSnapshot.getValue(User.class);
-
-                            setImage(user.getImage(), mHostImage);
-                            String hostText = "Möt din tränare, " + user.getName();
-                            mHost.setText(hostText);
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                    mParticipants.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(session.getParticipants());
-                            FragmentManager fragmentManager = getChildFragmentManager();
-                            FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            if (participantsFragment!=null) {
-                                transaction.remove(participantsFragment);
-                            }
-
-                            participantsFragment.show(transaction,"participantsFragment");
-                        }
-                    });
-
-
-                    /**
-                     If participants are more than zero, see if the current user is one of the participants and if so
-                     change the button text to "Cancel booking"
-                     */
-                    if (session.getParticipants() != null) {
-                        if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
-                            mDisplaySessionBtn.setText(R.string.cancel_booking);
-                        }
-                    }
-
-                    /**
-                     If the current user is the session host change the button text to "Edit session"
-                     */
-                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        mDisplaySessionBtn.setText("Edit session");
-                    }
-
-                    ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
-                    setImage(session.getImageUrl(), sessionImage);
-                    sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
-
-                }
+                fillUI(dataSnapshot,longitude);
             }
-
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                fillUI(dataSnapshot,longitude);
             }
-
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
             }
-
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
+        childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(latitude), sessionChildEventListener);
+    }
+
+    private void fillUI(DataSnapshot dataSnapshot, final Double longitude) {
+        session = dataSnapshot.getValue(Session.class);
+
+        // Listen for posts and add add them to wall
+        if (!listenerMap.containsKey(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"))) {
+
+            ValueEventListener postsListener = mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    Session session = new Session();
+                    postBranchArrayList.clear();
+                    session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+
+                    if (dataSnapshot.getChildrenCount()>0) {
+
+                        for (final String postID : session.getPosts().keySet()) {
+
+                            rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                    Post post = dataSnapshot.getValue(Post.class);
+                                    PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                                    postBranchArrayList.add(postBranch);
+                                    Collections.sort(postBranchArrayList);
+                                    postsViewHolderAdapter.notifyDataSetChanged();
+
+                                    //TODO fix number of comments listener
+                                    if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
+
+                                        ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                nrOfComments.put(dataSnapshot.getKey(),dataSnapshot.getChildrenCount());
+
+                                                for (int i = 0; i < postBranchArrayList.size(); i++) {
+
+                                                    if (postBranchArrayList.get(i).postID.equals(dataSnapshot.getKey())) {
+                                                        postsViewHolderAdapter.notifyItemChanged(i);
+                                                    }
+                                                }
+
+                                                postsViewHolderAdapter.notifyDataSetChanged();
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                        listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
+
+        }
+
+        // Posts end
+
+        long countParticipants;
+
+        if (dataSnapshot.hasChild("participants")) {
+            countParticipants = dataSnapshot.child("participants").getChildrenCount();
+        } else {
+            countParticipants = 0;
+        }
+
+        if(session.getLongitude()==longitude) {
+
+            String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth() + " " + session.textTime();
+            sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
+            mDateAndTime.setText(sessionDateAndTime);
+
+            // Set the session information in UI
+            mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
+            sessionID = dataSnapshot.getRef().getKey();
+            mSessionName.setText(session.getSessionName());
+
+            String address = getAddress(session.getLatitude(),session.getLongitude());
+            mAddressAndSessionType.setText(address);
+            mWhatTW.setText(session.getWhat());
+            mWhoTW.setText(session.getWho());
+            mWhereTW.setText(session.getWhere());
+
+
+            /**
+             Get the host image from the database (found under users with the userID=session.host)
+             */
+            mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    User user = dataSnapshot.getValue(User.class);
+                    setImage(user.getImage(), mHostImage);
+                    String hostText = "Möt din tränare, " + user.getName();
+                    mHost.setText(hostText);
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            mParticipants.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(session.getParticipants());
+                    FragmentManager fragmentManager = getChildFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (participantsFragment!=null) {
+                        transaction.remove(participantsFragment);
+                    }
+
+                    participantsFragment.show(transaction,"participantsFragment");
+                }
+            });
+
+
+            /**
+             If participants are more than zero, see if the current user is one of the participants and if so
+             change the button text to "Cancel booking"
+             */
+            if (session.getParticipants() != null) {
+                if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+                    mDisplaySessionBtn.setText(R.string.cancel_booking);
+                }
+            }
+
+            /**
+             If the current user is the session host change the button text to "Edit session"
+             */
+            if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                mDisplaySessionBtn.setText("Edit session");
+            }
+
+            ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
+            setImage(session.getImageUrl(), sessionImage);
+            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+
+        }
+
     }
 
     private void setImage(String image, ImageView imageView) {
@@ -637,17 +596,22 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
+        for (Map.Entry<Query, ChildEventListener> entry : childEventListenerMap.entrySet()) {
+            Query ref = entry.getKey();
             ChildEventListener listener = entry.getValue();
+            ref.removeEventListener(listener);
+        }
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
     }
 
     public void cleanListeners () {
 
-        for (Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
+        for (Map.Entry<Query, ChildEventListener> entry : childEventListenerMap.entrySet()) {
+            Query ref = entry.getKey();
             ChildEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
@@ -686,5 +650,27 @@ public class DisplaySessionFragment extends DialogFragment implements OnMapReady
         public int compareTo(@NonNull PostBranch postBranch) {
             return ((int) (long) this.post.getTimestamp() - (int) (long) postBranch.post.getTimestamp());
         }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnEditSessionListener) {
+            onEditSessionListener = (OnEditSessionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnEditSessionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onEditSessionListener = null;
+    }
+
+    public interface OnEditSessionListener {
+        void OnEditSession(String sessionID);
     }
 }

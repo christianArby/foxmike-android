@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.ChatActivity;
+import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,7 +47,9 @@ public class UserProfilePublicFragment extends Fragment {
     private String otherUserID;
     private Button sendRequestBtn;
     private Button declineBtn;
+    private Button sendMessageBtn;
     private int areFriends;
+    private User otherUser;
 
 
     public UserProfilePublicFragment() {
@@ -82,6 +87,8 @@ public class UserProfilePublicFragment extends Fragment {
         final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         sendRequestBtn = view.findViewById(R.id.send_request_btn);
         declineBtn = view.findViewById(R.id.decline_request_btn);
+        sendMessageBtn = view.findViewById(R.id.send_message_btn);
+        sendMessageBtn.setVisibility(View.GONE);
 
         // Set initial visibility of decline button
         declineBtn.setVisibility(View.INVISIBLE);
@@ -104,9 +111,9 @@ public class UserProfilePublicFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
-                User userDb = dataSnapshot.getValue(User.class);
-                userNameTV.setText(userDb.getName());
-                setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
+                otherUser = dataSnapshot.getValue(User.class);
+                userNameTV.setText(otherUser.getName());
+                setCircleImage(otherUser.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
                 // Find out if there are any requests sent or recieved from the other user in the database/"friend_requests"/currentUserID
@@ -133,17 +140,18 @@ public class UserProfilePublicFragment extends Fragment {
                         } else {
 
                             // Find out if the user clicked is one of the current users friends by looking in database/"friends"/currentUserID
-                            friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                    if (dataSnapshot.hasChild(otherUserID)) {
-                                        areFriends = 3;
-                                        sendRequestBtn.setText("Unfriend this person");
+                                            if (dataSnapshot.hasChild(otherUserID)) {
+                                                areFriends = 3;
+                                                sendRequestBtn.setText("Unfriend this person");
 
-                                        declineBtn.setVisibility(View.INVISIBLE);
-                                        declineBtn.setEnabled(false);
-                                    }
+                                                declineBtn.setVisibility(View.INVISIBLE);
+                                                declineBtn.setEnabled(false);
+                                                sendMessageBtn.setVisibility(View.VISIBLE);
+                                            }
                                     // Progressbar dismiss
                                 }
 
@@ -340,6 +348,20 @@ public class UserProfilePublicFragment extends Fragment {
                             declineBtn.setEnabled(true);
                         }
                     });
+                }
+            }
+        });
+
+        sendMessageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (otherUser!=null) {
+                    Intent chatIntent = new Intent(getContext(),ChatActivity.class);
+                    chatIntent.putExtra("userID", otherUserID);
+                    chatIntent.putExtra("userName", otherUser.getName());
+                    chatIntent.putExtra("userThumbImage", otherUser.getThumb_image());
+                    chatIntent.putExtra("userLastSeen", "FIX THIS");
+                    startActivity(chatIntent);
                 }
             }
         });

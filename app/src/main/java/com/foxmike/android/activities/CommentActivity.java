@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+/* This class is very similar to ChatActivity but with less functionality, for explanation on functions see ChatActivity*/
 public class CommentActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -41,13 +42,10 @@ public class CommentActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private MessageFirebaseAdapter messageFirebaseAdapter;
     private DatabaseReference rootDbRef;
-    private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private static final int TOTAL_ITEMS_TO_LOAD = R.integer.TOTAL_ITEMS_TO_LOAD;
     private Query messageQuery;
-
     private DatabaseReference userDbRef;
-
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
-
     private String postID;
 
     @Override
@@ -55,34 +53,30 @@ public class CommentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
 
-        rootDbRef = FirebaseDatabase.getInstance().getReference();
-
         postMessage = (EditText) findViewById(R.id.post_message_ET);
         postSendBtn = (ImageButton) findViewById(R.id.post_message_send_btn);
         postAddBtn = (ImageButton) findViewById(R.id.post_message_AddBtn);
-
         messagesListRV = (RecyclerView) findViewById(R.id.post_messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.post_message_swipe_layout);
+
         linearLayoutManager = new LinearLayoutManager(this);
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
 
         valueEventListenerMap = new HashMap<>();
-
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
         // Get extra sent from previous activity
         postID = getIntent().getStringExtra("postID");
 
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
         userDbRef = rootDbRef.child("users").child(currentUserID);
 
         userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 final User currentUser = dataSnapshot.getValue(User.class);
-
                 // When button is clicked send message to database
                 postSendBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -90,25 +84,20 @@ public class CommentActivity extends AppCompatActivity {
                         sendMessage(currentUser.getName(), currentUser.getThumb_image());
                     }
                 });
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
 
         DatabaseReference messageRef = rootDbRef.child("postMessages").child(postID);
         messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
-
         //messageAdapter = new MessageAdapter(messageList);
         FirebaseRecyclerOptions<Message> options =
                 new FirebaseRecyclerOptions.Builder<Message>()
                         .setQuery(messageQuery, Message.class)
                         .build();
         messageFirebaseAdapter = new MessageFirebaseAdapter(options, false);
-
         messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -118,7 +107,6 @@ public class CommentActivity extends AppCompatActivity {
         });
 
         messagesListRV.setAdapter(messageFirebaseAdapter);
-
         messageFirebaseAdapter.startListening();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -126,18 +114,14 @@ public class CommentActivity extends AppCompatActivity {
             public void onRefresh() {
 
                 final int currentItems = messageFirebaseAdapter.getItemCount();
-
                 messageFirebaseAdapter.stopListening();
-
                 DatabaseReference messageRef = rootDbRef.child("postMessages").child(postID);
                 messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
-
                 FirebaseRecyclerOptions<Message> options =
                         new FirebaseRecyclerOptions.Builder<Message>()
                                 .setQuery(messageQuery, Message.class)
                                 .build();
                 messageFirebaseAdapter = new MessageFirebaseAdapter(options, false);
-
                 messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                     @Override
                     public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -147,11 +131,8 @@ public class CommentActivity extends AppCompatActivity {
                 });
 
                 messagesListRV.setAdapter(messageFirebaseAdapter);
-
                 messageFirebaseAdapter.startListening();
-
                 swipeRefreshLayout.setRefreshing(false);
-
             }
         });
 

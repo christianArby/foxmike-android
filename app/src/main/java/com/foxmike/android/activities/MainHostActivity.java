@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,7 +12,9 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.AllUsersFragment;
+import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
+import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
@@ -32,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainHostActivity extends AppCompatActivity implements
@@ -41,7 +44,9 @@ public class MainHostActivity extends AppCompatActivity implements
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         HostSessionsFragment.OnCreateSessionClickedListener,
         OnUserClickedListener,
-        OnNewMessageListener {
+        OnNewMessageListener,
+        DisplaySessionFragment.OnEditSessionListener,
+        OnHostSessionChangedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -52,6 +57,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private UserProfileFragment hostUserProfileFragment;
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
+    private CreateOrEditSessionFragment createOrEditSessionFragment;
     private AllUsersFragment hostAllUsersFragment;
     private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
@@ -65,108 +71,80 @@ public class MainHostActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_host);
 
+        bottomNavigation = findViewById(R.id.bottom_navigation_host);
+
         mAuth = FirebaseAuth.getInstance();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
         rootDbRef = FirebaseDatabase.getInstance().getReference();
+        fragmentManager = getSupportFragmentManager();
 
-        bottomNavigation = findViewById(R.id.bottom_navigation_host);
-
+        // Setup bottom navigation
         AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation_host_items);
         navigationAdapter.setupWithBottomNavigation(bottomNavigation);
         bottomNavigation.setAnimation(null);
         bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+        bottomNavigation.setCurrentItem(0);
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+        bottomNavigation.setBehaviorTranslationEnabled(false);
+        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
-
-        fragmentManager = getSupportFragmentManager();
-
+        // Create instances of fragments
         hostUserAccountFragment = UserAccountFragment.newInstance();
         hostSessionsFragment = HostSessionsFragment.newInstance();
         hostInboxFragment = InboxFragment.newInstance();
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        hostMapsFragment = MapsFragment.newInstance();
-        hostMapsFragment.setArguments(bundle);
-        hostUserProfileFragment = UserProfileFragment.newInstance();
-        hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
         hostAllUsersFragment = AllUsersFragment.newInstance();
 
+        // Add fragments to container and hide them
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        if (null == fragmentManager.findFragmentByTag("hostUserAccountFragment")) {
-            transaction.add(R.id.container_main_host, hostUserAccountFragment,"hostUserAccountFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
+            transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
             transaction.hide(hostUserAccountFragment);
         }
-
-        if (null == fragmentManager.findFragmentByTag("hostSessionsFragment")) {
-            transaction.add(R.id.container_main_host, hostSessionsFragment,"hostSessionsFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainHostSessionsFragment")) {
+            transaction.add(R.id.container_main_host, hostSessionsFragment,"xMainHostSessionsFragment");
             transaction.hide(hostSessionsFragment);
         }
-
-        if (null == fragmentManager.findFragmentByTag("hostMapsFragment")) {
-            transaction.add(R.id.container_main_host, hostMapsFragment,"hostMapsFragment");
-            transaction.hide(hostMapsFragment);
-        }
-
-        if (null == fragmentManager.findFragmentByTag("hostInboxFragment")) {
-            transaction.add(R.id.container_main_host, hostInboxFragment,"hostInboxFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
+            transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
             transaction.hide(hostInboxFragment);
         }
-
-        if (null == fragmentManager.findFragmentByTag("hostUserProfileFragment")) {
-            transaction.add(R.id.container_main_host, hostUserProfileFragment,"hostUserProfileFragment");
-            transaction.hide(hostUserProfileFragment);
-        }
-
-        if (null == fragmentManager.findFragmentByTag("hostUserProfilePublicEditFragment")) {
-            transaction.add(R.id.container_main_host, hostUserProfilePublicEditFragment,"hostUserProfilePublicEditFragment");
-            transaction.hide(hostUserProfilePublicEditFragment);
-        }
-
-        if (null == fragmentManager.findFragmentByTag("hostAllUsersFragment")) {
-            transaction.add(R.id.container_main_host, hostAllUsersFragment,"hostAllUsersFragment");
+        if (null == fragmentManager.findFragmentByTag("xMainHostAllUsersFragment")) {
+            transaction.add(R.id.container_main_host, hostAllUsersFragment,"xMainHostAllUsersFragment");
             transaction.hide(hostAllUsersFragment);
         }
 
         transaction.commit();
-
         fragmentManager.executePendingTransactions();
 
-
+        // Listen to bottom navigation and switch to corresponding fragment
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
-
                 switch (position) {
                     case 0:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(hostInboxFragment);
                             return true;
                         }
-
                     case 1:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(hostSessionsFragment);
                             return true;
                         }
-
                     case 2:
                         if (!wasSelected) {
                             cleanMainActivityAndSwitch(hostUserAccountFragment);
                             return true;
                         }
-
                 }
                 return false;
-
             }
         });
 
-        bottomNavigation.setCurrentItem(0);
-        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
-        bottomNavigation.setBehaviorTranslationEnabled(false);
-        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
+        // Set 'start page' / default fragment
         cleanMainActivityAndSwitch(hostAllUsersFragment);
 
+        // Add listener to current user's chats to see if there are any chats the user has unread messages in, if so set notification to bottom bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -178,113 +156,134 @@ public class MainHostActivity extends AppCompatActivity implements
                         if (!read) {
                             nrOfUnreadChats++;
                         }
-
                         if (nrOfUnreadChats>0) {
                             bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),0);
                         } else {
                             bottomNavigation.setNotification("",0);
                         }
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
 
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible() | hostAllUsersFragment.isVisible()){
+                    bottomNavigation.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    /* Method to hide all fragments in main container except fragment passed as argument */
+    private void cleanMainActivityAndSwitch(Fragment fragment) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        for (Fragment frag:fragmentList) {
+            if (frag.getTag()!=null) {
+                if (frag.getTag().substring(0,5).equals("xMain")) {
+                    if (frag.isVisible()) {
+                        transaction.hide(frag);
                     }
                 }
             }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
-    }
-
-    // TODO cleanMainActivity is probably useless once Newsfeed fragment has been created, delete this functionality then
-    private void cleanMainActivity() {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (hostDisplaySessionFragment!=null) {
-            transaction.remove(hostDisplaySessionFragment);
         }
-        transaction.hide(hostInboxFragment);
-        transaction.hide(hostMapsFragment);
-        transaction.hide(hostUserAccountFragment);
-        transaction.hide(hostUserProfileFragment);
-        if (hostUserProfilePublicFragment!=null) {
-            transaction.hide(hostUserProfilePublicFragment);
-        }
-        transaction.hide(hostUserProfilePublicEditFragment);
-        transaction.hide(hostSessionsFragment);
+        transaction.show(fragment);
         transaction.commit();
         bottomNavigation.setVisibility(View.VISIBLE);
     }
 
-    private void cleanMainActivityAndSwitch(Fragment fragment) {
+    /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
+    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        if (hostDisplaySessionFragment!=null) {
-            if (hostDisplaySessionFragment.isVisible()) {
-                transaction.hide(hostDisplaySessionFragment).addToBackStack("hostDisplaySessionFragment");
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        for (Fragment frag:fragmentList) {
+            if (frag.getTag()!=null) {
+                if (frag.getTag().substring(0,5).equals("xMain")) {
+                    if (frag.isVisible()) {
+                        transaction.hide(frag);
+                    }
+                }
             }
         }
-        if (hostInboxFragment.isVisible()) {
-            transaction.hide(hostInboxFragment).addToBackStack("hostInboxFragment");
+        bottomNavigation.setVisibility(View.GONE);
+        if (addToBackStack) {
+            transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(null).commit();
+        } else {
+            transaction.replace(R.id.container_fullscreen_main_host, fragment).commit();
         }
-        if (hostMapsFragment.isVisible()) {
-            transaction.hide(hostMapsFragment).addToBackStack("hostMapsFragment");
-        }
-        if (hostUserAccountFragment.isVisible()) {
-            transaction.hide(hostUserAccountFragment).addToBackStack("hostUserAccountFragment");
-        }
-        if (hostUserProfileFragment.isVisible()) {
-            transaction.hide(hostUserProfileFragment).addToBackStack("hostUserProfileFragment");
-        }
-        if (hostUserProfilePublicEditFragment.isVisible()) {
-            transaction.hide(hostUserProfilePublicEditFragment);
-        }
-        if (hostSessionsFragment.isVisible()) {
-            transaction.hide(hostSessionsFragment).addToBackStack("hostSessionsFragment");
-        }
-        if (hostAllUsersFragment.isVisible()) {
-            transaction.hide(hostAllUsersFragment).addToBackStack("hostAllUsersFragment");
-        }
-
-        transaction.show(fragment).addToBackStack("fragment");
-        transaction.commit();
-        bottomNavigation.setVisibility(View.VISIBLE);
     }
 
+    /* Listener, when session is clicked display session*/
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        if (hostDisplaySessionFragment!=null) {
-            transaction.remove(hostDisplaySessionFragment);
-        }
-
         hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
-        hostDisplaySessionFragment.show(transaction,"hostDisplaySessionFragment");
+        cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true);
     }
-
+    /* Listener, when edit "button" in account is clicked show user profile */
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
-
         if (type.equals("edit")) {
-            cleanMainActivityAndSwitch(hostUserProfileFragment);
-            bottomNavigation.setVisibility(View.GONE);
+            hostUserProfileFragment = UserProfileFragment.newInstance();
+            cleanMainFullscreenActivityAndSwitch(hostUserProfileFragment,true);
         }
     }
 
+    /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
-        cleanMainActivityAndSwitch(hostUserProfilePublicEditFragment);
-        bottomNavigation.setVisibility(View.GONE);
+        hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
+        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicEditFragment,true);
     }
-
+    /* Listener, when finished editing restart this activity */
     @Override
     public void OnUserProfilePublicEditFragmentInteraction() {
         Intent intent = getIntent();
         finish();
         startActivity(intent);
     }
+    /* Listener, create session button FAB is clicked switch to maps fragment in order for user to pick location */
+    @Override
+    public void OnCreateSessionClicked() {
+        Bundle bundle = new Bundle();
+        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+        hostMapsFragment = MapsFragment.newInstance();
+        hostMapsFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true);
+    }
+    /* Listener, when a user is clicked, get the others user ID and start User profile fragment */
+    @Override
+    public void OnUserClicked(String otherUserID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("otherUserID", otherUserID);
+        hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        hostUserProfilePublicFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicFragment, true);
+    }
 
+    @Override
+    public void OnNewMessage() {
+        // TODO should this be used?
+    }
+
+
+    @Override
+    public void OnEditSession(String sessionID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, false);
+    }
+
+    /* When back button is pressed while in main host activity override function and replace with following */
     @Override
     public void onBackPressed() {
 
@@ -294,12 +293,7 @@ public class MainHostActivity extends AppCompatActivity implements
             // /super.onBackPressed();
             //additional code
         } else {
-            if (hostUserProfilePublicFragment.isVisible()) {
-                bottomNavigation.setVisibility(View.VISIBLE);
-            }
-            if (hostMapsFragment.isVisible()) {
-                bottomNavigation.setVisibility(View.VISIBLE);
-            }
+
             // TODO Add Newsfeed fragment here later when exist
             if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
@@ -307,47 +301,7 @@ public class MainHostActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void OnCreateSessionClicked() {
-        cleanMainActivityAndSwitch(hostMapsFragment);
-        bottomNavigation.setVisibility(View.GONE);
-    }
-
-
-    @Override
-    public void OnUserClicked(String otherUserID) {
-        if (fragmentManager.findFragmentByTag("hostUserProfilePublicFragment") != null) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.remove(fragmentManager.findFragmentByTag("hostUserProfilePublicFragment"));
-            transaction.commitNow();
-
-            Bundle bundle = new Bundle();
-            bundle.putString("otherUserID", otherUserID);
-            hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
-            hostUserProfilePublicFragment.setArguments(bundle);
-
-            FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-            transaction2.add(R.id.container_main_host, hostUserProfilePublicFragment,"hostUserProfilePublicFragment");
-            transaction2.hide(hostUserProfilePublicFragment);
-            transaction2.commitNow();
-
-            cleanMainActivityAndSwitch(hostUserProfilePublicFragment);
-        } else {
-
-            Bundle bundle = new Bundle();
-            bundle.putString("otherUserID", otherUserID);
-            hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
-            hostUserProfilePublicFragment.setArguments(bundle);
-
-            FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-            transaction3.add(R.id.container_main_host, hostUserProfilePublicFragment,"hostUserProfilePublicFragment");
-            transaction3.hide(hostUserProfilePublicFragment);
-            transaction3.commitNow();
-
-            cleanMainActivityAndSwitch(hostUserProfilePublicFragment);
-        }
-    }
-
+    // Before starting activity, make sure user is signed-in, otherwise start login activity
     @Override
     protected void onStart() {
         super.onStart();
@@ -362,6 +316,7 @@ public class MainHostActivity extends AppCompatActivity implements
         }
     }
 
+    // When activity is destroyed, remove all listeners
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -375,7 +330,14 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnNewMessage() {
+    public void OnHostSessionChanged() {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (fragmentManager.findFragmentByTag("xMainHostSessionsFragment")!=null) {
+            HostSessionsFragment hs = (HostSessionsFragment) fragmentManager.findFragmentByTag("xMainHostSessionsFragment");
+            hs.loadPages(true);
+        }
 
+        transaction.replace(R.id.container_fullscreen_main_host,hostDisplaySessionFragment);
+        transaction.commit();
     }
 }

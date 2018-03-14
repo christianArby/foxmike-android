@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -43,13 +43,10 @@ public class MainActivity extends AppCompatActivity {
             locationPermission = checkLocationPermission();
         }
 
-
-
         if (locationPermission) {
-
             myFirebaseDatabase= new MyFirebaseDatabase();
-
             mAuth = FirebaseAuth.getInstance();
+            checkUserStatus();
         }
 
     }
@@ -117,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    public void checkUserStatus() {
+
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser!=null) {
             // User is signed in
+            myFirebaseDatabase = new MyFirebaseDatabase();
             myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
                 @Override
                 public void OnUserFound(User user) {
@@ -153,5 +150,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(loginIntent);
             finish();
         }
+
     }
 }

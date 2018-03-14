@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
@@ -16,10 +16,12 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.AllUsersFragment;
+import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
@@ -66,7 +68,9 @@ public class MainPlayerActivity extends AppCompatActivity
         OnUserClickedListener,
         ListSessionsFragment.OnListSessionsScrollListener,
         SortAndFilterFragment.OnListSessionsFilterListener,
-        SortAndFilterFragment.OnListSessionsSortListener{
+        SortAndFilterFragment.OnListSessionsSortListener,
+        DisplaySessionFragment.OnEditSessionListener,
+        OnHostSessionChangedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -79,6 +83,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private UserProfilePublicFragment userProfilePublicFragment;
     private UserProfilePublicEditFragment userProfilePublicEditFragment;
     private AllUsersFragment allUsersFragment;
+    private CreateOrEditSessionFragment createOrEditSessionFragment;
     private MyFirebaseDatabase myFirebaseDatabase;
     public HashMap<String,Boolean> firstWeekdayHashMap;
     public HashMap<String,Boolean> secondWeekdayHashMap;
@@ -93,7 +98,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private ArrayList<Session> sessionListArrayList = new ArrayList<>();
     private Location locationClosetoSessions;
-    private String sortType = "date";
+    private String sortType;
     private int distanceRadius;
     Boolean started = false;
 
@@ -104,6 +109,7 @@ public class MainPlayerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
 
+        sortType = getString(R.string.sort_type_date);
         distanceRadius = this.getResources().getInteger(R.integer.distanceMax);
 
         // get views
@@ -127,6 +133,10 @@ public class MainPlayerActivity extends AppCompatActivity
         navigationAdapter.setupWithBottomNavigation(bottomNavigation);
         bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
         bottomNavigation.setAnimation(null);
+        bottomNavigation.setCurrentItem(0);
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+        bottomNavigation.setBehaviorTranslationEnabled(false);
+        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
         /** Setup weekdayHashmaps*/
         firstWeekdayHashMap = new HashMap<String,Boolean>();
@@ -147,7 +157,6 @@ public class MainPlayerActivity extends AppCompatActivity
         /** Setup fragments */
         fragmentManager = getSupportFragmentManager();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
-
         userAccountFragment = new UserAccountFragment();
         playerSessionsFragment = PlayerSessionsFragment.newInstance();
         listSessionsFragment = ListSessionsFragment.newInstance();
@@ -159,7 +168,6 @@ public class MainPlayerActivity extends AppCompatActivity
         bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
         mapsFragment = MapsFragment.newInstance();
         mapsFragment.setArguments(bundle);
-
         if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
             transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
             transaction.hide(userAccountFragment);
@@ -179,14 +187,6 @@ public class MainPlayerActivity extends AppCompatActivity
         if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
             transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
             transaction.hide(inboxFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainUserProfileFragment")) {
-            transaction.add(R.id.container_main_player, userProfileFragment,"xMainUserProfileFragment");
-            transaction.hide(userProfileFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainUserProfilePublicEditFragment")) {
-            transaction.add(R.id.container_main_player, userProfilePublicEditFragment,"xMainUserProfilePublicEditFragment");
-            transaction.hide(userProfilePublicEditFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainAllUsersFragment")) {
             transaction.add(R.id.container_main_player, allUsersFragment,"xMainAllUsersFragment");
@@ -261,10 +261,6 @@ public class MainPlayerActivity extends AppCompatActivity
                 return false;
             }
         });
-        bottomNavigation.setCurrentItem(0);
-        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
-        bottomNavigation.setBehaviorTranslationEnabled(false);
-        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
         // Check if there are unread chatmessages and if so set notifications to the bottom navigation bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
@@ -313,8 +309,6 @@ public class MainPlayerActivity extends AppCompatActivity
                     transaction2.commit();
                     mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
                     myLocationBtn.setVisibility(View.VISIBLE);
-
-                    // Ska detta finnas?
                 } else {
                     weekdayFilterContainer.setVisibility(View.VISIBLE);
                     FragmentTransaction transaction3 = fragmentManager.beginTransaction();
@@ -331,13 +325,10 @@ public class MainPlayerActivity extends AppCompatActivity
         sortAndFilterFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-
                 sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius);
                 sortAndFilterFragment.show(transaction,"sortAndFilterFragment");
             }
@@ -351,6 +342,23 @@ public class MainPlayerActivity extends AppCompatActivity
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
                 mapsFragment.goToMyLocation();
+            }
+        });
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if (userAccountFragment.isVisible() | playerSessionsFragment.isVisible() | listSessionsFragment.isVisible() | mapsFragment.isVisible() | inboxFragment.isVisible() | allUsersFragment.isVisible()){
+                    bottomNavigation.setVisibility(View.VISIBLE);
+                }
+                if (listSessionsFragment.isVisible()| mapsFragment.isVisible()) {
+                    weekdayFilterContainer.setVisibility(View.VISIBLE);
+                    mapOrListBtn.setVisibility(View.VISIBLE);
+                    sortAndFilterFAB.setVisibility(View.VISIBLE);
+                }
+                if(mapsFragment.isVisible()) {
+                    myLocationBtn.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
@@ -374,25 +382,32 @@ public class MainPlayerActivity extends AppCompatActivity
         myLocationBtn.setVisibility(View.GONE);
         bottomNavigation.setVisibility(View.VISIBLE);
     }
-
-    /** FUNCTION to override onBackPressed*/
-    @Override
-    public void onBackPressed() {
-
-        int count = getSupportFragmentManager().getBackStackEntryCount();
-        if (count == 0) {
-            // /super.onBackPressed();
-            //additional code
-        } else {
-            if (userProfileFragment.isVisible()) {
-                bottomNavigation.setVisibility(View.VISIBLE);
-            }
-            // TODO Add Newsfeed fragment here later when exist
-            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
-                getSupportFragmentManager().popBackStack();
+    /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
+    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        for (Fragment frag:fragmentList) {
+            if (frag.getTag()!=null) {
+                if (frag.getTag().substring(0,5).equals("xMain")) {
+                    if (frag.isVisible()) {
+                        transaction.hide(frag);
+                    }
+                }
             }
         }
+        weekdayFilterContainer.setVisibility(View.GONE);
+        mapOrListBtn.setVisibility(View.GONE);
+        sortAndFilterFAB.setVisibility(View.GONE);
+        myLocationBtn.setVisibility(View.GONE);
+        bottomNavigation.setVisibility(View.GONE);
+        if (addToBackStack) {
+            transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(null).commit();
+        } else {
+            transaction.replace(R.id.container_fullscreen_main_player, fragment).commit();
+        }
     }
+
+
 
     /** INTERFACE to change weekday hashmaps based on inputs */
     @Override
@@ -437,31 +452,28 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
-    /** INTERFACE to listen to events which should trigger display session */
+    /* Listener, when session is clicked display session*/
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (displaySessionFragment!=null) {
-            transaction.remove(displaySessionFragment);
-        }
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
-        displaySessionFragment.show(transaction,"displaySessionFragment");
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
     }
 
-    /** INTERFACES to listen to events which should trigger userProfileFragment */
+    /* Listener, when edit "button" in account is clicked show user profile */
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
-            cleanMainActivityAndSwitch(userProfileFragment);
-            bottomNavigation.setVisibility(View.GONE);
+            userProfileFragment = UserProfileFragment.newInstance();
+            cleanMainFullscreenActivityAndSwitch(userProfileFragment, true);
         }
     }
+    /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
-        cleanMainActivityAndSwitch(userProfilePublicEditFragment);
-        bottomNavigation.setVisibility(View.GONE);
+        userProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
+        cleanMainFullscreenActivityAndSwitch(userProfilePublicEditFragment,true);
     }
+    /* Listener, when finished editing restart this activity */
     @Override
     public void OnUserProfilePublicEditFragmentInteraction() {
         Intent intent = getIntent();
@@ -469,47 +481,22 @@ public class MainPlayerActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    /**CHECK THIS */
+    /* Listener, when a user is clicked, get the others user ID and start User profile fragment */
     @Override
     public void OnUserClicked(String otherUserID) {
-
-        if (fragmentManager.findFragmentByTag("xMainUserProfilePublicFragment") != null) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.remove(fragmentManager.findFragmentByTag("xMainUserProfilePublicFragment"));
-            transaction.commitNow();
-
-            Bundle bundle = new Bundle();
-            bundle.putString("otherUserID", otherUserID);
-            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
-            userProfilePublicFragment.setArguments(bundle);
-
-            FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-            transaction2.add(R.id.container_main_player, userProfilePublicFragment,"xMainUserProfilePublicFragment");
-            transaction2.hide(userProfilePublicFragment);
-            transaction2.commitNow();
-
-            cleanMainActivityAndSwitch(userProfilePublicFragment);
-        } else {
-
-            Bundle bundle = new Bundle();
-            bundle.putString("otherUserID", otherUserID);
-            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
-            userProfilePublicFragment.setArguments(bundle);
-
-            FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-            transaction3.add(R.id.container_main_player, userProfilePublicFragment,"xMainUserProfilePublicFragment");
-            transaction3.hide(userProfilePublicFragment);
-            transaction3.commitNow();
-
-            cleanMainActivityAndSwitch(userProfilePublicFragment);
-        }
+        Bundle bundle = new Bundle();
+        bundle.putString("otherUserID", otherUserID);
+        userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        userProfilePublicFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true);
     }
+
     @Override
     public void OnNewMessage() {
-
+        // TODO check if this should be used
     }
 
-    /** INTERFACE triggered when list is scrolled */
+    /** INTERFACE triggered when list is scrolled setting behaviour of buttons */
     @Override
     public void OnListSessionsScroll(int dy) {
 
@@ -533,10 +520,9 @@ public class MainPlayerActivity extends AppCompatActivity
         }
     }
 
-    /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input*/
+    /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
     @Override
     public void OnRefreshSessions() {
-
         myFirebaseDatabase= new MyFirebaseDatabase();
         myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
             @Override
@@ -559,7 +545,7 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
-    /** INTERFACE triggered sort buttons are clicked, SORTS sessions*/
+    /** INTERFACE triggered when sort buttons are clicked, SORTS sessions*/
     @Override
     public void OnListSessionsSort(String sortType) {
         this.sortType = sortType;
@@ -576,7 +562,7 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
-    /** INTERFACE triggered filter buttons are clicked, FILTERS sessions*/
+    /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
     @Override
     public void OnListSessionsFilter(int filterDistance) {
 
@@ -605,12 +591,21 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
-    class weekdayViewpagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void OnEditSession(String sessionID) {
+        // Not possible in player environment
+    }
 
+    @Override
+    public void OnHostSessionChanged() {
+        // Not possible in player environment
+    }
+
+    // Sets up weekday pager
+    class weekdayViewpagerAdapter extends FragmentPagerAdapter {
         public weekdayViewpagerAdapter(FragmentManager fm) {
             super(fm);
         }
-
         @Override
         public Fragment getItem(int position) {
             Fragment fragment = null;
@@ -622,22 +617,38 @@ public class MainPlayerActivity extends AppCompatActivity
             }
             return fragment;
         }
-
         @Override
         public int getCount() {
             return 2;
         }
     }
-
+    // Makes a fragemnt name to fragments created by pager
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
     }
+    /* When back button is pressed while in main host activity override function and replace with following */
+    @Override
+    public void onBackPressed() {
 
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            // /super.onBackPressed();
+            //additional code
+        } else {
+
+            // TODO Add Newsfeed fragment here later when exist
+            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
+                getSupportFragmentManager().popBackStack();
+            }
+        }
+    }
+
+    // Before starting activity, make sure user is signed-in, otherwise start login activity
     @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
         if (currentUser==null) {
             //User is signed out
             Intent loginIntent = new Intent(MainPlayerActivity.this,LoginActivity.class);
@@ -648,7 +659,7 @@ public class MainPlayerActivity extends AppCompatActivity
         }
 
     }
-
+    // When activity is destroyed, remove all listeners
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -669,62 +680,4 @@ public class MainPlayerActivity extends AppCompatActivity
             displaySessionFragment.cleanListeners();
         }
     }
-
-    /*public void listenToInbox() {
-
-        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mAuth.getCurrentUser().getUid());
-
-        mMessageDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for dataSnapshot.getChildren()
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-        Query lastMessageQuery = mMessageDatabase.child(list_user_id).limitToLast(1);
-
-        messageChildEventListener = lastMessageQuery.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                String data = dataSnapshot.child("message").getValue().toString();
-                holder.setMessage(data, model.isSeen());
-                if (!model.isSeen()) {
-                    onNewMessageListener.OnNewMessage();
-                }
-
-                childEventListenerMap.put(dataSnapshot.getRef(), messageChildEventListener);
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }*/
 }

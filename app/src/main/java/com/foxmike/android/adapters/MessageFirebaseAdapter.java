@@ -16,20 +16,16 @@ import com.foxmike.android.models.Message;
 import com.google.firebase.auth.FirebaseAuth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
 /**
  * Created by chris on 2017-12-30.
  */
 
 public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, MessageFirebaseAdapter.MessageViewHolder> {
-
     boolean slalom;
-
     /**
-     * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
-     * {@link FirebaseRecyclerOptions} for configuration options.
-     *
-     * @param options
+     * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
+     * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
+     * if not the message is shown to the left.
      */
     public MessageFirebaseAdapter(FirebaseRecyclerOptions<Message> options, boolean slalom) {
         super(options);
@@ -41,9 +37,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Mes
 
         FirebaseAuth mAuth;
         String currentUserID;
-
         String fromUser = model.getSenderUserID();
-
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
@@ -51,14 +45,12 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Mes
         Glide.with(holder.profileImage.getContext()).load(model.getSenderThumbImage()).into(holder.profileImage);
 
         if (fromUser.equals(currentUserID) && slalom) {
-
             holder.singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             holder.messageText.setBackgroundResource(R.drawable.message_text_background_host);
             holder.messageText.setTextColor(Color.WHITE);
             holder.profileImage.setVisibility(View.GONE);
             holder.messageUser.setVisibility(View.GONE);
             holder.messageTime.setVisibility(View.GONE);
-
         } else {
             holder.singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             holder.messageText.setBackgroundResource(R.drawable.message_text_background);
@@ -71,7 +63,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Mes
         String timeText = getTimeAgo.getTimeAgo(model.getTime(),holder.messageText.getContext());
         holder.messageText.setText(model.getMessage());
         holder.messageTime.setText(timeText);
-
     }
 
     @Override
@@ -87,16 +78,13 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Mes
         public CircleImageView profileImage;
         public TextView messageTime;
         public RelativeLayout singleMessageContainer;
-
         public MessageViewHolder(View view) {
             super(view);
-
             messageUser = (TextView) view.findViewById(R.id.message_user_name);
             messageText = (TextView) view.findViewById(R.id.message_text);
             messageTime = (TextView) view.findViewById(R.id.message_time);
             profileImage = (CircleImageView) view.findViewById(R.id.message_profile_image);
             singleMessageContainer = (RelativeLayout) view.findViewById(R.id.message_relative_layout);
-
         }
     }
 }

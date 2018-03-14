@@ -216,6 +216,19 @@
     <string name="sessions_attending">Sessions Attending</string>
     <string name="sessions_hosting">Sessions Hosting</string>
     <string name="display_session">Display session</string>
+    <string name="updating_session">Updating session ...</string>
+    <string name="creating_session">Creating session ...</string>
+    <string name="select_time">Select Time</string>
+    <string name="choose_session_type">Choose session type</string>
+    <string name="session_duration">Session duration</string>
+    <string name="nr_participants">Nr of participants</string>
+    <string name="type_in_necessary_information">Type in necessary information</string>
+    <string name="tab_messages">MESSAGES</string>
+    <string name="tab_friends">FRIENDS</string>
+    <string name="tab_notifications">NOTIFICATIONS</string>
+    <string name="unknown_area">Unknown area</string>
+    <string name="failed">failed</string>
+    <string name="Session_not_found_please_try_again_later">Session not found, please try again later...</string>
 
 
 </resources>

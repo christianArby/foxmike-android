@@ -29,26 +29,33 @@
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/sessionImageBtn" />
 
-    <ImageView
-        android:id="@+id/locationIcon"
+    <LinearLayout
+        android:id="@+id/locationFrame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/ic_edit_location_black_24dp"
+        android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameET" />
+        app:layout_constraintTop_toBottomOf="@id/sessionNameET">
 
-    <TextView
-        android:id="@+id/locationTV"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameET"
-        app:layout_constraintStart_toEndOf="@id/locationIcon"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Loading"/>
+        <ImageView
+            android:id="@+id/locationIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/ic_edit_location_black_24dp"/>
+
+        <TextView
+            android:id="@+id/locationTV"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading"/>
+
+
+    </LinearLayout>
 
     <CheckedTextView
         android:id="@+id/advertised"
@@ -60,7 +67,7 @@
         android:checkMark="@mipmap/ic_check_box_outline_blank_black_24dp"
         android:text="Advertised"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/locationTV" />
+        app:layout_constraintTop_toBottomOf="@id/locationFrame" />
 
     <EditText
         android:id="@+id/sessionTypeET"
