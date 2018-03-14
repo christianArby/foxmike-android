@@ -1,5 +1,5 @@
 package com.foxmike.android.fragments;
-
+//Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +21,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+/**
+ * This fragment lists all users in database with a firebase recycler adapter and query
+ */
 
 public class AllUsersFragment extends Fragment {
 

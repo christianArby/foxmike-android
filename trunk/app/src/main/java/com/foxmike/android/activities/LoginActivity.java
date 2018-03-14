@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -30,6 +30,8 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ProgressDialog mProgress;
     private DatabaseReference mDatabaseUsers;
+    private String deviceToken;
+    private String currentUserID;
 
 
 
@@ -41,17 +43,18 @@ public class LoginActivity extends AppCompatActivity {
         Button mLoginBtn;
         Button mCreateAccountBtn;
 
+        mLoginEmailField = findViewById(R.id.loginEmailField);
+        mLoginPasswordField = findViewById(R.id.loginPasswordField);
+        mLoginBtn = findViewById(R.id.loginBtn);
+        mCreateAccountBtn = findViewById(R.id.createAccountBtn);
+
         mAuth = FirebaseAuth.getInstance();
+        deviceToken = FirebaseInstanceId.getInstance().getToken();
 
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
         mDatabaseUsers.keepSynced(true);
 
         mProgress = new ProgressDialog(this);
-
-        mLoginEmailField = findViewById(R.id.loginEmailField);
-        mLoginPasswordField = findViewById(R.id.loginPasswordField);
-        mLoginBtn = findViewById(R.id.loginBtn);
-        mCreateAccountBtn = findViewById(R.id.createAccountBtn);
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,33 +89,13 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-
                         mProgress.dismiss();
-
-                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                        String currentUserID = mAuth.getCurrentUser().getUid();
-
-                        mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                checkIfUserExistsInDb();
-                                Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
-                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(mainIntent);
-                            }
-                        });
-
-
-
+                        currentUserID = mAuth.getCurrentUser().getUid();
+                        checkIfUserExistsInDb();
                     } else {
-
                         mProgress.dismiss();
-
                         Toast.makeText(LoginActivity.this, "Error Login", Toast.LENGTH_LONG).show();
-
                     }
-
-
                 }
             });
 
@@ -123,19 +106,28 @@ public class LoginActivity extends AppCompatActivity {
 
     private void checkIfUserExistsInDb() {
 
-        final String user_id = mAuth.getCurrentUser().getUid();
-
-        // TODO check how long this listener is alive
-
-        mDatabaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseUsers.child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(user_id)){
+                if (dataSnapshot.exists()) {
+                    mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(mainIntent);
+                        }
+                    });
 
-                    Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
-                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(setupIntent);
-
+                } else {
+                    mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
+                            setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(setupIntent);
+                        }
+                    });
                 }
 
             }

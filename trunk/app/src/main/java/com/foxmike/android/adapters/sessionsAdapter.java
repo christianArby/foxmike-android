@@ -1,5 +1,5 @@
 package com.foxmike.android.adapters;
-
+//Checked
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.location.Address;
@@ -283,11 +283,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     returnAddress = street;
                 }
             } else {
-                returnAddress = "Unknown area";
+                returnAddress = context.getString(R.string.unknown_area);
             }
 
         } catch (IOException ex) {
-            returnAddress = "failed";
+            returnAddress = context.getString(R.string.failed);
         }
         return returnAddress;
     }

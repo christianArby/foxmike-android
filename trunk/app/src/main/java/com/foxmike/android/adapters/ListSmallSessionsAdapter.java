@@ -1,5 +1,5 @@
 package com.foxmike.android.adapters;
-
+//Checked
 import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -24,12 +24,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static android.view.View.LAYER_TYPE_HARDWARE;
-
 /**
- * Created by chris on 2018-02-11.
+ * This adapter takes an arraylist of sessions and fills a RecyclerView
+ * If a session has the string "sectionHeader" in the session variable imageURL, an alternate view will be inflated with the string stored under the variable sessionName in the session object
  */
-
-
 
 public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
@@ -75,14 +73,12 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
                 sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                 ((ListSmallSessionsViewHolder) holder).setText2(sessionDateAndTime);
 
-
-                //holder.setText2(sessionArrayList.get(position).getSessionType());
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 try {
                     Date sessionDate = sdf.parse(sessionArrayList.get(position).getSessionDate().textSDF());
                     ((ListSmallSessionsViewHolder) holder).setSessionClickedListener(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude(), sessionDate);
                 } catch (ParseException e) {
-                    //handle exception
+                    //TODO handle exeption
                 }
             }
         }
@@ -140,8 +136,6 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             Date todaysDate = cal.getTime();
             cal.add(Calendar.DATE,14);
             Date twoWeeksDate = cal.getTime();
-
-
 
             if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
                 // // Remove the hardware layer

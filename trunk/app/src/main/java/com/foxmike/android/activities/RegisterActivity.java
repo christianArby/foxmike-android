@@ -1,5 +1,5 @@
 package com.foxmike.android.activities;
-
+//Checked
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -37,15 +37,12 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText mEmailField;
     private EditText mPasswordField;
     private ImageButton mRegisterImageButton;
-
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
     private StorageReference mStorageImage;
-
     private ProgressBar progressBar;
     private String currentUserID;
-
     private Uri mImageUri = null;
 
     @Override
@@ -55,34 +52,28 @@ public class RegisterActivity extends AppCompatActivity {
 
         Button mRegisterBtn;
 
-        mAuth = FirebaseAuth.getInstance();
-
-        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
-        mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
-
         progressBar = findViewById(R.id.progressBar_cyclic);
-
         mNameField = findViewById(R.id.setupNameField);
         mEmailField= findViewById(R.id.emailField);
         mPasswordField = findViewById(R.id.passwordField);
         mRegisterBtn = findViewById(R.id.registerBtn);
-
-
         mRegisterImageButton = findViewById(R.id.registerImageBtn);
 
+        mAuth = FirebaseAuth.getInstance();
+        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
+        mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
+
+        // Setup image button to choose image from gallery
         mRegisterImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
                 startActivityForResult(galleryIntent, GALLERY_REQUEST);
-
-
             }
         });
-
+        // Setup register button to start function startRegister when clicked
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,28 +82,26 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    /* Function to register user in auth and database */
     private void startRegister() {
 
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
-
+        myProgressBar.startProgressBar();
+        // get input
         final String name = mNameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
-        myProgressBar.startProgressBar();
-
+        // if all input has been filled in create user
         if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
-
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                     if (task.isSuccessful()) {
-                        // Sign in success,  update Realtime Db with the signed-in user's information
+                        // Sign in success,  update Realtime Db with the signed-in user's information, when finished start MainActivity
                         currentUserID = mAuth.getCurrentUser().getUid();
-
                         mDatabaseUsers.child(currentUserID).child("name").setValue(name);
                         String deviceToken = FirebaseInstanceId.getInstance().getToken();
-
                         mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -142,27 +131,22 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    // when gallery intent has been opened and an image clicked start crop image activity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
-
             Uri imageUri = data.getData();
-
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(2,1)
                     .start(this);
         }
-
+        // when image has been cropped set image to button and to variable mImageUri
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
             if (resultCode == RESULT_OK) {
-
                 mImageUri = result.getUri();
                 mRegisterImageButton.setImageURI(mImageUri);
-
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }

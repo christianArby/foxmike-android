@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,6 +57,8 @@ public class HostSessionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_account */
         final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
+        hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
+        tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
 
         createSessionBtn = view.findViewById(R.id.add_session_btn);
         createSessionBtn.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +67,14 @@ public class HostSessionsFragment extends Fragment {
                 onCreateSessionClickedListener.OnCreateSessionClicked();
             }
         });
+
+        loadPages(false);
+
+        // Inflate the layout for this fragment
+        return view;
+    }
+
+    public void loadPages(final boolean update) {
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
@@ -113,27 +124,19 @@ public class HostSessionsFragment extends Fragment {
                                 n++;
                             }
 
-
-                            hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
-
-                            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
-
-                            hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-
-                            tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
-
-                            tabLayout.setupWithViewPager(hostSessionsPager);
-
+                            if (!update) {
+                                hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
+                                hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
+                                tabLayout.setupWithViewPager(hostSessionsPager);
+                            } else {
+                                hostSessionsPagerAdapter.updateData(sessionsAdv,sessionsNotAdv);
+                                hostSessionsPagerAdapter.notifyDataSetChanged();
+                            }
                         }
                     },user.sessionsHosting);
-
                 }
-
             }
         });
-
-        // Inflate the layout for this fragment
-        return view;
     }
 
     @Override
@@ -156,6 +159,11 @@ public class HostSessionsFragment extends Fragment {
 
     public interface OnCreateSessionClickedListener {
         void OnCreateSessionClicked();
+    }
+
+    // Makes a fragemnt name to fragments created by pager
+    private static String makeFragmentName(int viewPagerId, int index) {
+        return "android:switcher:" + viewPagerId + ":" + index;
     }
 
 }

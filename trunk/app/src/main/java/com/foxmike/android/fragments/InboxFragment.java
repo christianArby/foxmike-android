@@ -44,7 +44,7 @@ public class InboxFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
 
         inboxPager = (ViewPager) view.findViewById(R.id.inboxPager);
-        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager());
+        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getContext());
 
         inboxPager.setAdapter(inboxPagerAdapter);
 
