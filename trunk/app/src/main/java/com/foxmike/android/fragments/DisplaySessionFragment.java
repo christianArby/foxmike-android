@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -8,7 +7,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,11 +20,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.CommentActivity;
-import com.foxmike.android.activities.CreateOrEditSessionActivity;
 import com.foxmike.android.utils.GetTimeAgo;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.models.Post;
@@ -50,7 +46,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,6 +96,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
     User user;
     private OnEditSessionListener onEditSessionListener;
+    private OnBookSessionListener onBookSessionListener;
+    private OnCancelBookedSessionListener onCancelBookedSessionListener;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -172,36 +169,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                  */
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
                     onEditSessionListener.OnEditSession(sessionID);
-                    /*Intent createSessionIntent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
-                    Bundle sessionIdBundle = new Bundle();
-                    sessionIdBundle.putString("key",sessionID);
-                    createSessionIntent.putExtras(sessionIdBundle);
-                    createSessionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(createSessionIntent);*/
                 }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                  remove the current user from that session participant list and go back to main activity.
                  */
                 else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
-                    mSessionDbRef.child(sessionID).child("participants").child(currentFirebaseUser.getUid()).removeValue();
-                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).removeValue();
-                    Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
-                    startActivity(mainIntent);
+                    onCancelBookedSessionListener.OnCancelBookedSession(sessionID);
                 }
 
                 else {
-
                     /*
                      Else (button will show join session) add the user id to the session participant list and
                      the user sessions attending list when button is clicked.
                      */
-
-                    final DatabaseReference sessionIDref = mSessionDbRef.child(sessionID);
-                    sessionIDref.child("participants").child(currentFirebaseUser.getUid()).setValue(true);
-                    mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsAttending").child(sessionID).setValue(true);
-                    Intent mainIntent = new Intent(getActivity(), MainPlayerActivity.class);
-                    startActivity(mainIntent);
+                    onBookSessionListener.OnBookSession(sessionID);
                 }
             }
         });
@@ -390,6 +372,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void fillUI(DataSnapshot dataSnapshot, final Double longitude) {
+        mDisplaySessionBtn.setText("Book session");
         session = dataSnapshot.getValue(Session.class);
 
         // Listen for posts and add add them to wall
@@ -662,15 +645,36 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnEditSessionListener");
         }
+        if (context instanceof OnBookSessionListener) {
+            onBookSessionListener = (OnBookSessionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnBookSessionListener");
+        }
+        if (context instanceof OnCancelBookedSessionListener) {
+            onCancelBookedSessionListener = (OnCancelBookedSessionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnCancelBookedSessionListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onEditSessionListener = null;
+        onBookSessionListener = null;
+        onCancelBookedSessionListener = null;
     }
 
     public interface OnEditSessionListener {
         void OnEditSession(String sessionID);
+    }
+
+    public interface OnBookSessionListener {
+        void OnBookSession(String sessionID);
+    }
+    public interface OnCancelBookedSessionListener {
+        void OnCancelBookedSession(String sessionID);
     }
 }

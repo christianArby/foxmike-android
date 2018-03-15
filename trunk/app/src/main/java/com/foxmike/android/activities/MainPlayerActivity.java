@@ -70,6 +70,8 @@ public class MainPlayerActivity extends AppCompatActivity
         SortAndFilterFragment.OnListSessionsFilterListener,
         SortAndFilterFragment.OnListSessionsSortListener,
         DisplaySessionFragment.OnEditSessionListener,
+        DisplaySessionFragment.OnBookSessionListener,
+        DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener{
 
     private FragmentManager fragmentManager;
@@ -599,6 +601,42 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnHostSessionChanged() {
         // Not possible in player environment
+    }
+
+    @Override
+    public void OnBookSession(String sessionID) {
+        Map requestMap = new HashMap<>();
+        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), true);
+        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, true);
+        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                    ps.loadPages(true);
+                }
+            }
+        });
+        //sessionIDref.child("participants").child(mAuth.getCurrentUser().getUid()).setValue(true);
+        //rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("sessionsAttending").child(sessionID).setValue(true);
+    }
+
+    @Override
+    public void OnCancelBookedSession(String sessionID) {
+        Map requestMap = new HashMap<>();
+        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), null);
+        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, null);
+        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                    ps.loadPages(true);
+                }
+            }
+        });
+        //rootDbRef.child("sessions").child(sessionID).child("participants").child(mAuth.getCurrentUser().getUid()).removeValue();
+        //rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("sessionsAttending").child(sessionID).removeValue();
     }
 
     // Sets up weekday pager

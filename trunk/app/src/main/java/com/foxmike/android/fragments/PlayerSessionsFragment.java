@@ -54,8 +54,18 @@ public class PlayerSessionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_account */
         final View view = inflater.inflate(R.layout.fragment_player_sessions, container, false);
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+        playerSessionsPager = (ViewPager) view.findViewById(R.id.player_sessions_pager);
 
+        tabLayout = (TabLayout) view.findViewById(R.id.player_sessions_tabs);
+
+        loadPages(false);
+
+        // Inflate the layout for this fragment
+        return view;
+    }
+
+    public void loadPages(final boolean update) {
+        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Get the currents user's information from the database */
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
@@ -72,7 +82,6 @@ public class PlayerSessionsFragment extends Fragment {
                         ArrayList<Session> sessionBookedInPast = new ArrayList<Session>();
                         //HashMap<Integer,String> sessionsAdvSectionHeaders = new HashMap<>();
                         //HashMap<Integer,String> sessionsNotAdvSectionHeaders = new HashMap<>();
-
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         final Calendar cal = Calendar.getInstance();
                         Date todaysDate = cal.getTime();
@@ -88,23 +97,20 @@ public class PlayerSessionsFragment extends Fragment {
                         Collections.sort(sessionsBooked);
                         Collections.sort(sessionBookedInPast);
 
-                        playerSessionsPager = (ViewPager) view.findViewById(R.id.player_sessions_pager);
+                        if (!update) {
+                            playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsBooked, sessionBookedInPast,"BOKADE", "TIDIGARE");
+                            playerSessionsPager.setAdapter(playerSessionsPagerAdapter);
+                            tabLayout.setupWithViewPager(playerSessionsPager);
+                        } else {
+                            playerSessionsPagerAdapter.updateData(sessionsBooked, sessionBookedInPast);
+                            playerSessionsPagerAdapter.notifyDataSetChanged();
+                        }
 
-                        playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsBooked, sessionBookedInPast,"BOKADE", "TIDIGARE");
-
-                        playerSessionsPager.setAdapter(playerSessionsPagerAdapter);
-
-                        tabLayout = (TabLayout) view.findViewById(R.id.player_sessions_tabs);
-
-                        tabLayout.setupWithViewPager(playerSessionsPager);
 
                     }
                 },user.sessionsAttending);
             }
         });
-
-        // Inflate the layout for this fragment
-        return view;
     }
 
 }
