@@ -46,6 +46,8 @@ public class MainHostActivity extends AppCompatActivity implements
         OnUserClickedListener,
         OnNewMessageListener,
         DisplaySessionFragment.OnEditSessionListener,
+        DisplaySessionFragment.OnBookSessionListener,
+        DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener{
 
     private FragmentManager fragmentManager;
@@ -339,5 +341,15 @@ public class MainHostActivity extends AppCompatActivity implements
 
         transaction.replace(R.id.container_fullscreen_main_host,hostDisplaySessionFragment);
         transaction.commit();
+    }
+
+    @Override
+    public void OnBookSession(String sessionID) {
+        // Not applicable in Host environment
+    }
+
+    @Override
+    public void OnCancelBookedSession(String sessionID) {
+        // Not applicable in Host environment
     }
 }
