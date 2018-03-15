@@ -229,6 +229,7 @@
     <string name="unknown_area">Unknown area</string>
     <string name="failed">failed</string>
     <string name="Session_not_found_please_try_again_later">Session not found, please try again later...</string>
+    <string name="meet_your_session_leader">Meet your session leader,</string>
 
 
 </resources>

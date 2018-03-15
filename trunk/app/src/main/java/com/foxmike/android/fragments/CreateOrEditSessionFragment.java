@@ -591,5 +591,4 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         super.onDetach();
         onHostSessionChangedListener = null;
     }
-
 }
