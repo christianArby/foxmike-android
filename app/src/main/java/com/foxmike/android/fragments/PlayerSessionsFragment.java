@@ -70,9 +70,18 @@ public class PlayerSessionsFragment extends Fragment {
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(final User user) {
-                /* If user is not hosting any sessions set that the sessionsHosting content has beeen found*/
+                /* If user is not attending any sessions create two blank pages */
                 if (user.sessionsAttending.size()==0){
-
+                    ArrayList<Session> sessionsBooked = new ArrayList<Session>();
+                    ArrayList<Session> sessionBookedInPast = new ArrayList<Session>();
+                    if (!update) {
+                        playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsBooked, sessionBookedInPast,"BOKADE", "TIDIGARE");
+                        playerSessionsPager.setAdapter(playerSessionsPagerAdapter);
+                        tabLayout.setupWithViewPager(playerSessionsPager);
+                    } else {
+                        playerSessionsPagerAdapter.updateData(sessionsBooked, sessionBookedInPast);
+                        playerSessionsPagerAdapter.notifyDataSetChanged();
+                    }
                 }
                 myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
                     @Override

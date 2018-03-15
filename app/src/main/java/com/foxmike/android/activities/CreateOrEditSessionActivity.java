@@ -50,7 +50,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
