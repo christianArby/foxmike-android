@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
@@ -19,7 +18,10 @@ import com.foxmike.android.models.Session;
 import com.foxmike.android.adapters.sessionsAdapter;
 
 import java.util.ArrayList;
-
+/**
+ * This fragment creates a list of sessions based on an arraylist of session objects given as arguments. It also
+ * uses an location object in order to sort the sessions on distance from user
+ */
 public class ListSessionsFragment extends Fragment {
 
     private RecyclerView mSessionList;
@@ -56,9 +58,9 @@ public class ListSessionsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = view.findViewById(R.id.session_list);
         listSessionsSwipeRefreshLayout = view.findViewById(R.id.session_list_swipe_layout);
-        //mSessionList.setHasFixedSize(true);
+        //mSessionList.setHasFixedSize(true); TODO What does this mean
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+        // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -66,8 +68,7 @@ public class ListSessionsFragment extends Fragment {
                 onListSessionsScrollListener.OnListSessionsScroll(dy);
             }
         });
-
-
+        // Tell the parent activity when the list is swiped to refresh (in order to refresh data from database)
         listSessionsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -81,32 +82,22 @@ public class ListSessionsFragment extends Fragment {
     /** Use sessionsAdapter to generate view mSessionList*/
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        //mSessionList.setAdapter(sessionsAdapter);
-        //HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
-        //mSessionList.addItemDecoration(headerItemDecoration);
-        //mSessionList.setAdapter(sessionsAdapter);
     }
-
+    // Function to refresh data in sessionsAdapter
     public void updateSessionListView(ArrayList<Session> sessions, Location location) {
-
         if (sessionsAdapter!=null) {
             sessionsAdapter.refreshData(sessions,location);
         }
     }
 
-
     /** Generate view in RecyclerView with sessionsAdapter*/
     public void generateSessionListView(ArrayList<Session> sessions, Location location) {
-
         currentLocation =location;
-
         sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation, onSessionClickedListener);
         if (mSessionList!=null) {
             HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
             mSessionList.addItemDecoration(headerItemDecoration);
             mSessionList.setAdapter(sessionsAdapter);
-
         }
     }
 

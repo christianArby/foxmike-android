@@ -39,6 +39,7 @@ import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.utils.WrapContentViewPager;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -72,7 +73,8 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnEditSessionListener,
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
-        OnHostSessionChangedListener{
+        OnHostSessionChangedListener,
+        MapsFragment.OnCreateSessionListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -221,7 +223,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     @Override
                     public void OnSessionsFiltered(ArrayList<Session> sessions) {
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+                        mapsFragment.addMarkersToMap(sessions);
 
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                         listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
@@ -446,7 +448,7 @@ public class MainPlayerActivity extends AppCompatActivity
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+                mapsFragment.addMarkersToMap(sessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
@@ -536,7 +538,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     @Override
                     public void OnSessionsFiltered(ArrayList<Session> sessions) {
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+                        mapsFragment.addMarkersToMap(sessions);
 
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                         listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
@@ -555,7 +557,7 @@ public class MainPlayerActivity extends AppCompatActivity
             @Override
             public void OnSessionsFiltered(ArrayList<Session> sessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+                mapsFragment.addMarkersToMap(sessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
@@ -583,7 +585,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     @Override
                     public void OnSessionsFiltered(ArrayList<Session> sessions) {
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions,locationClosetoSessions);
+                        mapsFragment.addMarkersToMap(sessions);
 
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                         listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
@@ -639,6 +641,11 @@ public class MainPlayerActivity extends AppCompatActivity
         //rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("sessionsAttending").child(sessionID).removeValue();
     }
 
+    @Override
+    public void OnCreateSession(LatLng latLng) {
+        // Not possible in player environment
+    }
+
     // Sets up weekday pager
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
         public weekdayViewpagerAdapter(FragmentManager fm) {
@@ -674,7 +681,6 @@ public class MainPlayerActivity extends AppCompatActivity
             // /super.onBackPressed();
             //additional code
         } else {
-
             // TODO Add Newsfeed fragment here later when exist
             if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();

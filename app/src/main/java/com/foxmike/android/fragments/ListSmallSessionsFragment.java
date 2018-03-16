@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,8 +17,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-
-
+/**
+ * This fragment creates a list of sessions based on an arraylist of session objects given as arguments
+ */
 public class ListSmallSessionsFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
@@ -37,7 +37,6 @@ public class ListSmallSessionsFragment extends Fragment {
     }
 
     public static ListSmallSessionsFragment newInstance(ArrayList<Session> sessionArrayList) {
-
 
         ListSmallSessionsFragment fragment = new ListSmallSessionsFragment();
         Bundle args = new Bundle();
@@ -66,10 +65,7 @@ public class ListSmallSessionsFragment extends Fragment {
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
         listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionArrayList, onSessionClickedListener, getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
-
         return view;
-
-
     }
 
     @Override
