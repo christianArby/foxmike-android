@@ -1,5 +1,5 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import com.foxmike.android.R;
 import com.google.firebase.messaging.RemoteMessage;
 
 /**
- * Created by chris on 2017-12-06.
+ * This helper class sets up the notification requests
  */
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService{
@@ -47,6 +47,5 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
-
     }
 }

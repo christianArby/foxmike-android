@@ -1,11 +1,14 @@
 package com.foxmike.android.utils;
-
+// Checked
+import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -39,23 +42,20 @@ import java.util.TreeMap;
  * Created by chris on 2017-07-21.
  */
 
-public class MyFirebaseDatabase extends Service{
+public class MyFirebaseDatabase extends Service {
 
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-    private TreeMap<Integer,String> nearSessionsIDs = new TreeMap<Integer,String>();
-
+    private TreeMap<Integer, String> nearSessionsIDs = new TreeMap<Integer, String>();
     private Location currentLocation;
     private GeoFire geoFire;
 
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
-    public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String,Boolean> sessionsHashMap) {
+    public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Boolean> sessionsHashMap) {
 
         final ArrayList<Session> sessions = new ArrayList<Session>();
-
-        for ( String key : sessionsHashMap.keySet() ) {
+        for (String key : sessionsHashMap.keySet()) {
             dbRef.child("sessions").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -66,6 +66,7 @@ public class MyFirebaseDatabase extends Service{
                         onSessionsFoundListener.OnSessionsFound(sessions);
                     }
                 }
+
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -73,13 +74,14 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-    public void getCurrentUser(final OnUserFoundListener onUserFoundListener){
+    public void getCurrentUser(final OnUserFoundListener onUserFoundListener) {
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User userDb = dataSnapshot.getValue(User.class);
                 onUserFoundListener.OnUserFound(userDb);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -87,23 +89,9 @@ public class MyFirebaseDatabase extends Service{
         });
     }
 
-    public void getUser(String userID,final OnUserFoundListener onUserFoundListener){
-        dbRef.child("users").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User userDb = dataSnapshot.getValue(User.class);
-                onUserFoundListener.OnUserFound(userDb);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public void getUsers(final HashMap<String,Boolean> usersHashMap, final OnUsersFoundListener onUsersFoundListener){
+    public void getUsers(final HashMap<String, Boolean> usersHashMap, final OnUsersFoundListener onUsersFoundListener) {
         final ArrayList<User> users = new ArrayList<User>();
-        for ( String key : usersHashMap.keySet() ) {
+        for (String key : usersHashMap.keySet()) {
             dbRef.child("users").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -114,6 +102,7 @@ public class MyFirebaseDatabase extends Service{
                         onUsersFoundListener.OnUsersFound(users);
                     }
                 }
+
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -121,11 +110,11 @@ public class MyFirebaseDatabase extends Service{
         }
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String,Boolean> firstWeekdayHashMap,final HashMap<String,Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
         ArrayList<Session> sessions = new ArrayList<>();
 
-        for (Session nearSession: nearSessions) {
+        for (Session nearSession : nearSessions) {
             if (firstWeekdayHashMap.containsKey(nearSession.getSessionDate().textSDF())) {
                 if (firstWeekdayHashMap.get(nearSession.getSessionDate().textSDF())) {
                     sessions.add(nearSession);
@@ -142,16 +131,16 @@ public class MyFirebaseDatabase extends Service{
         if (sortType.equals("date")) {
             Collections.sort(sessions);
             SessionDate prevSessionDate = new SessionDate();
-            HashMap<Integer,Session> headerSessions = new HashMap<>();
+            HashMap<Integer, Session> headerSessions = new HashMap<>();
 
             int i = 0;
-            while (i< sessions.size()) {
+            while (i < sessions.size()) {
                 if (!prevSessionDate.textSDF().equals(sessions.get(i).getSessionDate().textSDF())) {
                     Session dummySession = new Session();
                     dummySession.setImageUrl("dateHeader");
                     dummySession.setSessionDate(sessions.get(i).getSessionDate());
-                    sessions.add(i,dummySession);
-                    prevSessionDate=sessions.get(i).getSessionDate();
+                    sessions.add(i, dummySession);
+                    prevSessionDate = sessions.get(i).getSessionDate();
                 }
                 i++;
             }
@@ -163,6 +152,16 @@ public class MyFirebaseDatabase extends Service{
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -177,15 +176,19 @@ public class MyFirebaseDatabase extends Service{
                                 public void onKeyEntered(String key, GeoLocation location) {
                                     //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
                                     //You can fetch the actual data for this location by creating another firebase query here
-                                    String distString = getDistance(location.latitude,location.longitude, currentLocation);
+                                    String distString = getDistance(location.latitude, location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
-                                    nearSessionsIDs.put(dist,key);
+                                    nearSessionsIDs.put(dist, key);
                                 }
 
                                 @Override
-                                public void onKeyExited(String key) {}
+                                public void onKeyExited(String key) {
+                                }
+
                                 @Override
-                                public void onKeyMoved(String key, GeoLocation location) {}
+                                public void onKeyMoved(String key, GeoLocation location) {
+                                }
+
                                 @Override
                                 public void onGeoQueryReady() {
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
@@ -203,19 +206,20 @@ public class MyFirebaseDatabase extends Service{
                                                 }
 
                                                 if (sessions.size() == nearSessionsIDs.size()) {///////TODO //KOLLA DETTA
-                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions,location);
+                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                                 }
                                             }
+
                                             @Override
                                             public void onCancelled(DatabaseError databaseError) {
                                             }
                                         });
                                     }
-
-                                    if (nearSessionsIDs.size()<1) {
-                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions,location);
+                                    if (nearSessionsIDs.size() < 1) {
+                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                     }
                                 }
+
                                 @Override
                                 public void onGeoQueryError(DatabaseError error) {
                                 }

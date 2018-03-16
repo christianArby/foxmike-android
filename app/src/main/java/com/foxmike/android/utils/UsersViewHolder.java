@@ -1,5 +1,5 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

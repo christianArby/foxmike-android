@@ -1,12 +1,12 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.app.Activity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 /**
- * Created by chris on 2017-11-30.
+ * Creates a progress bar
  */
 
 public class MyProgressBar {

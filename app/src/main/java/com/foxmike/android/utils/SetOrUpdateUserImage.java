@@ -1,5 +1,5 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -22,7 +22,7 @@ import java.util.Map;
 import id.zelory.compressor.Compressor;
 
 /**
- * Created by chris on 2017-11-30.
+ * Updates profile image and saves a thumbnail image
  */
 
 public class SetOrUpdateUserImage {

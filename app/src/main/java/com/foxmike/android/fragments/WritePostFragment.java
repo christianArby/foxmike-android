@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.Post;
@@ -30,25 +28,22 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-
+/**
+ * This dialog fragment lets the user write a post to the session
+ */
 public class WritePostFragment extends DialogFragment {
 
     DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private User user;
-
     EditText postTextET;
     ImageView postProfileImage;
     TextView sendTW;
     TextView postName;
-    String postText;
     Boolean sendable = false;
     private static final String SESSION_ID = "sessionID";
     private String sessionID;
     private String postID;
     private Toolbar postToolbar;
-
 
     public WritePostFragment() {
         // Required empty public constructor
@@ -68,18 +63,6 @@ public class WritePostFragment extends DialogFragment {
         if (getArguments() != null) {
         }
         setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
-
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override
@@ -98,8 +81,6 @@ public class WritePostFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_write_post, container, false);
-
-
         postToolbar = (Toolbar)  view.findViewById(R.id.post_app_bar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(postToolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -108,9 +89,7 @@ public class WritePostFragment extends DialogFragment {
         actionBar.setDisplayShowCustomEnabled(true);
 
         sessionID = getArguments().getString(SESSION_ID);
-
         View action_bar_view = inflater.inflate(R.layout.write_post_custom_bar, null);
-
         actionBar.setCustomView(action_bar_view);
 
         sendTW = view.findViewById(R.id.post_custom_bar_send);
@@ -123,29 +102,21 @@ public class WritePostFragment extends DialogFragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-
                 postName.setText(user.getName());
                 Glide.with(getActivity()).load(user.getThumb_image()).into(postProfileImage);
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
 
         postTextET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
                 if (postTextET.getText().length()>0) {
@@ -155,7 +126,6 @@ public class WritePostFragment extends DialogFragment {
                     sendTW.setTextColor(Color.GRAY);
                     sendable=false;
                 }
-
             }
         });
 
@@ -165,12 +135,10 @@ public class WritePostFragment extends DialogFragment {
 
                 if (sendable) {
                     postID = rootDbRef.child("posts").push().getKey();
-
                     rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
-
                             Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), user.getName(), user.getThumb_image());
 
                             rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -179,26 +147,19 @@ public class WritePostFragment extends DialogFragment {
                                     rootDbRef.child("sessions").child(sessionID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-
                                             dismiss();
                                         }
                                     });
                                 }
                             });
-
                         }
-
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
                         }
                     });
                 }
-
             }
         });
-
         return view;
     }
-
 }

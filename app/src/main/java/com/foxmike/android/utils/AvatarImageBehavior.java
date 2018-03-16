@@ -1,9 +1,5 @@
 package com.foxmike.android.utils;
-
-/**
- * Created by chris on 2018-02-27.
- */
-
+// Checked
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.design.widget.CoordinatorLayout;
