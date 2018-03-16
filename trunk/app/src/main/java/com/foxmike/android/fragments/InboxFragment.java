@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -11,14 +10,13 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.InboxPagerAdapter;
-
-
+/**
+ * This fragment sets up the tabs for the inbox and loads the fragments ChatsFragment, FriendsFragment and RequestsFragment
+ */
 public class InboxFragment extends Fragment {
 
     private ViewPager inboxPager;
-
     private InboxPagerAdapter inboxPagerAdapter;
-
     private TabLayout tabLayout;
 
     public InboxFragment() {
@@ -45,17 +43,12 @@ public class InboxFragment extends Fragment {
 
         inboxPager = (ViewPager) view.findViewById(R.id.inboxPager);
         inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getContext());
-
         inboxPager.setAdapter(inboxPagerAdapter);
-
         tabLayout = (TabLayout) view.findViewById(R.id.inbox_tabs);
-
         tabLayout.setupWithViewPager(inboxPager);
-
 
         return view;
     }
-
     public void cleanInboxListeners() {
 
     }

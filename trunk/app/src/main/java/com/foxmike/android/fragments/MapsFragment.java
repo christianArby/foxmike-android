@@ -1,7 +1,6 @@
 package com.foxmike.android.fragments;
-
+// Checked
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -12,9 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.foxmike.android.R;
-import com.foxmike.android.activities.CreateOrEditSessionActivity;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.utils.MyFirebaseDatabase;
@@ -41,8 +38,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
-
-
+/**
+ * This fragment displays a google map with all sessions passed as arguments shown as markers on map
+ * In case the bundle includes an int changeLocation which is 1 it will not display markers, it will
+ * just show the map and a text and wait til the user clicks on the map and then CreateOrEditSession will
+ * start from parent activity
+ */
 public class MapsFragment extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -61,6 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private boolean moveCamera;
     private View myView;
     private OnSessionClickedListener onSessionClickedListener;
+    private OnCreateSessionListener onCreateSessionListener;
     private TextView createSessionMapTextTV;
     private int changeLocation;
     private Location mLastLocation;
@@ -77,12 +79,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             changeLocation = bundle.getInt("CHANGELOCATION", 0);
         }
-
         setRetainInstance(true);
         moveCamera=true;
         mAuth = FirebaseAuth.getInstance();
@@ -155,8 +155,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             if (changeLocation==1) {
                                 onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
                             } else {
-                                clickedPosition = point;
-                                addSession();
+                                addSession(point);
                             }
                         }
                     });
@@ -169,10 +168,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(ArrayList<Session> sessions, Location location) {
+    public void addMarkersToMap(ArrayList<Session> sessions) {
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
         mMap.clear();
         for (Session session: sessions) {
             LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
@@ -191,15 +189,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     }
 
     // Method to start CreateOrEditSessionActivity
-    private void addSession() {
-        Intent intent = new Intent(getActivity(), CreateOrEditSessionActivity.class);
-        intent.putExtra("LatLng", clickedPosition);
-        startActivityForResult(intent, PICK_SESSION_REQUEST);
+    private void addSession(LatLng clickedPosition) {
+        onCreateSessionListener.OnCreateSession(clickedPosition);
     }
 
     // Method that adds a marker to the map when map is clicked and CreateOrEditSessionActivity
     // has been started.
-    @Override
+    /*@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (requestCode == PICK_SESSION_REQUEST) {
@@ -208,7 +204,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 mMap.addMarker(new MarkerOptions().position(clickedPosition));
             }
         }
-    }
+    }*/
 
     // Method to call the interface OnSessionClickedListener so that MainPlayerActivity knows that
     // a session has been clicked and display session fragment should be created and switched to.
@@ -230,7 +226,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onConnected(Bundle bundle) {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10 * 1000);
-        mLocationRequest.setFastestInterval(1*1000);
+        mLocationRequest.setFastestInterval(1*1000);    // TODO Check this
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if (ContextCompat.checkSelfPermission(getActivity(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -241,12 +237,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
     }
 
     @Override
@@ -286,11 +280,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
+        if (context instanceof OnCreateSessionListener) {
+            onCreateSessionListener = (OnCreateSessionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnCreateSessionListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
+        onCreateSessionListener = null;
+    }
+
+    public interface OnCreateSessionListener {
+        void OnCreateSession(LatLng latLng);
     }
 }

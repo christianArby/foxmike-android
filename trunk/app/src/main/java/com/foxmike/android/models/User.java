@@ -1,12 +1,15 @@
 package com.foxmike.android.models;
 
+import android.support.annotation.NonNull;
+
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
  * Created by chris on 2017-06-28.
  */
 
-public class User {
+public class User implements Comparable<User>{
 
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
@@ -97,4 +100,8 @@ public class User {
         this.trainerMode = trainerMode;
     }
 
+    @Override
+    public int compareTo(@NonNull User user) {
+        return this.getName().compareToIgnoreCase(user.getName());
+    }
 }

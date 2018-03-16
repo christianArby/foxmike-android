@@ -1,22 +1,12 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_participants"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="false">
+    tools:context="com.foxmike.android.fragments.ParticipantsFragment">
 
-    <ScrollView
-        android:id="@+id/scrollview_participants"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/participants_listRV"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"/>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:id="@+id/list_of_participants"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-
-    </ScrollView>
-
-</FrameLayout>
+</RelativeLayout>

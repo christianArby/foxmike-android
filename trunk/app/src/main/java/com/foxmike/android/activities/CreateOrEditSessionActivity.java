@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.activities;
 //Checked
 import android.app.DatePickerDialog;
@@ -101,7 +102,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_or_edit_session);
 
-        /** Set and inflate "create session" layout*/
+        */
+/** Set and inflate "create session" layout*//*
+
         View createSession;
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
@@ -150,11 +153,15 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         // Add view to create session container
         createSessionContainer.addView(createSession);
 
-        /** Create Geofire object in order to store latitude and longitude under in Geofire structure */
+        */
+/** Create Geofire object in order to store latitude and longitude under in Geofire structure *//*
+
         geoFire = new GeoFire(mGeofireDbRef);
 
-        /**The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
-         * This keeps the data on the disk even though listeners are detached*/
+        */
+/**The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
+         * This keeps the data on the disk even though listeners are detached*//*
+
         mUserDbRef.keepSynced(true);
         mMarkerDbRef.keepSynced(true);
 
@@ -184,8 +191,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         if (sessionIdBundle != null) {
             existingSessionID = sessionIdBundle.getString("key");
 
-            /**If this activity was started from clicking on an edit session the previous activity should have sent a bundle with the session key, if so
-             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
+            */
+/**If this activity was started from clicking on an edit session the previous activity should have sent a bundle with the session key, if so
+             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*//*
+
             if (existingSessionID != null){
 
                 sessionExist=1;
@@ -234,8 +243,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 });
             }
 
-            /** If no bundle exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
-             * if so extract the LatLng and set the image to the default image (Create view)*/
+            */
+/** If no bundle exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
+             * if so extract the LatLng and set the image to the default image (Create view)*//*
+
             else {
 
                 clickedLatLng = getIntent().getExtras().getParcelable("LatLng");
@@ -245,20 +256,25 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             }
         }
 
-        /**When imagebutton is clicked start gallery in phone to let user choose photo/image*/
+        */
+/**When imagebutton is clicked start gallery in phone to let user choose photo/image*//*
+
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
+                galleryIntent.setType("image*/
+/*");
                 startActivityForResult(galleryIntent, GALLERY_REQUEST);
 
             }
         });
 
-        /**When button is clicked set the values in the edittext fields to a session object */
+        */
+/**When button is clicked set the values in the edittext fields to a session object *//*
+
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -279,14 +295,18 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 session.setHost(currentFirebaseUser.getUid());
                 session.setAdvertised(mAdvertised.isChecked());
 
-                /**If session exists (checked on create) send session to database with method sendSession, display progress*/
+                */
+/**If session exists (checked on create) send session to database with method sendSession, display progress*//*
+
                 if (sessionExist == 1){
                     mProgress.setMessage(getString(R.string.updating_session));
                     mProgress.show();
                     sendSession(session, sessionExist);
                 }
 
-                /**If session not exists (checked on create) send session to database with method sendSession, display progress*/
+                */
+/**If session not exists (checked on create) send session to database with method sendSession, display progress*//*
+
                 else {
                     mProgress.setMessage(getString(R.string.creating_session));
                     mProgress.show();
@@ -296,8 +316,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         });
 
 
-        /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
-         * Update date label with function updateLabel() in order to set it to correct format */
+        */
+/** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
+         * Update date label with function updateLabel() in order to set it to correct format *//*
+
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -311,7 +333,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             }
         };
 
-        /**If date field is clicked start Android datepicker and retrive data */
+        */
+/**If date field is clicked start Android datepicker and retrive data *//*
+
         mDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -322,7 +346,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             }
         });
 
-        /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
+        */
+/** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field *//*
+
         mTime.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -346,7 +372,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             }
         });
 
-        /** When item is clicked create a dialog with the specified title and string array */
+        */
+/** When item is clicked create a dialog with the specified title and string array *//*
+
         mSessionType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -382,29 +410,39 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         mapsFragmentContainer.setVisibility(View.GONE);
     }
 
-    /**Send session object to database */
+    */
+/**Send session object to database *//*
+
     private void sendSession(final Session session, int sessionExist) {
 
-        /**If session exists get the existing session id */
+        */
+/**If session exists get the existing session id *//*
+
         if (sessionExist==1) {
             mSessionId = existingSessionID;
             session.setPosts(existingSession.getPosts());
         }
-        /**If session not exists create a new random session key*/
+        */
+/**If session not exists create a new random session key*//*
+
         else {
             mSessionId = mMarkerDbRef.push().getKey();
         }
 
-        /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
-         * photo to the Storage database*/
+        */
+/**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
+         * photo to the Storage database*//*
+
         if(mImageUri != null){
             StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
             filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     String downloadUri = taskSnapshot.getDownloadUrl().toString();
-                    /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
-                     * to the main activity*/
+                    */
+/** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
+                     * to the main activity*//*
+
                     session.setImageUrl(downloadUri);
 
                     if (session.getSessionDate() != null){
@@ -421,10 +459,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 }
             });
         }
-        /**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*/
+        */
+/**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*//*
+
         else {
-            /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
-             * and send the user back to the main activity*/
+            */
+/**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
+             * and send the user back to the main activity*//*
+
             if (sessionExist==1) {
                 session.setImageUrl(existingSession.getImageUrl());
                 mProgress.dismiss();
@@ -440,7 +482,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
                 }
 
             }
-            /**If the session is NOT an existing session tell the user that a photo must be chosen*/
+            */
+/**If the session is NOT an existing session tell the user that a photo must be chosen*//*
+
             else {
                 mProgress.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
@@ -454,9 +498,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
             Toast.makeText(this, "whaat", Toast.LENGTH_LONG).show();
         }
         finish();
-        /*Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
+        */
+/*Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(mainIntent);*/
+        startActivity(mainIntent);*//*
+
     }
 
     private void updateLabel() {
@@ -466,7 +512,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
     }
 
 
-    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
+    */
+/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
+
     private void createDialog(String title, int string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
         LayoutInflater inflater = getLayoutInflater();
@@ -488,7 +536,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         });
     }
 
-    /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
+    */
+/** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  *//*
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -517,7 +567,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
         }
     }
 
-    /**Method setImage scales the chosen image*/
+    */
+/**Method setImage scales the chosen image*//*
+
     private void setImage(String image, ImageView imageView) {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
@@ -560,4 +612,4 @@ public class CreateOrEditSessionActivity extends AppCompatActivity implements On
 
     }
 
-}
+}*/

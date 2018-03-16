@@ -25,6 +25,7 @@ import com.foxmike.android.fragments.UserAccountFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -48,7 +49,7 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplaySessionFragment.OnEditSessionListener,
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
-        OnHostSessionChangedListener{
+        OnHostSessionChangedListener, MapsFragment.OnCreateSessionListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -275,11 +276,21 @@ public class MainHostActivity extends AppCompatActivity implements
         // TODO should this be used?
     }
 
-
+    // Starts CreateOrEditSessionFragment with a sessionID to edit the session
     @Override
     public void OnEditSession(String sessionID) {
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, false);
+    }
+
+    // Starts CreateOrEditSessionFragment with a LatLng in order to create a session
+    @Override
+    public void OnCreateSession(LatLng latLng) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("LatLng", latLng);
         createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, false);
@@ -295,6 +306,14 @@ public class MainHostActivity extends AppCompatActivity implements
             // /super.onBackPressed();
             //additional code
         } else {
+
+            if(createOrEditSessionFragment!=null) {
+                if (createOrEditSessionFragment.isVisible()) {
+                    getSupportFragmentManager().beginTransaction().detach(createOrEditSessionFragment).commit();
+                }
+            }
+
+
 
             // TODO Add Newsfeed fragment here later when exist
             if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){

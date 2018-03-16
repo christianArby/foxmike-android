@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-
+/**
+ * This fragment lists all sessions the current user is hosting
+ */
 public class HostSessionsFragment extends Fragment {
 
     private OnCreateSessionClickedListener onCreateSessionClickedListener;
