@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.LoginActivity;
@@ -23,7 +21,6 @@ import com.foxmike.android.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +28,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
 /**
  * This Fragment creates the user profile view by using the xml files:
  *      - fragment_user_account.xml
@@ -44,7 +40,6 @@ public class UserAccountFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
-
     private LinearLayout list;
     private View profile;
 
@@ -93,13 +88,9 @@ public class UserAccountFragment extends Fragment {
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
                         DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
-
                         User user = dataSnapshot.getValue(User.class);
-
                         if (user.trainerMode) {
-                            //user.setTrainerMode(false);
                             usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(false).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -107,9 +98,7 @@ public class UserAccountFragment extends Fragment {
                                     getActivity().startActivity(intent);
                                 }
                             });
-
                         } else {
-                            //user.setTrainerMode(true);
                             usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -117,15 +106,10 @@ public class UserAccountFragment extends Fragment {
                                     getActivity().startActivity(intent);
                                 }
                             });
-
-                            //changeMode(user.trainerMode);
                         }
-
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
                 });
             }
@@ -137,9 +121,9 @@ public class UserAccountFragment extends Fragment {
                 userNameTV.setText(user.getName());
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
                 if (user.trainerMode) {
-                    switchModeTV.setText("Switch to participant mode");
+                    switchModeTV.setText(R.string.switch_to_participant_mode_text);
                 } else {
-                    switchModeTV.setText("Switch to trainer mode");
+                    switchModeTV.setText(R.string.switch_to_host_mode_text);
                 }
             }
         });
@@ -185,11 +169,6 @@ public class UserAccountFragment extends Fragment {
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(loginIntent);
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
         mAuth.signOut();
     }
 

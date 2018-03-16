@@ -1,5 +1,5 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.app.Application;
 import android.content.Intent;
 
@@ -18,18 +18,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class Sportu extends Application {
 
-
-
     private DatabaseReference rootDbRef;
     private FirebaseAuth mAuth;
-
-
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         mAuth = FirebaseAuth.getInstance();
@@ -77,5 +71,4 @@ public class Sportu extends Application {
             });
         }
     }
-
 }

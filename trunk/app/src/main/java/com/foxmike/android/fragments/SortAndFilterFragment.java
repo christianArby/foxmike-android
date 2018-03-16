@@ -1,5 +1,5 @@
 package com.foxmike.android.fragments;
-
+// Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -13,7 +13,9 @@ import android.widget.RadioGroup;
 import android.widget.ToggleButton;
 
 import com.foxmike.android.R;
-
+/**
+ * This opens up a dialog fragment in order to choose way to sort and filter
+ */
 public class SortAndFilterFragment extends DialogFragment {
 
     private RadioGroup radioGroup;
@@ -60,9 +62,9 @@ public class SortAndFilterFragment extends DialogFragment {
         closeButton = view.findViewById(R.id.closeImageButton);
 
         // Setup sort on DATE toggle button
-        sortDateTB.setText("Datum");
-        sortDateTB.setTextOn("Datum");
-        sortDateTB.setTextOff("Datum");
+        sortDateTB.setText(getString(R.string.date_text));
+        sortDateTB.setTextOn(getString(R.string.date_text));
+        sortDateTB.setTextOff(getString(R.string.date_text));
         sortDateTB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -73,9 +75,9 @@ public class SortAndFilterFragment extends DialogFragment {
         });
 
         // Setup sort on Distance toggle button
-        sortDistanceTB.setText("Avstånd");
-        sortDistanceTB.setTextOn("Avstånd");
-        sortDistanceTB.setTextOff("Avstånd");
+        sortDistanceTB.setText(getString(R.string.distance_word));
+        sortDistanceTB.setTextOn(getString(R.string.distance_word));
+        sortDistanceTB.setTextOff(getString(R.string.distance_word));
         sortDistanceTB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

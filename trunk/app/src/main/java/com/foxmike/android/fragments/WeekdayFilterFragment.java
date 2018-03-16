@@ -1,5 +1,5 @@
 package com.foxmike.android.fragments;
-
+// Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,7 +17,10 @@ import com.foxmike.android.models.SessionDate;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-
+/**
+ * This sets up 7 tooglebuttons with weekdays which listen for user clicks and sends the output
+ * through OnWeekdayChangedListener and OnWeekdayButtonClickedListener
+ */
 public class WeekdayFilterFragment extends Fragment{
 
     public WeekdayFilterFragment() {
@@ -25,11 +28,9 @@ public class WeekdayFilterFragment extends Fragment{
     }
 
     private int weekFilter;
-
     private HashMap<Integer,Boolean> toggleMap1 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,Boolean> toggleMap2 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,ToggleButton> toggleButtonHashMap;
-
     private ToggleButton toggleButton1;
     private ToggleButton toggleButton2;
     private ToggleButton toggleButton3;
@@ -290,7 +291,7 @@ public class WeekdayFilterFragment extends Fragment{
             onWeekdayChangedListener = (OnWeekdayChangedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnWeekdayChangedListener");
         }
 
         if (context instanceof OnWeekdayButtonClickedListener) {

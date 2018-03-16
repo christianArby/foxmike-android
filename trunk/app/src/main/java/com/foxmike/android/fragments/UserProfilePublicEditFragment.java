@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserFoundListener;
@@ -31,23 +29,20 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
 import static android.app.Activity.RESULT_OK;
-
+/**
+ * This Fragment shows the current user's profile and lets the user change the information
+ */
 public class UserProfilePublicEditFragment extends Fragment {
 
     private OnUserProfilePublicEditFragmentInteractionListener mListener;
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private StorageReference mStorageImage;
     private ImageButton profileImageButton;
-    private String downloadUri;
     private ProgressBar progressBar;
-    private int progressStatus = 0;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
-    private FirebaseAuth mAuth;
     private LinearLayout list;
     private View profile;
     static UserProfilePublicEditFragment fragment;
@@ -64,44 +59,34 @@ public class UserProfilePublicEditFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_profile_public_edit, container, false);
 
-        mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
-        mAuth = FirebaseAuth.getInstance();
-
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar_cyclic);
-
 
         /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_info */
         list = view.findViewById(R.id.list_user_profile_public_edit);
         profile = inflater.inflate(R.layout.user_profile_public_edit_info,list,false);
         list.addView(profile);
-
         final EditText userNameET = profile.findViewById(R.id.nameProfilePublicEditET);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
-
+        // setup the imagebutton with the users profile image
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
                 userNameET.setText(user.getName());
-                downloadUri=user.image;
                 setImageButton(user.image,profileImageButton);
             }
         });
-
+        // Setup the update button and when clicked update the user information and picture in database
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
-
                 myProgressBar.startProgressBar();
 
                 usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
-
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
@@ -116,8 +101,6 @@ public class UserProfilePublicEditFragment extends Fragment {
                     mListener.OnUserProfilePublicEditFragmentInteraction();
                     myProgressBar.stopProgressBar();
                 }
-
-
             }
         });
 

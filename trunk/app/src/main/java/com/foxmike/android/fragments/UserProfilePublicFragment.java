@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,8 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-
+/**
+ * This Fragment shows a user's profile and includes functionality to add/remove the user as friend by sending requests and messages
+ */
 public class UserProfilePublicFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -41,7 +41,6 @@ public class UserProfilePublicFragment extends Fragment {
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
     private  DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private FirebaseAuth mAuth;
     private LinearLayout list;
     private View profile;
     private String otherUserID;
@@ -75,9 +74,6 @@ public class UserProfilePublicFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_profile_public, container, false);
-
-        // Get Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
 
         /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_public_info */
         list = view.findViewById(R.id.list_user_profile_public);

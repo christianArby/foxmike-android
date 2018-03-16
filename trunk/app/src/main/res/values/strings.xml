@@ -231,6 +231,10 @@
     <string name="Session_not_found_please_try_again_later">Session not found, please try again later...</string>
     <string name="meet_your_session_leader">Meet your session leader,</string>
     <string name="upcoming_listings">Kommande annonseringar</string>
+    <string name="date_text">Date</string>
+    <string name="distance_word">Distance</string>
+    <string name="switch_to_participant_mode_text">Switch to participant mode</string>
+    <string name="switch_to_host_mode_text">Switch to trainer mode</string>
 
 
 </resources>

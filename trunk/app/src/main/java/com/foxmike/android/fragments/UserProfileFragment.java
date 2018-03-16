@@ -1,5 +1,5 @@
 package com.foxmike.android.fragments;
-
+// Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyFirebaseDatabase;
@@ -21,9 +20,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import de.hdodenhof.circleimageview.CircleImageView;
-
+/**
+ * This Fragment shows the current user's profile (without buttons to add friend or send message as in UserProfilePublicFragment)
+ */
 public class UserProfileFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -55,9 +55,7 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
-
         mAuth = FirebaseAuth.getInstance();
-
         /* Inflate the LinearLayout list (in fragment_user_profile_public) with the layout user_profile_info */
         list = view.findViewById(R.id.list_user_profile);
         profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
@@ -79,16 +77,12 @@ public class UserProfileFragment extends Fragment {
 
             }
         });
-
-
         editIconIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onUserProfileFragmentInteractionListener.onUserProfileFragmentInteraction();
             }
         });
-
-
         return  view;
     }
 

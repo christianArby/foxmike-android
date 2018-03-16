@@ -1,5 +1,5 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Created by chris on 2018-02-18.
+ * This helper class creates the sticky headers in listSessionsFragment
  */
 
 public class HeaderItemDecoration extends RecyclerView.ItemDecoration {

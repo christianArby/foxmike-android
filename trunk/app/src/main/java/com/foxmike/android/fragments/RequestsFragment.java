@@ -1,6 +1,5 @@
 package com.foxmike.android.fragments;
-
-
+// Checked
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Presence;
@@ -21,41 +19,28 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
-
 /**
- * A simple {@link Fragment} subclass.
+ * This fragment lists all the current user's friend requests
  */
 public class RequestsFragment extends Fragment {
 
     private RecyclerView requestsList;
-
-    private DatabaseReference myRequestsDbRef;
-    private DatabaseReference usersDatabase;
     private FirebaseAuth mAuth;
     private String currentUserID;
-    private View mainView;
-    private ValueEventListener userListener;
-    private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private DatabaseReference rootDbRef;
-
     private ArrayList<String> userIDs = new ArrayList<String>();
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
     private HashMap<String, String> requests = new HashMap<String, String>();
     private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
-
     private RecyclerView.Adapter<UsersViewHolder> requestsViewHolderAdapter;
     private OnUserClickedListener onUserClickedListener;
-
 
     public RequestsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,14 +49,9 @@ public class RequestsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_requests, container, false);
 
         rootDbRef = FirebaseDatabase.getInstance().getReference();
-
         requestsList = (RecyclerView) view.findViewById(R.id.requests_list);
         mAuth = FirebaseAuth.getInstance();
-
         currentUserID = mAuth.getCurrentUser().getUid();
-
-        usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-
         requestsList.setHasFixedSize(true);
         requestsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -103,43 +83,30 @@ public class RequestsFragment extends Fragment {
                                     requestsViewHolderAdapter.notifyDataSetChanged();
                                 }
                             }
-
                             if (!listenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
                                 ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-
                                         Presence presence = dataSnapshot.getValue(Presence.class);
-
                                         int pos = userIDs.indexOf(dataSnapshot.getKey());
-
                                         presenceHashMap.put(pos,presence);
-
                                         requestsViewHolderAdapter.notifyItemChanged(pos);
-
                                     }
-
                                     @Override
                                     public void onCancelled(DatabaseError databaseError) {
-
                                     }
                                 });
                                 listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
                             }
                         }
-
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
                         }
                     });
                 }
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         listenerMap.put(rootDbRef.child("friend_requests").child(currentUserID), friendRequestsListener);
@@ -156,9 +123,7 @@ public class RequestsFragment extends Fragment {
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
 
                 holder.setText(requests.get(userIDs.get(position)), true);
-
                 final User friend = users.get(position);
-
                 holder.setHeading(friend.getName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                 if (presenceHashMap.get(position)!=null) {
@@ -166,15 +131,12 @@ public class RequestsFragment extends Fragment {
                 } else {
                     holder.setOnlineIcon(false);
                 }
-
-
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         onUserClickedListener.OnUserClicked(userIDs.get(position));
                     }
                 });
-
             }
 
             @Override
@@ -184,10 +146,6 @@ public class RequestsFragment extends Fragment {
         };
 
         requestsList.setAdapter(requestsViewHolderAdapter);
-
-
-
-
         return view;
     }
 
@@ -207,5 +165,4 @@ public class RequestsFragment extends Fragment {
         super.onDetach();
         onUserClickedListener = null;
     }
-
 }

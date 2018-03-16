@@ -1,11 +1,7 @@
 package com.foxmike.android.utils;
-
+// Checked
 import android.app.Application;
 import android.content.Context;
-
-/**
- * Created by chris on 2017-12-15.
- */
 
 public class GetTimeAgo extends Application{
 
@@ -60,8 +56,4 @@ public class GetTimeAgo extends Application{
             return diff / DAY_MILLIS + " days ago";
         }
     }
-
-
-
-
 }
