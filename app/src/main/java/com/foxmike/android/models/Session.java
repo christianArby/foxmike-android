@@ -2,12 +2,13 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
 
-public class Session implements Comparable<Session> {
+public class Session implements Comparable<Session>, Serializable {
     private String host;
     private String sessionName;
     private String sessionType;

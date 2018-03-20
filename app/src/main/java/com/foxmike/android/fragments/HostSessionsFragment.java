@@ -10,8 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.foxmike.android.R;
+import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
+import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
@@ -80,11 +82,11 @@ public class HostSessionsFragment extends Fragment {
             public void OnUserFound(final User user) {
                 if (user.sessionsHosting.size()!=0){
                     // Get which sessions the current user is hosting in a arraylist from the database
-                    myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
+                    myFirebaseDatabase.getSessionBranches(user.sessionsHosting,new OnSessionBranchesFoundListener() {
                         @Override
-                        public void OnSessionsFound(ArrayList<Session> sessions) {
-                            ArrayList<Session> sessionsAdv = new ArrayList<Session>();
-                            ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
+                        public void OnSessionBranchesFound(ArrayList<SessionBranch> sessionBranches) {
+                            ArrayList<SessionBranch> sessionsAdv = new ArrayList<SessionBranch>();
+                            ArrayList<SessionBranch> sessionsNotAdv = new ArrayList<SessionBranch>();
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                             final Calendar cal = Calendar.getInstance();
                             Date todaysDate = cal.getTime();
@@ -92,11 +94,11 @@ public class HostSessionsFragment extends Fragment {
                             Date twoWeeksDate = cal.getTime();
                             // Loop hosted sessions and see which are advertised, critera for advertised is that the boolean advertised is true and that the session date
                             // is after today's date
-                            for (Session session: sessions) {
-                                if (session.isAdvertised() && session.getSessionDate().getDateOfSession().after(todaysDate)) {
-                                    sessionsAdv.add(session);
+                            for (SessionBranch sessionBranch: sessionBranches) {
+                                if (sessionBranch.getSession().isAdvertised() && sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                                    sessionsAdv.add(sessionBranch);
                                 } else {
-                                    sessionsNotAdv.add(session);
+                                    sessionsNotAdv.add(sessionBranch);
                                 }
                             }
                             // Sort the two lists on date
@@ -106,11 +108,12 @@ public class HostSessionsFragment extends Fragment {
                             int n = 0;
                             Boolean keepLooking = true;
                             while (n < sessionsAdv.size() && keepLooking) {
-                                if (sessionsAdv.get(n).getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
+                                if (sessionsAdv.get(n).getSession().getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
                                     Session dummySession = new Session();
                                     dummySession.setImageUrl("sectionHeader");
                                     dummySession.setSessionName(getString(R.string.upcoming_listings));
-                                    sessionsAdv.add(n, dummySession);
+                                    SessionBranch dummySessionBranch = new SessionBranch("irrelevant", dummySession);
+                                    sessionsAdv.add(n, dummySessionBranch);
                                     keepLooking=false;
                                 }
                                 n++;
@@ -125,12 +128,12 @@ public class HostSessionsFragment extends Fragment {
                                 hostSessionsPagerAdapter.notifyDataSetChanged();
                             }
                         }
-                    },user.sessionsHosting);
+                    });
 
                     /* Else if user is not hosting any sessions create blank pages */
                 } else {
-                    ArrayList<Session> sessionsAdv = new ArrayList<Session>();
-                    ArrayList<Session> sessionsNotAdv = new ArrayList<Session>();
+                    ArrayList<SessionBranch> sessionsAdv = new ArrayList<SessionBranch>();
+                    ArrayList<SessionBranch> sessionsNotAdv = new ArrayList<SessionBranch>();
                     if (!update) {
                         hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
                         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);

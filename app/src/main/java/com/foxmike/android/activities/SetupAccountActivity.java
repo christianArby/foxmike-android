@@ -95,7 +95,8 @@ public class SetupAccountActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(2,1)
+                    .setCropShape(CropImageView.CropShape.OVAL)
+                    .setAspectRatio(1,1)
                     .start(this);
         }
         // when image has been cropped set image to button and to variable mImageUri

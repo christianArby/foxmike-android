@@ -52,7 +52,6 @@ public class ChatActivity extends AppCompatActivity {
     private String currentUserID;
     private EditText chatMessage;
     private ImageButton chatSendBtn;
-    private ImageButton chatAddBtn;
     private RecyclerView messagesListRV;
     private SwipeRefreshLayout swipeRefreshLayout;
     private final List<Message> messageList = new ArrayList<>();
@@ -75,7 +74,6 @@ public class ChatActivity extends AppCompatActivity {
         chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
         chatMessage = (EditText) findViewById(R.id.chat_message_ET);
         chatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
-        chatAddBtn = (ImageButton) findViewById(R.id.chatAddBtn);
         messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
 

@@ -177,7 +177,6 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="choose_profile_picture">Choose profile picture</string>
-    <string name="choose_session_image">Choose session image</string>
     <string name="session_image">Session image</string>
     <string name="switch_mode_icon">Switch mode icon</string>
     <string name="loading">Loading...</string>
@@ -235,6 +234,22 @@
     <string name="distance_word">Distance</string>
     <string name="switch_to_participant_mode_text">Switch to participant mode</string>
     <string name="switch_to_host_mode_text">Switch to trainer mode</string>
+    <string name="hint_enter_message">Enter Message...</string>
+    <string name="CD_send_button">Send button</string>
+    <string name="placeholder_user_name">Display Name</string>
+    <string name="placeholder_last_seen">Last Seen</string>
+    <string name="CD_choose_session_image_button">Choose session image button</string>
+    <string name="CD_location_icon">Location_icon</string>
+    <string name="advertised_word">Advertised</string>
+    <string name="CD_date_icon">Date icon</string>
+    <string name="CD_duration_icon">Duration icon</string>
+    <string name="duration_hint">Duration</string>
+    <string name="CD_participants_icon">Participants icon</string>
+    <string name="CD_time_icon">Time icon</string>
+    <string name="what_hint">What will you do</string>
+    <string name="who_hint">Who can attend</string>
+    <string name="where_hint">Where will you be</string>
+    <string name="location_loading">Location loading...</string>
 
 
 </resources>

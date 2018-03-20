@@ -5,35 +5,38 @@
     android:layout_height="match_parent"
     android:background="@color/secondaryColor">
 
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/custom_bar_image"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="@dimen/width_ProfileImageToolbar"
+        android:layout_height="@dimen/height_ProfileImageToolbar"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginTop="@dimen/margin_minimum"
         android:src="@mipmap/profile_picture" />
 
     <TextView
         android:id="@+id/custom_bar_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Display Name"
+        android:layout_marginTop="@dimen/margin_minimum"
+        android:text="@string/placeholder_user_name"
         android:textColor="@color/secondaryTextColor"
-        android:textSize="18sp" />
+        android:layout_toStartOf="@id/custom_bar_image"
+        android:textSize="@dimen/textSize_big" />
 
     <TextView
         android:id="@+id/custom_bar_lastSeen"
         android:layout_width="wrap_content"
+        android:layout_toStartOf="@id/custom_bar_image"
+        android:layout_marginStart="@dimen/margin_left"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/custom_bar_name"
-        android:text="Last Seen"
-        android:textColor="@color/secondaryTextColor"
-        android:textSize="13sp" />
-
+        android:text="@string/placeholder_last_seen"
+        android:textColor="@color/secondaryTextColor"/>
 
 </RelativeLayout>

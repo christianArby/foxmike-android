@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionBranch;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -25,23 +27,25 @@ public class ListSmallSessionsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private OnSessionClickedListener onSessionClickedListener;
+    private OnSessionBranchClickedListener onSessionBranchClickedListener;
+
+
 
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
-    private ArrayList<Session> sessionArrayList = new ArrayList<>();
+    private ArrayList<SessionBranch> sessionBranchArrayList = new ArrayList<>();
 
 
     public ListSmallSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static ListSmallSessionsFragment newInstance(ArrayList<Session> sessionArrayList) {
+    public static ListSmallSessionsFragment newInstance(ArrayList<SessionBranch> sessionBranchArrayList) {
 
         ListSmallSessionsFragment fragment = new ListSmallSessionsFragment();
         Bundle args = new Bundle();
-        String strSessionArrayList = new Gson().toJson(sessionArrayList);
-        args.putString("sessionArrayList",strSessionArrayList);
+        String strSessionBranchArrayList = new Gson().toJson(sessionBranchArrayList);
+        args.putString("sessionBranchArrayList",strSessionBranchArrayList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,8 +54,8 @@ public class ListSmallSessionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            String strSessionArrayList = getArguments().getString("sessionArrayList");
-            sessionArrayList = new Gson().fromJson(strSessionArrayList, new TypeToken<ArrayList<Session>>(){}.getType());
+            String strSessionBranchArrayList = getArguments().getString("sessionBranchArrayList");
+            sessionBranchArrayList = new Gson().fromJson(strSessionBranchArrayList, new TypeToken<ArrayList<SessionBranch>>(){}.getType());
         }
     }
 
@@ -63,7 +67,7 @@ public class ListSmallSessionsFragment extends Fragment {
 
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionArrayList, onSessionClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionBranchArrayList, onSessionBranchClickedListener, getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
         return view;
     }
@@ -71,18 +75,18 @@ public class ListSmallSessionsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnSessionClickedListener) {
-            onSessionClickedListener = (OnSessionClickedListener) context;
+        if (context instanceof OnSessionBranchClickedListener) {
+            onSessionBranchClickedListener = (OnSessionBranchClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnSessionClickedListener");
+                    + " must implement OnSessionBranchClickedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onSessionClickedListener = null;
+        onSessionBranchClickedListener = null;
     }
 
 }

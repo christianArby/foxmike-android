@@ -22,6 +22,8 @@ import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
+import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
@@ -74,7 +76,8 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
-        MapsFragment.OnCreateSessionListener{
+        MapsFragment.OnCreateSessionListener,
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -459,7 +462,7 @@ public class MainPlayerActivity extends AppCompatActivity
     /* Listener, when session is clicked display session*/
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-        displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude,"");
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
     }
 
@@ -644,6 +647,16 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnCreateSession(LatLng latLng) {
         // Not possible in player environment
+    }
+
+    @Override
+    public void OnSessionLocationChanged(LatLng latLng) {
+        // Not possible in player environment
+    }
+
+    @Override
+    public void OnSessionBranchClicked(SessionBranch sessionBranch) {
+
     }
 
     // Sets up weekday pager
