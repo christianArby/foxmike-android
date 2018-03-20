@@ -36,7 +36,6 @@ public class CommentActivity extends AppCompatActivity {
     private String currentUserID;
     private EditText postMessage;
     private ImageButton postSendBtn;
-    private ImageButton postAddBtn;
     private RecyclerView messagesListRV;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LinearLayoutManager linearLayoutManager;
@@ -55,7 +54,6 @@ public class CommentActivity extends AppCompatActivity {
 
         postMessage = (EditText) findViewById(R.id.post_message_ET);
         postSendBtn = (ImageButton) findViewById(R.id.post_message_send_btn);
-        postAddBtn = (ImageButton) findViewById(R.id.post_message_AddBtn);
         messagesListRV = (RecyclerView) findViewById(R.id.post_messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.post_message_swipe_layout);
 

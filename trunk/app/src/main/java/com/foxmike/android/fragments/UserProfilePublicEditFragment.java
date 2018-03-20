@@ -129,7 +129,8 @@ public class UserProfilePublicEditFragment extends Fragment {
             Uri imageUri = data.getData();
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(2,1)
+                    .setCropShape(CropImageView.CropShape.OVAL)
+                    .setAspectRatio(1,1)
                     .start(fragment.getContext(), fragment);
         }
 

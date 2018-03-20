@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.RegisterActivity">
 
-    <ImageButton
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/registerImageBtn"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/width_profileImage"
+        android:layout_height="@dimen/height_profileImage"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="0dp"
         android:background="@color/secondaryBackgroundColor"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture"
@@ -20,36 +19,37 @@
 
     <EditText
         android:id="@+id/setupNameField"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:hint="@string/your_name"
+        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginStart="@dimen/margin_editText_in_center"
+        android:layout_marginEnd="@dimen/margin_editText_in_center"
         android:inputType="textPersonName"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/emailField"
-        android:layout_marginTop="220dp" />
+        android:layout_below="@id/registerImageBtn" />
 
     <EditText
         android:id="@+id/emailField"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:hint="@string/your_email"
         android:inputType="textEmailAddress"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/setupNameField"
-        android:layout_alignStart="@+id/passwordField" />
+        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginStart="@dimen/margin_editText_in_center"
+        android:layout_marginEnd="@dimen/margin_editText_in_center"
+        android:layout_below="@+id/setupNameField"/>
 
     <EditText
         android:id="@+id/passwordField"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:hint="@string/your_password"
         android:inputType="textPassword"
         android:layout_below="@+id/emailField"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginStart="@dimen/margin_editText_in_center"
+        android:layout_marginEnd="@dimen/margin_editText_in_center" />
 
     <Button
         style="@style/Widget.AppCompat.Button.Colored"
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sign_up"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/margin_top_fab"
         android:layout_below="@+id/passwordField"
         android:layout_centerHorizontal="true" />
 
@@ -65,8 +65,8 @@
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
-        android:minWidth="50dp"
+        android:minHeight="@dimen/height_progressBar"
+        android:minWidth="@dimen/width_progressBar"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="invisible"/>

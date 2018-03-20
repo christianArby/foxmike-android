@@ -15,11 +15,13 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
+import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.interfaces.OnUsersFoundListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.SessionDate;
 import com.foxmike.android.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -64,6 +66,29 @@ public class MyFirebaseDatabase extends Service {
                     sessions.add(session);
                     if (sessions.size() == sessionsHashMap.size()) {
                         onSessionsFoundListener.OnSessionsFound(sessions);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
+    public void getSessionBranches(final HashMap<String, Boolean> sessionsHashMap, final OnSessionBranchesFoundListener onSessionBranchesFoundListener) {
+
+        final ArrayList<SessionBranch> sessionBranches = new ArrayList<SessionBranch>();
+        for (String key : sessionsHashMap.keySet()) {
+            dbRef.child("sessions").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Session session;
+                    session = dataSnapshot.getValue(Session.class);
+                    SessionBranch sessionBranch = new SessionBranch(dataSnapshot.getKey(),session);
+                    sessionBranches.add(sessionBranch);
+                    if (sessionBranches.size() == sessionsHashMap.size()) {
+                        onSessionBranchesFoundListener.OnSessionBranchesFound(sessionBranches);
                     }
                 }
 
@@ -152,7 +177,7 @@ public class MyFirebaseDatabase extends Service {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -161,7 +186,7 @@ public class MyFirebaseDatabase extends Service {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }
+        }*/
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override

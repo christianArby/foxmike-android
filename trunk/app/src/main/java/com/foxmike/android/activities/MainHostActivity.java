@@ -16,6 +16,7 @@ import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.fragments.HostSessionsFragment;
@@ -25,6 +26,8 @@ import com.foxmike.android.fragments.UserAccountFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionBranch;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,7 +52,9 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplaySessionFragment.OnEditSessionListener,
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
-        OnHostSessionChangedListener, MapsFragment.OnCreateSessionListener{
+        OnHostSessionChangedListener, MapsFragment.OnCreateSessionListener,
+        CreateOrEditSessionFragment.OnEditLocationListener,
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -67,6 +72,8 @@ public class MainHostActivity extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    private Session editedSession;
+    private String editedSessionID;
 
 
     @Override
@@ -204,11 +211,11 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
-    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
+    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null) {
+            if (frag.getTag()!=null && frag.getTag().length()>5) {
                 if (frag.getTag().substring(0,5).equals("xMain")) {
                     if (frag.isVisible()) {
                         transaction.hide(frag);
@@ -218,7 +225,12 @@ public class MainHostActivity extends AppCompatActivity implements
         }
         bottomNavigation.setVisibility(View.GONE);
         if (addToBackStack) {
-            transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(null).commit();
+            if (!tag.equals("")) {
+                transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(tag).commit();
+            } else {
+                transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(null).commit();
+            }
+
         } else {
             transaction.replace(R.id.container_fullscreen_main_host, fragment).commit();
         }
@@ -227,15 +239,22 @@ public class MainHostActivity extends AppCompatActivity implements
     /* Listener, when session is clicked display session*/
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-        hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude);
-        cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true);
     }
+
+    @Override
+    public void OnSessionBranchClicked(SessionBranch sessionBranch) {
+
+        hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
+        cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+
+    }
+
     /* Listener, when edit "button" in account is clicked show user profile */
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
             hostUserProfileFragment = UserProfileFragment.newInstance();
-            cleanMainFullscreenActivityAndSwitch(hostUserProfileFragment,true);
+            cleanMainFullscreenActivityAndSwitch(hostUserProfileFragment,true,"");
         }
     }
 
@@ -243,7 +262,7 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void onUserProfileFragmentInteraction() {
         hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicEditFragment,true);
+        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicEditFragment,true,"");
     }
     /* Listener, when finished editing restart this activity */
     @Override
@@ -252,15 +271,6 @@ public class MainHostActivity extends AppCompatActivity implements
         finish();
         startActivity(intent);
     }
-    /* Listener, create session button FAB is clicked switch to maps fragment in order for user to pick location */
-    @Override
-    public void OnCreateSessionClicked() {
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        hostMapsFragment = MapsFragment.newInstance();
-        hostMapsFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true);
-    }
     /* Listener, when a user is clicked, get the others user ID and start User profile fragment */
     @Override
     public void OnUserClicked(String otherUserID) {
@@ -268,24 +278,22 @@ public class MainHostActivity extends AppCompatActivity implements
         bundle.putString("otherUserID", otherUserID);
         hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
         hostUserProfilePublicFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicFragment, true);
+        cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicFragment, true,"");
     }
 
     @Override
     public void OnNewMessage() {
         // TODO should this be used?
     }
-
-    // Starts CreateOrEditSessionFragment with a sessionID to edit the session
+    /* Listener, create session button FAB is clicked switch to maps fragment in order for user to pick location */
     @Override
-    public void OnEditSession(String sessionID) {
+    public void OnCreateSessionClicked() {
         Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, false);
+        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+        hostMapsFragment = MapsFragment.newInstance();
+        hostMapsFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"");
     }
-
     // Starts CreateOrEditSessionFragment with a LatLng in order to create a session
     @Override
     public void OnCreateSession(LatLng latLng) {
@@ -293,9 +301,51 @@ public class MainHostActivity extends AppCompatActivity implements
         bundle.putParcelable("LatLng", latLng);
         createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, false);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"editSession");
     }
-
+    // Starts CreateOrEditSessionFragment with a sessionID to edit the session
+    @Override
+    public void OnEditSession(String sessionID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+    }
+    // Starts Mapsfragment when location on session should be changed.
+    @Override
+    public void OnEditLocation(String sessionID ,Session session) {
+        editedSessionID = sessionID;
+        editedSession = session;
+        MapsFragment mapsFragment;
+        Bundle bundle = new Bundle();
+        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+        bundle.putInt("CHANGELOCATION", 1);
+        mapsFragment = MapsFragment.newInstance();
+        mapsFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(mapsFragment, true,"");
+    }
+    // Starts CreateOrEditSession again after location on session has been changed.
+    @Override
+    public void OnSessionLocationChanged(LatLng latLng) {
+        editedSession.setLatitude(latLng.latitude);
+        editedSession.setLongitude(latLng.longitude);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("session", editedSession);
+        bundle.putString("sessionID", editedSessionID);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"");
+    }
+    // Pops backstack to displaysession again after session has been updated in CreateOrEditSession. Also reloads lists in hostSessions.
+    @Override
+    public void OnHostSessionChanged() {
+        if (fragmentManager.findFragmentByTag("xMainHostSessionsFragment")!=null) {
+            HostSessionsFragment hs = (HostSessionsFragment) fragmentManager.findFragmentByTag("xMainHostSessionsFragment");
+            hs.loadPages(true);
+        }
+        getSupportFragmentManager().popBackStack("editSession", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
     /* When back button is pressed while in main host activity override function and replace with following */
     @Override
     public void onBackPressed() {
@@ -306,16 +356,7 @@ public class MainHostActivity extends AppCompatActivity implements
             // /super.onBackPressed();
             //additional code
         } else {
-
-            if(createOrEditSessionFragment!=null) {
-                if (createOrEditSessionFragment.isVisible()) {
-                    getSupportFragmentManager().beginTransaction().detach(createOrEditSessionFragment).commit();
-                }
-            }
-
-
-
-            // TODO Add Newsfeed fragment here later when exist
+            // No action on back button when these fragments are visible
             if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){
                 getSupportFragmentManager().popBackStack();
             }
@@ -347,19 +388,7 @@ public class MainHostActivity extends AppCompatActivity implements
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
-
-    }
-
-    @Override
-    public void OnHostSessionChanged() {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (fragmentManager.findFragmentByTag("xMainHostSessionsFragment")!=null) {
-            HostSessionsFragment hs = (HostSessionsFragment) fragmentManager.findFragmentByTag("xMainHostSessionsFragment");
-            hs.loadPages(true);
-        }
-
-        transaction.replace(R.id.container_fullscreen_main_host,hostDisplaySessionFragment);
-        transaction.commit();
+        listenerMap.clear();
     }
 
     @Override

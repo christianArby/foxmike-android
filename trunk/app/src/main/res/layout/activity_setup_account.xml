@@ -6,11 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.SetupAccountActivity">
 
-    <ImageButton
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/setupImageButton"
         android:contentDescription="@string/choose_profile_picture"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/width_profileImage"
+        android:layout_height="@dimen/height_profileImage"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:background="@color/secondaryBackgroundColor"
@@ -23,8 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/setupImageButton"
-        android:layout_marginTop="30dp"
-        android:ems="10"
+        android:layout_marginTop="@dimen/margin_top_text"
         android:hint="@string/your_name"
         android:inputType="textPersonName" />
 
@@ -34,15 +33,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/margin_bottom_fab"
         android:text="@string/finish_setup" />
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
-        android:minWidth="50dp"
+        android:minHeight="@dimen/height_progressBar"
+        android:minWidth="@dimen/width_progressBar"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="invisible"/>

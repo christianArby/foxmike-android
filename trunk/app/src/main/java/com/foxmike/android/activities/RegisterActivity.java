@@ -29,6 +29,8 @@ import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static com.foxmike.android.R.layout.activity_register;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -36,7 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText mNameField;
     private EditText mEmailField;
     private EditText mPasswordField;
-    private ImageButton mRegisterImageButton;
+    private CircleImageView mRegisterImageButton;
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
@@ -138,7 +140,8 @@ public class RegisterActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(2,1)
+                    .setCropShape(CropImageView.CropShape.OVAL)
+                    .setAspectRatio(1,1)
                     .start(this);
         }
         // when image has been cropped set image to button and to variable mImageUri

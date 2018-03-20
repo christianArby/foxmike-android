@@ -13,4 +13,26 @@
     <dimen name="display_session_marginStart">13dp</dimen>
 
 
+    <dimen name="margin_left">10dp</dimen>
+    <dimen name="margin_right">10dp</dimen>
+    <dimen name="margin_top_text">14dp</dimen>
+    <dimen name="margin_bottom_text">12dp</dimen>
+    <dimen name="margin_editText_in_center">20dp</dimen>
+    <dimen name="margin_bottom">13dp</dimen>
+    <dimen name="margin_end_fab">10dp</dimen>
+    <dimen name="margin_top_fab">10dp</dimen>
+    <dimen name="margin_bottom_fab">20dp</dimen>
+    <dimen name="width_profileImage">200dp</dimen>
+    <dimen name="height_profileImage">200dp</dimen>
+    <dimen name="height_progressBar">50dp</dimen>
+    <dimen name="width_progressBar">50dp</dimen>
+    <dimen name="width_ProfileImageToolbar">36dp</dimen>
+    <dimen name="height_ProfileImageToolbar">36dp</dimen>
+    <dimen name="margin_minimum">5dp</dimen>
+    <dimen name="textSize_big">18sp</dimen>
+    <dimen name="size_editText">14sp</dimen>
+    <dimen name="padding_editText">5dp</dimen>
+    <dimen name="padding_vertical_edittext">5dp</dimen>
+
+
 </resources>

@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.foxmike.android.fragments.ListSmallSessionsFragment;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionBranch;
 
 import java.util.ArrayList;
 
@@ -15,15 +16,15 @@ import java.util.ArrayList;
 
 public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
 
-    private ArrayList<Session> firstSessionsArrayList;
-    private ArrayList<Session> secondSessionsArrayList;
+    private ArrayList<SessionBranch> firstSessionBranchArrayList;
+    private ArrayList<SessionBranch> secondSessionBranchArrayList;
     private String headerOne;
     private String headerTwo;
 
-    public SmallSessionsPagerAdapter(FragmentManager fm, ArrayList<Session> firstSessionsArrayList, ArrayList<Session> secondSessionsArrayList, String headerOne, String headerTwo) {
+    public SmallSessionsPagerAdapter(FragmentManager fm, ArrayList<SessionBranch> firstSessionBranchArrayList, ArrayList<SessionBranch> secondSessionBranchArrayList, String headerOne, String headerTwo) {
         super(fm);
-        this.firstSessionsArrayList = firstSessionsArrayList;
-        this.secondSessionsArrayList = secondSessionsArrayList;
+        this.firstSessionBranchArrayList = firstSessionBranchArrayList;
+        this.secondSessionBranchArrayList = secondSessionBranchArrayList;
         this.headerOne = headerOne;
         this.headerTwo = headerTwo;
     }
@@ -33,11 +34,11 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                ListSmallSessionsFragment firstSessions = ListSmallSessionsFragment.newInstance(this.firstSessionsArrayList);
+                ListSmallSessionsFragment firstSessions = ListSmallSessionsFragment.newInstance(this.firstSessionBranchArrayList);
                 return firstSessions;
 
             case 1:
-                ListSmallSessionsFragment secondSessions = ListSmallSessionsFragment.newInstance(this.secondSessionsArrayList);
+                ListSmallSessionsFragment secondSessions = ListSmallSessionsFragment.newInstance(this.secondSessionBranchArrayList);
                 return secondSessions;
 
             default:
@@ -70,9 +71,9 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
         return POSITION_NONE;
     }
 
-    public void updateData(ArrayList<Session> firstSessionsArrayList, ArrayList<Session> secondSessionsArrayList) {
-        this.firstSessionsArrayList = firstSessionsArrayList;
-        this.secondSessionsArrayList = secondSessionsArrayList;
+    public void updateData(ArrayList<SessionBranch> firstSessionBranchArrayList, ArrayList<SessionBranch> secondSessionBranchArrayList) {
+        this.firstSessionBranchArrayList = firstSessionBranchArrayList;
+        this.secondSessionBranchArrayList = secondSessionBranchArrayList;
     }
 
 }

@@ -14,8 +14,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionBranch;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,13 +33,13 @@ import static android.view.View.LAYER_TYPE_HARDWARE;
 
 public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    ArrayList<Session> sessionArrayList;
-    private OnSessionClickedListener onSessionClickedListener;
+    private ArrayList<SessionBranch> sessionBranchArrayList;
+    private OnSessionBranchClickedListener onSessionBranchClickedListener;
     private Context context;
 
-    public ListSmallSessionsAdapter(ArrayList<Session> sessionArrayList, OnSessionClickedListener onSessionClickedListener, Context context) {
-        this.sessionArrayList = sessionArrayList;
-        this.onSessionClickedListener = onSessionClickedListener;
+    public ListSmallSessionsAdapter(ArrayList<SessionBranch> sessionBranchArrayList, OnSessionBranchClickedListener onSessionBranchClickedListener, Context context) {
+        this.sessionBranchArrayList = sessionBranchArrayList;
+        this.onSessionBranchClickedListener = onSessionBranchClickedListener;
         this.context = context;
     }
 
@@ -58,25 +60,25 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (sessionArrayList.get(position).getImageUrl().equals("sectionHeader")) {
+        if (sessionBranchArrayList.get(position).getSession().getImageUrl().equals("sectionHeader")) {
 
-            ((ListSmallSessionsSectionHeaderViewHolder) holder).setHeader(sessionArrayList.get(position).getSessionName());
+            ((ListSmallSessionsSectionHeaderViewHolder) holder).setHeader(sessionBranchArrayList.get(position).getSession().getSessionName());
 
         } else {
-            if (sessionArrayList.size()>0) {
-                ((ListSmallSessionsViewHolder) holder).setSessionImage(sessionArrayList.get(position).getImageUrl());
-                ((ListSmallSessionsViewHolder) holder).setText1(sessionArrayList.get(position).getSessionName());
+            if (sessionBranchArrayList.size()>0) {
+                ((ListSmallSessionsViewHolder) holder).setSessionImage(sessionBranchArrayList.get(position).getSession().getImageUrl());
+                ((ListSmallSessionsViewHolder) holder).setText1(sessionBranchArrayList.get(position).getSession().getSessionName());
 
-                Session session = sessionArrayList.get(position);
+                SessionBranch sessionBranch = sessionBranchArrayList.get(position);
 
-                String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth() + " " + session.textTime();
+                String sessionDateAndTime = sessionBranch.getSession().getSessionDate().textFullDay() + " " + sessionBranch.getSession().getSessionDate().getDay() + " " + sessionBranch.getSession().getSessionDate().textMonth() + " " + sessionBranch.getSession().textTime();
                 sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                 ((ListSmallSessionsViewHolder) holder).setText2(sessionDateAndTime);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 try {
-                    Date sessionDate = sdf.parse(sessionArrayList.get(position).getSessionDate().textSDF());
-                    ((ListSmallSessionsViewHolder) holder).setSessionClickedListener(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude(), sessionDate);
+                    Date sessionDate = sdf.parse(sessionBranchArrayList.get(position).getSession().getSessionDate().textSDF());
+                    ((ListSmallSessionsViewHolder) holder).setSessionClickedListener(sessionBranchArrayList.get(position));
                 } catch (ParseException e) {
                     //TODO handle exeption
                 }
@@ -87,12 +89,12 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemCount() {
-        return sessionArrayList.size();
+        return sessionBranchArrayList.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (sessionArrayList.get(position).getImageUrl().equals("sectionHeader")) {
+        if (sessionBranchArrayList.get(position).getSession().getImageUrl().equals("sectionHeader")) {
             return 1;
         }
         return 0;
@@ -122,12 +124,12 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             mView = itemView;
         }
 
-        public void setSessionClickedListener(final double latitude, final double longitude, Date sessionDate) {
+        public void setSessionClickedListener(final SessionBranch sessionBranch) {
             ConstraintLayout frame = mView.findViewById(R.id.small_session_frame);
             frame.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onSessionClickedListener.OnSessionClicked(latitude,longitude);
+                    onSessionBranchClickedListener.OnSessionBranchClicked(sessionBranch);
                 }
             });
 
@@ -137,7 +139,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             cal.add(Calendar.DATE,14);
             Date twoWeeksDate = cal.getTime();
 
-            if (sessionDate.after(todaysDate) && sessionDate.before(twoWeeksDate)) {
+            if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionDate().getDateOfSession().before(twoWeeksDate)) {
                 // // Remove the hardware layer
                 //v.setLayerType(LAYER_TYPE_NONE, null);
             } else {

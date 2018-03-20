@@ -75,16 +75,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mWhoTW;
     private TextView mWhereTW;
     private TextView mAddressAndSessionType;
-    private String sessionID;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
     private FrameLayout writePostLsyout;
     private LinearLayout commentLayout;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
+    private static final String SESSION_ID = "sessionID";
     private Double sessionLatitude;
     private Double sessionLongitude;
+    private String sessionID="";
     private ChildEventListener sessionChildEventListener;
+    private ValueEventListener sessionListener;
     private Session session;
     ArrayList<PostBranch> postBranchArrayList;
     private LinearLayoutManager linearLayoutManager;
@@ -103,11 +105,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // Required empty public constructor
     }
 
-    public static DisplaySessionFragment newInstance(double sessionLatitude, double sessionLongitude) {
+    public static DisplaySessionFragment newInstance(double sessionLatitude, double sessionLongitude, String sessionID) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
         args.putDouble(SESSION_LATITUDE, sessionLatitude);
         args.putDouble(SESSION_LONGITUDE, sessionLongitude);
+        args.putString(SESSION_ID, sessionID);
         fragment.setArguments(args);
         return fragment;
     }
@@ -151,7 +154,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          */
         sessionLatitude = getArguments().getDouble(SESSION_LATITUDE);
         sessionLongitude = getArguments().getDouble(SESSION_LONGITUDE);
-        if (sessionLatitude!=null) {
+        sessionID = getArguments().getString(SESSION_ID);
+
+        if (sessionLatitude!=null | !sessionID.equals("")) {
             // FINDS SESSION AND FILLS UI
             findSessionAndFillInUI(sessionLatitude, sessionLongitude);
         } else {
@@ -269,32 +274,56 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private void findSessionAndFillInUI(final Double latitude, final Double longitude){
 
         // Get the session information
-        sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                session = dataSnapshot.getValue(Session.class);
-                if (longitude==session.getLongitude()) {
-                    fillUI(dataSnapshot);
-                }
+        if (sessionID.equals("")) {
+            if (!childEventListenerMap.containsKey(mSessionDbRef.orderByChild("latitude"))) {
+                sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(latitude).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        session = dataSnapshot.getValue(Session.class);
+                        if (longitude==session.getLongitude()) {
+                            fillUI(dataSnapshot);
+                        }
+                    }
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        session = dataSnapshot.getValue(Session.class);
+                        if (longitude==session.getLongitude()) {
+                            fillUI(dataSnapshot);
+                        }
+                    }
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    }
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+                childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(latitude), sessionChildEventListener);
             }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                session = dataSnapshot.getValue(Session.class);
-                if (longitude==session.getLongitude()) {
-                    fillUI(dataSnapshot);
-                }
+
+
+        } else {
+            if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
+                sessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        session = dataSnapshot.getValue(Session.class);
+                        fillUI(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-        childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(latitude), sessionChildEventListener);
+            listenerMap.put(mSessionDbRef.child(sessionID),sessionListener);
+
+        }
+
     }
 
     private void fillUI(DataSnapshot dataSnapshot) {
@@ -528,11 +557,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             ChildEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+        childEventListenerMap.clear();
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+        listenerMap.clear();
     }
 
     public void cleanListeners () {

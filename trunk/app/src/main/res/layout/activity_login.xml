@@ -4,27 +4,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.foxmike.android.kungsbrostrand.com.foxmike.android.activities.LoginActivity">
+    tools:context="com.foxmike.android.activities.LoginActivity">
 
     <EditText
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin_editText_in_center"
         android:id="@+id/loginEmailField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:ems="10"
+        android:layout_marginTop="@dimen/margin_top_text"
         android:hint="@string/email"
         android:inputType="textEmailAddress" />
 
     <EditText
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin_editText_in_center"
         android:id="@+id/loginPasswordField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/loginEmailField"
-        android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword" />
 
@@ -35,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/loginPasswordField"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="@dimen/margin_top_text"
         android:text="@string/login" />
 
     <Button
@@ -46,6 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="11dp"
+        android:layout_marginBottom="@dimen/margin_bottom"
         android:text="@string/need_an_account" />
 </RelativeLayout>

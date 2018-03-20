@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
+import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
+import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
@@ -66,8 +68,8 @@ public class PlayerSessionsFragment extends Fragment {
             public void OnUserFound(final User user) {
                 /* If user is not attending any sessions create two blank pages */
                 if (user.sessionsAttending.size()==0){
-                    ArrayList<Session> sessionsBooked = new ArrayList<Session>();
-                    ArrayList<Session> sessionBookedInPast = new ArrayList<Session>();
+                    ArrayList<SessionBranch> sessionsBooked = new ArrayList<SessionBranch>();
+                    ArrayList<SessionBranch> sessionBookedInPast = new ArrayList<SessionBranch>();
                     if (!update) {
                         playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsBooked, sessionBookedInPast,"BOKADE", "TIDIGARE");
                         playerSessionsPager.setAdapter(playerSessionsPagerAdapter);
@@ -77,20 +79,20 @@ public class PlayerSessionsFragment extends Fragment {
                         playerSessionsPagerAdapter.notifyDataSetChanged();
                     }
                 }
-                myFirebaseDatabase.getSessions(new OnSessionsFoundListener() {
+                myFirebaseDatabase.getSessionBranches(user.sessionsAttending, new OnSessionBranchesFoundListener() {
                     @Override
-                    public void OnSessionsFound(ArrayList<Session> sessions) {
-                        ArrayList<Session> sessionsBooked = new ArrayList<Session>();
-                        ArrayList<Session> sessionBookedInPast = new ArrayList<Session>();
+                    public void OnSessionBranchesFound(ArrayList<SessionBranch> sessionsBranches) {
+                        ArrayList<SessionBranch> sessionsBooked = new ArrayList<SessionBranch>();
+                        ArrayList<SessionBranch> sessionBookedInPast = new ArrayList<SessionBranch>();
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         final Calendar cal = Calendar.getInstance();
                         Date todaysDate = cal.getTime();
 
-                        for (Session session: sessions) {
-                            if (session.getSessionDate().getDateOfSession().after(todaysDate)) {
-                                sessionsBooked.add(session);
+                        for (SessionBranch sessionBranch: sessionsBranches) {
+                            if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                                sessionsBooked.add(sessionBranch);
                             } else {
-                                sessionBookedInPast.add(session);
+                                sessionBookedInPast.add(sessionBranch);
                             }
                         }
                         Collections.sort(sessionsBooked);
@@ -104,7 +106,7 @@ public class PlayerSessionsFragment extends Fragment {
                             playerSessionsPagerAdapter.notifyDataSetChanged();
                         }
                     }
-                },user.sessionsAttending);
+                });
             }
         });
     }

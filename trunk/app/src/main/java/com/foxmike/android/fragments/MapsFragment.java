@@ -63,6 +63,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private View myView;
     private OnSessionClickedListener onSessionClickedListener;
     private OnCreateSessionListener onCreateSessionListener;
+    private OnSessionLocationChangedListener onSessionLocationChangedListener;
     private TextView createSessionMapTextTV;
     private int changeLocation;
     private Location mLastLocation;
@@ -126,7 +127,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getActivity(),
+            if (ContextCompat.checkSelfPermission(getContext(),
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
@@ -153,7 +154,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                         @Override
                         public void onMapClick(LatLng point) {
                             if (changeLocation==1) {
-                                onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
+                                onSessionLocationChangedListener.OnSessionLocationChanged(point);
+                                //onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
                             } else {
                                 addSession(point);
                             }
@@ -228,7 +230,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mLocationRequest.setInterval(10 * 1000);
         mLocationRequest.setFastestInterval(1*1000);    // TODO Check this
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        if (ContextCompat.checkSelfPermission(getActivity(),
+        if (ContextCompat.checkSelfPermission(getContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -286,6 +288,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             throw new RuntimeException(context.toString()
                     + " must implement OnCreateSessionListener");
         }
+        if (context instanceof OnSessionLocationChangedListener) {
+            onSessionLocationChangedListener = (OnSessionLocationChangedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionLocationChangedListener");
+        }
     }
 
     @Override
@@ -293,9 +301,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         super.onDetach();
         onSessionClickedListener = null;
         onCreateSessionListener = null;
+        onSessionLocationChangedListener = null;
     }
 
     public interface OnCreateSessionListener {
         void OnCreateSession(LatLng latLng);
+    }
+
+    public interface OnSessionLocationChangedListener {
+        void OnSessionLocationChanged(LatLng latLng);
     }
 }

@@ -6,27 +6,18 @@
     android:layout_height="match_parent"
     android:background="@color/primaryColor"
     android:orientation="vertical">
-
     <FrameLayout
-
         android:id="@+id/container_maps_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true" />
-
+        android:layout_height="match_parent"/>
     <ScrollView
         android:id="@+id/scrollview_create_session"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <LinearLayout
             android:orientation="vertical"
             android:id="@+id/create_session_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-
+            android:layout_height="wrap_content"/>
     </ScrollView>
-
-
 </LinearLayout>
