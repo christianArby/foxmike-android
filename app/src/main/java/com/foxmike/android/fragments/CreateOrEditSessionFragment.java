@@ -72,6 +72,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
     private LinearLayout mLocationFrame;
+    private LinearLayout mDateFrame;
+    private LinearLayout mTimeFrame;
+    private LinearLayout mDurationFrame;
+    private LinearLayout mMaxParticipantsFrame;
     private EditText mSessionName;
     private EditText mSessionType;
     private EditText mDate;
@@ -150,6 +154,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
         mDuration = createSession.findViewById(R.id.durationET);
         mLocationFrame  = createSession.findViewById(R.id.locationFrame);
+        mDateFrame = createSession.findViewById(R.id.dateFrame);
+        mTimeFrame = createSession.findViewById(R.id.timeFrame);
+        mDurationFrame = createSession.findViewById(R.id.durationFrame);
+        mMaxParticipantsFrame = createSession.findViewById(R.id.maxParticipantFrame);
         mWhat = createSession.findViewById(R.id.whatET);
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
@@ -173,8 +181,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 if (mAdvertised.isChecked()) {
                     mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
                     mAdvertised.setChecked(false);
-                }
-                if (!mAdvertised.isChecked()) {
+                } else {
                     mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
                     mAdvertised.setChecked(true);
                 }
@@ -336,6 +343,14 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
+        /** When item is clicked create a dialog with the specified title and string array */
+        mSessionType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+            }
+        });
+
 
         /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
          * Update date label with function updateLabel() in order to set it to correct format */
@@ -351,24 +366,19 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
             }
         };
-
         /**If date field is clicked start Android datepicker and retrive data */
-        mDate.setOnClickListener(new View.OnClickListener() {
+        mDateFrame.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
+            public void onClick(View view) {
                 new DatePickerDialog(getContext(), date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
-
         /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
-        mTime.setOnClickListener(new View.OnClickListener() {
-
+        mTimeFrame.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
+            public void onClick(View view) {
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -387,24 +397,16 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
-        /** When item is clicked create a dialog with the specified title and string array */
-        mSessionType.setOnClickListener(new View.OnClickListener() {
+        mDurationFrame.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
-            }
-        });
-
-        mDuration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
             }
         });
 
-        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
+        mMaxParticipantsFrame.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
             }
         });
