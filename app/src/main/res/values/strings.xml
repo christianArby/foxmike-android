@@ -250,6 +250,10 @@
     <string name="who_hint">Who can attend</string>
     <string name="where_hint">Where will you be</string>
     <string name="location_loading">Location loading...</string>
+    <string name="advertised_text">Annonserade</string>
+    <string name="advertised_not_text">Avannonserade</string>
+    <string name="booked_text">BOKADE</string>
+    <string name="booked_history_text">TIDIGARE</string>
 
 
 </resources>

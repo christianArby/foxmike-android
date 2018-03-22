@@ -2,6 +2,7 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -9,7 +10,7 @@ import java.util.Date;
  * Created by chris on 2018-03-19.
  */
 
-public class SessionBranch implements Comparable<SessionBranch>{
+public class SessionBranch implements Comparable<SessionBranch>, Serializable{
 
     private String sessionID;
     private Session session;
