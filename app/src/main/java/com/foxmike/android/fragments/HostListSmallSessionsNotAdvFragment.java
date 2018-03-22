@@ -55,7 +55,7 @@ public class HostListSmallSessionsNotAdvFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_host_list_small_sessions_not_adv, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -64,7 +64,8 @@ public class HostListSmallSessionsNotAdvFragment extends Fragment {
         return view;
     }
 
-    // Function which load the tab layout and viewpager
+    // Function which downloads sessions hosted by current user and saves the sessions which are not advertised in the arraylist sessionsNotAdv,
+    // Criteria for advertised is that the boolean advertised is true and that the session date
     public void initData() {
 
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
@@ -81,10 +82,10 @@ public class HostListSmallSessionsNotAdvFragment extends Fragment {
                             Date todaysDate = cal.getTime();
                             cal.add(Calendar.DATE,14);
                             Date twoWeeksDate = cal.getTime();
-                            // Loop hosted sessions and see which are advertised, critera for advertised is that the boolean advertised is true and that the session date
+                            // Loop hosted sessions and see which are advertised, criteria for advertised is that the boolean advertised is true and that the session date
                             // is after today's date
                             for (SessionBranch sessionBranch: sessionBranches) {
-                                if (!sessionBranch.getSession().isAdvertised() && !sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                                if (!sessionBranch.getSession().isAdvertised() | !sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
                                     sessionsNotAdv.add(sessionBranch);
                                 }
                             }

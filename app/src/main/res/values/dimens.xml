@@ -33,6 +33,10 @@
     <dimen name="size_editText">14sp</dimen>
     <dimen name="padding_editText">5dp</dimen>
     <dimen name="padding_vertical_edittext">5dp</dimen>
+    <dimen name="text_Size_big_heading">30sp</dimen>
+    <dimen name="profileImage_inText_height">60dp</dimen>
+    <dimen name="profileImage_inText_width">60dp</dimen>
+    <dimen name="mini_map_height">200dp</dimen>
 
 
 </resources>
