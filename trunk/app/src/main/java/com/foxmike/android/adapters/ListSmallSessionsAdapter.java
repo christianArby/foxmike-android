@@ -133,13 +133,13 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
             });
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             final Calendar cal = Calendar.getInstance();
             Date todaysDate = cal.getTime();
             cal.add(Calendar.DATE,14);
-            Date twoWeeksDate = cal.getTime();
+            Date twoWeeksDate = cal.getTime();*/
 
-            if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionDate().getDateOfSession().before(twoWeeksDate)) {
+            /*if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionDate().getDateOfSession().before(twoWeeksDate)) {
                 // // Remove the hardware layer
                 //v.setLayerType(LAYER_TYPE_NONE, null);
             } else {
@@ -150,7 +150,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
                 greyscalePaint.setColorFilter(new ColorMatrixColorFilter(cm));
                 // Create a hardware layer with the greyscale paint
                 frame.setLayerType(LAYER_TYPE_HARDWARE, greyscalePaint);
-            }
+            }*/
 
         }
 
@@ -168,6 +168,11 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             TextView text2TV = (TextView) mView.findViewById(R.id.text2);
             text2TV.setText(text2);
         }
+    }
+
+    public void updateData(ArrayList<SessionBranch> sessionBranchArrayList) {
+        this.sessionBranchArrayList = sessionBranchArrayList;
+        this.notifyDataSetChanged();
     }
 }
 

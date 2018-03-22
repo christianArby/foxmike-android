@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+
 /**
  * This fragment lists all sessions the current user is hosting
  */
@@ -67,84 +69,25 @@ public class HostSessionsFragment extends Fragment {
                 onCreateSessionClickedListener.OnCreateSessionClicked();
             }
         });
-        // Function which load the tab layout and viewpager
-        loadPages(false);
+
+        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.advertised_text), getString(R.string.advertised_not_text));
+        hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
+        tabLayout.setupWithViewPager(hostSessionsPager);
+
 
         return view;
     }
+
     // Function which load the tab layout and viewpager
     public void loadPages(final boolean update) {
-
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-        /* Get the currents user's information from the database */
-        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-            @Override
-            public void OnUserFound(final User user) {
-                if (user.sessionsHosting.size()!=0){
-                    // Get which sessions the current user is hosting in a arraylist from the database
-                    myFirebaseDatabase.getSessionBranches(user.sessionsHosting,new OnSessionBranchesFoundListener() {
-                        @Override
-                        public void OnSessionBranchesFound(ArrayList<SessionBranch> sessionBranches) {
-                            ArrayList<SessionBranch> sessionsAdv = new ArrayList<SessionBranch>();
-                            ArrayList<SessionBranch> sessionsNotAdv = new ArrayList<SessionBranch>();
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            final Calendar cal = Calendar.getInstance();
-                            Date todaysDate = cal.getTime();
-                            cal.add(Calendar.DATE,14);
-                            Date twoWeeksDate = cal.getTime();
-                            // Loop hosted sessions and see which are advertised, critera for advertised is that the boolean advertised is true and that the session date
-                            // is after today's date
-                            for (SessionBranch sessionBranch: sessionBranches) {
-                                if (sessionBranch.getSession().isAdvertised() && sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
-                                    sessionsAdv.add(sessionBranch);
-                                } else {
-                                    sessionsNotAdv.add(sessionBranch);
-                                }
-                            }
-                            // Sort the two lists on date
-                            Collections.sort(sessionsAdv);
-                            Collections.sort(sessionsNotAdv);
-                            // Input a dummysession with a section header for sessions further away than two weeks
-                            int n = 0;
-                            Boolean keepLooking = true;
-                            while (n < sessionsAdv.size() && keepLooking) {
-                                if (sessionsAdv.get(n).getSession().getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
-                                    Session dummySession = new Session();
-                                    dummySession.setImageUrl("sectionHeader");
-                                    dummySession.setSessionName(getString(R.string.upcoming_listings));
-                                    SessionBranch dummySessionBranch = new SessionBranch("irrelevant", dummySession);
-                                    sessionsAdv.add(n, dummySessionBranch);
-                                    keepLooking=false;
-                                }
-                                n++;
-                            }
-                            // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
-                            if (!update) {
-                                hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
-                                hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-                                tabLayout.setupWithViewPager(hostSessionsPager);
-                            } else {
-                                hostSessionsPagerAdapter.updateData(sessionsAdv,sessionsNotAdv);
-                                hostSessionsPagerAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
-
-                    /* Else if user is not hosting any sessions create blank pages */
-                } else {
-                    ArrayList<SessionBranch> sessionsAdv = new ArrayList<SessionBranch>();
-                    ArrayList<SessionBranch> sessionsNotAdv = new ArrayList<SessionBranch>();
-                    if (!update) {
-                        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), sessionsAdv, sessionsNotAdv,"Annonserade", "Avannonserade");
-                        hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-                        tabLayout.setupWithViewPager(hostSessionsPager);
-                    } else {
-                        hostSessionsPagerAdapter.updateData(sessionsAdv,sessionsNotAdv);
-                        hostSessionsPagerAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        });
+        // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
+        if (!update) {
+            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.advertised_text), getString(R.string.advertised_not_text));
+            hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
+            tabLayout.setupWithViewPager(hostSessionsPager);
+        } else {
+            hostSessionsPagerAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

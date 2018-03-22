@@ -4,7 +4,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.foxmike.android.fragments.HostListSmallSessionsAdvFragment;
+import com.foxmike.android.fragments.HostListSmallSessionsNotAdvFragment;
 import com.foxmike.android.fragments.ListSmallSessionsFragment;
+import com.foxmike.android.fragments.PlayerListSmallSessionsBookedFragment;
+import com.foxmike.android.fragments.PlayerListSmallSessionsHistoryFragment;
+import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 
@@ -16,35 +21,37 @@ import java.util.ArrayList;
 
 public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
 
-    private ArrayList<SessionBranch> firstSessionBranchArrayList;
-    private ArrayList<SessionBranch> secondSessionBranchArrayList;
+    private boolean trainerMode;
     private String headerOne;
     private String headerTwo;
 
-    public SmallSessionsPagerAdapter(FragmentManager fm, ArrayList<SessionBranch> firstSessionBranchArrayList, ArrayList<SessionBranch> secondSessionBranchArrayList, String headerOne, String headerTwo) {
+    public SmallSessionsPagerAdapter(FragmentManager fm, boolean trainerMode, String headerOne, String headerTwo) {
         super(fm);
-        this.firstSessionBranchArrayList = firstSessionBranchArrayList;
-        this.secondSessionBranchArrayList = secondSessionBranchArrayList;
+        this.trainerMode = trainerMode;
         this.headerOne = headerOne;
         this.headerTwo = headerTwo;
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        switch (position) {
-            case 0:
-                ListSmallSessionsFragment firstSessions = ListSmallSessionsFragment.newInstance(this.firstSessionBranchArrayList);
-                return firstSessions;
-
-            case 1:
-                ListSmallSessionsFragment secondSessions = ListSmallSessionsFragment.newInstance(this.secondSessionBranchArrayList);
-                return secondSessions;
-
-            default:
-                return null;
+        Fragment fragment = null;
+        if (trainerMode) {
+            if (position == 0) {
+                fragment = HostListSmallSessionsAdvFragment.newInstance();
+            }
+            if (position == 1) {
+                fragment = HostListSmallSessionsNotAdvFragment.newInstance();
+            }
+        } else {
+            if (position == 0) {
+                fragment = PlayerListSmallSessionsBookedFragment.newInstance();
+            }
+            if (position == 1) {
+                fragment = PlayerListSmallSessionsHistoryFragment.newInstance();
+            }
 
         }
+        return fragment;
     }
 
     @Override
@@ -69,11 +76,6 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
         // Causes adapter to reload all Fragments when
         // notifyDataSetChanged is called
         return POSITION_NONE;
-    }
-
-    public void updateData(ArrayList<SessionBranch> firstSessionBranchArrayList, ArrayList<SessionBranch> secondSessionBranchArrayList) {
-        this.firstSessionBranchArrayList = firstSessionBranchArrayList;
-        this.secondSessionBranchArrayList = secondSessionBranchArrayList;
     }
 
 }

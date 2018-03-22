@@ -28,9 +28,6 @@ public class ListSmallSessionsFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     private OnSessionBranchClickedListener onSessionBranchClickedListener;
-
-
-
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
     private ArrayList<SessionBranch> sessionBranchArrayList = new ArrayList<>();
