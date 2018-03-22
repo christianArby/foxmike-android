@@ -7,8 +7,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManagerNonConfig;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,6 +21,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
@@ -28,6 +33,7 @@ import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
+import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -64,6 +70,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
+    private CardView sessionImageCardView;
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mSessionName;
@@ -100,6 +107,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnEditSessionListener onEditSessionListener;
     private OnBookSessionListener onBookSessionListener;
     private OnCancelBookedSessionListener onCancelBookedSessionListener;
+    private ProgressBar progressBar;
+    private MyProgressBar myProgressBar;
+    private FrameLayout loadingScreen;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -127,6 +137,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
 
+        loadingScreen = view.findViewById(R.id.loadingScreen);
+        loadingScreen.setVisibility(View.VISIBLE);
+
+
+
         postBranchArrayList = new ArrayList<>();
         childEventListenerMap = new HashMap<>();
 
@@ -134,6 +149,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         View displaySession;
         displaySessionContainer = view.findViewById(R.id.display_session_container);
         displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
+
+        /*progressBar = displaySession.findViewById(R.id.progressBar_cyclic);
+        myProgressBar = new MyProgressBar(progressBar, getActivity());
+        myProgressBar.startProgressBar();*/
 
         mDateAndTime = displaySession.findViewById(R.id.dateAndTimeTW);
         mParticipants = displaySession.findViewById(R.id.participantsTW);
@@ -146,6 +165,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mWhoTW = displaySession.findViewById(R.id.whoTW);
         mWhereTW = displaySession.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
+        sessionImageCardView = displaySession.findViewById(R.id.sessionImageCardView);
 
         /*
          Get latitude and longitude of session from previous activity.
@@ -163,6 +183,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
+
+        // Setup standard aspect ratio of session image
+        sessionImageCardView.post(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout.LayoutParams mParams;
+                mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
+                mParams.height = sessionImageCardView.getWidth()/ getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
+                sessionImageCardView.setLayoutParams(mParams);
+                sessionImageCardView.postInvalidate();
+                loadingScreen.setVisibility(View.GONE);
+            }
+        });
 
         // Setup Booking, Cancelling and Editing Button
         mDisplaySessionBtn = displaySession.findViewById(R.id.displaySessionBtn);
@@ -451,6 +484,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
         }
     }
+
     // Setup static map
     @Override
     public void onMapReady(GoogleMap googleMap) {
