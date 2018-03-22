@@ -205,7 +205,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             public void run() {
                 RelativeLayout.LayoutParams mParams;
                 mParams = (RelativeLayout.LayoutParams) mSessionImageButton.getLayoutParams();
-                mParams.height = mSessionImageButton.getWidth()/2;
+                mParams.height = mSessionImageButton.getWidth()/ getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
                 mSessionImageButton.setLayoutParams(mParams);
                 mSessionImageButton.postInvalidate();
             }
