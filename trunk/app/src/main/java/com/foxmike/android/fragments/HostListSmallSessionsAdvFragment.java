@@ -56,7 +56,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for this fragment and setup recylerview and adapter
         View view =  inflater.inflate(R.layout.fragment_host_list_small_sessions_booked, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -65,7 +65,8 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
         return view;
     }
 
-    // Function which load the tab layout and viewpager
+    // Function which downloads sessions hosted by current user and saves the sessions which are advertised in the arraylist sessionsAdv,
+    // Criteria for advertised is that the boolean advertised is true and that the session date
     public void initData() {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Get the currents user's information from the database */

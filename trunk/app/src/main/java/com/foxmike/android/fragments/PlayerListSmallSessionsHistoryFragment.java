@@ -53,7 +53,7 @@ public class PlayerListSmallSessionsHistoryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_player_list_small_sessions_history, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -78,7 +78,7 @@ public class PlayerListSmallSessionsHistoryFragment extends Fragment {
         super.onDetach();
         onSessionBranchClickedListener = null;
     }
-
+    // Function which downloads sessions attended by current user and saves the sessions which are in the past in the arraylist sessionsHistory
     public void initData() {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         // Get the currents user's information from the database *//*

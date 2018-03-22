@@ -254,6 +254,10 @@
     <string name="advertised_not_text">Avannonserade</string>
     <string name="booked_text">BOKADE</string>
     <string name="booked_history_text">TIDIGARE</string>
+    <string name="send_message_text">Send message</string>
+    <string name="what_heading">Vad vi ska göra</string>
+    <string name="who_heading">Vem som kan vara med</string>
+    <string name="where_heading">Var vi ska vara</string>
 
 
 </resources>
