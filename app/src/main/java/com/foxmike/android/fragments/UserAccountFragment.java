@@ -79,8 +79,7 @@ public class UserAccountFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
-        final View switchMode = view.findViewById(R.id.switchModeLL);
-        switchMode.setOnClickListener(new View.OnClickListener() {
+        switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -147,7 +146,7 @@ public class UserAccountFragment extends Fragment {
         });
 
 
-        View logOutView = view.findViewById(R.id.logOutLL);
+        TextView logOutView = view.findViewById(R.id.logOutTV);
         logOutView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

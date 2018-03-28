@@ -1,47 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/small_session_frame"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="15dp"
-    android:paddingRight="10dp"
-    android:paddingBottom="10dp">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/frame"
+    <ImageView
+        android:contentDescription="@string/session_image"
+        android:id="@+id/icon"
+        android:layout_width="@dimen/small_session_image_width"
+        android:layout_height="@dimen/small_session_image_width"
+        android:layout_marginStart="@dimen/margin_left"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="@dimen/margin_minimum"
+        android:layout_marginTop="@dimen/margin_minimum"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/text1"
         android:layout_width="wrap_content"
-        android:orientation="vertical"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/margin_minimum"
+        android:text="Medium Text"
+        android:textColor="@color/secondaryLightColor"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <ImageView
-            android:contentDescription="@string/session_image"
-            android:id="@+id/icon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:scaleType="centerCrop"
-            android:layout_marginTop="5dp"/>
-
-        <TextView
-            android:layout_toRightOf="@+id/icon"
-            android:id="@+id/text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:text="Medium Text"
-            android:textColor="@color/secondaryLightColor" />
-
-        <TextView
-            android:layout_toRightOf="@+id/icon"
-            android:layout_below="@+id/text1"
-            android:id="@+id/text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@string/session_text" />
-
-
-    </RelativeLayout>
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
+        android:text="@string/session_text"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/text1"/>
 
 </android.support.constraint.ConstraintLayout>

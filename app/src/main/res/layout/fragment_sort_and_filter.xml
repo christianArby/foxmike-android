@@ -7,7 +7,7 @@
     android:layout_gravity="center">
 
     <ImageButton
-        android:padding="5dp"
+        android:padding="@dimen/margin_minimum"
         android:id="@+id/closeImageButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -19,16 +19,16 @@
     <TextView
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginTop="@dimen/margin_editText_in_center"
+        android:layout_marginStart="@dimen/margin_editText_in_center"
         android:id="@+id/sortText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sortera på:" />
+        android:text="@string/Sort_on_text" />
 
     <ToggleButton
         app:layout_constraintStart_toStartOf="@id/sortText"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/margin_editText_in_center"
         android:id="@+id/sortDateToggle"
         app:layout_constraintTop_toBottomOf="@+id/sortText"
         android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
     <ToggleButton
         app:layout_constraintEnd_toEndOf="parent"
         android:id="@+id/sortDistanceToggle"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="@dimen/margin_editText_in_center"
         app:layout_constraintStart_toEndOf="@+id/sortDateToggle"
         app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
         android:layout_width="wrap_content"
@@ -54,19 +54,19 @@
 
     <TextView
         app:layout_constraintStart_toStartOf="@id/sortText"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/margin_editText_in_center"
         app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
         android:id="@+id/filterText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filtrera på avstånd:"/>
+        android:text="@string/filter_on_distance_text"/>
 
     <RadioGroup
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/margin_editText_in_center"
         app:layout_constraintStart_toStartOf="@id/filterText"
         app:layout_constraintTop_toBottomOf="@id/filterText"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="@dimen/margin_editText_in_center"
         android:id="@+id/filterDistanceRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -75,37 +75,37 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance1"
-            android:text="@string/distance1"/>
+            android:text="@string/distance1_text"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance2"
-            android:text="@string/distance2"/>
+            android:text="@string/distance2_text"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance3"
-            android:text="@string/distance3"/>
+            android:text="@string/distance3_text"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance4"
-            android:text="@string/distance4"/>
+            android:text="@string/distance4_text"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance5"
-            android:text="@string/distance5"/>
+            android:text="@string/distance5_text"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/distance6"
-            android:text="150 km"/>
+            android:text="@string/distance6_text"/>
 
     </RadioGroup>
 

@@ -2,36 +2,41 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="200dp">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <FrameLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/sessionCardViewFrame"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:contentDescription="@string/session_image"
-            android:id="@+id/session_image"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/add_btn" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:contentDescription="@string/session_image"
+                android:id="@+id/session_image"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/add_btn" />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/session_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:gravity="center_horizontal"
-            android:padding="15dp"
+            android:padding="@dimen/padding_big_text"
             android:text="@string/session_name_goes_here"
+            android:gravity="center"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="#fff"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textSize="@dimen/text_size_bigger"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/session_address"
@@ -39,38 +44,28 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAlignment="center"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:layout_marginTop="120dp"
             android:text="@string/address"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            app:layout_constraintTop_toBottomOf="@id/session_title"/>
 
         <TextView
             android:id="@+id/session_desc"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="start"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
             android:text="@string/description_goes_here"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:layout_marginBottom="@dimen/margin_minimum"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/session_date_and_time"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="end"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
             android:text="@string/date_goes_here"
-            android:textColor="#fff" />
-
-
-    </FrameLayout>
+            android:textColor="#fff"
+            android:layout_marginBottom="@dimen/margin_minimum"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

@@ -17,14 +17,12 @@
             android:layout_height="wrap_content"/>
     </android.support.design.widget.AppBarLayout>
 
-
-
     <android.support.v4.view.ViewPager
         android:id="@+id/host_sessions_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/hostSessionsBar"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/margin_top_page"
         app:layout_constraintTop_toBottomOf="@id/hostSessionsBar">
 
     </android.support.v4.view.ViewPager>
@@ -36,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="100dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/margin_end_fab"
         android:src="@mipmap/ic_add_white_24dp"
         />
 

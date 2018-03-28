@@ -6,10 +6,7 @@
     <dimen name="image_final_width">32dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
 
-    <dimen name="display_session_heading_size">18sp</dimen>
-    <dimen name="display_session_text_size">14sp</dimen>
     <dimen name="display_session_textSpaceVertical">10dp</dimen>
-    <dimen name="display_session_font">@font/rubik_light</dimen>
     <dimen name="display_session_marginStart">13dp</dimen>
 
 
@@ -29,14 +26,27 @@
     <dimen name="width_ProfileImageToolbar">36dp</dimen>
     <dimen name="height_ProfileImageToolbar">36dp</dimen>
     <dimen name="margin_minimum">5dp</dimen>
-    <dimen name="textSize_big">18sp</dimen>
-    <dimen name="size_editText">14sp</dimen>
     <dimen name="padding_editText">5dp</dimen>
     <dimen name="padding_vertical_edittext">5dp</dimen>
-    <dimen name="text_Size_big_heading">30sp</dimen>
     <dimen name="profileImage_inText_height">60dp</dimen>
     <dimen name="profileImage_inText_width">60dp</dimen>
     <dimen name="mini_map_height">200dp</dimen>
+    <dimen name="margin_top_page">8dp</dimen>
+    <dimen name="padding_frame">10dp</dimen>
+
+    <dimen name="padding_chat_box">10dp</dimen>
+    <dimen name="padding_big_text">15dp</dimen>
+    <dimen name="text_size_bigger">24sp</dimen>
+    <dimen name="height_sessionDateHeader">22dp</dimen>
+    <dimen name="space_view__big_height">8dp</dimen>
+
+    <dimen name="text_size_mini">12sp</dimen>
+    <dimen name="display_session_heading_size">16sp</dimen>
+    <dimen name="display_session_text_size">14sp</dimen>
+    <dimen name="textSize_big">18sp</dimen>
+    <dimen name="size_editText">14sp</dimen>
+    <dimen name="text_Size_big_heading">30sp</dimen>
+    <dimen name="small_session_image_width">60dp</dimen>
 
 
 </resources>

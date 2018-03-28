@@ -167,12 +167,12 @@
         <item>1 km</item>
     </string-array>
 
-    <string name="distance1">3 km</string>
-    <string name="distance2">8 km</string>
-    <string name="distance3">16 km</string>
-    <string name="distance4">40 km</string>
-    <string name="distance5">80 km</string>
-    <string name="distance6">150 km</string>
+    <string name="distance1_text">3 km</string>
+    <string name="distance2_text">8 km</string>
+    <string name="distance3_text">16 km</string>
+    <string name="distance4_text">40 km</string>
+    <string name="distance5_text">80 km</string>
+    <string name="distance6_text">150 km</string>
     <string name="distanceMax">3000 km</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -258,6 +258,18 @@
     <string name="what_heading">Vad vi ska göra</string>
     <string name="who_heading">Vem som kan vara med</string>
     <string name="where_heading">Var vi ska vara</string>
+    <string name="pick_location_text">Pick a location by clicking on map!</string>
+    <string name="Sort_on_text">Sortera på:</string>
+    <string name="filter_on_distance_text">Filtrera på avstånd:</string>
+    <string name="send_friend_request_text">Send friend request</string>
+    <string name="decline_friend_request_text">Decline friend request</string>
+    <string name="Write_something_hint_text">Skriv något...</string>
+    <string name="make_comment_text">Kommentera</string>
+    <string name="log_out_text">Log out</string>
+    <string name="show_and_edit_profile_text">Show and edit profile</string>
+    <string name="update_profile_button_text">Update profile</string>
+    <string name="post_text">Post</string>
+    <string name="send_post_text">SEND</string>
 
 
 </resources>
