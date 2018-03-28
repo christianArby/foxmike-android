@@ -12,9 +12,9 @@
         android:id="@+id/create_session_map_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginTop="@dimen/margin_top_fab"
+        android:layout_marginStart="@dimen/margin_end_fab"
         android:visibility="gone"
-        android:text="Pick a location by clicking on map!"/>
+        android:text="@string/pick_location_text"/>
 
 </FrameLayout>

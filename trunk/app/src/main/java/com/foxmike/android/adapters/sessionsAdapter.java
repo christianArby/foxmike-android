@@ -5,12 +5,14 @@ import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
@@ -55,6 +57,19 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return  new sessionsAdapter.SessionListHeaderViewHolder(v);
         } else {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
+            final ImageView session_image = v.findViewById(R.id.session_image);
+            // Setup standard aspect ratio of session image
+            session_image.post(new Runnable() {
+                @Override
+                public void run() {
+                    RelativeLayout.LayoutParams mParams;
+                    mParams = (RelativeLayout.LayoutParams) session_image.getLayoutParams();
+                    mParams.height = session_image.getWidth()/ context.getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
+                    session_image.setLayoutParams(mParams);
+                    session_image.postInvalidate();
+                }
+            });
+
             return  new sessionsAdapter.SessionViewHolder(v);
         }
     }
@@ -229,7 +244,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void setMargin(){
-            FrameLayout frameLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 5; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
             int margin = (int)(dpValue * d);
@@ -238,11 +253,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     FrameLayout.LayoutParams.MATCH_PARENT
             );
             params.setMargins(0, margin, 0, 0);
-            frameLayout.setLayoutParams(params);
+            constraintLayout.setLayoutParams(params);
         }
 
         public void resetMargin(){
-            FrameLayout frameLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 0; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
             int margin = (int)(dpValue * d);
@@ -251,7 +266,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     FrameLayout.LayoutParams.MATCH_PARENT
             );
             params.setMargins(0, margin, 0, 0);
-            frameLayout.setLayoutParams(params);
+            constraintLayout.setLayoutParams(params);
         }
 
     }

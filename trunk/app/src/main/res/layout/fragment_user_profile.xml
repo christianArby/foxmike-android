@@ -14,8 +14,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
+            android:focusable="true"
+            android:layout_marginTop="@dimen/margin_top_fab"
+            android:layout_marginEnd="@dimen/margin_end_fab"
             android:layout_gravity="end"
             android:src="@mipmap/ic_mode_edit_black_24dp"/>
     </FrameLayout>
@@ -30,7 +31,8 @@
             android:id="@+id/list_user_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:focusable="true"/>
 
     </ScrollView>
 

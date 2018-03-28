@@ -124,8 +124,7 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User friendUser = dataSnapshot.getValue(User.class);
-
-                        // If chatID is null it means that the activity was started by clicking on friend, check if chat with friend exists
+                        // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
                         if (chatID==null) {
                             if (currentUser.getChats()!=null) {
                                 for (String userChatID : currentUser.getChats().keySet()) {
@@ -141,9 +140,7 @@ public class ChatActivity extends AppCompatActivity {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
                         }
-
-                        // --------------- chatID SET ----------------
-
+                        // --------------- chatID IS NOW SET ----------------
                         // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                         messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
@@ -161,7 +158,6 @@ public class ChatActivity extends AppCompatActivity {
                             }
                         });
                         messagesListRV.setAdapter(messageFirebaseAdapter);
-
                         // Setup send button, when button is clicked send message to database
                         chatSendBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -169,29 +165,21 @@ public class ChatActivity extends AppCompatActivity {
                                 sendMessage(currentUser.getName(), currentUser.getThumb_image());
                             }
                         });
-
                         // Start listening to changes in database
                         messageFirebaseAdapter.startListening();
-
                         // Set current user as a participant in the chat and set the values to true meaning current user has seen the messages
                         rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
                         rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
                 });
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
-
         // Listen to Online change of friend and change status in toolbar
         usersChatUserIDListener = rootDbRef.child("presence").child(chatUserID).addValueEventListener(new ValueEventListener() {
             @Override
@@ -206,17 +194,13 @@ public class ChatActivity extends AppCompatActivity {
                     } else {
                         lastSeenView.setText("");
                     }
-
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);
-
         // Setup refresh event
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -252,12 +236,12 @@ public class ChatActivity extends AppCompatActivity {
 
     /* This function writes the message and its parameters to the database */
     private void sendMessage(String userName, String userThumbImage) {
-
+        // get message from EditText
         String message = chatMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-
+            // create a message ID in database under messages/chatID/
             String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
-
+            // Create a message map which is used to write all this data to the database at once
             Map messageMap = new HashMap();
             messageMap.put("message", message);
             messageMap.put("time", ServerValue.TIMESTAMP);
@@ -265,9 +249,11 @@ public class ChatActivity extends AppCompatActivity {
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
             messageMap.put("senderThumbImage", userThumbImage);
-
+            // Write the message map to the database
             rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
+            // Set the last message in the chat Object to the current message
             rootDbRef.child("chats").child(chatID).child("lastMessage").setValue(message);
+            // Set current time to the chat object in the dataabce
             rootDbRef.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
             // Current users ID is set to true in chats/users since current user has seen the message
             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);

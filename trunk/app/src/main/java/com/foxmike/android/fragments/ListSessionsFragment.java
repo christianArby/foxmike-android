@@ -31,7 +31,6 @@ public class ListSessionsFragment extends Fragment {
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
-    private int distance = 600000;
 
     public ListSessionsFragment() {
         // Required empty public constructor

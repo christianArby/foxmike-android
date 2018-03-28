@@ -10,9 +10,9 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/post_profile_image"
         android:layout_below="@+id/post_app_bar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="13dp"
+        android:layout_width="@dimen/profileImage_inText_width"
+        android:layout_height="@dimen/profileImage_inText_height"
+        android:layout_margin="@dimen/margin_left"
         android:src="@mipmap/profile_picture" />
 
     <TextView
@@ -21,10 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/post_app_bar"
         android:layout_alignBaseline="@id/post_profile_image"
-        android:layout_marginTop="13dp"
-        android:layout_toEndOf="@+id/post_profile_image"
-        android:text="Display Name"
-        android:textSize="14sp" />
+        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_toEndOf="@+id/post_profile_image"/>
 
     <EditText
         android:id="@+id/postText"
@@ -32,12 +30,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/post_profile_image"
-        android:layout_margin="13dp"
+        android:layout_margin="@dimen/margin_left"
         android:ems="10"
-        android:hint="Skriv något..."
+        android:hint="@string/Write_something_hint_text"
         android:inputType="textCapSentences|textMultiLine"
         android:background="@null"
         android:singleLine="false"
-        android:textSize="14sp" />
+        android:textSize="@dimen/size_editText" />
 
 </RelativeLayout>

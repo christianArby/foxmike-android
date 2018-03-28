@@ -29,6 +29,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static android.app.Activity.RESULT_OK;
 /**
  * This Fragment shows the current user's profile and lets the user change the information
@@ -39,7 +42,7 @@ public class UserProfilePublicEditFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private ImageButton profileImageButton;
+    private CircleImageView profileImageButton;
     private ProgressBar progressBar;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
@@ -118,7 +121,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     }
 
     // Method to set and scale an image into an circular imageView
-    private void setImageButton(String image, ImageButton imageButton) {
+    private void setImageButton(String image, CircleImageView imageButton) {
         Glide.with(this).load(image).into(imageButton);
     }
 

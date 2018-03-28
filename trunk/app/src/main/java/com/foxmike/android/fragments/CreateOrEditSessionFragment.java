@@ -558,7 +558,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(2,1)
+                    .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth),1)
                     .start(fragment.getContext(), fragment);
         }
 

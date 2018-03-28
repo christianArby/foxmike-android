@@ -518,7 +518,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             Glide.with(context).load(thumb_image).into(userProfileImageIV);
         }
         public void setCommentClickListener(final String postID) {
-            LinearLayout commentLayout = mView.findViewById(R.id.comment_layout);
+            TextView commentLayout = mView.findViewById(R.id.session_post_comment_text);
             TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override

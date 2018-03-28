@@ -5,11 +5,10 @@
     android:background="@color/primaryColor">
 
     <TextView
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="@dimen/margin_left"
         android:id="@+id/listSessionsDateHeader"
         android:layout_width="match_parent"
-        android:text="test"
-        android:layout_height="22dp"
+        android:layout_height="@dimen/height_sessionDateHeader"
         android:background="@color/primaryColor"
         android:outlineProvider="bounds" />
 
