@@ -292,7 +292,7 @@ public class MainHostActivity extends AppCompatActivity implements
         bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
         hostMapsFragment = MapsFragment.newInstance();
         hostMapsFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"");
+        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"editSession");
     }
     // Starts CreateOrEditSessionFragment with a LatLng in order to create a session
     @Override
@@ -301,7 +301,7 @@ public class MainHostActivity extends AppCompatActivity implements
         bundle.putParcelable("LatLng", latLng);
         createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"editSession");
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"");
     }
     // Starts CreateOrEditSessionFragment with a sessionID to edit the session
     @Override
