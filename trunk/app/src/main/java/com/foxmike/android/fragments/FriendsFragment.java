@@ -9,12 +9,13 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Presence;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserBranch;
-import com.foxmike.android.models.UserTest;
 import com.foxmike.android.utils.HeaderViewHolder;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +56,8 @@ public class FriendsFragment extends Fragment {
     private RecyclerView requestsList;
     private HashMap<Integer, User> requestUsers = new HashMap<Integer, User>();
     private RecyclerView.Adapter<UsersViewHolder> requestsViewHolderAdapter;
+    private TextView requestsHeading;
+    private TextView friendsHeading;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -70,6 +73,9 @@ public class FriendsFragment extends Fragment {
         currentUserID = mAuth.getCurrentUser().getUid();
         myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
         mainView = inflater.inflate(R.layout.fragment_friends, container, false);
+        requestsHeading = mainView.findViewById(R.id.friendRequestsHeadingTV);
+        friendsHeading = mainView.findViewById(R.id.friendsHeadingTV);
+
 
         // -------------------------- REQUEST LIST -------------------------
         requestsList = (RecyclerView) mainView.findViewById(R.id.requests_list);
@@ -91,6 +97,8 @@ public class FriendsFragment extends Fragment {
                     }
                     // if no requests, notify the recycler view to load empty view
                 } else {
+                    requestsHeading.setVisibility(View.GONE);
+                    friendsHeading.setVisibility(View.GONE);
                     requestsViewHolderAdapter.notifyDataSetChanged();
                 }
 

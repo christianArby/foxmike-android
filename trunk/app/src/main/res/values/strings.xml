@@ -270,6 +270,8 @@
     <string name="update_profile_button_text">Update profile</string>
     <string name="post_text">Post</string>
     <string name="send_post_text">SEND</string>
+    <string name="friend_requests_text">Friend requests</string>
+    <string name="your_friends_text">Your friends</string>
 
 
 </resources>
