@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -205,56 +205,67 @@
             android:textSize="@dimen/size_editText"/>
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/whatET"
-        app:layout_constraintTop_toBottomOf="@id/maxParticipantFrame"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:gravity="center_vertical"
-        android:hint="@string/what_hint"
-        android:inputType="textMultiLine"
-        android:textSize="@dimen/size_editText"/>
+        app:layout_constraintTop_toBottomOf="@id/maxParticipantFrame">
 
-    <EditText
-        app:layout_constraintTop_toBottomOf="@id/whatET"
-        android:id="@+id/whoET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:gravity="center_vertical"
-        android:hint="@string/who_hint"
-        android:inputType="textMultiLine"
-        android:textSize="@dimen/size_editText"/>
+        <EditText
+            android:id="@+id/whatET"
+            app:layout_constraintTop_toBottomOf="@id/maxParticipantFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginTop="@dimen/margin_top_text"
+            android:gravity="center_vertical"
+            android:hint="@string/what_hint"
+            android:inputType="textMultiLine"
+            android:textSize="@dimen/size_editText"/>
 
-    <EditText
-        app:layout_constraintTop_toBottomOf="@id/whoET"
-        android:id="@+id/whereET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:gravity="center_vertical"
-        android:hint="@string/where_hint"
-        android:inputType="textMultiLine"
-        android:textSize="@dimen/size_editText"/>
+        <EditText
+            app:layout_constraintTop_toBottomOf="@id/whatET"
+            android:id="@+id/whoET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginTop="@dimen/margin_top_text"
+            android:gravity="center_vertical"
+            android:hint="@string/who_hint"
+            android:inputType="textMultiLine"
+            android:textSize="@dimen/size_editText"/>
 
-    <Button
-        app:layout_constraintTop_toBottomOf="@id/whereET"
-        android:id="@+id/createSessionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:background="@color/secondaryColor"
-        android:text="@string/create_session"
-        android:textColor="@color/secondaryTextColor" />
+        <EditText
+            app:layout_constraintTop_toBottomOf="@id/whoET"
+            android:id="@+id/whereET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginTop="@dimen/margin_top_text"
+            android:gravity="center_vertical"
+            android:hint="@string/where_hint"
+            android:inputType="textMultiLine"
+            android:textSize="@dimen/size_editText"/>
+
+        <Button
+            app:layout_constraintTop_toBottomOf="@id/whereET"
+            android:id="@+id/createSessionBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginTop="@dimen/margin_top_text"
+            android:background="@color/secondaryColor"
+            android:text="@string/create_session"
+            android:textColor="@color/secondaryTextColor" />
+
+
+
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -1,45 +1,45 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.foxmike.android.fragments.FriendsFragment">
 
     <TextView
         android:id="@+id/friendRequestsHeadingTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/friend_requests_text"
         android:layout_marginLeft="@dimen/margin_left"
         android:layout_marginTop="@dimen/margin_minimum"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:text="@string/friend_requests_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/requests_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_top_text"
-        app:layout_constraintTop_toBottomOf="@id/friendRequestsHeadingTV"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/friendRequestsHeadingTV" />
 
     <TextView
         android:id="@+id/friendsHeadingTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/your_friends_text"
-        android:layout_marginLeft="@dimen/margin_left"
         android:layout_marginTop="@dimen/margin_top_text"
-        app:layout_constraintTop_toBottomOf="@id/requests_list"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:text="@string/your_friends_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/requests_list" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/friends_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_top_text"
-        app:layout_constraintTop_toBottomOf="@id/friendsHeadingTV"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/friendsHeadingTV" />
 
 </android.support.constraint.ConstraintLayout>
 <!---->

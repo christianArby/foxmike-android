@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.utils;
 // Checked
 import android.content.Context;
@@ -142,4 +143,4 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
         }
         return result;
     }
-}
+}*/

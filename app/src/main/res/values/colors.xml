@@ -20,6 +20,9 @@
     <color name="red">#FF0000</color>
     <color name="lightGrayLine">#eeeeee</color>
 
+    <color name="color_background_light">#FFFFFF</color>
+    <color name="color_background_dark">#FAFAFA</color>
+    <color name="color_divider">#E0E0E0</color>
 
 
 </resources>

@@ -1,30 +1,34 @@
-package com.foxmike.android.activities;
-//Checked
+package com.foxmike.android.fragments;
+
+
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
-import com.foxmike.android.utils.GetTimeAgo;
-import com.foxmike.android.models.Message;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
+import com.foxmike.android.interfaces.OnUserClickedListener;
+import com.foxmike.android.models.Message;
 import com.foxmike.android.models.User;
+import com.foxmike.android.utils.GetTimeAgo;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +36,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +44,8 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ChatActivity extends AppCompatActivity {
+
+public class ChatFragment extends Fragment {
 
     private String chatUserID;
     private String chatUserName;
@@ -64,35 +70,65 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference friendDbRef;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private ValueEventListener usersChatUserIDListener;
+    private OnUserClickedListener onUserClickedListener;
     private String chatID;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+    public ChatFragment() {
+        // Required empty public constructor
+    }
 
-        chatToolbar = (Toolbar) findViewById(R.id.chat_app_bar);
-        chatMessage = (EditText) findViewById(R.id.chat_message_ET);
-        chatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
-        messagesListRV = (RecyclerView) findViewById(R.id.messages_list);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.message_swipe_layout);
+
+    public static ChatFragment newInstance(String userID, String userName, String userThumbImage, String chatID) {
+        ChatFragment fragment = new ChatFragment();
+        Bundle args = new Bundle();
+        args.putString("userID",userID);
+        args.putString("userName",userName);
+        args.putString("userThumbImage",userThumbImage);
+        args.putString("chatID",chatID);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            // Get extra sent from previous activity
+            chatUserID = getArguments().getString("userID");
+            chatUserName = getArguments().getString("userName");
+            chatThumbImage = getArguments().getString("userThumbImage");
+            chatID = getArguments().getString("chatID");
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        chatToolbar = (Toolbar) view.findViewById(R.id.chat_app_bar);
+        chatMessage = (EditText) view.findViewById(R.id.chat_message_ET);
+        chatSendBtn = (ImageButton) view.findViewById(R.id.chat_send_btn);
+        messagesListRV = (RecyclerView) view.findViewById(R.id.messages_list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.message_swipe_layout);
 
         // Setup toolbar
-        setSupportActionBar(chatToolbar);
-        ActionBar actionBar = getSupportActionBar();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(chatToolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
         chatToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         actionBar.setDisplayShowCustomEnabled(true);
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View action_bar_view = inflater.inflate(R.layout.chat_custom_bar, null);
         actionBar.setCustomView(action_bar_view);
 
-        titleView = (TextView) findViewById(R.id.custom_bar_name);
-        profileImage = (CircleImageView) findViewById(R.id.custom_bar_image);
-        lastSeenView = (TextView) findViewById(R.id.custom_bar_lastSeen);
+        titleView = (TextView) view.findViewById(R.id.custom_bar_name);
+        profileImage = (CircleImageView) view.findViewById(R.id.custom_bar_image);
+        lastSeenView = (TextView) view.findViewById(R.id.custom_bar_lastSeen);
 
         // Setup meessage recyclerview
-        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
 
@@ -100,15 +136,17 @@ public class ChatActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
-        // Get extra sent from previous activity
-        chatUserID = getIntent().getStringExtra("userID");
-        chatUserName = getIntent().getStringExtra("userName");
-        chatThumbImage = getIntent().getStringExtra("userThumbImage");
-        chatID = getIntent().getStringExtra("chatID");
-
         // Fill toolbar
         titleView.setText(chatUserName);
         Glide.with(this).load(chatThumbImage).into(profileImage);
+
+        // if user info icon is clicked, display user profile
+        action_bar_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onUserClickedListener.OnUserClicked(chatUserID);
+            }
+        });
 
         // Set database references
         rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -189,7 +227,7 @@ public class ChatActivity extends AppCompatActivity {
                 } else {
                     GetTimeAgo getTimeAgo = new GetTimeAgo();
                     if (dataSnapshot.hasChild("lastOnline")) {
-                        String lastSeenText = getTimeAgo.getTimeAgo(Long.valueOf(dataSnapshot.child("lastOnline").getValue().toString()), getApplicationContext());
+                        String lastSeenText = getString(R.string.last_seen_text) + getTimeAgo.getTimeAgo(Long.valueOf(dataSnapshot.child("lastOnline").getValue().toString()), getActivity().getApplicationContext());
                         lastSeenView.setText(lastSeenText);
                     } else {
                         lastSeenView.setText("");
@@ -231,7 +269,7 @@ public class ChatActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
+        return view;
     }
 
     /* This function writes the message and its parameters to the database */
@@ -268,9 +306,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
+    public void onDestroyView() {
+        super.onDestroyView();
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
@@ -279,17 +316,19 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser==null) {
-            //User is signed out
-            Intent loginIntent = new Intent(ChatActivity.this,LoginActivity.class);
-            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(loginIntent);
-            finish();
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnUserClickedListener) {
+            onUserClickedListener = (OnUserClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnUserClickedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onUserClickedListener = null;
     }
 }

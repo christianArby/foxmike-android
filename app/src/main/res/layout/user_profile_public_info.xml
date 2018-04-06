@@ -27,7 +27,7 @@
         android:id="@+id/nameProfilePublicTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/display_session_marginStart"
+        android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/margin_top_text"
         android:text="@string/loading"
         android:textColor="?android:attr/textColorPrimary"
