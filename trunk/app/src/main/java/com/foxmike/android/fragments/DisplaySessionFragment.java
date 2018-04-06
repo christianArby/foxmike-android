@@ -8,6 +8,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManagerNonConfig;
 import android.support.v4.app.FragmentTransaction;
@@ -84,7 +85,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mAddressAndSessionType;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
-    private FrameLayout writePostLsyout;
+    private LinearLayout writePostLsyout;
     private LinearLayout commentLayout;
     private static final String SESSION_LATITUDE = "sessionLatitude";
     private static final String SESSION_LONGITUDE = "sessionLongitude";
@@ -390,7 +391,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 setImage(user.getImage(), mHostImage);
-                String hostText = getString(R.string.meet_your_session_leader) + user.getName();
+                String hostText = getString(R.string.hosted_by_text) + " " + user.getName();
                 mHost.setText(hostText);
             }
 

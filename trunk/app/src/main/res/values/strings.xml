@@ -272,6 +272,8 @@
     <string name="send_post_text">SEND</string>
     <string name="friend_requests_text">Friend requests</string>
     <string name="your_friends_text">Your friends</string>
-
+    <string name="sessionLeader">Sessionleader:</string>
+    <string name="hosted_by_text">Anordnas av</string>
+    <string name="last_seen_text">Last seen\u0020</string>
 
 </resources>

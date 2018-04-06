@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.ChatActivity;
+import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,6 +50,7 @@ public class UserProfilePublicFragment extends Fragment {
     private Button sendMessageBtn;
     private int areFriends;
     private User otherUser;
+    private OnChatClickedListener onChatClickedListener;
 
 
     public UserProfilePublicFragment() {
@@ -352,12 +354,7 @@ public class UserProfilePublicFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (otherUser!=null) {
-                    Intent chatIntent = new Intent(getContext(),ChatActivity.class);
-                    chatIntent.putExtra("userID", otherUserID);
-                    chatIntent.putExtra("userName", otherUser.getName());
-                    chatIntent.putExtra("userThumbImage", otherUser.getThumb_image());
-                    chatIntent.putExtra("userLastSeen", "FIX THIS");
-                    startActivity(chatIntent);
+                    onChatClickedListener.OnChatClicked(otherUserID,otherUser.getName(),otherUser.getThumb_image(),null);
                 }
             }
         });
@@ -369,5 +366,22 @@ public class UserProfilePublicFragment extends Fragment {
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
         Glide.with(this).load(image).into(imageView);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnChatClickedListener) {
+            onChatClickedListener = (OnChatClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnChatClickedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onChatClickedListener = null;
     }
 }

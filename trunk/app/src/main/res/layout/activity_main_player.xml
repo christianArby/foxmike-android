@@ -71,7 +71,7 @@
         android:layout_marginTop="@dimen/margin_top_fab"/>
 
     <FrameLayout
-
+        android:elevation="20dp"
         android:id="@+id/container_main_player"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

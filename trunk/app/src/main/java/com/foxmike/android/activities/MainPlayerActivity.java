@@ -10,17 +10,20 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.AllUsersFragment;
+import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.models.SessionBranch;
@@ -77,7 +80,7 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
         MapsFragment.OnCreateSessionListener,
-        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener{
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -659,6 +662,12 @@ public class MainPlayerActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
+        ChatFragment chatFragment = ChatFragment.newInstance(userID,userName,userThumbImage,chatID);
+        cleanMainFullscreenActivityAndSwitch(chatFragment,true);
+    }
+
     // Sets up weekday pager
     class weekdayViewpagerAdapter extends FragmentPagerAdapter {
         public weekdayViewpagerAdapter(FragmentManager fm) {
@@ -736,5 +745,13 @@ public class MainPlayerActivity extends AppCompatActivity
             DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("displaySessionFragment");
             displaySessionFragment.cleanListeners();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            getSupportFragmentManager().popBackStack();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
