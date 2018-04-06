@@ -378,9 +378,11 @@ public class MainPlayerActivity extends AppCompatActivity
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment frag:fragmentList) {
-            if (frag.getTag().substring(0,5).equals("xMain")) {
-                if (frag.isVisible()) {
-                    transaction.hide(frag);
+            if (frag.getTag()!=null && frag.getTag().length()>5) {
+                if (frag.getTag().substring(0,5).equals("xMain")) {
+                    if (frag.isVisible()) {
+                        transaction.hide(frag);
+                    }
                 }
             }
         }
@@ -397,7 +399,7 @@ public class MainPlayerActivity extends AppCompatActivity
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null) {
+            if (frag.getTag()!=null && frag.getTag().length()>5) {
                 if (frag.getTag().substring(0,5).equals("xMain")) {
                     if (frag.isVisible()) {
                         transaction.hide(frag);
