@@ -100,11 +100,9 @@
             android:name="com.foxmike.android.activities.MainHostActivity"
             android:screenOrientation="portrait"
             android:theme="@style/foxmike"/>
-        <activity
-            android:name="com.foxmike.android.activities.ChatActivity"
-            android:parentActivityName="com.foxmike.android.activities.MainPlayerActivity"
-            android:theme="@style/foxmike"/>
-        <activity android:name="com.foxmike.android.activities.CommentActivity">
+        <activity android:name="com.foxmike.android.activities.CommentActivity"
+            android:theme="@style/foxmike"
+            >
 
         </activity>
     </application>

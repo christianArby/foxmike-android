@@ -4,46 +4,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primaryBackgroundColor"
-    tools:context="com.foxmike.android.activities.CommentActivity">
+    android:background="@color/color_background_dark"
+    android:windowSoftInputMode="adjustResize"
+    tools:context="com.foxmike.android.fragments.ChatFragment">
 
+    <include layout="@layout/app_bar_layout"
+        android:id="@+id/chat_app_bar"/>
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/post_message_swipe_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/post_message_linearLayout"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/post_message_linearLayout"
+        android:layout_below="@+id/chat_app_bar">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/post_messages_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/linearLayout"
+            android:layout_above="@+id/post_message_linearLayout"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/chat_app_bar"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
+        android:elevation="@dimen/bottom_bar_elevation"
         android:id="@+id/post_message_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@color/secondaryBackgroundColor"
+        android:background="@color/color_background_light"
         android:orientation="horizontal"
         android:weightSum="10">
+
         <EditText
             android:id="@+id/post_message_ET"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_minimum"
             android:layout_weight="8"
-            android:background="@color/secondaryBackgroundColor"
-            android:inputType="textCapSentences"
-            android:ems="10"
+            android:background="@drawable/rounded_edittext"
             android:hint="@string/hint_enter_message"
-            android:paddingBottom="@dimen/margin_bottom_text"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:paddingTop="@dimen/margin_top_text" />
+            android:inputType="textCapSentences|textMultiLine"
+            android:padding="@dimen/margin_minimum"/>
         <ImageButton
             android:layout_gravity="center_vertical"
             android:id="@+id/post_message_send_btn"
@@ -51,8 +58,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:alpha="0.5"
-            android:background="@color/secondaryBackgroundColor"
+            android:background="@color/color_background_light"
             android:padding="10dp"
+            android:layout_marginEnd="@dimen/margin_right"
             app:srcCompat="@mipmap/ic_send_black_24dp"
             android:contentDescription="@string/CD_send_button" />
     </LinearLayout>
