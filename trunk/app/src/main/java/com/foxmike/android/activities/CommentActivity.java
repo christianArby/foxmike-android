@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 //Checked
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,6 +52,7 @@ public class CommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
+
 
         postMessage = (EditText) findViewById(R.id.post_message_ET);
         postSendBtn = (ImageButton) findViewById(R.id.post_message_send_btn);

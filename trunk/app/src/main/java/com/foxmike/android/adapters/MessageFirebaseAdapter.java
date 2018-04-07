@@ -88,6 +88,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((OtherMessageViewHolder) holder).messageText.setTextColor(Color.BLACK);
             ((OtherMessageViewHolder) holder).profileImage.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageText.setText(model.getMessage());
+            ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.GONE);
 
             Date d = new Date(model.getTime());
             Calendar c = Calendar.getInstance();
@@ -96,6 +97,11 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             String timeText = sessionDate.textDateAndTime();
             ((OtherMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageTime.setText(timeText);
+
+            if (!slalom) {
+                ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.VISIBLE);
+                ((OtherMessageViewHolder) holder).messageUser.setText(model.getSenderName());
+            }
 
             if (position>0) {
                 if (Math.abs(model.getTime()-getItem(position-1).getTime())<300000){
@@ -118,12 +124,14 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
 
     public class OtherMessageViewHolder extends RecyclerView.ViewHolder {
         public TextView messageText;
+        public TextView messageUser;
         public CircleImageView profileImage;
         public TextView messageTime;
         public RelativeLayout singleMessageContainer;
         public OtherMessageViewHolder(View view) {
             super(view);
             messageText = (TextView) view.findViewById(R.id.message_text);
+            messageUser = (TextView) view.findViewById(R.id.message_user);
             messageTime = (TextView) view.findViewById(R.id.message_time);
             profileImage = (CircleImageView) view.findViewById(R.id.message_profile_image);
             singleMessageContainer = (RelativeLayout) view.findViewById(R.id.message_relative_layout);
