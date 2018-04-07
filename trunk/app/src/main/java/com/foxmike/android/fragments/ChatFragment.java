@@ -16,6 +16,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -72,6 +73,7 @@ public class ChatFragment extends Fragment {
     private ValueEventListener usersChatUserIDListener;
     private OnUserClickedListener onUserClickedListener;
     private String chatID;
+    boolean refreshTriggeredByScroll;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -113,6 +115,8 @@ public class ChatFragment extends Fragment {
         messagesListRV = (RecyclerView) view.findViewById(R.id.messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.message_swipe_layout);
 
+        //getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(chatToolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -129,6 +133,8 @@ public class ChatFragment extends Fragment {
 
         // Setup meessage recyclerview
         linearLayoutManager = new LinearLayoutManager(getActivity());
+        // Make sure keyboard is not hiding recyclerview
+        linearLayoutManager.setStackFromEnd(true);
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
 
@@ -200,6 +206,7 @@ public class ChatFragment extends Fragment {
                         chatSendBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                refreshTriggeredByScroll = false;
                                 sendMessage(currentUser.getName(), currentUser.getThumb_image());
                             }
                         });
@@ -244,6 +251,8 @@ public class ChatFragment extends Fragment {
             @Override
             public void onRefresh() {
 
+                refreshTriggeredByScroll = true;
+
                 final int currentItems = messageFirebaseAdapter.getItemCount();
                 messageFirebaseAdapter.stopListening();
 
@@ -260,7 +269,11 @@ public class ChatFragment extends Fragment {
                     @Override
                     public void onItemRangeInserted(int positionStart, int itemCount) {
                         super.onItemRangeInserted(positionStart, itemCount);
-                        messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                        if (refreshTriggeredByScroll) {
+                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                        } else {
+                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
+                        }
                     }
                 });
 
@@ -269,6 +282,7 @@ public class ChatFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+
         return view;
     }
 
