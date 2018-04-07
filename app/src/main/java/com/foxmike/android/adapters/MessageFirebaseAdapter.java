@@ -69,8 +69,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             Calendar c = Calendar.getInstance();
             c.setTime(d);
             SessionDate sessionDate = new SessionDate(c);
-            String time = String.format("%02d:%02d", sessionDate.getHour(), sessionDate.getMinute());
-            String timeText = sessionDate.getDay() + " " + sessionDate.textMonth() +"." + " " + "KL." + " " + time;
+            String timeText = sessionDate.textDateAndTime();
             ((ThisMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((ThisMessageViewHolder) holder).messageTime.setText(timeText);
 
@@ -94,8 +93,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             Calendar c = Calendar.getInstance();
             c.setTime(d);
             SessionDate sessionDate = new SessionDate(c);
-            String time = String.format("%02d:%02d", sessionDate.getHour(), sessionDate.getMinute());
-            String timeText = sessionDate.getDay() + " " + sessionDate.textMonth() +"." + " " + "KL." + " " + time;
+            String timeText = sessionDate.textDateAndTime();
             ((OtherMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageTime.setText(timeText);
 
@@ -111,7 +109,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
     @Override
     public int getItemViewType(int position) {
         mAuth = FirebaseAuth.getInstance();
-        if (getItem(position).getSenderUserID().equals(mAuth.getCurrentUser().getUid())) {
+        if (getItem(position).getSenderUserID().equals(mAuth.getCurrentUser().getUid())  && slalom) {
             return 1;
         } else {
             return 0;

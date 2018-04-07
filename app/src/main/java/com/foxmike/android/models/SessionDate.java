@@ -59,6 +59,12 @@ public class SessionDate {
         return sdf.format(cal.getTime());
     }
 
+    public String textDateAndTime() {
+        String time = String.format("%02d:%02d", this.getHour(), this.getMinute());
+        String dateAndTimeText = this.getDay() + " " + this.textMonth() + " " + "KL." + " " + time;
+        return dateAndTimeText;
+    }
+
     public Date getDateOfSession () {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {

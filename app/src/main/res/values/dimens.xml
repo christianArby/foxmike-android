@@ -61,6 +61,7 @@
     <dimen name="toolbar_height">56dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="bottom_bar_elevation">16dp</dimen>
+    <dimen name="marginSubHeadBottom">10dp</dimen>
 
 
 </resources>

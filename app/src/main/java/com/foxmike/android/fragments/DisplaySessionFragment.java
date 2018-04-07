@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.CommentActivity;
+import com.foxmike.android.models.SessionDate;
 import com.foxmike.android.utils.GetTimeAgo;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.models.Post;
@@ -55,7 +56,9 @@ import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -260,8 +263,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onBindViewHolder(PostsViewHolder holder, int position) {
                 if (postBranchArrayList.size()>0) {
                     holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
-                    String time = GetTimeAgo.getTimeAgo((long) postBranchArrayList.get(position).getPost().getTimestamp(), getContext());
-                    holder.setTime(time);
+
+                    Date d = new Date((long) postBranchArrayList.get(position).getPost().getTimestamp());
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(d);
+                    SessionDate sessionDate = new SessionDate(c);
+                    String timeText = sessionDate.textDateAndTime();
+                    holder.setTime(timeText);
+
                     holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
                     holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
                     holder.setCommentClickListener(postBranchArrayList.get(position).getPostID());
@@ -278,6 +287,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         linearLayoutManager.setStackFromEnd(true);
         postList.setLayoutManager(linearLayoutManager);
         postList.setAdapter(postsViewHolderAdapter);
+
+        postList.setNestedScrollingEnabled(false);
 
         // Setup static map with session location
         GoogleMapOptions options = new GoogleMapOptions();
@@ -545,9 +556,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             if (nr==null || nr<1) {
                 NrOfCommentsLayout.setVisibility(View.GONE);
+            } else if (nr<2) {
+                NrOfCommentsLayout.setVisibility(View.VISIBLE);
+                NrOfCommentsLayout.setText(nr+getString(R.string.comment_text));
             } else {
                 NrOfCommentsLayout.setVisibility(View.VISIBLE);
-                NrOfCommentsLayout.setText(nr+" kommentarer");
+                NrOfCommentsLayout.setText(nr+getString(R.string.comments_text));
             }
         }
     }

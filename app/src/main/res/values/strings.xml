@@ -275,5 +275,7 @@
     <string name="sessionLeader">Sessionleader:</string>
     <string name="hosted_by_text">Anordnas av</string>
     <string name="last_seen_text">Last seen\u0020</string>
+    <string name="comment_text">\u0020kommentar</string>
+    <string name="comments_text">\u0020kommentarer</string>
 
 </resources>
