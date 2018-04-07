@@ -59,6 +59,7 @@ dependencies {
     compile 'com.aurelhubert:ahbottomnavigation:2.1.0'
     compile 'com.firebaseui:firebase-ui-database:3.1.0'
     compile 'id.zelory:compressor:2.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta4'
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.0'
     androidTestCompile 'com.android.support:support-annotations:26.1.0'

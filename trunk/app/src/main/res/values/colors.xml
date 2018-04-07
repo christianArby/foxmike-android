@@ -12,8 +12,8 @@
     <color name="primaryTextColor">#333333</color>
     <color name="secondaryTextColor">#ffffff</color>
     <color name="greyTextColor">#9DACCB</color>
-    <color name="lightGreyBackgroundColor">#e0e0e0</color>
 
+    <color name="lightGreyBackgroundColor">#DCDEE3</color>
     <color name="primaryBackgroundColor">#fafafa</color>
     <color name="secondaryBackgroundColor">#ffffff</color>
 
