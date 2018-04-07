@@ -1,7 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.foxmike.android.fragments.WritePostFragment">
 
     <include layout="@layout/app_bar_layout"
@@ -13,29 +14,33 @@
         android:layout_width="@dimen/profileImage_inText_width"
         android:layout_height="@dimen/profileImage_inText_height"
         android:layout_margin="@dimen/margin_left"
-        android:src="@mipmap/profile_picture" />
+        android:src="@mipmap/profile_picture"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/post_app_bar"/>
 
     <TextView
         android:id="@+id/post_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/post_app_bar"
-        android:layout_alignBaseline="@id/post_profile_image"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:layout_toEndOf="@+id/post_profile_image"/>
+        android:text="User name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_marginStart="@dimen/marginHorizontal"
+        app:layout_constraintStart_toEndOf="@id/post_profile_image"
+        app:layout_constraintTop_toTopOf="@id/post_profile_image"
+        app:layout_constraintBottom_toBottomOf="@id/post_profile_image"/>
 
     <EditText
         android:id="@+id/postText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_below="@+id/post_profile_image"
         android:layout_margin="@dimen/margin_left"
-        android:ems="10"
         android:hint="@string/Write_something_hint_text"
         android:inputType="textCapSentences|textMultiLine"
         android:background="@null"
         android:singleLine="false"
-        android:textSize="@dimen/size_editText" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintTop_toBottomOf="@id/post_profile_image"
+        app:layout_constraintStart_toStartOf="parent"/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

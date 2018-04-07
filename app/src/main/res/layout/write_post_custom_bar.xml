@@ -10,24 +10,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_minimum"
         android:text="@string/post_text"
         android:textColor="@color/secondaryTextColor"
-        android:textSize="@dimen/textSize_big"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
         android:id="@+id/post_custom_bar_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_minimum"
-        android:text="@string/send_post_text"
+        android:text="SEND"
         android:textColor="@color/secondaryTextColor"
-        android:textSize="@dimen/textSize_big"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
 </android.support.constraint.ConstraintLayout>

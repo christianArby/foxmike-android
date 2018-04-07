@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 // Checked
 import android.app.Dialog;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -90,7 +91,13 @@ public class WritePostFragment extends DialogFragment {
 
         sessionID = getArguments().getString(SESSION_ID);
         View action_bar_view = inflater.inflate(R.layout.write_post_custom_bar, null);
-        actionBar.setCustomView(action_bar_view);
+
+        // make sure the whole action bar is filled with the custom view
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
+                ActionBar.LayoutParams.MATCH_PARENT);
+        actionBar.setCustomView(action_bar_view, layoutParams);
+
+        postToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         sendTW = view.findViewById(R.id.post_custom_bar_send);
         postTextET = view.findViewById(R.id.postText);
@@ -120,10 +127,10 @@ public class WritePostFragment extends DialogFragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (postTextET.getText().length()>0) {
-                    sendTW.setTextColor(Color.WHITE);
+                    sendTW.setTextColor(getResources().getColor(R.color.secondaryTextColor));
                     sendable=true;
                 } else  {
-                    sendTW.setTextColor(Color.GRAY);
+                    sendTW.setTextColor(getResources().getColor(R.color.greyTextColor));
                     sendable=false;
                 }
             }
