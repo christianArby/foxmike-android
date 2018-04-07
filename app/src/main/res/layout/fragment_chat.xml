@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background_dark"
+    android:windowSoftInputMode="adjustResize"
     tools:context="com.foxmike.android.fragments.ChatFragment">
 
     <include layout="@layout/app_bar_layout"
