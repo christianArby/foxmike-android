@@ -28,7 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.CommentActivity;
+import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.models.SessionDate;
 import com.foxmike.android.utils.GetTimeAgo;
 import com.foxmike.android.activities.MainPlayerActivity;
@@ -111,6 +111,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnEditSessionListener onEditSessionListener;
     private OnBookSessionListener onBookSessionListener;
     private OnCancelBookedSessionListener onCancelBookedSessionListener;
+    private OnCommentClickedListener onCommentClickedListener;
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
     private FrameLayout loadingScreen;
@@ -535,19 +536,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                    Intent commentIntent = new Intent(getContext(),CommentActivity.class);
-                    commentIntent.putExtra("postID", postID);
-                    startActivity(commentIntent);
-
+                    onCommentClickedListener.OnCommentClicked(postID);
                 }
             });
             NrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent commentIntent = new Intent(getContext(),CommentActivity.class);
-                    commentIntent.putExtra("postID", postID);
-                    startActivity(commentIntent);
+                    onCommentClickedListener.OnCommentClicked(postID);
                 }
             });
 
@@ -679,6 +674,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnCancelBookedSessionListener");
         }
+        if (context instanceof OnCommentClickedListener) {
+            onCommentClickedListener = (OnCommentClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnCommentClickedListener");
+        }
     }
     @Override
     public void onDetach() {
@@ -686,6 +687,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         onEditSessionListener = null;
         onBookSessionListener = null;
         onCancelBookedSessionListener = null;
+        onCommentClickedListener = null;
     }
     public interface OnEditSessionListener {
         void OnEditSession(String sessionID);

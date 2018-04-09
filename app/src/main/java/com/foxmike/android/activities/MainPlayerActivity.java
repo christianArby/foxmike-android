@@ -18,12 +18,14 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
+import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
 import com.foxmike.android.interfaces.OnChatClickedListener;
+import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.models.SessionBranch;
@@ -80,7 +82,7 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
         MapsFragment.OnCreateSessionListener,
-        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener{
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener, OnCommentClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -668,6 +670,12 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
         ChatFragment chatFragment = ChatFragment.newInstance(userID,userName,userThumbImage,chatID);
         cleanMainFullscreenActivityAndSwitch(chatFragment,true);
+    }
+
+    @Override
+    public void OnCommentClicked(String postID) {
+        CommentFragment commentFragment = CommentFragment.newInstance(postID);
+        cleanMainFullscreenActivityAndSwitch(commentFragment,true);
     }
 
     // Sets up weekday pager
