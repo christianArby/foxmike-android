@@ -14,9 +14,11 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
+import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.interfaces.OnChatClickedListener;
+import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
@@ -57,7 +59,7 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener, MapsFragment.OnCreateSessionListener,
         CreateOrEditSessionFragment.OnEditLocationListener,
-        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener{
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener, OnCommentClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -416,5 +418,11 @@ public class MainHostActivity extends AppCompatActivity implements
             getSupportFragmentManager().popBackStack();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void OnCommentClicked(String postID) {
+        CommentFragment commentFragment = CommentFragment.newInstance(postID);
+        cleanMainFullscreenActivityAndSwitch(commentFragment,true,"");
     }
 }

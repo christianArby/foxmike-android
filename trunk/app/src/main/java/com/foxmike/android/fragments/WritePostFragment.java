@@ -40,6 +40,7 @@ public class WritePostFragment extends DialogFragment {
     ImageView postProfileImage;
     TextView sendTW;
     TextView postName;
+    TextView postTitle;
     Boolean sendable = false;
     private static final String SESSION_ID = "sessionID";
     private String sessionID;
@@ -92,6 +93,19 @@ public class WritePostFragment extends DialogFragment {
         sessionID = getArguments().getString(SESSION_ID);
         View action_bar_view = inflater.inflate(R.layout.write_post_custom_bar, null);
 
+        //
+        rootDbRef.child("sessions").child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                postTitle.setText(dataSnapshot.child("sessionName").getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         // make sure the whole action bar is filled with the custom view
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
@@ -104,6 +118,7 @@ public class WritePostFragment extends DialogFragment {
         postProfileImage = view.findViewById(R.id.post_profile_image);
         postName = view.findViewById(R.id.post_user_name);
         sendTW.setTextColor(Color.GRAY);
+        postTitle = view.findViewById(R.id.post_custom_bar_name);
 
         rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

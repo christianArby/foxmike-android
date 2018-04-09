@@ -1,24 +1,29 @@
-package com.foxmike.android.activities;
-//Checked
-import android.content.Intent;
+package com.foxmike.android.fragments;
+
+
+import android.graphics.PorterDuff;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.foxmike.android.R;
-import com.foxmike.android.models.Message;
-import com.foxmike.android.adapters.MessageFirebaseAdapter;
-import com.foxmike.android.models.User;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.foxmike.android.R;
+import com.foxmike.android.adapters.MessageFirebaseAdapter;
+import com.foxmike.android.models.Message;
+import com.foxmike.android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,8 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-/* This class is very similar to ChatActivity but with less functionality, for explanation on functions see ChatActivity*/
-public class CommentActivity extends AppCompatActivity {
+public class CommentFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private String currentUserID;
@@ -47,28 +51,68 @@ public class CommentActivity extends AppCompatActivity {
     private DatabaseReference userDbRef;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private String postID;
+    private Toolbar commentToolbar;
+    private boolean refreshTriggeredByScroll;
+
+    public CommentFragment() {
+        // Required empty public constructor
+    }
+
+    public static CommentFragment newInstance(String postID) {
+        CommentFragment fragment = new CommentFragment();
+        Bundle args = new Bundle();
+        args.putString("postID", postID);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_comment);
+        if (getArguments() != null) {
+            postID = getArguments().getString("postID");
+        }
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_comment, container, false);
 
-        postMessage = (EditText) findViewById(R.id.post_message_ET);
-        postSendBtn = (ImageButton) findViewById(R.id.post_message_send_btn);
-        messagesListRV = (RecyclerView) findViewById(R.id.post_messages_list);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.post_message_swipe_layout);
+        postMessage = (EditText) view.findViewById(R.id.post_message_ET);
+        postSendBtn = (ImageButton) view.findViewById(R.id.post_message_send_btn);
+        messagesListRV = (RecyclerView) view.findViewById(R.id.post_messages_list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.post_message_swipe_layout);
 
-        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        // Make sure keyboard is not hiding recyclerview
+        //linearLayoutManager.setStackFromEnd(true);
         messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
+
+        if (Build.VERSION.SDK_INT >= 11) {
+            messagesListRV.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v,
+                                           int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if (bottom < oldBottom) {
+                        messagesListRV.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                messagesListRV.smoothScrollToPosition(
+                                        messagesListRV.getAdapter().getItemCount() - 1);
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        }
 
         valueEventListenerMap = new HashMap<>();
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
-
-        // Get extra sent from previous activity
-        postID = getIntent().getStringExtra("postID");
 
         rootDbRef = FirebaseDatabase.getInstance().getReference();
         userDbRef = rootDbRef.child("users").child(currentUserID);
@@ -81,6 +125,7 @@ public class CommentActivity extends AppCompatActivity {
                 postSendBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        refreshTriggeredByScroll = false;
                         sendMessage(currentUser.getName(), currentUser.getThumb_image());
                     }
                 });
@@ -113,6 +158,8 @@ public class CommentActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
 
+                refreshTriggeredByScroll = true;
+
                 final int currentItems = messageFirebaseAdapter.getItemCount();
                 messageFirebaseAdapter.stopListening();
                 DatabaseReference messageRef = rootDbRef.child("postMessages").child(postID);
@@ -126,7 +173,11 @@ public class CommentActivity extends AppCompatActivity {
                     @Override
                     public void onItemRangeInserted(int positionStart, int itemCount) {
                         super.onItemRangeInserted(positionStart, itemCount);
-                        messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                        if (refreshTriggeredByScroll) {
+                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                        } else {
+                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
+                        }
                     }
                 });
 
@@ -136,6 +187,7 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
 
+        return view;
     }
 
     private void sendMessage(String userName, String userThumbImage) {
@@ -160,28 +212,12 @@ public class CommentActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
+    public void onDestroyView() {
+        super.onDestroyView();
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser==null) {
-            //User is signed out
-            Intent loginIntent = new Intent(CommentActivity.this, LoginActivity.class);
-            loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(loginIntent);
-            finish();
         }
     }
 }
