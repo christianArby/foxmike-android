@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -40,13 +41,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Button mLoginBtn;
-        Button mCreateAccountBtn;
+        FloatingActionButton mLoginBtn;
 
         mLoginEmailField = findViewById(R.id.loginEmailField);
         mLoginPasswordField = findViewById(R.id.loginPasswordField);
         mLoginBtn = findViewById(R.id.loginBtn);
-        mCreateAccountBtn = findViewById(R.id.createAccountBtn);
 
         mAuth = FirebaseAuth.getInstance();
         deviceToken = FirebaseInstanceId.getInstance().getToken();
@@ -61,15 +60,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 checkLogin();
-            }
-        });
-
-        mCreateAccountBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent registerIntent = new Intent(LoginActivity.this,RegisterActivity.class);
-                registerIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(registerIntent);
             }
         });
 

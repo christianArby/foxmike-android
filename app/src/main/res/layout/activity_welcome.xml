@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.foxmike.android.activities.WelcomeActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/foxmike_background"/>
+
+    <ImageView
+        android:id="@+id/foxmikeIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:src="@drawable/foxmike_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/loginTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/secondaryTextColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="Logga in"
+        android:padding="@dimen/marginVertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:text="Välkommen till Foxmike."
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/foxmikeIcon"/>
+
+    <Button
+        android:id="@+id/continueWithFacebookButton"
+        android:background="@drawable/rounded_edittext"
+        android:padding="@dimen/margin_minimum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="#00897b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fortsätt med Facebook"
+        app:layout_constraintTop_toBottomOf="@id/welcomeText"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/createAccountBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
+        android:background="@drawable/rounded_button_transparent"
+        android:padding="@dimen/margin_minimum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="Skapa konto"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/continueWithFacebookButton" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes Användarvillkor."
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginBottom="@dimen/marginVertical"
+        android:layout_marginEnd="70dp"
+        android:textColor="@color/secondaryTextColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>
