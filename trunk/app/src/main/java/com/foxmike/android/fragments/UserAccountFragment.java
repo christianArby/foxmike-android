@@ -13,8 +13,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.LoginActivity;
+import com.foxmike.android.activities.MainActivity;
 import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
+import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.User;
@@ -164,10 +166,10 @@ public class UserAccountFragment extends Fragment {
     }
 
     private void logout() {
-        Intent loginIntent = new Intent(getActivity(),LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(loginIntent);
+        Intent welcomeIntent = new Intent(getActivity(),WelcomeActivity.class);
+        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(welcomeIntent);
         mAuth.signOut();
     }
 
