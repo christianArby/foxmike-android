@@ -114,7 +114,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnCommentClickedListener onCommentClickedListener;
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
-    private FrameLayout loadingScreen;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -141,11 +140,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
-
-        loadingScreen = view.findViewById(R.id.loadingScreen);
-        loadingScreen.setVisibility(View.VISIBLE);
-
-
 
         postBranchArrayList = new ArrayList<>();
         childEventListenerMap = new HashMap<>();
@@ -198,7 +192,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mParams.height = sessionImageCardView.getWidth()/ getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
                 sessionImageCardView.setLayoutParams(mParams);
                 sessionImageCardView.postInvalidate();
-                loadingScreen.setVisibility(View.GONE);
             }
         });
 

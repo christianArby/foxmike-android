@@ -6,7 +6,8 @@
     <color name="primaryColor">#fafafa</color>
     <color name="primaryLightColor">#ffffff</color>
     <color name="primaryDarkColor">#c7c7c7</color>
-    <color name="secondaryColor">#03a9f4</color>
+    <!--<color name="secondaryColor">#03a9f4</color>-->
+    <color name="secondaryColor">#00897b</color>
     <color name="secondaryLightColor">#67daff</color>
     <color name="secondaryDarkColor">#007ac1</color>
     <color name="primaryTextColor">#333333</color>

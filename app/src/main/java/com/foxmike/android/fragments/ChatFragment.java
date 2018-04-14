@@ -65,7 +65,6 @@ public class ChatFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private MessageFirebaseAdapter messageFirebaseAdapter;
     private DatabaseReference rootDbRef;
-    private static final int TOTAL_ITEMS_TO_LOAD = R.integer.TOTAL_ITEMS_TO_LOAD;
     private Query messageQuery;
     private DatabaseReference userDbRef;
     private DatabaseReference friendDbRef;
@@ -74,6 +73,9 @@ public class ChatFragment extends Fragment {
     private OnUserClickedListener onUserClickedListener;
     private String chatID;
     boolean refreshTriggeredByScroll;
+    private int lastVisiblePosition;
+    int itemsLoaded;
+    int itemsDifference;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -175,6 +177,9 @@ public class ChatFragment extends Fragment {
                                     if (friendUser.getChats()!= null) {
                                         if (friendUser.getChats().containsKey(userChatID)) {
                                             chatID = userChatID;
+                                            // Set that current user has seen the chat
+                                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                                         }
                                     }
                                 }
@@ -183,11 +188,15 @@ public class ChatFragment extends Fragment {
                             if (chatID==null) {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
+                        } else {
+                            // Set that current user has seen the chat
+                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                         }
                         // --------------- chatID IS NOW SET ----------------
                         // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
-                        messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
+                        messageQuery = messageRef.limitToLast(getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));
                         FirebaseRecyclerOptions<Message> options =
                                 new FirebaseRecyclerOptions.Builder<Message>()
                                         .setQuery(messageQuery, Message.class)
@@ -212,9 +221,6 @@ public class ChatFragment extends Fragment {
                         });
                         // Start listening to changes in database
                         messageFirebaseAdapter.startListening();
-                        // Set current user as a participant in the chat and set the values to true meaning current user has seen the messages
-                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -250,15 +256,17 @@ public class ChatFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                final int currentItems = messageFirebaseAdapter.getItemCount();
+                LinearLayoutManager layoutManager = ((LinearLayoutManager)messagesListRV.getLayoutManager());
+                lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+                itemsLoaded = 0;
 
                 refreshTriggeredByScroll = true;
-
-                final int currentItems = messageFirebaseAdapter.getItemCount();
                 messageFirebaseAdapter.stopListening();
 
                 // Set query to current messages + 10 more items
                 DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
-                messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
+                messageQuery = messageRef.limitToLast(currentItems+getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));
                 FirebaseRecyclerOptions<Message> options =
                         new FirebaseRecyclerOptions.Builder<Message>()
                                 .setQuery(messageQuery, Message.class)
@@ -269,8 +277,10 @@ public class ChatFragment extends Fragment {
                     @Override
                     public void onItemRangeInserted(int positionStart, int itemCount) {
                         super.onItemRangeInserted(positionStart, itemCount);
+                        itemsLoaded++;
+                        itemsDifference = itemsLoaded-currentItems;
                         if (refreshTriggeredByScroll) {
-                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-currentItems);
+                            messagesListRV.scrollToPosition(itemsDifference+lastVisiblePosition-1);
                         } else {
                             messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
                         }

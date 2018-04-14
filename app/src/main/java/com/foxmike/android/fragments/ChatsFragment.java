@@ -157,7 +157,7 @@ public class ChatsFragment extends Fragment {
                                                                     Presence presence = dataSnapshot.getValue(Presence.class);
 
                                                                     for (Integer userIdInt : userIDs.keySet()) {
-                                                                        if (userIDs.get(userIdInt) == dataSnapshot.getKey()) {
+                                                                        if (userIDs.get(userIdInt).equals(dataSnapshot.getKey()) ) {
                                                                             presenceHashMap.put(userIdInt,presence);
                                                                             chatsViewHolderAdapter.notifyItemChanged(userIdInt);
                                                                         }

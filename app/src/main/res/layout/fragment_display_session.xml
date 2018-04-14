@@ -6,14 +6,6 @@
     android:background="@color/primaryLightColor"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/loadingScreen"
-        android:elevation="10dp"
-        android:layout_width="match_parent"
-        android:background="@color/red"
-        android:layout_height="match_parent">
-    </FrameLayout>
-
     <!--<android.support.design.widget.AppBarLayout
         android:id="@+id/displaySessionAppBar"
         android:layout_width="match_parent"
