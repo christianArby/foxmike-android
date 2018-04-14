@@ -12,7 +12,7 @@
         android:layout_height="@dimen/height_profileImage"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="@color/secondaryBackgroundColor"
+        android:background="@color/color_background_light"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture"
         android:contentDescription="@string/choose_profile_picture"/>

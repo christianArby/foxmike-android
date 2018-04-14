@@ -45,7 +45,7 @@
         android:id="@+id/spaceView1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
+        android:background="@color/color_divider"
         app:layout_constraintTop_toBottomOf="@id/edit_session_question"/>
 
     <TextView
@@ -80,7 +80,7 @@
         android:id="@+id/spaceView2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
+        android:background="@color/color_divider"
         app:layout_constraintTop_toBottomOf="@id/switchModeTV"/>
 
     <TextView

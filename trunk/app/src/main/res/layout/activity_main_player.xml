@@ -6,15 +6,15 @@
     android:id="@+id/activity_main_player"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@color/primaryColor"
+    android:background="@color/color_background_light"
     tools:context=".activities.MainPlayerActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
+        android:background="@color/color_background_light"
         android:id="@+id/barLayout"
-        app:elevation="0dp">
+        android:elevation="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -34,9 +34,9 @@
                 android:layout_below="@+id/weekdayPager"
                 android:layout_marginBottom="4dp"
                 android:layout_centerHorizontal="true"
-                android:background="@color/primaryColor"
-                app:piv_selectedColor="@color/secondaryDarkColor"
-                app:piv_unselectedColor="@color/primaryDarkColor"
+                android:background="@color/color_background_light"
+                app:piv_selectedColor="@color/foxmikePrimaryDarkColor"
+                app:piv_unselectedColor="@color/unselectedGreyColor"
                 app:piv_animationType="slide"
                 app:piv_viewPager="@+id/weekdayPager" />
 
@@ -46,7 +46,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.design.widget.FloatingActionButton
-        app:backgroundTint="@color/secondaryColor"
+        app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/white"
         android:src="@drawable/ic_filter_list_black_24dp"
         android:id="@+id/sort_button"
@@ -58,8 +58,8 @@
         android:layout_marginTop="@dimen/margin_top_fab" />
 
     <android.support.design.widget.FloatingActionButton
-        app:backgroundTint="@color/primaryColor"
-        android:tint="@color/darkIconColor"
+        app:backgroundTint="@color/foxmikePrimaryColor"
+        android:tint="@color/secondaryTextColor"
 
         android:src="@drawable/ic_my_location_black_24dp"
         android:id="@+id/my_location_button"
@@ -86,8 +86,8 @@
         android:layout_alignParentStart="true" />
 
     <android.support.design.widget.FloatingActionButton
-        app:backgroundTint="@color/secondaryColor"
-        android:tint="@color/white"
+        app:backgroundTint="@color/foxmikePrimaryColor"
+        android:tint="@color/secondaryTextColor"
         android:id="@+id/map_or_list_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

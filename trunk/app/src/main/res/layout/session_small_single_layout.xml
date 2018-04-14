@@ -26,7 +26,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/margin_minimum"
         android:text="Medium Text"
-        android:textColor="@color/secondaryLightColor"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toEndOf="@id/icon"
         app:layout_constraintTop_toTopOf="parent"/>
 

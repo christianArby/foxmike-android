@@ -64,7 +64,6 @@ public class WritePostFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
     }
 
     @Override

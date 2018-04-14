@@ -7,7 +7,7 @@
         android:id="@+id/spaceView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_view__big_height"
-        android:background="@color/lightGreyBackgroundColor"
+        android:background="@color/color_divider"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -88,7 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/margin_minimum"
-        android:background="@color/lightGreyBackgroundColor"
+        android:background="@color/color_background_light"
         app:layout_constraintTop_toBottomOf="@id/post_nr_comments_container"
         app:layout_constraintStart_toStartOf="parent"/>
 

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondaryColor">
+    android:background="@color/color_background_light">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/custom_bar_image"
@@ -24,7 +24,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:text="@string/placeholder_user_name"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-        android:textColor="@color/secondaryTextColor"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toEndOf="@id/custom_bar_image"
         app:layout_constraintTop_toTopOf="@id/custom_bar_image"
         app:layout_constraintBottom_toTopOf="@id/custom_bar_lastSeen"/>
@@ -36,7 +36,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:text="@string/placeholder_last_seen"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/secondaryTextColor"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="@id/custom_bar_image"
         app:layout_constraintTop_toBottomOf="@id/custom_bar_name"
         app:layout_constraintStart_toEndOf="@id/custom_bar_image"/>
