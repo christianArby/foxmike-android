@@ -146,7 +146,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
         bottomNavigation.setAnimation(null);
         bottomNavigation.setCurrentItem(0);
-        bottomNavigation.setAccentColor(getResources().getColor(R.color.secondaryColor));
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.foxmikePrimaryColor));
         bottomNavigation.setBehaviorTranslationEnabled(false);
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
@@ -663,6 +663,9 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnSessionBranchClicked(SessionBranch sessionBranch) {
+
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
 
     }
 

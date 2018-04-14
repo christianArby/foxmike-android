@@ -3,28 +3,29 @@
 
     <color name="white">#ffffff</color>
 
-    <color name="primaryColor">#fafafa</color>
     <color name="primaryLightColor">#ffffff</color>
-    <color name="primaryDarkColor">#c7c7c7</color>
-    <!--<color name="secondaryColor">#03a9f4</color>-->
-    <color name="secondaryColor">#00897b</color>
-    <color name="secondaryLightColor">#67daff</color>
-    <color name="secondaryDarkColor">#007ac1</color>
-    <color name="primaryTextColor">#333333</color>
-    <color name="secondaryTextColor">#ffffff</color>
+
     <color name="greyTextColor">#9DACCB</color>
 
     <color name="lightGreyBackgroundColor">#DCDEE3</color>
     <color name="primaryBackgroundColor">#fafafa</color>
     <color name="secondaryBackgroundColor">#ffffff</color>
+    <color name="color_background_dark">#FAFAFA</color>
 
     <color name="darkIconColor">#8d8d8d</color>
     <color name="red">#FF0000</color>
     <color name="lightGrayLine">#eeeeee</color>
 
-    <color name="color_background_light">#FFFFFF</color>
-    <color name="color_background_dark">#FAFAFA</color>
-    <color name="color_divider">#E0E0E0</color>
+    <color name="primaryTextColor">#333333</color>
+    <color name="secondaryTextColor">#ffffff</color>
 
+    <color name="unselectedGreyColor">#c7c7c7</color>
+    <color name="foxmikePrimaryColor">#00bfa5</color>
+    <color name="foxmikePrimaryDarkColor">#00897b</color>
+    <color name="primaryDarkColor">#c7c7c7</color>
+    <color name="secondaryColor">#fff176</color>
+    <color name="color_background_light">#FFFFFF</color>
+    <color name="color_divider">#E0E0E0</color>
+    <color name="color_accent">#00bfa5</color>
 
 </resources>

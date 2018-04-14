@@ -15,7 +15,7 @@
             android:id="@+id/sessionImageBtn"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/secondaryBackgroundColor"
+            android:background="@color/color_background_light"
             android:contentDescription="@string/CD_choose_session_image_button"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
@@ -259,13 +259,9 @@
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginTop="@dimen/margin_top_text"
-            android:background="@color/secondaryColor"
+            android:background="@color/color_background_light"
             android:text="@string/create_session"
             android:textColor="@color/secondaryTextColor" />
-
-
-
-
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

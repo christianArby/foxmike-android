@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/color_background_light"
         android:src="@drawable/ic_close_black_24dp"/>
 
     <TextView
@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/sortText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color"
@@ -46,7 +46,7 @@
         app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
         android:textAllCaps="false"
         android:textColor="@color/toggle_color"

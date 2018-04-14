@@ -5,6 +5,7 @@
     tools:context="com.foxmike.android.fragments.InboxFragment">
 
     <android.support.design.widget.AppBarLayout
+        android:background="@color/color_background_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/inboxBar">

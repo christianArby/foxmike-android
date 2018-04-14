@@ -2,14 +2,19 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/primaryColor">
+    android:background="@color/color_background_light">
 
     <TextView
         android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/margin_minimum"
+        android:layout_marginBottom="@dimen/margin_minimum"
         android:id="@+id/listSessionsDateHeader"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_sessionDateHeader"
-        android:background="@color/primaryColor"
+        android:background="@color/color_background_light"
+        android:textColor="@color/foxmikePrimaryDarkColor"
+        android:text="@string/loading"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:outlineProvider="bounds" />
 
 </FrameLayout>
