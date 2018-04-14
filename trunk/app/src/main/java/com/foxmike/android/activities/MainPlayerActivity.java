@@ -322,7 +322,6 @@ public class MainPlayerActivity extends AppCompatActivity
                     mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
                     myLocationBtn.setVisibility(View.VISIBLE);
                 } else {
-                    weekdayFilterContainer.setVisibility(View.VISIBLE);
                     FragmentTransaction transaction3 = fragmentManager.beginTransaction();
                     transaction3.hide(mapsFragment);
                     transaction3.show(listSessionsFragment);
@@ -388,7 +387,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 }
             }
         }
-        transaction.show(fragment).addToBackStack("fragment");
+        transaction.show(fragment);
         transaction.commit();
         weekdayFilterContainer.setVisibility(View.GONE);
         mapOrListBtn.setVisibility(View.GONE);
@@ -399,21 +398,22 @@ public class MainPlayerActivity extends AppCompatActivity
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        List<Fragment> fragmentList = fragmentManager.getFragments();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        /*List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment frag:fragmentList) {
             if (frag.getTag()!=null && frag.getTag().length()>5) {
                 if (frag.getTag().substring(0,5).equals("xMain")) {
                     if (frag.isVisible()) {
-                        transaction.hide(frag);
+                        //transaction.hide(frag);
                     }
                 }
             }
-        }
-        weekdayFilterContainer.setVisibility(View.GONE);
+        }*/
+        /*weekdayFilterContainer.setVisibility(View.GONE);
         mapOrListBtn.setVisibility(View.GONE);
         sortAndFilterFAB.setVisibility(View.GONE);
         myLocationBtn.setVisibility(View.GONE);
-        bottomNavigation.setVisibility(View.GONE);
+        bottomNavigation.setVisibility(View.GONE);*/
         if (addToBackStack) {
             transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(null).commit();
         } else {
@@ -714,8 +714,9 @@ public class MainPlayerActivity extends AppCompatActivity
             //additional code
         } else {
             // TODO Add Newsfeed fragment here later when exist
+            getSupportFragmentManager().popBackStack();
             if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
-                getSupportFragmentManager().popBackStack();
+
             }
         }
     }

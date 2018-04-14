@@ -98,6 +98,7 @@ public class ListSessionsFragment extends Fragment {
             mSessionList.addItemDecoration(headerItemDecoration);
             mSessionList.setAdapter(sessionsAdapter);
         }
+        sessionsAdapter.notifyDataSetChanged();
     }
 
     public void stopSwipeRefreshingSymbol() {

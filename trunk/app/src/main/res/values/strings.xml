@@ -277,5 +277,6 @@
     <string name="last_seen_text">Last seen\u0020</string>
     <string name="comment_text">\u0020kommentar</string>
     <string name="comments_text">\u0020kommentarer</string>
+    <string name="login_text">Login</string>
 
 </resources>
