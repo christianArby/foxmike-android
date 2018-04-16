@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="@color/color_background_light"
         android:id="@+id/barLayout"
-        android:elevation="8dp">
+        android:elevation="@dimen/appBarElevation">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -54,21 +54,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
         android:layout_alignEnd="@id/barLayout"
-        android:layout_marginEnd="@dimen/margin_end_fab"
-        android:layout_marginTop="@dimen/margin_top_fab" />
+        android:layout_marginEnd="@dimen/marginHorizontal"
+        android:layout_marginTop="@dimen/marginVertical" />
 
     <android.support.design.widget.FloatingActionButton
         app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/secondaryTextColor"
-
         android:src="@drawable/ic_my_location_black_24dp"
         android:id="@+id/my_location_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/sort_button"
         android:layout_alignEnd="@id/barLayout"
-        android:layout_marginEnd="@dimen/margin_end_fab"
-        android:layout_marginTop="@dimen/margin_top_fab"/>
+        android:layout_marginEnd="@dimen/marginHorizontal"
+        android:layout_marginTop="@dimen/marginVertical"/>
 
     <FrameLayout
         android:id="@+id/container_main_player"

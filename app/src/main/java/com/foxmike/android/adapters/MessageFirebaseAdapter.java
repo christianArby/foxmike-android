@@ -13,11 +13,9 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.models.SessionDate;
-import com.foxmike.android.utils.GetTimeAgo;
 import com.foxmike.android.models.Message;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.security.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -43,7 +41,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         if (viewType==1) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.this_message_single_layout,parent,false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_single_layout_this,parent,false);
             return new ThisMessageViewHolder(view);
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_single_layout,parent,false);
@@ -60,7 +58,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
         currentUserID = mAuth.getCurrentUser().getUid();
 
         if (fromUser.equals(currentUserID) && slalom) {
-            ((ThisMessageViewHolder) holder).singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
             ((ThisMessageViewHolder) holder).messageText.setBackgroundResource(R.drawable.message_text_background_host);
             ((ThisMessageViewHolder) holder).messageText.setTextColor(Color.WHITE);
             ((ThisMessageViewHolder) holder).messageText.setText(model.getMessage());
@@ -74,7 +71,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((ThisMessageViewHolder) holder).messageTime.setText(timeText);
 
             if (position>0) {
-                long test = Math.abs(model.getTime()-getItem(position-1).getTime());
                 if (Math.abs(model.getTime()-getItem(position-1).getTime())<300000){
                     //previous message is within 5 minutes of current message
                     ((ThisMessageViewHolder) holder).messageTime.setVisibility(View.GONE);
@@ -83,7 +79,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
 
         } else {
             Glide.with(((OtherMessageViewHolder) holder).profileImage.getContext()).load(model.getSenderThumbImage()).into(((OtherMessageViewHolder) holder).profileImage);
-            ((OtherMessageViewHolder) holder).singleMessageContainer.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             ((OtherMessageViewHolder) holder).messageText.setBackgroundResource(R.drawable.message_text_background);
             ((OtherMessageViewHolder) holder).messageText.setTextColor(Color.BLACK);
             ((OtherMessageViewHolder) holder).profileImage.setVisibility(View.VISIBLE);
@@ -141,12 +136,12 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
     public class ThisMessageViewHolder extends RecyclerView.ViewHolder {
         public TextView messageText;
         public TextView messageTime;
-        public RelativeLayout singleMessageContainer;
+        public ConstraintLayout singleMessageContainer;
         public ThisMessageViewHolder(View view) {
             super(view);
             messageText = (TextView) view.findViewById(R.id.message_text);
             messageTime = (TextView) view.findViewById(R.id.message_time);
-            singleMessageContainer = (RelativeLayout) view.findViewById(R.id.message_relative_layout);
+            singleMessageContainer = (ConstraintLayout) view.findViewById(R.id.message_relative_layout);
         }
     }
 }

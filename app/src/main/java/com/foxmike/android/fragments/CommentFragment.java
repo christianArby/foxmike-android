@@ -101,8 +101,10 @@ public class CommentFragment extends Fragment {
                         messagesListRV.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                messagesListRV.smoothScrollToPosition(
-                                        messagesListRV.getAdapter().getItemCount() - 1);
+                                if (messagesListRV.getAdapter().getItemCount()>0) {
+                                    messagesListRV.smoothScrollToPosition(
+                                            messagesListRV.getAdapter().getItemCount() - 1);
+                                }
                             }
                         }, 100);
                     }

@@ -62,6 +62,9 @@
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="bottom_bar_elevation">16dp</dimen>
     <dimen name="marginSubHeadBottom">10dp</dimen>
+    <dimen name="fab_diameter">56dp</dimen>
+    <dimen name="elevation_normal">4dp</dimen>
+    <dimen name="appBarElevation">4dp</dimen>
 
 
 </resources>
