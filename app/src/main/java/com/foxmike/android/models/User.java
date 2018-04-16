@@ -14,17 +14,19 @@ public class User implements Comparable<User>{
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
     public HashMap<String,Boolean> chats;
-    public String name;
+    public String firstName;
+    public String lastName;
     public String image;
     public String thumb_image;
     public boolean trainerMode;
     public String aboutMe;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String name, String image, String thumb_image, boolean trainerMode, Long lastSeen, String aboutMe) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String image, String thumb_image, boolean trainerMode, String aboutMe) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.image = image;
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
@@ -68,12 +70,20 @@ public class User implements Comparable<User>{
         this.chats = chats;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getImage() {
@@ -100,8 +110,12 @@ public class User implements Comparable<User>{
         this.trainerMode = trainerMode;
     }
 
+    public String getFullName() {
+        return this.getFirstName() + " " + this.getLastName();
+    }
+
     @Override
     public int compareTo(@NonNull User user) {
-        return this.getName().compareToIgnoreCase(user.getName());
+        return this.getFirstName().compareToIgnoreCase(user.getFirstName());
     }
 }

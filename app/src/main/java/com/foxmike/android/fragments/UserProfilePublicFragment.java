@@ -110,7 +110,7 @@ public class UserProfilePublicFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
                 otherUser = dataSnapshot.getValue(User.class);
-                userNameTV.setText(otherUser.getName());
+                userNameTV.setText(otherUser.getFullName());
                 setCircleImage(otherUser.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
@@ -354,7 +354,7 @@ public class UserProfilePublicFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (otherUser!=null) {
-                    onChatClickedListener.OnChatClicked(otherUserID,otherUser.getName(),otherUser.getThumb_image(),null);
+                    onChatClickedListener.OnChatClicked(otherUserID,otherUser.getFirstName(),otherUser.getThumb_image(),null);
                 }
             }
         });

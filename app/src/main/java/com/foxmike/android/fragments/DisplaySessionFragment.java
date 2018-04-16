@@ -396,7 +396,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 setImage(user.getImage(), mHostImage);
-                String hostText = getString(R.string.hosted_by_text) + " " + user.getName();
+                String hostText = getString(R.string.hosted_by_text) + " " + user.getFirstName();
                 mHost.setText(hostText);
             }
 

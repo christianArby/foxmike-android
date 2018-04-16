@@ -513,7 +513,6 @@ public class MainPlayerActivity extends AppCompatActivity
     /** INTERFACE triggered when list is scrolled setting behaviour of buttons */
     @Override
     public void OnListSessionsScroll(int dy) {
-
         if (dy > 0 && !started) {
             started = true;
             sortAndFilterFAB.hide();
@@ -524,13 +523,13 @@ public class MainPlayerActivity extends AppCompatActivity
 
         } else if (dy < 0 && started) {
             started = false;
+            sortAndFilterFAB.hide();
             sortAndFilterFAB.show();
             mapOrListBtn
                     .animate()
                     .translationY(0)
                     .withLayer()
                     .start();
-            //mapOrListBtn.show();
         }
     }
 

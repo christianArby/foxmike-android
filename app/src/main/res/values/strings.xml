@@ -278,5 +278,6 @@
     <string name="comment_text">\u0020kommentar</string>
     <string name="comments_text">\u0020kommentarer</string>
     <string name="login_text">Login</string>
+    <string name="register_text">Register</string>
 
 </resources>

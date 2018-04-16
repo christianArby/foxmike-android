@@ -69,7 +69,7 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User userDb = dataSnapshot.getValue(User.class);
-                userNameTV.setText(userDb.getName());
+                userNameTV.setText(userDb.getFullName());
                 setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
             }
             @Override

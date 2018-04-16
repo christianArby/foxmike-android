@@ -37,6 +37,6 @@ public class UserBranch implements Comparable <UserBranch>{
 
     @Override
     public int compareTo(@NonNull UserBranch userBranch) {
-        return this.getUser().getName().compareToIgnoreCase(userBranch.getUser().getName());
+        return this.getUser().getFirstName().compareToIgnoreCase(userBranch.getUser().getFirstName());
     }
 }

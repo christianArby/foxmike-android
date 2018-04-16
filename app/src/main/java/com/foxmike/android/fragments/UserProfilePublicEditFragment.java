@@ -70,7 +70,8 @@ public class UserProfilePublicEditFragment extends Fragment {
         list = view.findViewById(R.id.list_user_profile_public_edit);
         profile = inflater.inflate(R.layout.user_profile_public_edit_info,list,false);
         list.addView(profile);
-        final EditText userNameET = profile.findViewById(R.id.nameProfilePublicEditET);
+        final EditText userFirstNameET = profile.findViewById(R.id.firstNameProfilePublicEditET);
+        final EditText userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
@@ -78,7 +79,8 @@ public class UserProfilePublicEditFragment extends Fragment {
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
-                userNameET.setText(user.getName());
+                userFirstNameET.setText(user.getFirstName());
+                userLastNameET.setText(user.getLastName());
                 setImageButton(user.image,profileImageButton);
             }
         });
@@ -89,7 +91,8 @@ public class UserProfilePublicEditFragment extends Fragment {
                 final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                 myProgressBar.startProgressBar();
 
-                usersDbRef.child(currentFirebaseUser.getUid()).child("name").setValue(userNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {

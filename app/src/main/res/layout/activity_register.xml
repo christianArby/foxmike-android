@@ -1,65 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.RegisterActivity">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/foxmike_background"/>
+
     <de.hdodenhof.circleimageview.CircleImageView
+        android:src="@mipmap/profile_picture"
         android:id="@+id/registerImageBtn"
         android:layout_width="@dimen/width_profileImage"
         android:layout_height="@dimen/height_profileImage"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@color/color_background_light"
+        android:layout_marginTop="@dimen/marginVertical"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/profile_picture"
-        android:contentDescription="@string/choose_profile_picture"/>
+        android:contentDescription="@string/choose_profile_picture"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <EditText
-        android:id="@+id/setupNameField"
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/firstNameTIL"
+        android:theme="@style/TextLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/your_name"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:layout_marginStart="@dimen/margin_editText_in_center"
-        android:layout_marginEnd="@dimen/margin_editText_in_center"
-        android:inputType="textPersonName"
-        android:layout_below="@id/registerImageBtn" />
+        android:textColor="@color/secondaryTextColor"
+        android:textColorHint="@color/secondaryTextColor"
+        android:backgroundTint="@color/secondaryTextColor"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/registerImageBtn"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <EditText
-        android:id="@+id/emailField"
+        <EditText
+            android:textColor="@color/secondaryTextColor"
+            android:backgroundTint="@color/secondaryTextColor"
+            android:layout_margin="@dimen/margin_left"
+            android:id="@+id/setupFirstNameField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="First name"
+            android:inputType="textCapWords"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/lastNameTIL"
+        android:theme="@style/TextLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/your_email"
-        android:inputType="textEmailAddress"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:layout_marginStart="@dimen/margin_editText_in_center"
-        android:layout_marginEnd="@dimen/margin_editText_in_center"
-        android:layout_below="@+id/setupNameField"/>
+        android:textColor="@color/secondaryTextColor"
+        android:textColorHint="@color/secondaryTextColor"
+        android:backgroundTint="@color/secondaryTextColor"
+        app:layout_constraintTop_toBottomOf="@id/firstNameTIL"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <EditText
-        android:id="@+id/passwordField"
+        <EditText
+            android:textColor="@color/secondaryTextColor"
+            android:backgroundTint="@color/secondaryTextColor"
+            android:layout_margin="@dimen/margin_left"
+            android:id="@+id/setupLastNameField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Last name"
+            android:inputType="textCapWords"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/emailTIL"
+        android:theme="@style/TextLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/your_password"
-        android:inputType="textPassword"
-        android:layout_below="@+id/emailField"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:layout_marginStart="@dimen/margin_editText_in_center"
-        android:layout_marginEnd="@dimen/margin_editText_in_center" />
+        android:textColor="@color/secondaryTextColor"
+        android:textColorHint="@color/secondaryTextColor"
+        android:backgroundTint="@color/secondaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lastNameTIL">
+
+        <EditText
+            android:textColor="@color/secondaryTextColor"
+            android:textColorHint="@color/secondaryTextColor"
+            android:backgroundTint="@color/secondaryTextColor"
+            android:layout_margin="@dimen/margin_left"
+            android:id="@+id/emailField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/passwordTIL"
+        android:theme="@style/TextLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/secondaryTextColor"
+        android:textColorHint="@color/secondaryTextColor"
+        android:backgroundTint="@color/secondaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/emailTIL">
+
+        <EditText
+            android:textColor="@color/secondaryTextColor"
+            android:textColorHint="@color/secondaryTextColor"
+            android:backgroundTint="@color/secondaryTextColor"
+            android:layout_margin="@dimen/margin_left"
+            android:id="@+id/passwordField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/registerBtn"
-        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:padding="@dimen/margin_minimum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="#00897b"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/sign_up"
-        android:layout_marginTop="@dimen/margin_top_fab"
-        android:layout_below="@+id/passwordField"
-        android:layout_centerHorizontal="true" />
+        android:text="@string/register_text"
+        app:layout_constraintTop_toBottomOf="@id/passwordTIL"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
@@ -67,8 +137,10 @@
         android:layout_height="wrap_content"
         android:minHeight="@dimen/height_progressBar"
         android:minWidth="@dimen/width_progressBar"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

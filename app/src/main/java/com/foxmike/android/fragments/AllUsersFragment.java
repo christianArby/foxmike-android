@@ -81,8 +81,8 @@ public class AllUsersFragment extends Fragment {
             }
             @Override
             protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
-                holder.setName(model.getName());
-                holder.setStatus(model.getName());
+                holder.setName(model.getFullName());
+                holder.setStatus(model.getFullName());
                 holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
 
                 final String userId = getRef(position).getKey();

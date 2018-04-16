@@ -119,7 +119,7 @@ public class ParticipantsFragment extends DialogFragment {
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
                 holder.setText("nothing", true);
                 final User friend = users.get(position);
-                holder.setHeading(friend.getName());
+                holder.setHeading(friend.getFullName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
 
                 // Vid klick på en user skicka dess user ID genom lyssnaren OnUserClickedListener

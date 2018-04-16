@@ -3,6 +3,7 @@
     android:id="@+id/fragment_user_profile_public_edit"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background_light"
     android:clickable="false">
 
     <ScrollView

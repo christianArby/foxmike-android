@@ -119,7 +119,7 @@ public class UserAccountFragment extends Fragment {
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
-                userNameTV.setText(user.getName());
+                userNameTV.setText(user.getFullName());
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
                 if (user.trainerMode) {
                     switchModeTV.setText(R.string.switch_to_participant_mode_text);

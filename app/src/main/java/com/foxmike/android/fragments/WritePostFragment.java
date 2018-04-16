@@ -123,7 +123,7 @@ public class WritePostFragment extends DialogFragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                postName.setText(user.getName());
+                postName.setText(user.getFullName());
                 Glide.with(getActivity()).load(user.getThumb_image()).into(postProfileImage);
             }
             @Override
@@ -160,7 +160,7 @@ public class WritePostFragment extends DialogFragment {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
-                            Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), user.getName(), user.getThumb_image());
+                            Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), user.getFullName(), user.getThumb_image());
 
                             rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

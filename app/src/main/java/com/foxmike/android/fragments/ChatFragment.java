@@ -216,7 +216,7 @@ public class ChatFragment extends Fragment {
                             @Override
                             public void onClick(View view) {
                                 refreshTriggeredByScroll = false;
-                                sendMessage(currentUser.getName(), currentUser.getThumb_image());
+                                sendMessage(currentUser.getFirstName(), currentUser.getThumb_image());
                             }
                         });
                         // Start listening to changes in database
