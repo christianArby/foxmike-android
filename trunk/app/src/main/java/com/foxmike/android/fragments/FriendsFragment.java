@@ -140,7 +140,7 @@ public class FriendsFragment extends Fragment {
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
                 holder.setText(requests.get(requestsUserIDs.get(position)), true);
                 final User friend = requestUsers.get(position);
-                holder.setHeading(friend.getName());
+                holder.setHeading(friend.getFullName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                 holder.setOnlineIcon(false);
                 holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -192,7 +192,7 @@ public class FriendsFragment extends Fragment {
                                 // Write the first letter heading
                                 if (userBranches.size()>0) {
                                     User dummyUser = new User();
-                                    dummyUser.setAboutMe(userBranches.get(0).getUser().getName().substring(0,1));
+                                    dummyUser.setAboutMe(userBranches.get(0).getUser().getFirstName().substring(0,1));
                                     UserBranch userBranch = new UserBranch("header",dummyUser);
                                     userBranches.add(0,userBranch);
                                 }
@@ -200,9 +200,9 @@ public class FriendsFragment extends Fragment {
                                 int n = 1;
                                 while (n < userBranches.size()) {
                                     if (!userBranches.get(n-1).getUserID().equals("header")) {
-                                        if (n>0 && !userBranches.get(n).getUser().getName().substring(0,1).equals(userBranches.get(n-1).getUser().getName().substring(0,1))) {
+                                        if (n>0 && !userBranches.get(n).getUser().getFirstName().substring(0,1).equals(userBranches.get(n-1).getUser().getFirstName().substring(0,1))) {
                                             User dummyUser = new User();
-                                            dummyUser.setAboutMe(userBranches.get(n).getUser().getName().substring(0,1));
+                                            dummyUser.setAboutMe(userBranches.get(n).getUser().getFirstName().substring(0,1));
                                             UserBranch userBranch = new UserBranch("header",dummyUser);
                                             userBranches.add(n,userBranch);
                                         }
@@ -265,7 +265,7 @@ public class FriendsFragment extends Fragment {
                 } else {
                     ((UsersViewHolder) holder).setText("nothing", true);
                     final User friend = userBranches.get(position).getUser();
-                    ((UsersViewHolder) holder).setHeading(friend.getName());
+                    ((UsersViewHolder) holder).setHeading(friend.getFullName());
                     ((UsersViewHolder) holder).setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                     if (presenceHashMap.get(position) == null) {
                         Presence noPresence = new Presence();

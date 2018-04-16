@@ -19,9 +19,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class SetupAccountActivity extends AppCompatActivity {
 
-    private ImageButton mSetupImageButton;
+    private CircleImageView mSetupImageButton;
     private EditText mNameField;
     private Uri mImageUri = null;
     private static final int GALLERY_REQUEST = 1;

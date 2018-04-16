@@ -35,7 +35,8 @@ import static com.foxmike.android.R.layout.activity_register;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText mNameField;
+    private EditText mFirstNameField;
+    private EditText mLastNameField;
     private EditText mEmailField;
     private EditText mPasswordField;
     private CircleImageView mRegisterImageButton;
@@ -55,7 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
         Button mRegisterBtn;
 
         progressBar = findViewById(R.id.progressBar_cyclic);
-        mNameField = findViewById(R.id.setupNameField);
+        mFirstNameField = findViewById(R.id.setupFirstNameField);
+        mLastNameField = findViewById(R.id.setupLastNameField);
         mEmailField= findViewById(R.id.emailField);
         mPasswordField = findViewById(R.id.passwordField);
         mRegisterBtn = findViewById(R.id.registerBtn);
@@ -90,11 +92,12 @@ public class RegisterActivity extends AppCompatActivity {
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
         myProgressBar.startProgressBar();
         // get input
-        final String name = mNameField.getText().toString().trim();
+        final String firstName = mFirstNameField.getText().toString().trim();
+        final String lastName = mLastNameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
         // if all input has been filled in create user
-        if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
+        if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -102,7 +105,8 @@ public class RegisterActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success,  update Realtime Db with the signed-in user's information, when finished start MainActivity
                         currentUserID = mAuth.getCurrentUser().getUid();
-                        mDatabaseUsers.child(currentUserID).child("name").setValue(name);
+                        mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
+                        mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
                         String deviceToken = FirebaseInstanceId.getInstance().getToken();
                         mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

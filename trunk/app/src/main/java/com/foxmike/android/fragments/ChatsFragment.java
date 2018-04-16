@@ -223,11 +223,11 @@ public class ChatsFragment extends Fragment {
                 }
 
                 holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
-                holder.setHeading(users.get(position).getName());
+                holder.setHeading(users.get(position).getFirstName());
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());
 
                 final String finalChatFriend = chatFriend;
-                final String chatFriendName = users.get(position).getName();
+                final String chatFriendName = users.get(position).getFirstName();
                 final String chatFriendImage = users.get(position).getThumb_image();
                 final String chatID = chatIDs.get(position);
 

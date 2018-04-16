@@ -65,6 +65,7 @@
     <dimen name="fab_diameter">56dp</dimen>
     <dimen name="elevation_normal">4dp</dimen>
     <dimen name="appBarElevation">4dp</dimen>
+    <dimen name="elevation_fullscreen">9dp</dimen>
 
 
 </resources>

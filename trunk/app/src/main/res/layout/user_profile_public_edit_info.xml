@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
-        android:id="@+id/nameProfilePublicEditET"
+        android:id="@+id/firstNameProfilePublicEditET"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_top_text"
@@ -31,13 +31,27 @@
         app:layout_constraintTop_toBottomOf="@id/profilePublicEditIB"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <EditText
+        android:id="@+id/lastNameProfilePublicEditET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_top_text"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/margin_top_text"
+        android:hint="@string/loading"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="@dimen/text_size_bigger"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/firstNameProfilePublicEditET"
+        app:layout_constraintStart_toStartOf="parent"/>
+
     <Button
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/update_profile_button_text"
         android:id="@+id/updateProfileBtn"
-        app:layout_constraintTop_toBottomOf="@id/nameProfilePublicEditET"
+        app:layout_constraintTop_toBottomOf="@id/lastNameProfilePublicEditET"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
