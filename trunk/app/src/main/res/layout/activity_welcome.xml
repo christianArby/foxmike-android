@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:text="Logga in"
+        android:text="@string/login_text"
         android:padding="@dimen/marginVertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:text="Välkommen till Foxmike."
+        android:text="@string/welcome_to_foxmike_text"
         android:textColor="@color/secondaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/foxmikeIcon"/>
@@ -50,10 +50,10 @@
         android:padding="@dimen/margin_minimum"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
-        android:textColor="#00897b"
+        android:textColor="@color/foxmikePrimaryDarkColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Fortsätt med Facebook"
+        android:text="@string/continue_to_facebook_text"
         app:layout_constraintTop_toBottomOf="@id/welcomeText"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -65,7 +65,7 @@
         android:background="@drawable/rounded_button_transparent"
         android:padding="@dimen/margin_minimum"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:text="Skapa konto"
+        android:text="@string/create_account_text"
         android:textColor="@color/secondaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/continueWithFacebookButton" />
@@ -73,7 +73,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes Användarvillkor."
+        android:text="@string/foxmike_policy_text_swe"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginBottom="@dimen/marginVertical"
         android:layout_marginEnd="70dp"

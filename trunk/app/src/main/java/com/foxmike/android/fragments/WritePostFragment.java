@@ -46,6 +46,7 @@ public class WritePostFragment extends DialogFragment {
     private String sessionID;
     private String postID;
     private Toolbar postToolbar;
+    private User currentUser;
 
     public WritePostFragment() {
         // Required empty public constructor
@@ -64,6 +65,7 @@ public class WritePostFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
     }
 
     @Override
@@ -110,8 +112,6 @@ public class WritePostFragment extends DialogFragment {
                 ActionBar.LayoutParams.MATCH_PARENT);
         actionBar.setCustomView(action_bar_view, layoutParams);
 
-        postToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-
         sendTW = view.findViewById(R.id.post_custom_bar_send);
         postTextET = view.findViewById(R.id.postText);
         postProfileImage = view.findViewById(R.id.post_profile_image);
@@ -122,9 +122,9 @@ public class WritePostFragment extends DialogFragment {
         rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                postName.setText(user.getFullName());
-                Glide.with(getActivity()).load(user.getThumb_image()).into(postProfileImage);
+                User currentUser = dataSnapshot.getValue(User.class);
+                postName.setText(currentUser.getFullName());
+                Glide.with(getActivity()).load(currentUser.getThumb_image()).into(postProfileImage);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -153,29 +153,19 @@ public class WritePostFragment extends DialogFragment {
         sendTW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (sendable) {
+                if (sendable && currentUser!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
-                    rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User user = dataSnapshot.getValue(User.class);
-                            Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), user.getFullName(), user.getThumb_image());
+                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image());
 
-                            rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            rootDbRef.child("sessions").child(sessionID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    rootDbRef.child("sessions").child(sessionID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            dismiss();
-                                        }
-                                    });
+                                    dismiss();
                                 }
                             });
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
                         }
                     });
                 }
