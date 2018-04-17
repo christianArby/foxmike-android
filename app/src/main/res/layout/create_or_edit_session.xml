@@ -22,25 +22,35 @@
 
     </RelativeLayout>
 
-    <EditText
-        android:id="@+id/sessionNameET"
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/sessionNameTIL"
+        android:theme="@style/TextLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:gravity="center_vertical"
-        android:hint="@string/session_name"
-        android:inputType="textCapSentences|textPersonName"
-        android:textSize="@dimen/textSize_big"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"/>
+        android:textColor="@color/primaryTextColor"
+        android:textColorHint="@color/primaryTextColor"
+        android:backgroundTint="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:textColor="@color/primaryTextColor"
+            android:backgroundTint="@color/primaryTextColor"
+            android:layout_margin="@dimen/margin_left"
+            android:id="@+id/sessionNameET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/session_name_goes_here"
+            android:inputType="textEmailAddress"/>
+    </android.support.design.widget.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/locationFrame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameET"
+        app:layout_constraintTop_toBottomOf="@id/sessionNameTIL"
         android:paddingTop="@dimen/padding_vertical_edittext"
         android:paddingBottom="@dimen/padding_vertical_edittext">
         <ImageView

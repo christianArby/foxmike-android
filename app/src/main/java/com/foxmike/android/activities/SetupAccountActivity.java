@@ -24,7 +24,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SetupAccountActivity extends AppCompatActivity {
 
     private CircleImageView mSetupImageButton;
-    private EditText mNameField;
+    private EditText mFirstNameField;
+    private EditText mLastNameField;
     private Uri mImageUri = null;
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
@@ -43,7 +44,8 @@ public class SetupAccountActivity extends AppCompatActivity {
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
 
         mSetupImageButton = findViewById(R.id.setupImageButton);
-        mNameField = findViewById(R.id.setupNameField);
+        mFirstNameField = findViewById(R.id.setupFirstNameField);
+        mLastNameField = findViewById(R.id.setupLastNameField);
         mSubmitBtn = findViewById(R.id.setupSubmitBtn);
         progressBar = findViewById(R.id.progressBar_cyclic);
 
@@ -69,13 +71,15 @@ public class SetupAccountActivity extends AppCompatActivity {
     private void startSetupAccount(){
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, this);
         myProgressBar.startProgressBar();
-        final String name = mNameField.getText().toString().trim();
+        final String firstName = mFirstNameField.getText().toString().trim();
+        final String lastName = mLastNameField.getText().toString().trim();
 
         currentUserID = mAuth.getCurrentUser().getUid();
 
-        if(!TextUtils.isEmpty(name) && mImageUri != null){
+        if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && mImageUri != null){
 
-            mDatabaseUsers.child(currentUserID).child("name").setValue(name);
+            mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
+            mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
             SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
             setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                 @Override

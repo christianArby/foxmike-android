@@ -10,6 +10,12 @@
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
     </style>
 
+    <style name="fullscreenDialog" parent="foxmike" >
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
 
 
     <style name="TextLabel" parent="TextAppearance.AppCompat">

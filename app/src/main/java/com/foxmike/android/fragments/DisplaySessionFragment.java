@@ -367,6 +367,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
     private void fillUI(DataSnapshot dataSnapshot) {
         session = dataSnapshot.getValue(Session.class);
+        sessionID = dataSnapshot.getRef().getKey();
         // Set default text on button
         mDisplaySessionBtn.setText("Book session");
         // Count participants
@@ -381,7 +382,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
         mDateAndTime.setText(sessionDateAndTime);
         mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
-        sessionID = dataSnapshot.getRef().getKey();
         mSessionName.setText(session.getSessionName());
         String address = getAddress(session.getLatitude(),session.getLongitude());
         mAddressAndSessionType.setText(address);
@@ -437,8 +437,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         setImage(session.getImageUrl(), sessionImage);
         sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
         // Listen for posts and add add them to wall
-        if (!listenerMap.containsKey(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"))) {
-            ValueEventListener postsListener = mSessionDbRef.child(dataSnapshot.getKey()).child("posts").addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
+            ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Session session = new Session();
