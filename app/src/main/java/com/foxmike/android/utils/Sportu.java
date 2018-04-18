@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 
 import com.foxmike.android.activities.LoginActivity;
+import com.foxmike.android.activities.WelcomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,9 +30,9 @@ public class Sportu extends Application {
         mAuth = FirebaseAuth.getInstance();
 
         if (mAuth.getCurrentUser()==null) {
-            Intent loginIntent = new Intent(Sportu.this, LoginActivity.class);
-            //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(loginIntent);
+            Intent welcomeIntent = new Intent(Sportu.this, WelcomeActivity.class);
+            welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(welcomeIntent);
         } else {
 
             String currentUserID = mAuth.getCurrentUser().getUid();
