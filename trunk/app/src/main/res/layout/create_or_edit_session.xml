@@ -25,7 +25,6 @@
     <android.support.design.widget.TextInputLayout
         android:focusedByDefault="false"
         android:id="@+id/sessionNameTIL"
-        android:theme="@style/TextLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/primaryTextColor"
