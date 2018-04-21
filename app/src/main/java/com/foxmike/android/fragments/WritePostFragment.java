@@ -122,7 +122,7 @@ public class WritePostFragment extends DialogFragment {
         rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User currentUser = dataSnapshot.getValue(User.class);
+                currentUser = dataSnapshot.getValue(User.class);
                 postName.setText(currentUser.getFullName());
                 Glide.with(getActivity()).load(currentUser.getThumb_image()).into(postProfileImage);
             }
@@ -141,7 +141,7 @@ public class WritePostFragment extends DialogFragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (postTextET.getText().length()>0) {
-                    sendTW.setTextColor(getResources().getColor(R.color.secondaryTextColor));
+                    sendTW.setTextColor(getResources().getColor(R.color.primaryTextColor));
                     sendable=true;
                 } else  {
                     sendTW.setTextColor(getResources().getColor(R.color.greyTextColor));

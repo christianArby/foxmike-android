@@ -280,7 +280,7 @@
     <string name="login_text">Login</string>
     <string name="register_text">Register</string>
     <string name="welcome_to_foxmike_text">Welcome to Foxmike.</string>
-    <string name="continue_to_facebook_text">Continue to Facebook</string>
+    <string name="continue_to_facebook_text">Continue with Facebook</string>
     <string name="create_account_text">Create account</string>
     <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes Användarvillkor.</string>
 
