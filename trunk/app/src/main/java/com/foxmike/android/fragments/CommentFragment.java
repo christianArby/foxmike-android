@@ -193,12 +193,9 @@ public class CommentFragment extends Fragment {
     }
 
     private void sendMessage(String userName, String userThumbImage) {
-
         String message = postMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-
             String messageID = rootDbRef.child("postMessages").child(postID).push().getKey();
-
             Map messageMap = new HashMap();
             messageMap.put("message", message);
             messageMap.put("time", ServerValue.TIMESTAMP);
@@ -206,9 +203,7 @@ public class CommentFragment extends Fragment {
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
             messageMap.put("senderThumbImage", userThumbImage);
-
             rootDbRef.child("postMessages").child(postID).child(messageID).setValue(messageMap);
-
             postMessage.setText("");
         }
     }

@@ -136,12 +136,12 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
     public class ThisMessageViewHolder extends RecyclerView.ViewHolder {
         public TextView messageText;
         public TextView messageTime;
-        public ConstraintLayout singleMessageContainer;
+        public RelativeLayout singleMessageContainer;
         public ThisMessageViewHolder(View view) {
             super(view);
             messageText = (TextView) view.findViewById(R.id.message_text);
             messageTime = (TextView) view.findViewById(R.id.message_time);
-            singleMessageContainer = (ConstraintLayout) view.findViewById(R.id.message_relative_layout);
+            singleMessageContainer = (RelativeLayout) view.findViewById(R.id.message_relative_layout);
         }
     }
 }

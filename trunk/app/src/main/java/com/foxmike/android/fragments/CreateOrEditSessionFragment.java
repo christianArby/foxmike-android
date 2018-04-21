@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +77,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private LinearLayout mTimeFrame;
     private LinearLayout mDurationFrame;
     private LinearLayout mMaxParticipantsFrame;
+    private LinearLayout mSessionTypeFrame;
     private EditText mSessionName;
     private EditText mSessionType;
     private EditText mDate;
@@ -150,6 +152,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
+        mSessionTypeFrame = createSession.findViewById(R.id.sessionTypeFrame);
         mTime = createSession.findViewById(R.id.timeET);
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
         mDuration = createSession.findViewById(R.id.durationET);
@@ -167,6 +170,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mAdvertised = createSession.findViewById(R.id.advertised);
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
+
+        // Set default state of advertised checkedTextview
+        mAdvertised.setChecked(true);
+        mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -344,9 +351,15 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
 
         /** When item is clicked create a dialog with the specified title and string array */
-        mSessionType.setOnClickListener(new View.OnClickListener() {
+        mSessionTypeFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+            }
+        });
+        mSessionType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
             }
         });
@@ -375,29 +388,37 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+        mDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DatePickerDialog(getContext(), date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
         /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
         mTimeFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        mTime.setText( selectedHour + ":" + selectedMinute);
-                        myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
-                        myCalendar.set(Calendar.MINUTE, selectedMinute);
+                pickTime();
+            }
+        });
 
-                    }
-                }, hour, minute, true);//Yes 24 hour time
-                mTimePicker.setTitle(getString(R.string.select_time));
-                mTimePicker.show();
+        mTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
             }
         });
 
         mDurationFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
+            }
+        });
+        mDuration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
@@ -410,8 +431,32 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
             }
         });
+        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
+            }
+        });
 
         return view;
+    }
+
+    private void pickTime() {
+        Calendar mcurrentTime = Calendar.getInstance();
+        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+        int minute = mcurrentTime.get(Calendar.MINUTE);
+        TimePickerDialog mTimePicker;
+        mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                mTime.setText( selectedHour + ":" + selectedMinute);
+                myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                myCalendar.set(Calendar.MINUTE, selectedMinute);
+
+            }
+        }, hour, minute, true);//Yes 24 hour time
+        mTimePicker.setTitle(getString(R.string.select_time));
+        mTimePicker.show();
     }
 
     @NonNull
