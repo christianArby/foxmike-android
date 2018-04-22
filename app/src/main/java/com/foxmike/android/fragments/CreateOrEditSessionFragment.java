@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -212,7 +214,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             public void run() {
                 RelativeLayout.LayoutParams mParams;
                 mParams = (RelativeLayout.LayoutParams) mSessionImageButton.getLayoutParams();
-                mParams.height = mSessionImageButton.getWidth()/ getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
+                mParams.height = mSessionImageButton.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
                 mSessionImageButton.setLayoutParams(mParams);
                 mSessionImageButton.postInvalidate();
             }
@@ -573,16 +575,17 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
-        alertDialog.setView(convertView);
-        alertDialog.setTitle(title);
+        alertDialogBuilder.setView(convertView);
+        alertDialogBuilder.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
+        lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);
-        final AlertDialog dlg = alertDialog.show();
+        final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -603,7 +606,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth),1)
+                    .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageNumerator),getResources().getInteger(R.integer.heightOfSessionImageDenominator))
                     .start(fragment.getContext(), fragment);
         }
 
@@ -637,24 +640,29 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
-            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            if (addresses.size()!=0) {
+                /*String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
             String city = addresses.get(0).getLocality();
             String state = addresses.get(0).getAdminArea();
             String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName();
-            String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
+            String postalCode = addresses.get(0).getPostalCode();*/
+                String knownName = addresses.get(0).getFeatureName();
+                String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
 
-            if (street != null) {
+                if (street != null) {
 
-                if (!street.equals(knownName)) {
-                    returnAddress = street + " " + knownName;
+                    if (!street.equals(knownName)) {
+                        returnAddress = street + " " + knownName;
+                    } else {
+                        returnAddress = street;
+                    }
                 } else {
-                    returnAddress = street;
+                    returnAddress = "Unknown area";
                 }
             } else {
                 returnAddress = "Unknown area";
             }
+
         } catch (IOException ex) {
             returnAddress = "failed";
         }

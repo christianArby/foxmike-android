@@ -218,7 +218,8 @@ public class MainHostActivity extends AppCompatActivity implements
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        List<Fragment> fragmentList = fragmentManager.getFragments();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        /*List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment frag:fragmentList) {
             if (frag.getTag()!=null && frag.getTag().length()>5) {
                 if (frag.getTag().substring(0,5).equals("xMain")) {
@@ -228,7 +229,7 @@ public class MainHostActivity extends AppCompatActivity implements
                 }
             }
         }
-        bottomNavigation.setVisibility(View.GONE);
+        bottomNavigation.setVisibility(View.GONE);*/
         if (addToBackStack) {
             if (!tag.equals("")) {
                 transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(tag).commit();
@@ -356,14 +357,14 @@ public class MainHostActivity extends AppCompatActivity implements
     public void onBackPressed() {
 
         int count = getSupportFragmentManager().getBackStackEntryCount();
-
         if (count == 0) {
             // /super.onBackPressed();
             //additional code
         } else {
-            // No action on back button when these fragments are visible
+            // TODO Add Newsfeed fragment here later when exist
+            getSupportFragmentManager().popBackStack();
             if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){
-                getSupportFragmentManager().popBackStack();
+
             }
         }
     }

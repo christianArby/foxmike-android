@@ -64,7 +64,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 public void run() {
                     RelativeLayout.LayoutParams mParams;
                     mParams = (RelativeLayout.LayoutParams) session_image.getLayoutParams();
-                    mParams.height = session_image.getWidth()/ context.getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
+                    mParams.height = session_image.getWidth()*context.getResources().getInteger(R.integer.heightOfSessionImageNumerator)/context.getResources().getInteger(R.integer.heightOfSessionImageDenominator);
                     session_image.setLayoutParams(mParams);
                     session_image.postInvalidate();
                 }

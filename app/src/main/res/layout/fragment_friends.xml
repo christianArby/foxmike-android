@@ -9,9 +9,10 @@
         android:id="@+id/friendRequestsHeadingTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_minimum"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/marginVertical"
         android:text="@string/friend_requests_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,7 +20,7 @@
         android:id="@+id/requests_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/friendRequestsHeadingTV" />
 
@@ -27,9 +28,10 @@
         android:id="@+id/friendsHeadingTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/margin_left"
         android:text="@string/your_friends_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/requests_list" />
 
@@ -37,7 +39,7 @@
         android:id="@+id/friends_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/friendsHeadingTV" />
 

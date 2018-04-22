@@ -133,7 +133,7 @@ public class FriendsFragment extends Fragment {
             @Override
             public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.users_list_single_layout, parent, false);
+                        .inflate(R.layout.users_list_single_layout_mini, parent, false);
                 return new UsersViewHolder(view);
             }
             @Override
@@ -252,7 +252,7 @@ public class FriendsFragment extends Fragment {
                     return new HeaderViewHolder(view);
                 } else {
                     View view = LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.users_list_single_layout, parent, false);
+                            .inflate(R.layout.users_list_single_layout_mini, parent, false);
                     return new UsersViewHolder(view);
                 }
             }
