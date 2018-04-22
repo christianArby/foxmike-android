@@ -85,6 +85,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mWhatTW;
     private TextView mWhoTW;
     private TextView mWhereTW;
+    private TextView mSessionType;
     private TextView mAddressAndSessionType;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
@@ -165,6 +166,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mWhereTW = displaySession.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = displaySession.findViewById(R.id.sessionImageCardView);
+        mSessionType = displaySession.findViewById(R.id.sessionType);
 
         /*
          Get latitude and longitude of session from previous activity.
@@ -189,7 +191,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void run() {
                 RelativeLayout.LayoutParams mParams;
                 mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
-                mParams.height = sessionImageCardView.getWidth()/ getResources().getInteger(R.integer.heightOfSessionImageInFractionOfWidth);
+                mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
                 sessionImageCardView.setLayoutParams(mParams);
                 sessionImageCardView.postInvalidate();
             }
@@ -388,6 +390,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mWhatTW.setText(session.getWhat());
         mWhoTW.setText(session.getWho());
         mWhereTW.setText(session.getWhere());
+        mSessionType.setText(session.getSessionType());
         /*
          Get the host image from the database (found under users with the userID=session.host)
          */

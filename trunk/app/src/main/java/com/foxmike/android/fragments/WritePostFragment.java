@@ -144,7 +144,7 @@ public class WritePostFragment extends DialogFragment {
                     sendTW.setTextColor(getResources().getColor(R.color.primaryTextColor));
                     sendable=true;
                 } else  {
-                    sendTW.setTextColor(getResources().getColor(R.color.greyTextColor));
+                    sendTW.setTextColor(getResources().getColor(R.color.grayTextColor));
                     sendable=false;
                 }
             }

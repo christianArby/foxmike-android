@@ -17,11 +17,12 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteX="0dp" />
     <FrameLayout
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_host"
-        app:layout_constraintStart_toStartOf="parent"
+        android:elevation="@dimen/elevation_fullscreen"
         android:id="@+id/container_fullscreen_main_host"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_host"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         app:layout_constraintBottom_toBottomOf="parent"

@@ -23,19 +23,18 @@
     </string-array>
 
     <string-array name="duration_array">
-        <item>10</item>
-        <item>20</item>
-        <item>30</item>
-        <item>40</item>
-        <item>50</item>
-        <item>60</item>
-        <item>70</item>
-        <item>80</item>
-        <item>90</item>
-        <item>90</item>
-        <item>100</item>
-        <item>110</item>
-        <item>120</item>
+        <item>10 min</item>
+        <item>20 min</item>
+        <item>30 min</item>
+        <item>40 min</item>
+        <item>50 min</item>
+        <item>60 min</item>
+        <item>70 min</item>
+        <item>80 min</item>
+        <item>90 min</item>
+        <item>100 min</item>
+        <item>110 min</item>
+        <item>120 min</item>
     </string-array>
 
     <string-array name="max_participants_array">
@@ -219,7 +218,7 @@
     <string name="creating_session">Creating session ...</string>
     <string name="select_time">Select Time</string>
     <string name="choose_session_type">Choose session type</string>
-    <string name="session_duration">Session duration</string>
+    <string name="session_duration">Session duration in minutes</string>
     <string name="nr_participants">Nr of participants</string>
     <string name="type_in_necessary_information">Type in necessary information</string>
     <string name="tab_messages">MESSAGES</string>
