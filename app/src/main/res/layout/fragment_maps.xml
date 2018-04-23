@@ -9,11 +9,12 @@
         android:layout_height="match_parent"/>
 
     <TextView
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:id="@+id/create_session_map_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_top_fab"
-        android:layout_marginStart="@dimen/margin_end_fab"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/marginHorizontal"
         android:visibility="gone"
         android:text="@string/pick_location_text"/>
 

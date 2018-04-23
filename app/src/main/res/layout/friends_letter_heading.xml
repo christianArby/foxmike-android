@@ -8,6 +8,8 @@
         android:id="@+id/firstLetterTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_minimum"
+        app:layout_goneMarginBottom="@dimen/margin_minimum"
         android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -83,13 +83,14 @@ public class UserProfilePublicFragment extends Fragment {
         list.addView(profile);
 
         final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
+        final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
         sendRequestBtn = view.findViewById(R.id.send_request_btn);
         declineBtn = view.findViewById(R.id.decline_request_btn);
         sendMessageBtn = view.findViewById(R.id.send_message_btn);
         sendMessageBtn.setVisibility(View.GONE);
 
         // Set initial visibility of decline button
-        declineBtn.setVisibility(View.INVISIBLE);
+        declineBtn.setVisibility(View.GONE);
         declineBtn.setEnabled(false);
 
         // areFriends states:
@@ -101,7 +102,7 @@ public class UserProfilePublicFragment extends Fragment {
         // set the initial state, if the relationship is otherwise it will change further down in the code
         areFriends=0;
         // Set initial visibility of decline button
-        declineBtn.setVisibility(View.INVISIBLE);
+        declineBtn.setVisibility(View.GONE);
         declineBtn.setEnabled(false);
 
         // get data of the otherUserID clicked in previous activity
@@ -111,6 +112,7 @@ public class UserProfilePublicFragment extends Fragment {
                 // Fill the user profile page with the info from otherUser
                 otherUser = dataSnapshot.getValue(User.class);
                 userNameTV.setText(otherUser.getFullName());
+                userAboutMeTV.setText(otherUser.getAboutMe());
                 setCircleImage(otherUser.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
@@ -132,7 +134,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 areFriends = 1;
                                 sendRequestBtn.setText("Cancel friend Request");
 
-                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
                             }
                         } else {
@@ -146,7 +148,7 @@ public class UserProfilePublicFragment extends Fragment {
                                                 areFriends = 3;
                                                 sendRequestBtn.setText("Unfriend this person");
 
-                                                declineBtn.setVisibility(View.INVISIBLE);
+                                                declineBtn.setVisibility(View.GONE);
                                                 declineBtn.setEnabled(false);
                                                 sendMessageBtn.setVisibility(View.VISIBLE);
                                             }
@@ -206,7 +208,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 sendRequestBtn.setText("Cancel friend Request");
                                 sendRequestBtn.setEnabled(true);
 
-                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
                             }
                         }
@@ -230,7 +232,7 @@ public class UserProfilePublicFragment extends Fragment {
                                     areFriends = 0;
                                     sendRequestBtn.setText("Send friend Request");
 
-                                    declineBtn.setVisibility(View.INVISIBLE);
+                                    declineBtn.setVisibility(View.GONE);
                                     declineBtn.setEnabled(false);
 
                                 }
@@ -261,7 +263,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 areFriends = 3;
                                 sendRequestBtn.setText("Unfriend this person");
 
-                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
                             } else {
 
@@ -293,7 +295,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 areFriends = 0;
                                 sendRequestBtn.setText("Send friend Request");
 
-                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
                             } else {
 
@@ -334,7 +336,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 areFriends = 0;
                                 sendRequestBtn.setText("Send friend Request");
 
-                                declineBtn.setVisibility(View.INVISIBLE);
+                                declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
                             } else {
 

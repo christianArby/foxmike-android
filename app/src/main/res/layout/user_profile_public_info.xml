@@ -10,30 +10,34 @@
         android:id="@+id/profilePublicIV"
         android:layout_width="@dimen/height_profileImage"
         android:layout_height="@dimen/width_profileImage"
-        android:layout_marginTop="@dimen/margin_top_page"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!--    <ImageView
-            android:id="@+id/profileIV"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="0dp"
-            android:scaleType="centerCrop" />-->
 
     <TextView
         android:id="@+id/nameProfilePublicTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:textColor="@color/primaryTextColor"
         android:text="@string/loading"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/text_size_bigger"
-        android:textStyle="bold"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileIV"/>
+        app:layout_constraintTop_toBottomOf="@id/profilePublicIV"/>
+
+    <TextView
+        android:id="@+id/aboutMeProfilePublicTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/leadDisplay1ToSub"
+        android:layout_marginStart="@dimen/marginHorizontal"
+        android:layout_marginEnd="@dimen/marginHorizontal"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:paddingBottom="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/nameProfilePublicTV"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

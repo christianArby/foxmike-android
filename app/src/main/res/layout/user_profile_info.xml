@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileIV"
         android:layout_width="@dimen/height_profileImage"
         android:layout_height="@dimen/width_profileImage"
-        android:layout_marginTop="@dimen/margin_top_page"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -20,11 +20,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_top_text"
+        android:layout_marginTop="@dimen/marginVertical"
         android:text="@string/loading"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/text_size_bigger"
-        android:textStyle="bold"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileIV"/>
 
@@ -35,8 +34,9 @@
         android:paddingStart="@dimen/margin_left"
         android:paddingEnd="@dimen/margin_left"
         android:paddingTop="@dimen/margin_minimum"
-        android:paddingBottom="@dimen/margin_top_text"
+        android:paddingBottom="@dimen/marginVertical"
         android:text="@string/show_and_edit_profile_text"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textColor="?android:attr/textColorHint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileTV"/>
@@ -46,7 +46,10 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/color_divider"
-        app:layout_constraintTop_toBottomOf="@id/edit_session_question"/>
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toBottomOf="@id/edit_session_question"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/switchModeTV"
@@ -55,8 +58,9 @@
         android:layout_gravity="start|center"
         android:paddingStart="@dimen/margin_left"
         android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/margin_top_text"
-        android:paddingBottom="@dimen/margin_top_text"
+        android:paddingTop="@dimen/marginVertical"
+        android:paddingBottom="@dimen/marginVertical"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:text="@string/switch_to_trainer_mode"
         android:clickable="true"
         android:focusable="true"
@@ -81,7 +85,10 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/color_divider"
-        app:layout_constraintTop_toBottomOf="@id/switchModeTV"/>
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toBottomOf="@id/switchModeTV"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/logOutTV"
@@ -89,9 +96,10 @@
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/margin_left"
         android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/margin_top_text"
-        android:paddingBottom="@dimen/margin_top_text"
+        android:paddingTop="@dimen/marginVertical"
+        android:paddingBottom="@dimen/marginVertical"
         android:text="@string/log_out_text"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintTop_toBottomOf="@id/spaceView2"

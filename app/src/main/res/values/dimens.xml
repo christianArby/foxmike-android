@@ -67,6 +67,7 @@
     <dimen name="appBarElevation">4dp</dimen>
     <dimen name="elevation_fullscreen">9dp</dimen>
     <dimen name="profileImageDiameterMini">40dp</dimen>
+    <dimen name="leadDisplay1ToSub">15dp</dimen>
 
 
 </resources>

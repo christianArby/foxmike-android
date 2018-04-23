@@ -23,24 +23,30 @@
     </ScrollView>
 
     <Button
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button_primary"
+        android:layout_width="match_parent"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_margin="@dimen/marginHorizontal"
         android:layout_height="wrap_content"
         android:id="@+id/send_request_btn"
         android:text="@string/send_friend_request_text"
         android:layout_gravity="center_horizontal"/>
 
     <Button
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button_primary"
+        android:layout_width="match_parent"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_margin="@dimen/marginHorizontal"
         android:layout_height="wrap_content"
         android:id="@+id/decline_request_btn"
         android:text="@string/decline_friend_request_text"
         android:layout_gravity="center_horizontal"/>
 
     <Button
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button_primary"
+        android:layout_width="match_parent"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_margin="@dimen/marginHorizontal"
         android:layout_height="wrap_content"
         android:id="@+id/send_message_btn"
         android:text="@string/send_message_text"

@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,14 +63,15 @@ public class UserProfileFragment extends Fragment {
         list.addView(profile);
 
         final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
+        final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
-        ImageView editIconIV = view.findViewById(R.id.editIconIV);
 
         usersDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User userDb = dataSnapshot.getValue(User.class);
                 userNameTV.setText(userDb.getFullName());
+                userAboutMeTV.setText(userDb.getAboutMe());
                 setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
             }
             @Override
@@ -77,7 +79,7 @@ public class UserProfileFragment extends Fragment {
 
             }
         });
-        editIconIV.setOnClickListener(new View.OnClickListener() {
+        list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onUserProfileFragmentInteractionListener.onUserProfileFragmentInteraction();

@@ -94,6 +94,8 @@ public class FriendsFragment extends Fragment {
                     for (DataSnapshot requestSnapshot : dataSnapshot.getChildren()) {
                         requestsUserIDs.add(requestSnapshot.getKey());
                         requests.put(requestSnapshot.getKey(), requestSnapshot.child("request_type").getValue().toString());
+                        requestsHeading.setVisibility(View.VISIBLE);
+                        friendsHeading.setVisibility(View.VISIBLE);
                     }
                     // if no requests, notify the recycler view to load empty view
                 } else {

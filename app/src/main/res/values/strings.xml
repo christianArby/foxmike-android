@@ -258,8 +258,8 @@
     <string name="who_heading">Vem som kan vara med</string>
     <string name="where_heading">Var vi ska vara</string>
     <string name="pick_location_text">Pick a location by clicking on map!</string>
-    <string name="Sort_on_text">Sortera på:</string>
-    <string name="filter_on_distance_text">Filtrera på avstånd:</string>
+    <string name="Sort_on_text">Sort by:</string>
+    <string name="filter_on_distance_text">Filter by distance:</string>
     <string name="send_friend_request_text">Send friend request</string>
     <string name="decline_friend_request_text">Decline friend request</string>
     <string name="Write_something_hint_text">Skriv något...</string>
@@ -282,5 +282,8 @@
     <string name="continue_to_facebook_text">Continue with Facebook</string>
     <string name="create_account_text">Create account</string>
     <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes Användarvillkor.</string>
+    <string name="aboutMe_text">Write something about yourself</string>
+    <string name="first_name_text">First name</string>
+    <string name="last_name_text">Last name</string>
 
 </resources>
