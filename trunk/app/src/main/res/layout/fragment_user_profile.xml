@@ -1,31 +1,28 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/fragment_user_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background_light"
-    android:clickable="false">
+    android:clickable="true"
+    android:focusable="true">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/editIconIV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginTop="@dimen/margin_top_fab"
-            android:layout_marginEnd="@dimen/margin_end_fab"
-            android:layout_gravity="end"
-            android:src="@mipmap/ic_mode_edit_black_24dp"/>
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/editIconIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginTop="@dimen/margin_top_fab"
+        android:layout_marginEnd="@dimen/margin_end_fab"
+        android:layout_gravity="end"
+        android:src="@mipmap/ic_mode_edit_black_24dp"/>
 
     <ScrollView
         android:id="@+id/scrollview_user_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="vertical"
@@ -37,4 +34,4 @@
 
     </ScrollView>
 
-</LinearLayout>
+</FrameLayout>

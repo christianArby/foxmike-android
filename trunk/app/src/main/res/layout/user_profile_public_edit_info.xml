@@ -10,48 +10,82 @@
         android:id="@+id/profilePublicEditIB"
         android:layout_width="@dimen/height_profileImage"
         android:layout_height="@dimen/width_profileImage"
-        android:layout_marginTop="@dimen/margin_top_page"
+        android:layout_marginTop="@dimen/marginVertical"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <EditText
-        android:id="@+id/firstNameProfilePublicEditET"
-        android:layout_width="wrap_content"
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/firstNameProfilePublicEditTIL"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_top_text"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:hint="@string/loading"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/text_size_bigger"
-        android:textStyle="bold"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toBottomOf="@id/profilePublicEditIB"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent">
 
-    <EditText
-        android:id="@+id/lastNameProfilePublicEditET"
-        android:layout_width="wrap_content"
+        <EditText
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:id="@+id/firstNameProfilePublicEditET"
+            android:hint="@string/first_name_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/lastNameProfilePublicEditTIL"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_top_text"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:hint="@string/loading"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/text_size_bigger"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/firstNameProfilePublicEditET"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/firstNameProfilePublicEditTIL"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:id="@+id/lastNameProfilePublicEditET"
+            android:hint="@string/last_name_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/aboutMeProfilePublicEditTIL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/lastNameProfilePublicEditTIL"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:id="@+id/aboutMeProfilePublicEditET"
+            android:hint="@string/aboutMe_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences|textMultiLine"/>
+    </android.support.design.widget.TextInputLayout>
 
     <Button
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button_primary"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/update_profile_button_text"
         android:id="@+id/updateProfileBtn"
-        app:layout_constraintTop_toBottomOf="@id/lastNameProfilePublicEditET"
+        android:layout_margin="@dimen/marginHorizontal"
+        app:layout_constraintTop_toBottomOf="@id/aboutMeProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

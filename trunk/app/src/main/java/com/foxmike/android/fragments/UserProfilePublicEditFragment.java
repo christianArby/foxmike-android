@@ -72,6 +72,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         list.addView(profile);
         final EditText userFirstNameET = profile.findViewById(R.id.firstNameProfilePublicEditET);
         final EditText userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
+        final EditText userAboutMeET = profile.findViewById(R.id.aboutMeProfilePublicEditET);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
@@ -81,6 +82,7 @@ public class UserProfilePublicEditFragment extends Fragment {
             public void OnUserFound(User user) {
                 userFirstNameET.setText(user.getFirstName());
                 userLastNameET.setText(user.getLastName());
+                userAboutMeET.setText(user.getAboutMe());
                 setImageButton(user.image,profileImageButton);
             }
         });
@@ -93,6 +95,7 @@ public class UserProfilePublicEditFragment extends Fragment {
 
                 usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {

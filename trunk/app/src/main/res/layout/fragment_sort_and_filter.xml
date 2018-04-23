@@ -21,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="@dimen/margin_editText_in_center"
         android:layout_marginStart="@dimen/margin_editText_in_center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:id="@+id/sortText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,7 +29,7 @@
 
     <ToggleButton
         app:layout_constraintStart_toStartOf="@id/sortText"
-        android:layout_marginTop="@dimen/margin_editText_in_center"
+        android:layout_marginTop="@dimen/marginVertical"
         android:id="@+id/sortDateToggle"
         app:layout_constraintTop_toBottomOf="@+id/sortText"
         android:layout_width="wrap_content"
@@ -54,6 +55,7 @@
 
     <TextView
         app:layout_constraintStart_toStartOf="@id/sortText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_marginTop="@dimen/margin_editText_in_center"
         app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
         android:id="@+id/filterText"
@@ -62,7 +64,7 @@
         android:text="@string/filter_on_distance_text"/>
 
     <RadioGroup
-        android:layout_marginTop="@dimen/margin_editText_in_center"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintStart_toStartOf="@id/filterText"
         app:layout_constraintTop_toBottomOf="@id/filterText"
         app:layout_constraintBottom_toBottomOf="parent"
