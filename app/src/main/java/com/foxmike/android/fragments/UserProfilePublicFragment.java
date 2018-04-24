@@ -41,6 +41,7 @@ public class UserProfilePublicFragment extends Fragment {
     private DatabaseReference friendReqDbRef = FirebaseDatabase.getInstance().getReference().child("friend_requests");
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
     private  DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+    private ValueEventListener currentUserListener;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private LinearLayout list;
     private View profile;
@@ -106,7 +107,7 @@ public class UserProfilePublicFragment extends Fragment {
         declineBtn.setEnabled(false);
 
         // get data of the otherUserID clicked in previous activity
-        usersDbRef.child(otherUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+        currentUserListener = usersDbRef.child(otherUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
@@ -140,18 +141,18 @@ public class UserProfilePublicFragment extends Fragment {
                         } else {
 
                             // Find out if the user clicked is one of the current users friends by looking in database/"friends"/currentUserID
-                                    friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            friendsDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                            if (dataSnapshot.hasChild(otherUserID)) {
-                                                areFriends = 3;
-                                                sendRequestBtn.setText("Unfriend this person");
+                                    if (dataSnapshot.hasChild(otherUserID)) {
+                                        areFriends = 3;
+                                        sendRequestBtn.setText("Unfriend this person");
 
-                                                declineBtn.setVisibility(View.GONE);
-                                                declineBtn.setEnabled(false);
-                                                sendMessageBtn.setVisibility(View.VISIBLE);
-                                            }
+                                        declineBtn.setVisibility(View.GONE);
+                                        declineBtn.setEnabled(false);
+                                        sendMessageBtn.setVisibility(View.VISIBLE);
+                                    }
                                     // Progressbar dismiss
                                 }
 
@@ -168,8 +169,10 @@ public class UserProfilePublicFragment extends Fragment {
                     }
                 });
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -385,5 +388,13 @@ public class UserProfilePublicFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onChatClickedListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUserListener!=null) {
+            usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
+        }
     }
 }

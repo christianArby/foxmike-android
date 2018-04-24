@@ -23,8 +23,11 @@ import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.foxmike.android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -42,6 +45,7 @@ public class UserProfilePublicEditFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private ValueEventListener currentUserListener;
     private CircleImageView profileImageButton;
     private ProgressBar progressBar;
     private static final int GALLERY_REQUEST = 1;
@@ -77,15 +81,23 @@ public class UserProfilePublicEditFragment extends Fragment {
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
         // setup the imagebutton with the users profile image
-        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
+
+        currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void OnUserFound(User user) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
                 userFirstNameET.setText(user.getFirstName());
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
                 setImageButton(user.image,profileImageButton);
             }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
+
         // Setup the update button and when clicked update the user information and picture in database
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,4 +191,11 @@ public class UserProfilePublicEditFragment extends Fragment {
         void OnUserProfilePublicEditFragmentInteraction();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUserListener!=null) {
+            usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
+        }
+    }
 }

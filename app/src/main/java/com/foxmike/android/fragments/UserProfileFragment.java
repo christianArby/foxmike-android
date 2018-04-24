@@ -29,6 +29,7 @@ public class UserProfileFragment extends Fragment {
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    private ValueEventListener currentUserListener;
     private FirebaseAuth mAuth;
     private LinearLayout list;
     private View profile;
@@ -66,7 +67,7 @@ public class UserProfileFragment extends Fragment {
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
-        usersDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User userDb = dataSnapshot.getValue(User.class);
@@ -113,5 +114,13 @@ public class UserProfileFragment extends Fragment {
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
         Glide.with(this).load(image).into(imageView);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUserListener!=null) {
+            usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
+        }
     }
 }
