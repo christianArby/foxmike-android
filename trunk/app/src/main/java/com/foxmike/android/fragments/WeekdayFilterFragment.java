@@ -109,7 +109,14 @@ public class WeekdayFilterFragment extends Fragment{
         TextTimestamp sessionDate7 = new TextTimestamp(calDate7.getTimeInMillis());
 
         // Set togglebuttons to date texts
-        setupToggleButton(toggleButton1,sessionDate1);
+        if (weekFilter==1) {
+            toggleButton1.setText(getResources().getString(R.string.today_filter_text));
+            toggleButton1.setTextOn(getResources().getString(R.string.today_filter_text));
+            toggleButton1.setTextOff(getResources().getString(R.string.today_filter_text));
+            toggleButton1.setChecked(true);
+        } else {
+            setupToggleButton(toggleButton1,sessionDate1);
+        }
         setupToggleButton(toggleButton2,sessionDate2);
         setupToggleButton(toggleButton3,sessionDate3);
         setupToggleButton(toggleButton4,sessionDate4);
@@ -278,9 +285,9 @@ public class WeekdayFilterFragment extends Fragment{
     }
 
     private void setupToggleButton(ToggleButton toggleButton,TextTimestamp textTimestamp) {
-        toggleButton.setText(textTimestamp.textDay() + textTimestamp.textNumberDay());
-        toggleButton.setTextOn(textTimestamp.textDay() + textTimestamp.textNumberDay());
-        toggleButton.setTextOff(textTimestamp.textDay() + textTimestamp.textNumberDay());
+        toggleButton.setText(textTimestamp.textDay() + "\n" + textTimestamp.textNumberDay());
+        toggleButton.setTextOn(textTimestamp.textDay() + "\n" + textTimestamp.textNumberDay());
+        toggleButton.setTextOff(textTimestamp.textDay() + "\n" + textTimestamp.textNumberDay());
         toggleButton.setChecked(true);
     }
 
