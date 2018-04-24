@@ -394,7 +394,7 @@ public class UserProfilePublicFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (currentUserListener!=null) {
-            usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
+            usersDbRef.child(otherUserID).removeEventListener(currentUserListener);;
         }
     }
 }

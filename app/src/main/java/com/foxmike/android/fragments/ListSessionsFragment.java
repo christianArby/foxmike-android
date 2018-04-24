@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * This fragment creates a list of sessions based on an arraylist of session objects given as arguments. It also
  * uses an location object in order to sort the sessions on distance from user
  */
-public class ListSessionsFragment extends Fragment {
+public class  ListSessionsFragment extends Fragment {
 
     private RecyclerView mSessionList;
     private com.foxmike.android.adapters.sessionsAdapter sessionsAdapter;
