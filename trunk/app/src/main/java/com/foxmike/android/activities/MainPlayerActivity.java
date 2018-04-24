@@ -490,9 +490,7 @@ public class MainPlayerActivity extends AppCompatActivity
     /* Listener, when finished editing restart this activity */
     @Override
     public void OnUserProfilePublicEditFragmentInteraction() {
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
+        getSupportFragmentManager().popBackStack();
     }
 
     /* Listener, when a user is clicked, get the others user ID and start User profile fragment */

@@ -8,7 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
@@ -20,6 +22,7 @@ import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.User;
+import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,6 +45,9 @@ public class UserAccountFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
+    private ValueEventListener currentUserListener;
+    private String currentUserID;
+    private DatabaseReference rootDbRef;
     private LinearLayout list;
     private View profile;
 
@@ -70,11 +76,15 @@ public class UserAccountFragment extends Fragment {
         /* Get the view fragment_user_account */
         final View view = inflater.inflate(R.layout.fragment_user_account, container, false);
         mAuth = FirebaseAuth.getInstance();
+        currentUserID = mAuth.getCurrentUser().getUid();
 
         /* Inflate the LinearLayout list (in fragment_user_account) with the layout user_profile_info */
         list = view.findViewById(R.id.list1);
         profile = inflater.inflate(R.layout.user_profile_info,list,false);
         list.addView(profile);
+        ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
+        final FrameLayout progressBackground = view.findViewById(R.id.progressBackground);
+        final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         final TextView userNameTV = profile.findViewById(R.id.profileTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
@@ -84,6 +94,9 @@ public class UserAccountFragment extends Fragment {
         switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                myProgressBar.startProgressBar();
+                progressBackground.setVisibility(View.VISIBLE);
                 DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -116,9 +129,12 @@ public class UserAccountFragment extends Fragment {
             }
         });
 
-        myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
+
+        currentUserListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void OnUserFound(User user) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
                 userNameTV.setText(user.getFullName());
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
                 if (user.trainerMode) {
@@ -126,6 +142,11 @@ public class UserAccountFragment extends Fragment {
                 } else {
                     switchModeTV.setText(R.string.switch_to_host_mode_text);
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -171,6 +192,14 @@ public class UserAccountFragment extends Fragment {
         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(welcomeIntent);
         mAuth.signOut();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUserListener!=null) {
+            rootDbRef.child("users").child(currentUserID).removeEventListener(currentUserListener);
+        }
     }
 
     @Override
