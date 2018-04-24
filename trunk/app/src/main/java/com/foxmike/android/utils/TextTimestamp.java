@@ -74,5 +74,10 @@ public class TextTimestamp {
         return this.textFullDay() + " " + dateTime.getDayOfMonth() + " " + this.textMonth() + " " + this.textTime();
     }
 
+    public String textSessionDate() {
+        DateTime dateTime = new DateTime(this.timeStamp);
+        return this.textFullDay() + " " + dateTime.getDayOfMonth() + " " + this.textMonth();
+    }
+
 
 }

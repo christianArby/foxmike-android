@@ -61,9 +61,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             if (sessionBranchArrayList.size()>0) {
                 ((ListSmallSessionsViewHolder) holder).setSessionImage(sessionBranchArrayList.get(position).getSession().getImageUrl());
                 ((ListSmallSessionsViewHolder) holder).setText1(sessionBranchArrayList.get(position).getSession().getSessionName());
-
                 SessionBranch sessionBranch = sessionBranchArrayList.get(position);
-
                 String sessionDateAndTime = sessionBranch.getSession().supplyTextTimeStamp().textSessionDateAndTime();
                 sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                 ((ListSmallSessionsViewHolder) holder).setText2(sessionDateAndTime);

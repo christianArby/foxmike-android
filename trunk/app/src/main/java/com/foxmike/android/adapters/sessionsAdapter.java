@@ -19,8 +19,13 @@ import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.joda.time.DateTime;
+
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -80,7 +85,22 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         final Session session = sessions.get(position);
 
         if (session.getImageUrl().equals("dateHeader")) {
-            ((SessionListHeaderViewHolder) holder).setHeader(session.supplyTextTimeStamp().textSessionDateAndTime());
+            DateTime currentTime = DateTime.now();
+            DateTime tomorrowTime = currentTime.plusDays(1);
+            DateTime sessionTime = new DateTime(session.getSessionTimestamp());
+            if (currentTime.getYear()==sessionTime.getYear() &&
+                    currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                    currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                    ) {
+                ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.today_text));
+            } else if (tomorrowTime.getYear()==sessionTime.getYear() &&
+                    tomorrowTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                    tomorrowTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                    ) {
+                ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
+            } else {
+                ((SessionListHeaderViewHolder) holder).setHeader(session.supplyTextTimeStamp().textSessionDate());
+            }
         } else {
 
             /**Fill the cardview with information of the session" */
@@ -167,7 +187,22 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void bindHeaderData(View header, int headerPosition) {
         if (sessions.size()>headerPosition && sessions.get(0).getImageUrl().equals("dateHeader")) {
             TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
-            headerTV.setText(sessions.get(headerPosition).supplyTextTimeStamp().textSessionDateAndTime());
+            DateTime currentTime = DateTime.now();
+            DateTime tomorrowTime = currentTime.plusDays(1);
+            DateTime sessionTime = new DateTime(sessions.get(headerPosition).getSessionTimestamp());
+            if (currentTime.getYear()==sessionTime.getYear() &&
+                    currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                    currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                    ) {
+                headerTV.setText(context.getString(R.string.today_text));
+            } else if (tomorrowTime.getYear()==sessionTime.getYear() &&
+                    tomorrowTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                    tomorrowTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                    ) {
+                headerTV.setText(context.getString(R.string.tomorrow_text));
+            } else {
+                headerTV.setText(sessions.get(headerPosition).supplyTextTimeStamp().textSessionDate());
+            }
         }
     }
 
