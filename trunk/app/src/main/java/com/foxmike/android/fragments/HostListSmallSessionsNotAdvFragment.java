@@ -11,16 +11,13 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
-import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
-import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -85,7 +82,7 @@ public class HostListSmallSessionsNotAdvFragment extends Fragment {
                             // Loop hosted sessions and see which are advertised, criteria for advertised is that the boolean advertised is true and that the session date
                             // is after today's date
                             for (SessionBranch sessionBranch: sessionBranches) {
-                                if (!sessionBranch.getSession().isAdvertised() | !sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                                if (!sessionBranch.getSession().isAdvertised() | !sessionBranch.getSession().supplyDate().after(todaysDate)) {
                                     sessionsNotAdv.add(sessionBranch);
                                 }
                             }

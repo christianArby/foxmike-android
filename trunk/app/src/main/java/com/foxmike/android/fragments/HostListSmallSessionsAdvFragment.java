@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
-import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
@@ -20,7 +19,6 @@ import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -84,8 +82,10 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
                             Date twoWeeksDate = cal.getTime();
                             // Loop hosted sessions and see which are advertised, critera for advertised is that the boolean advertised is true and that the session date
                             // is after today's date
+
                             for (SessionBranch sessionBranch: sessionBranches) {
-                                if (sessionBranch.getSession().isAdvertised() && sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+
+                                if (sessionBranch.getSession().isAdvertised() && sessionBranch.getSession().supplyDate().after(todaysDate)) {
                                     sessionsAdv.add(sessionBranch);
                                 }
                             }
@@ -96,7 +96,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
                             int n = 0;
                             Boolean keepLooking = true;
                             while (n < sessionsAdv.size() && keepLooking) {
-                                if (sessionsAdv.get(n).getSession().getSessionDate().getDateOfSession().after(twoWeeksDate) && keepLooking) {
+                                if (sessionsAdv.get(n).getSession().supplyDate().after(twoWeeksDate) && keepLooking) {
                                     Session dummySession = new Session();
                                     dummySession.setImageUrl("sectionHeader");
                                     dummySession.setSessionName(getString(R.string.upcoming_listings));

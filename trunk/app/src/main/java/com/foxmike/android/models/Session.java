@@ -2,6 +2,8 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
+import com.foxmike.android.utils.TextTimestamp;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +17,7 @@ public class Session implements Comparable<Session>, Serializable {
     private String maxParticipants;
     private double latitude;
     private double longitude;
-    private SessionDate sessionDate;
+    private long sessionTimestamp;
     private boolean advertised;
     private HashMap<String,Boolean> participants;
     private HashMap<String,Boolean> posts;
@@ -25,14 +27,14 @@ public class Session implements Comparable<Session>, Serializable {
     private String where;
     private String duration;
 
-    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, SessionDate sessionDate, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts,String imageUrl, String what, String who, String where, String duration) {
+    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.sessionDate = sessionDate;
+        this.sessionTimestamp = sessionTimestamp;
         this.advertised = advertised;
         this.participants = participants;
         this.posts = posts;
@@ -52,11 +54,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setHost(String host) {
         this.host = host;
-    }
-
-    public String textTime() {
-        String time = String.format("%02d:%02d", this.sessionDate.hour, this.sessionDate.minute);
-        return time;
     }
 
     public String getSessionName() {
@@ -99,12 +96,12 @@ public class Session implements Comparable<Session>, Serializable {
         this.longitude = longitude;
     }
 
-    public SessionDate getSessionDate() {
-        return sessionDate;
+    public long getSessionTimestamp() {
+        return sessionTimestamp;
     }
 
-    public void setSessionDate(SessionDate sessionDate) {
-        this.sessionDate = sessionDate;
+    public void setSessionTimestamp(long sessionTimestamp) {
+        this.sessionTimestamp = sessionTimestamp;
     }
 
     public boolean isAdvertised() {
@@ -177,18 +174,29 @@ public class Session implements Comparable<Session>, Serializable {
         this.posts = posts;
     }
 
+    public Date supplyDate() {
+        return new Date(this.getSessionTimestamp());
+    }
+
+    public TextTimestamp supplyTextTimeStamp() {
+        return new TextTimestamp(this.sessionTimestamp);
+    }
+
     @Override
     public int compareTo(@NonNull Session session) {
 
-        Calendar otherSessioncal = Calendar.getInstance();
-        otherSessioncal.set(session.sessionDate.year, session.sessionDate.month, session.sessionDate.day, session.sessionDate.hour, session.sessionDate.minute);
+        /*Calendar otherSessioncal = Calendar.getInstance();
+        otherSessioncal.setTimeInMillis(session.sessionTimestamp);
         Date dateOfOtherSession = otherSessioncal.getTime();
 
         Calendar sessionCal = Calendar.getInstance();
-        sessionCal.set(this.sessionDate.year, this.sessionDate.month, this.sessionDate.day, this.sessionDate.hour, this.sessionDate.minute);
-        Date dateOfThisSession = sessionCal.getTime();
+        sessionCal.setTimeInMillis(this.sessionTimestamp);
+        Date dateOfThisSession = sessionCal.getTime();*/
 
-        return (dateOfThisSession.compareTo(dateOfOtherSession));
+        //return (dateOfThisSession.compareTo(dateOfOtherSession));
+
+        long comp = this.getSessionTimestamp()-session.getSessionTimestamp();
+        return (int) comp;
 
     }
 }

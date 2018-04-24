@@ -176,7 +176,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mMap.clear();
         for (Session session: sessions) {
             LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.textTime()));
+            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
         }
 
         // when marker is clicked find latitude value in child in realtime database

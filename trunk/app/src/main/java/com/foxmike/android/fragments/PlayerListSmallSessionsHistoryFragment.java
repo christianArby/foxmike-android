@@ -93,7 +93,7 @@ public class PlayerListSmallSessionsHistoryFragment extends Fragment {
                         Date todaysDate = cal.getTime();
 
                         for (SessionBranch sessionBranch: sessionsBranches) {
-                            if (!sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                            if (!sessionBranch.getSession().supplyDate().after(todaysDate)) {
                                 sessionsHistory.add(sessionBranch);
                             }
                         }

@@ -12,7 +12,7 @@ import android.widget.ToggleButton;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayChangedListener;
-import com.foxmike.android.models.SessionDate;
+import com.foxmike.android.utils.TextTimestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -100,13 +100,13 @@ public class WeekdayFilterFragment extends Fragment{
         calDate6.add(Calendar.DATE,n+5);
         final Calendar calDate7= Calendar.getInstance();
         calDate7.add(Calendar.DATE,n+6);
-        SessionDate sessionDate1 = new SessionDate(calDate1);
-        SessionDate sessionDate2 = new SessionDate(calDate2);
-        SessionDate sessionDate3 = new SessionDate(calDate3);
-        SessionDate sessionDate4 = new SessionDate(calDate4);
-        SessionDate sessionDate5 = new SessionDate(calDate5);
-        SessionDate sessionDate6 = new SessionDate(calDate6);
-        SessionDate sessionDate7 = new SessionDate(calDate7);
+        TextTimestamp sessionDate1 = new TextTimestamp(calDate1.getTimeInMillis());
+        TextTimestamp sessionDate2 = new TextTimestamp(calDate2.getTimeInMillis());
+        TextTimestamp sessionDate3 = new TextTimestamp(calDate3.getTimeInMillis());
+        TextTimestamp sessionDate4 = new TextTimestamp(calDate4.getTimeInMillis());
+        TextTimestamp sessionDate5 = new TextTimestamp(calDate5.getTimeInMillis());
+        TextTimestamp sessionDate6 = new TextTimestamp(calDate6.getTimeInMillis());
+        TextTimestamp sessionDate7 = new TextTimestamp(calDate7.getTimeInMillis());
 
         // Set togglebuttons to date texts
         setupToggleButton(toggleButton1,sessionDate1);
@@ -277,10 +277,10 @@ public class WeekdayFilterFragment extends Fragment{
 
     }
 
-    private void setupToggleButton(ToggleButton toggleButton,SessionDate sessionDate) {
-        toggleButton.setText(sessionDate.textDay() + "\n" + Integer.toString(sessionDate.getDay()));
-        toggleButton.setTextOn(sessionDate.textDay() + "\n" + Integer.toString(sessionDate.getDay()));
-        toggleButton.setTextOff(sessionDate.textDay() + "\n" + Integer.toString(sessionDate.getDay()));
+    private void setupToggleButton(ToggleButton toggleButton,TextTimestamp textTimestamp) {
+        toggleButton.setText(textTimestamp.textDay() + textTimestamp.textNumberDay());
+        toggleButton.setTextOn(textTimestamp.textDay() + textTimestamp.textNumberDay());
+        toggleButton.setTextOff(textTimestamp.textDay() + textTimestamp.textNumberDay());
         toggleButton.setChecked(true);
     }
 

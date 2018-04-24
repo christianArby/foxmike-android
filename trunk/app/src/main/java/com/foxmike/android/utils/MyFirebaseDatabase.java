@@ -1,14 +1,11 @@
 package com.foxmike.android.utils;
 // Checked
-import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -22,7 +19,6 @@ import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.interfaces.OnUsersFoundListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.models.SessionDate;
 import com.foxmike.android.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -140,14 +136,14 @@ public class MyFirebaseDatabase extends Service {
         ArrayList<Session> sessions = new ArrayList<>();
 
         for (Session nearSession : nearSessions) {
-            if (firstWeekdayHashMap.containsKey(nearSession.getSessionDate().textSDF())) {
-                if (firstWeekdayHashMap.get(nearSession.getSessionDate().textSDF())) {
+            if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
                     sessions.add(nearSession);
                 }
             }
 
-            if (secondWeekdayHashMap.containsKey(nearSession.getSessionDate().textSDF())) {
-                if (secondWeekdayHashMap.get(nearSession.getSessionDate().textSDF())) {
+            if (secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                if (secondWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
                     sessions.add(nearSession);
                 }
             }
@@ -155,17 +151,17 @@ public class MyFirebaseDatabase extends Service {
 
         if (sortType.equals("date")) {
             Collections.sort(sessions);
-            SessionDate prevSessionDate = new SessionDate();
+            TextTimestamp prevTextTimestamp = new TextTimestamp();
             HashMap<Integer, Session> headerSessions = new HashMap<>();
 
             int i = 0;
             while (i < sessions.size()) {
-                if (!prevSessionDate.textSDF().equals(sessions.get(i).getSessionDate().textSDF())) {
+                if (!prevTextTimestamp.textSDF().equals(sessions.get(i).supplyTextTimeStamp().textSDF())) {
                     Session dummySession = new Session();
                     dummySession.setImageUrl("dateHeader");
-                    dummySession.setSessionDate(sessions.get(i).getSessionDate());
+                    dummySession.setSessionTimestamp(sessions.get(i).getSessionTimestamp());
                     sessions.add(i, dummySession);
-                    prevSessionDate = sessions.get(i).getSessionDate();
+                    prevTextTimestamp = sessions.get(i).supplyTextTimeStamp();
                 }
                 i++;
             }

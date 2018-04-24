@@ -42,15 +42,16 @@ public class SessionBranch implements Comparable<SessionBranch>, Serializable{
     @Override
     public int compareTo(@NonNull SessionBranch sessionBranch) {
 
-        Calendar otherSessioncal = Calendar.getInstance();
-        otherSessioncal.set(sessionBranch.getSession().getSessionDate().year, sessionBranch.getSession().getSessionDate().month, sessionBranch.getSession().getSessionDate().day, sessionBranch.getSession().getSessionDate().hour, sessionBranch.getSession().getSessionDate().minute);
+        /*Calendar otherSessioncal = Calendar.getInstance();
+        otherSessioncal.setTimeInMillis(sessionBranch.getSession().getSessionTimestamp());
         Date dateOfOtherSession = otherSessioncal.getTime();
 
         Calendar sessionCal = Calendar.getInstance();
-        sessionCal.set(this.session.getSessionDate().getYear(), this.session.getSessionDate().month, this.session.getSessionDate().day, this.session.getSessionDate().hour, this.session.getSessionDate().minute);
-        Date dateOfThisSession = sessionCal.getTime();
+        sessionCal.setTimeInMillis(this.session.getSessionTimestamp());
 
+        return (dateOfThisSession.compareTo(dateOfOtherSession));*/
 
-        return (dateOfThisSession.compareTo(dateOfOtherSession));
+        long comp = this.getSession().getSessionTimestamp()-sessionBranch.getSession().getSessionTimestamp();
+        return (int) comp;
     }
 }
