@@ -80,7 +80,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         final Session session = sessions.get(position);
 
         if (session.getImageUrl().equals("dateHeader")) {
-            ((SessionListHeaderViewHolder) holder).setHeader(session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth());
+            ((SessionListHeaderViewHolder) holder).setHeader(session.supplyTextTimeStamp().textSessionDateAndTime());
         } else {
 
             /**Fill the cardview with information of the session" */
@@ -88,7 +88,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
             ((SessionViewHolder) holder).setTitle(session.getSessionName());
             ((SessionViewHolder) holder).setDesc(session.getSessionType());
-            ((SessionViewHolder) holder).setDateAndTime(session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth() + " " + session.textTime());
+            ((SessionViewHolder) holder).setDateAndTime(session.supplyTextTimeStamp().textSessionDateAndTime());
             ((SessionViewHolder) holder).setAddress(address);
             ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
@@ -167,7 +167,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void bindHeaderData(View header, int headerPosition) {
         if (sessions.size()>headerPosition && sessions.get(0).getImageUrl().equals("dateHeader")) {
             TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
-            headerTV.setText(sessions.get(headerPosition).getSessionDate().textFullDay() + " " + sessions.get(headerPosition).getSessionDate().getDay() + " " + sessions.get(headerPosition).getSessionDate().textMonth());
+            headerTV.setText(sessions.get(headerPosition).supplyTextTimeStamp().textSessionDateAndTime());
         }
     }
 

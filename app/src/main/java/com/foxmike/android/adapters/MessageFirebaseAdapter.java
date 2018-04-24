@@ -12,8 +12,8 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
-import com.foxmike.android.models.SessionDate;
 import com.foxmike.android.models.Message;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
@@ -51,6 +51,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
 
     @Override
     protected void onBindViewHolder(RecyclerView.ViewHolder holder, int position, Message model) {
+        long hej = model.getTime();
         FirebaseAuth mAuth;
         String currentUserID;
         String fromUser = model.getSenderUserID();
@@ -62,11 +63,8 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((ThisMessageViewHolder) holder).messageText.setTextColor(Color.WHITE);
             ((ThisMessageViewHolder) holder).messageText.setText(model.getMessage());
 
-            Date d = new Date(model.getTime());
-            Calendar c = Calendar.getInstance();
-            c.setTime(d);
-            SessionDate sessionDate = new SessionDate(c);
-            String timeText = sessionDate.textDateAndTime();
+            TextTimestamp textTimestamp = new TextTimestamp(model.getTime());
+            String timeText = textTimestamp.textDateAndTime();
             ((ThisMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((ThisMessageViewHolder) holder).messageTime.setText(timeText);
 
@@ -85,11 +83,8 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((OtherMessageViewHolder) holder).messageText.setText(model.getMessage());
             ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.GONE);
 
-            Date d = new Date(model.getTime());
-            Calendar c = Calendar.getInstance();
-            c.setTime(d);
-            SessionDate sessionDate = new SessionDate(c);
-            String timeText = sessionDate.textDateAndTime();
+            TextTimestamp textTimestamp = new TextTimestamp(model.getTime());
+            String timeText = textTimestamp.textDateAndTime();
             ((OtherMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageTime.setText(timeText);
 

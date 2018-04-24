@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
-import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
@@ -20,7 +19,6 @@ import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -96,7 +94,7 @@ public class PlayerListSmallSessionsBookedFragment extends Fragment {
                         Date todaysDate = cal.getTime();
 
                         for (SessionBranch sessionBranch: sessionsBranches) {
-                            if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate)) {
+                            if (sessionBranch.getSession().supplyDate().after(todaysDate)) {
                                 sessionsBooked.add(sessionBranch);
                             }
                         }

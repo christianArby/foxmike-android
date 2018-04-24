@@ -5,8 +5,6 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -16,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +39,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionDate;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -96,7 +93,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mStorageSessionImage;
     private int sessionExist;
-    private SessionDate mSessionDate;
+    private long mSessionTimestamp;
     private ImageButton mSessionImageButton;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
@@ -238,12 +235,11 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                         mSessionName.setText(existingSession.getSessionName());
                         mSessionType.setText(existingSession.getSessionType());
                         // Date
-                        myCalendar.set(Calendar.YEAR, existingSession.getSessionDate().getYear());
-                        myCalendar.set(Calendar.MONTH, existingSession.getSessionDate().getMonth());
-                        myCalendar.set(Calendar.DAY_OF_MONTH, existingSession.getSessionDate().getDay());
+                        myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
                         updateLabel();
                         // Time
-                        mTime.setText( existingSession.getSessionDate().getHour() + ":" + existingSession.getSessionDate().getMinute());
+                        TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
+                        mTime.setText(textTimestamp.textTime());
                         mMaxParticipants.setText(existingSession.getMaxParticipants());
                         mDuration.setText(existingSession.getDuration());
                         mWhat.setText(existingSession.getWhat());
@@ -276,12 +272,11 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 mSessionName.setText(existingSession.getSessionName());
                 mSessionType.setText(existingSession.getSessionType());
                 // Date
-                myCalendar.set(Calendar.YEAR, existingSession.getSessionDate().getYear());
-                myCalendar.set(Calendar.MONTH, existingSession.getSessionDate().getMonth());
-                myCalendar.set(Calendar.DAY_OF_MONTH, existingSession.getSessionDate().getDay());
+                myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
                 updateLabel();
                 // Time
-                mTime.setText( existingSession.getSessionDate().getHour() + ":" + existingSession.getSessionDate().getMinute());
+                TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
+                mTime.setText(textTimestamp.textTime());
                 mMaxParticipants.setText(existingSession.getMaxParticipants());
                 mDuration.setText(existingSession.getDuration());
                 mWhat.setText(existingSession.getWhat());
@@ -475,13 +470,13 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             mSessionId = mMarkerDbRef.push().getKey();
         }
 
-        mSessionDate = new SessionDate(myCalendar);
+        mSessionTimestamp = myCalendar.getTimeInMillis();
         session.setSessionName(mSessionName.getText().toString());
         session.setSessionType(mSessionType.getText().toString());
         session.setWhat(mWhat.getText().toString());
         session.setWho(mWho.getText().toString());
         session.setWhere(mWhere.getText().toString());
-        session.setSessionDate(mSessionDate);
+        session.setSessionTimestamp(mSessionTimestamp);
         session.setMaxParticipants(mMaxParticipants.getText().toString());
         session.setDuration(mDuration.getText().toString());
         session.setLongitude(clickedLatLng.longitude);
@@ -501,7 +496,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                      * to the main activity*/
                     session.setImageUrl(downloadUri);
 
-                    if (session.getSessionDate() != null){
+                    if (session.getWhat() != null){
 
                         onSessionUpdatedListener.OnSessionUpdated(session);
 
@@ -520,7 +515,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 session.setImageUrl(existingSession.getImageUrl());
                 mProgress.dismiss();
 
-                if (session.getSessionDate() != null){
+                if (session.getWhat() != null){
 
                     onSessionUpdatedListener.OnSessionUpdated(session);
 

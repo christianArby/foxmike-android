@@ -1,16 +1,12 @@
 package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManagerNonConfig;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -29,13 +24,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.models.SessionDate;
-import com.foxmike.android.utils.GetTimeAgo;
-import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -260,11 +253,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 if (postBranchArrayList.size()>0) {
                     holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
 
-                    Date d = new Date((long) postBranchArrayList.get(position).getPost().getTimestamp());
-                    Calendar c = Calendar.getInstance();
-                    c.setTime(d);
-                    SessionDate sessionDate = new SessionDate(c);
-                    String timeText = sessionDate.textDateAndTime();
+                    TextTimestamp textTimestamp = new TextTimestamp((long) postBranchArrayList.get(position).getPost().getTimestamp());
+                    String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
                     holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
@@ -380,7 +370,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             countParticipants = 0;
         }
         // Set the session information in UI
-        String sessionDateAndTime = session.getSessionDate().textFullDay() + " " + session.getSessionDate().getDay() + " " + session.getSessionDate().textMonth() + " " + session.textTime();
+        TextTimestamp textTimestamp = new TextTimestamp(session.getSessionTimestamp());
+        String sessionDateAndTime = textTimestamp.textSessionDateAndTime();
         sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
         mDateAndTime.setText(sessionDateAndTime);
         mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
@@ -499,8 +490,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
+        TextTimestamp textTimestamp = new TextTimestamp(session.getSessionTimestamp());
         mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).
-                snippet(session.textTime()));
+                snippet(textTimestamp.textTime()));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
     }
     // Posts viewholder for the post recyclerview

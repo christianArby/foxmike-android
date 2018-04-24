@@ -1,9 +1,6 @@
 package com.foxmike.android.adapters;
 //Checked
 import android.content.Context;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,17 +12,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
-import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
-import static android.view.View.LAYER_TYPE_HARDWARE;
 /**
  * This adapter takes an arraylist of sessions and fills a RecyclerView
  * If a session has the string "sectionHeader" in the session variable imageURL, an alternate view will be inflated with the string stored under the variable sessionName in the session object
@@ -71,17 +64,10 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 SessionBranch sessionBranch = sessionBranchArrayList.get(position);
 
-                String sessionDateAndTime = sessionBranch.getSession().getSessionDate().textFullDay() + " " + sessionBranch.getSession().getSessionDate().getDay() + " " + sessionBranch.getSession().getSessionDate().textMonth() + " " + sessionBranch.getSession().textTime();
+                String sessionDateAndTime = sessionBranch.getSession().supplyTextTimeStamp().textSessionDateAndTime();
                 sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
                 ((ListSmallSessionsViewHolder) holder).setText2(sessionDateAndTime);
-
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    Date sessionDate = sdf.parse(sessionBranchArrayList.get(position).getSession().getSessionDate().textSDF());
-                    ((ListSmallSessionsViewHolder) holder).setSessionClickedListener(sessionBranchArrayList.get(position));
-                } catch (ParseException e) {
-                    //TODO handle exeption
-                }
+                ((ListSmallSessionsViewHolder) holder).setSessionClickedListener(sessionBranchArrayList.get(position));
             }
         }
 
@@ -139,7 +125,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             cal.add(Calendar.DATE,14);
             Date twoWeeksDate = cal.getTime();*/
 
-            /*if (sessionBranch.getSession().getSessionDate().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionDate().getDateOfSession().before(twoWeeksDate)) {
+            /*if (sessionBranch.getSession().getSessionTimestamp().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionTimestamp().getDateOfSession().before(twoWeeksDate)) {
                 // // Remove the hardware layer
                 //v.setLayerType(LAYER_TYPE_NONE, null);
             } else {
