@@ -90,7 +90,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void startRegister() {
 
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
-        myProgressBar.startProgressBar();
         // get input
         final String firstName = mFirstNameField.getText().toString().trim();
         final String lastName = mLastNameField.getText().toString().trim();
@@ -98,6 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
         String password = mPasswordField.getText().toString().trim();
         // if all input has been filled in create user
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
+            myProgressBar.startProgressBar();
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
