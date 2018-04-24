@@ -286,5 +286,7 @@
     <string name="first_name_text">First name</string>
     <string name="last_name_text">Last name</string>
     <string name="today_filter_text">Today</string>
+    <string name="tomorrow_text">Tomorrow</string>
+    <string name="today_text">Today</string>
 
 </resources>

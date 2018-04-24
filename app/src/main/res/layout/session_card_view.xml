@@ -8,7 +8,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/sessionCardViewFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="230dp"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -23,40 +23,49 @@
                 android:src="@mipmap/add_btn" />
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/session_title"
-            android:layout_width="fill_parent"
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding_big_text"
-            android:text="@string/session_name_goes_here"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textSize="@dimen/text_size_bigger"
-            android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/session_address"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:text="@string/address"
-            android:textColor="@color/secondaryTextColor"
-            app:layout_constraintTop_toBottomOf="@id/session_title"/>
+            <TextView
+                android:id="@+id/session_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_name_goes_here"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textSize="26sp"
+                android:textColor="@color/secondaryTextColor"
+                android:textAllCaps="true"
+                android:layout_centerHorizontal="true"
+                />
+            <TextView
+                android:id="@+id/session_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/address"
+                android:textColor="@color/secondaryTextColor"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/session_title"
+                />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/session_desc"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/description_goes_here"
             android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_marginBottom="@dimen/margin_minimum"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_marginStart="@dimen/marginVertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/session_date_and_time"
@@ -64,7 +73,9 @@
             android:layout_height="wrap_content"
             android:text="@string/date_goes_here"
             android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_marginBottom="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/marginHorizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
     </android.support.constraint.ConstraintLayout>
