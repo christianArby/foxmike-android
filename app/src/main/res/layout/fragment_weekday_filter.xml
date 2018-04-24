@@ -5,9 +5,10 @@
     android:layout_height="wrap_content">
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -15,9 +16,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton2"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -25,9 +27,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton3"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -35,9 +38,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton4"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -45,9 +49,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton5"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -55,9 +60,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton6"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"
@@ -65,9 +71,10 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton7"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_weight="1"
         android:background="@color/color_background_light"
         android:fontFamily="sans-serif"

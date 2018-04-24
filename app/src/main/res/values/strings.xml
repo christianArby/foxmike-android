@@ -285,5 +285,6 @@
     <string name="aboutMe_text">Write something about yourself</string>
     <string name="first_name_text">First name</string>
     <string name="last_name_text">Last name</string>
+    <string name="today_filter_text">Today</string>
 
 </resources>
