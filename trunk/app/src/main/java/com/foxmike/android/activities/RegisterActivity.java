@@ -21,13 +21,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -43,10 +49,17 @@ public class RegisterActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
+    private DatabaseReference rootDbRef;
     private StorageReference mStorageImage;
     private ProgressBar progressBar;
     private String currentUserID;
     private Uri mImageUri = null;
+    private String userName;
+
+    private int randomPIN;
+    private String PINString;
+    private int numberOfTriedUserNames;
+    private int startRangeCeiling;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
 
         // Setup image button to choose image from gallery
@@ -95,8 +109,12 @@ public class RegisterActivity extends AppCompatActivity {
         final String lastName = mLastNameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
+
+
+
         // if all input has been filled in create user
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
+
             myProgressBar.startProgressBar();
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -104,27 +122,13 @@ public class RegisterActivity extends AppCompatActivity {
 
                     if (task.isSuccessful()) {
                         // Sign in success,  update Realtime Db with the signed-in user's information, when finished start MainActivity
-                        currentUserID = mAuth.getCurrentUser().getUid();
-                        mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
-                        mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
-                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                        mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                                setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
-                                    @Override
-                                    public void onUserImageSet() {
-                                        myProgressBar.stopProgressBar();
-                                        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                        startActivity(mainIntent);
-                                    }
-                                });
-                                setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
-                            }
-                        });
 
+                        currentUserID = mAuth.getCurrentUser().getUid();
+
+                        // ----------------------------------- NEW
+                        numberOfTriedUserNames =0;
+                        startRangeCeiling = 10000;
+                        addUserWithRandomUserName();
 
                     } else {
                         myProgressBar.stopProgressBar();
@@ -133,6 +137,67 @@ public class RegisterActivity extends AppCompatActivity {
                     }
 
                 }
+
+                private void addUserWithRandomUserName() {
+                    Random random = new Random();
+                    randomPIN = random.nextInt(startRangeCeiling);
+                    PINString = String.valueOf(randomPIN);
+                    userName = "@"+firstName.toLowerCase()+lastName.toLowerCase()+PINString;
+
+                    //add the user
+                    rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            if (mutableData.getValue() == null) {
+                                mutableData.setValue(currentUserID);
+                                return Transaction.success(mutableData);
+                            }
+
+                            return Transaction.abort();
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
+                            if (commited) {
+                                mDatabaseUsers.child(currentUserID).child("userName").setValue(userName);
+                                mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
+                                mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
+                                mDatabaseUsers.child(currentUserID).child("fullName").setValue(firstName + " " + lastName);
+                                String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                                mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                                            @Override
+                                            public void onUserImageSet() {
+                                                myProgressBar.stopProgressBar();
+                                                Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(mainIntent);
+                                            }
+                                        });
+                                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
+                                    }
+                                });
+
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Username exists", Toast.LENGTH_SHORT).show();
+                                numberOfTriedUserNames++;
+                                if (numberOfTriedUserNames>2) {
+                                    startRangeCeiling = startRangeCeiling*10;
+                                }
+                                if (numberOfTriedUserNames<10) {
+                                    addUserWithRandomUserName();
+                                } else {
+                                    Toast.makeText(RegisterActivity.this, "Failed Registration", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+                    // ----------------------------------- NEW END
+                }
+
             });
         }
     }
