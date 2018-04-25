@@ -82,7 +82,11 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
         MapsFragment.OnCreateSessionListener,
-        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener, OnCommentClickedListener{
+        MapsFragment.OnSessionLocationChangedListener,
+        OnSessionBranchClickedListener,
+        OnChatClickedListener,
+        OnCommentClickedListener,
+        InboxFragment.OnSearchClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -214,9 +218,17 @@ public class MainPlayerActivity extends AppCompatActivity
 
         /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
         if (fromUserID!=null) {
-            allUsersFragment.onUserClickedListener.OnUserClicked(fromUserID);
+            Bundle fromUserbundle = new Bundle();
+            bundle.putString("otherUserID", fromUserID);
+            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            userProfilePublicFragment.setArguments(fromUserbundle);
+            cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true);
         } else {
-            cleanMainActivityAndSwitch(allUsersFragment);
+            cleanMainActivityAndSwitch(listSessionsFragment);
+            weekdayFilterContainer.setVisibility(View.VISIBLE);
+            mapOrListBtn.setVisibility(View.VISIBLE);
+            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
+            sortAndFilterFAB.setVisibility(View.VISIBLE);
         }
 
         /** Setup List and Map with sessions*/
@@ -676,6 +688,12 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnCommentClicked(String postID) {
         CommentFragment commentFragment = CommentFragment.newInstance(postID);
         cleanMainFullscreenActivityAndSwitch(commentFragment,true);
+    }
+
+    @Override
+    public void OnSearchClicked() {
+        AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
+        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true);
     }
 
     // Sets up weekday pager

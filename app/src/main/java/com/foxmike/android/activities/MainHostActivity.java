@@ -59,7 +59,7 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener, MapsFragment.OnCreateSessionListener,
         CreateOrEditSessionFragment.OnEditLocationListener,
-        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener, OnCommentClickedListener{
+        MapsFragment.OnSessionLocationChangedListener, OnSessionBranchClickedListener, OnChatClickedListener, OnCommentClickedListener, InboxFragment.OnSearchClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment hostUserAccountFragment;
@@ -157,7 +157,7 @@ public class MainHostActivity extends AppCompatActivity implements
         });
 
         // Set 'start page' / default fragment
-        cleanMainActivityAndSwitch(hostAllUsersFragment);
+        cleanMainActivityAndSwitch(hostInboxFragment);
 
         // Add listener to current user's chats to see if there are any chats the user has unread messages in, if so set notification to bottom bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
@@ -423,5 +423,11 @@ public class MainHostActivity extends AppCompatActivity implements
     public void OnCommentClicked(String postID) {
         CommentFragment commentFragment = CommentFragment.newInstance(postID);
         cleanMainFullscreenActivityAndSwitch(commentFragment,true,"");
+    }
+
+    @Override
+    public void OnSearchClicked() {
+        AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
+        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true,"");
     }
 }
