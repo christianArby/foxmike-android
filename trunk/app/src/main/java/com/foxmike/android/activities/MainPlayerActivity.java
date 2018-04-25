@@ -171,19 +171,16 @@ public class MainPlayerActivity extends AppCompatActivity
         }
 
         /** Setup fragments */
-        fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
         userAccountFragment = new UserAccountFragment();
         playerSessionsFragment = PlayerSessionsFragment.newInstance();
         listSessionsFragment = ListSessionsFragment.newInstance();
         inboxFragment = InboxFragment.newInstance();
-        userProfileFragment = UserProfileFragment.newInstance();
-        userProfilePublicEditFragment = userProfilePublicEditFragment.newInstance();
-        allUsersFragment = allUsersFragment.newInstance();
         Bundle bundle = new Bundle();
         bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
         mapsFragment = MapsFragment.newInstance();
         mapsFragment.setArguments(bundle);
+        fragmentManager = getSupportFragmentManager();
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
             transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
             transaction.hide(userAccountFragment);
@@ -203,10 +200,6 @@ public class MainPlayerActivity extends AppCompatActivity
         if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
             transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
             transaction.hide(inboxFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainAllUsersFragment")) {
-            transaction.add(R.id.container_main_player, allUsersFragment,"xMainAllUsersFragment");
-            transaction.hide(allUsersFragment);
         }
         transaction.commitNow();
 
@@ -371,7 +364,7 @@ public class MainPlayerActivity extends AppCompatActivity
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                if (userAccountFragment.isVisible() | playerSessionsFragment.isVisible() | listSessionsFragment.isVisible() | mapsFragment.isVisible() | inboxFragment.isVisible() | allUsersFragment.isVisible()){
+                if (userAccountFragment.isVisible() | playerSessionsFragment.isVisible() | listSessionsFragment.isVisible() | mapsFragment.isVisible() | inboxFragment.isVisible()){
                     bottomNavigation.setVisibility(View.VISIBLE);
                 }
                 if (listSessionsFragment.isVisible()| mapsFragment.isVisible()) {
@@ -733,7 +726,7 @@ public class MainPlayerActivity extends AppCompatActivity
         } else {
             // TODO Add Newsfeed fragment here later when exist
             getSupportFragmentManager().popBackStack();
-            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()&&!allUsersFragment.isVisible()){
+            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()){
 
             }
         }
@@ -782,5 +775,42 @@ public class MainPlayerActivity extends AppCompatActivity
             getSupportFragmentManager().popBackStack();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /** Setup fragments */
+        fragmentManager = getSupportFragmentManager();
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
+            userAccountFragment = new UserAccountFragment();
+            transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
+            transaction.hide(userAccountFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")) {
+            playerSessionsFragment = PlayerSessionsFragment.newInstance();
+            transaction.add(R.id.container_main_player, playerSessionsFragment,"xMainPlayerSessionsFragment");
+            transaction.hide(playerSessionsFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+            mapsFragment = MapsFragment.newInstance();
+            mapsFragment.setArguments(bundle);
+            transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
+            transaction.hide(mapsFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainListSessionsFragment")) {
+            listSessionsFragment = ListSessionsFragment.newInstance();
+            transaction.add(R.id.container_main_player, listSessionsFragment,"xMainListSessionsFragment");
+            transaction.hide(listSessionsFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
+            inboxFragment = InboxFragment.newInstance();
+            transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
+            transaction.hide(inboxFragment);
+        }
+        transaction.commitNow();
     }
 }

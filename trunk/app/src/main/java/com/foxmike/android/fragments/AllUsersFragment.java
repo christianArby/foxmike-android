@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -25,6 +26,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.UsersViewHolder;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -51,6 +53,8 @@ public class AllUsersFragment extends Fragment {
     private FirebaseRecyclerAdapter<User,UsersViewHolder> firebaseRecyclerAdapter;
     private Toolbar searchToolbar;
     private View view;
+    private FirebaseAuth mAuth;
+    private String currentUserID;
     PublishProcessor<String> pp;
 
 
@@ -95,6 +99,9 @@ public class AllUsersFragment extends Fragment {
 
                     }
                 });
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUserID = mAuth.getCurrentUser().getUid();
 
         // make sure the whole action bar is filled with the custom view
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
@@ -168,7 +175,12 @@ public class AllUsersFragment extends Fragment {
                         holder.mView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                onUserClickedListener.OnUserClicked(userId);
+                                if (userId.equals(currentUserID)) {
+                                    Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    onUserClickedListener.OnUserClicked(userId);
+                                }
+
                             }
                         });
                     }
