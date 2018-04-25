@@ -424,4 +424,29 @@ public class MainHostActivity extends AppCompatActivity implements
         AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
         cleanMainFullscreenActivityAndSwitch(allUsersFragment,true,"");
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Create instances of fragments
+        // Add fragments to container and hide them
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
+            hostUserAccountFragment = UserAccountFragment.newInstance();
+            transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
+            transaction.hide(hostUserAccountFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainHostSessionsFragment")) {
+            hostSessionsFragment = HostSessionsFragment.newInstance();
+            transaction.add(R.id.container_main_host, hostSessionsFragment,"xMainHostSessionsFragment");
+            transaction.hide(hostSessionsFragment);
+        }
+        if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
+            hostInboxFragment = InboxFragment.newInstance();
+            transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
+            transaction.hide(hostInboxFragment);
+        }
+        transaction.commit();
+    }
 }
