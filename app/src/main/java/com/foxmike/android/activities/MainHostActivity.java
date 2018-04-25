@@ -71,7 +71,6 @@ public class MainHostActivity extends AppCompatActivity implements
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
     private CreateOrEditSessionFragment createOrEditSessionFragment;
-    private AllUsersFragment hostAllUsersFragment;
     private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
@@ -107,7 +106,6 @@ public class MainHostActivity extends AppCompatActivity implements
         hostUserAccountFragment = UserAccountFragment.newInstance();
         hostSessionsFragment = HostSessionsFragment.newInstance();
         hostInboxFragment = InboxFragment.newInstance();
-        hostAllUsersFragment = AllUsersFragment.newInstance();
 
         // Add fragments to container and hide them
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -122,10 +120,6 @@ public class MainHostActivity extends AppCompatActivity implements
         if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
             transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
             transaction.hide(hostInboxFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainHostAllUsersFragment")) {
-            transaction.add(R.id.container_main_host, hostAllUsersFragment,"xMainHostAllUsersFragment");
-            transaction.hide(hostAllUsersFragment);
         }
 
         transaction.commit();
@@ -188,7 +182,7 @@ public class MainHostActivity extends AppCompatActivity implements
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible() | hostAllUsersFragment.isVisible()){
+                if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible()){
                     bottomNavigation.setVisibility(View.VISIBLE);
                 }
             }
@@ -361,7 +355,7 @@ public class MainHostActivity extends AppCompatActivity implements
         } else {
             // TODO Add Newsfeed fragment here later when exist
             getSupportFragmentManager().popBackStack();
-            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()&&!hostAllUsersFragment.isVisible()){
+            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
 
             }
         }
