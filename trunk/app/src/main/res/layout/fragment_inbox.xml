@@ -24,4 +24,13 @@
 
     </android.support.v4.view.ViewPager>
 
+    <android.support.design.widget.FloatingActionButton
+        android:src="@mipmap/ic_search_white_24dp"
+        android:id="@+id/searchFAB"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/marginVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>

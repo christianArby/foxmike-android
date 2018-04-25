@@ -3,11 +3,19 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -16,20 +24,36 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.User;
+import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
+import java.util.concurrent.TimeUnit;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.Flowable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
+
 /**
  * This fragment lists all users in database with a firebase recycler adapter and query
  */
 
 public class AllUsersFragment extends Fragment {
 
+    private EditText searchFieldET;
     private RecyclerView allUsersList;
     private DatabaseReference mUsersDatabase;
+    private LinearLayoutManager linearLayoutManager;
     public OnUserClickedListener onUserClickedListener;
+    private FirebaseRecyclerAdapter<User,UsersViewHolder> firebaseRecyclerAdapter;
+    private Toolbar searchToolbar;
+    private View view;
+    PublishProcessor<String> pp;
+
+
 
     public AllUsersFragment() {
         // Required empty public constructor
@@ -51,81 +75,111 @@ public class AllUsersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_all_users, container, false);
+        view = inflater.inflate(R.layout.fragment_all_users, container, false);
 
-        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        searchToolbar = (Toolbar)  view.findViewById(R.id.search_users_bar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(searchToolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+        View action_bar_view = inflater.inflate(R.layout.search_bar, null);
+
+        pp = PublishProcessor.create();
+        pp.debounce(500, TimeUnit.MILLISECONDS)
+                .onBackpressureLatest()
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        userSearch(s);
+
+                    }
+                });
+
+        // make sure the whole action bar is filled with the custom view
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
+                ActionBar.LayoutParams.MATCH_PARENT);
+        actionBar.setCustomView(action_bar_view, layoutParams);
+
+
+        searchFieldET = view.findViewById(R.id.searchField);
         allUsersList = (RecyclerView) view.findViewById(R.id.allUsersList);
         allUsersList.setHasFixedSize(true);
-        allUsersList.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setStackFromEnd(false);
+        allUsersList.setLayoutManager(linearLayoutManager);
+
+        searchFieldET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                pp.onNext(charSequence.toString());
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Query query = mUsersDatabase;
+    private void userSearch(final String searchText) {
 
-        FirebaseRecyclerOptions<User> options =
-                new FirebaseRecyclerOptions.Builder<User>()
-                        .setQuery(query, User.class)
-                        .build();
-
-
-        FirebaseRecyclerAdapter<User,UsersViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
-            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.users_list_single_layout, parent, false);
-                return new UsersViewHolder(view);
-            }
-            @Override
-            protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
-                holder.setName(model.getFullName());
-                holder.setStatus(model.getFullName());
-                holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+            public void run() {
 
-                final String userId = getRef(position).getKey();
+                if (firebaseRecyclerAdapter!=null) {
+                    firebaseRecyclerAdapter.stopListening();
+                }
 
-                holder.mView.setOnClickListener(new View.OnClickListener() {
+                mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                Query query = mUsersDatabase.orderByChild("firstName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
+
+                FirebaseRecyclerOptions<User> options =
+                        new FirebaseRecyclerOptions.Builder<User>()
+                                .setQuery(query, User.class)
+                                .build();
+
+                firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
                     @Override
-                    public void onClick(View view) {
-                        onUserClickedListener.OnUserClicked(userId);
+                    public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext())
+                                .inflate(R.layout.users_list_single_layout, parent, false);
+                        return new UsersViewHolder(view);
                     }
-                });
+                    @Override
+                    protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
+                        holder.setHeading(model.getFullName());
+                        holder.setText(model.getFullName(),true);
+                        holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+
+                        final String userId = getRef(position).getKey();
+
+                        holder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                onUserClickedListener.OnUserClicked(userId);
+                            }
+                        });
+                    }
+                };
+
+                allUsersList.setAdapter(firebaseRecyclerAdapter);
+                firebaseRecyclerAdapter.startListening();
 
             }
-        };
+        });
 
-        allUsersList.setAdapter(firebaseRecyclerAdapter);
-
-        firebaseRecyclerAdapter.startListening();
-    }
-
-    public static class UsersViewHolder extends RecyclerView.ViewHolder {
-
-        View mView;
-
-        public UsersViewHolder(View itemView) {
-            super(itemView);
-
-            mView = itemView;
-        }
-
-        public void setName(String name) {
-            TextView userNameTV = (TextView) mView.findViewById(R.id.user_single_name);
-            userNameTV.setText(name);
-        }
-
-        public void setStatus(String status) {
-            TextView userStatusTV = (TextView) mView.findViewById(R.id.user_single_status);
-            userStatusTV.setText(status);
-        }
-
-        public void setUserImage(String thumb_image, android.content.Context context) {
-            CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.user_single_image);
-            Glide.with(context).load(thumb_image).into(userProfileImageIV);
-        }
     }
 
     @Override
@@ -143,5 +197,12 @@ public class AllUsersFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
