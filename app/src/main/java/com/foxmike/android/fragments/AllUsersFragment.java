@@ -141,57 +141,167 @@ public class AllUsersFragment extends Fragment {
 
     private void userSearch(final String searchText) {
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        if (!searchText.equals("")) {
+            if (searchText.substring(0,1).equals("@")) {
 
-                if (firebaseRecyclerAdapter!=null) {
-                    firebaseRecyclerAdapter.stopListening();
-                }
-
-                mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-                Query query = mUsersDatabase.orderByChild("firstName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
-
-                FirebaseRecyclerOptions<User> options =
-                        new FirebaseRecyclerOptions.Builder<User>()
-                                .setQuery(query, User.class)
-                                .build();
-
-                firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
-                    public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                        View view = LayoutInflater.from(parent.getContext())
-                                .inflate(R.layout.users_list_single_layout, parent, false);
-                        return new UsersViewHolder(view);
-                    }
-                    @Override
-                    protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
-                        holder.setHeading(model.getFullName());
-                        holder.setText(model.getFullName(),true);
-                        holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+                    public void run() {
 
-                        final String userId = getRef(position).getKey();
+                        if (firebaseRecyclerAdapter!=null) {
+                            firebaseRecyclerAdapter.stopListening();
+                        }
 
-                        holder.mView.setOnClickListener(new View.OnClickListener() {
+                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        Query query = mUsersDatabase.orderByChild("userName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
+
+                        FirebaseRecyclerOptions<User> options =
+                                new FirebaseRecyclerOptions.Builder<User>()
+                                        .setQuery(query, User.class)
+                                        .build();
+
+                        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
                             @Override
-                            public void onClick(View view) {
-                                if (userId.equals(currentUserID)) {
-                                    Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    onUserClickedListener.OnUserClicked(userId);
-                                }
-
+                            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                                View view = LayoutInflater.from(parent.getContext())
+                                        .inflate(R.layout.users_list_single_layout, parent, false);
+                                return new UsersViewHolder(view);
                             }
-                        });
-                    }
-                };
+                            @Override
+                            protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
+                                holder.setHeading(model.getFullName());
+                                holder.setText(model.getFullName(),true);
+                                holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
 
-                allUsersList.setAdapter(firebaseRecyclerAdapter);
-                firebaseRecyclerAdapter.startListening();
+                                final String userId = getRef(position).getKey();
+
+                                holder.mView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (userId.equals(currentUserID)) {
+                                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onUserClickedListener.OnUserClicked(userId);
+                                        }
+
+                                    }
+                                });
+                            }
+                        };
+
+                        allUsersList.setAdapter(firebaseRecyclerAdapter);
+                        firebaseRecyclerAdapter.startListening();
+
+                    }
+                });
+
+            } else {
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (firebaseRecyclerAdapter!=null) {
+                            firebaseRecyclerAdapter.stopListening();
+                        }
+
+                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
+
+                        FirebaseRecyclerOptions<User> options =
+                                new FirebaseRecyclerOptions.Builder<User>()
+                                        .setQuery(query, User.class)
+                                        .build();
+
+                        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
+                            @Override
+                            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                                View view = LayoutInflater.from(parent.getContext())
+                                        .inflate(R.layout.users_list_single_layout, parent, false);
+                                return new UsersViewHolder(view);
+                            }
+                            @Override
+                            protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
+                                holder.setHeading(model.getFullName());
+                                holder.setText(model.getFullName(),true);
+                                holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+
+                                final String userId = getRef(position).getKey();
+
+                                holder.mView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (userId.equals(currentUserID)) {
+                                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onUserClickedListener.OnUserClicked(userId);
+                                        }
+
+                                    }
+                                });
+                            }
+                        };
+
+                        allUsersList.setAdapter(firebaseRecyclerAdapter);
+                        firebaseRecyclerAdapter.startListening();
+
+                    }
+                });
 
             }
-        });
+            // TEMPORARY TODO DELETE
+        } else {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
 
+                    if (firebaseRecyclerAdapter!=null) {
+                        firebaseRecyclerAdapter.stopListening();
+                    }
+
+                    mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                    Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
+
+                    FirebaseRecyclerOptions<User> options =
+                            new FirebaseRecyclerOptions.Builder<User>()
+                                    .setQuery(query, User.class)
+                                    .build();
+
+                    firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
+                        @Override
+                        public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                            View view = LayoutInflater.from(parent.getContext())
+                                    .inflate(R.layout.users_list_single_layout, parent, false);
+                            return new UsersViewHolder(view);
+                        }
+                        @Override
+                        protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
+                            holder.setHeading(model.getFullName());
+                            holder.setText(model.getFullName(),true);
+                            holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+
+                            final String userId = getRef(position).getKey();
+
+                            holder.mView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if (userId.equals(currentUserID)) {
+                                        Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        onUserClickedListener.OnUserClicked(userId);
+                                    }
+
+                                }
+                            });
+                        }
+                    };
+
+                    allUsersList.setAdapter(firebaseRecyclerAdapter);
+                    firebaseRecyclerAdapter.startListening();
+
+                }
+            });
+        }
     }
 
     @Override
