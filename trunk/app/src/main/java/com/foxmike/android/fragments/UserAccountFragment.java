@@ -86,7 +86,8 @@ public class UserAccountFragment extends Fragment {
         final FrameLayout progressBackground = view.findViewById(R.id.progressBackground);
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
 
-        final TextView userNameTV = profile.findViewById(R.id.profileTV);
+        final TextView fullNameTV = profile.findViewById(R.id.profileTV);
+        final TextView userNameTV = profile.findViewById(R.id.userNameTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
@@ -135,7 +136,8 @@ public class UserAccountFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                userNameTV.setText(user.getFullName());
+                fullNameTV.setText(user.getFullName());
+                userNameTV.setText(user.getUserName());
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
                 if (user.trainerMode) {
                     switchModeTV.setText(R.string.switch_to_participant_mode_text);
@@ -159,7 +161,7 @@ public class UserAccountFragment extends Fragment {
             }
         });
 
-        userNameTV.setOnClickListener(new View.OnClickListener() {
+        fullNameTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mListener != null) {

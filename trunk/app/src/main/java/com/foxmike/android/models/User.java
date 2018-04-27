@@ -16,17 +16,21 @@ public class User implements Comparable<User>{
     public HashMap<String,Boolean> chats;
     public String firstName;
     public String lastName;
+    public String fullName;
+    public String userName;
     public String image;
     public String thumb_image;
     public boolean trainerMode;
     public String aboutMe;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String image, String thumb_image, boolean trainerMode, String aboutMe) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = fullName;
+        this.userName = userName;
         this.image = image;
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
@@ -112,6 +116,18 @@ public class User implements Comparable<User>{
 
     public String getFullName() {
         return this.getFirstName() + " " + this.getLastName();
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     @Override

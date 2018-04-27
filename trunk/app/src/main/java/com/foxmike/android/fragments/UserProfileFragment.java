@@ -63,16 +63,18 @@ public class UserProfileFragment extends Fragment {
         profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
         list.addView(profile);
 
-        final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
+        final TextView fullNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
+        final TextView userNameTV = profile.findViewById(R.id.userNameProfilePublicTV);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
 
         currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User userDb = dataSnapshot.getValue(User.class);
-                userNameTV.setText(userDb.getFullName());
+                fullNameTV.setText(userDb.getFullName());
                 userAboutMeTV.setText(userDb.getAboutMe());
+                userNameTV.setText(userDb.getUserName());
                 setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
             }
             @Override

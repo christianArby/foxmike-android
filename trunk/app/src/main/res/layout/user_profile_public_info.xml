@@ -23,9 +23,21 @@
         android:layout_marginTop="@dimen/marginVertical"
         android:textColor="@color/primaryTextColor"
         android:text="@string/loading"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profilePublicIV"/>
+
+    <TextView
+        android:id="@+id/userNameProfilePublicTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="2dp"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+        android:textColor="?android:attr/textColorHint"
+        android:text="@string/loading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameProfilePublicTV"/>
 
     <TextView
         android:id="@+id/aboutMeProfilePublicTV"
@@ -36,7 +48,7 @@
         android:layout_marginEnd="@dimen/marginHorizontal"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:paddingBottom="@dimen/marginVertical"
-        app:layout_constraintTop_toBottomOf="@id/nameProfilePublicTV"
+        app:layout_constraintTop_toBottomOf="@id/userNameProfilePublicTV"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
