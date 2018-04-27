@@ -59,11 +59,31 @@
 
     <android.support.design.widget.TextInputLayout
         android:focusedByDefault="false"
-        android:id="@+id/aboutMeProfilePublicEditTIL"
+        android:id="@+id/userNameProfilePublicEditTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toBottomOf="@id/lastNameProfilePublicEditTIL"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:id="@+id/userNameProfilePublicEditET"
+            android:hint="username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType=""/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/aboutMeProfilePublicEditTIL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/userNameProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText

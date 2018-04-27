@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +79,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         final EditText userFirstNameET = profile.findViewById(R.id.firstNameProfilePublicEditET);
         final EditText userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
         final EditText userAboutMeET = profile.findViewById(R.id.aboutMeProfilePublicEditET);
+        final EditText userNameET = profile.findViewById(R.id.userNameProfilePublicEditET);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
@@ -89,11 +92,51 @@ public class UserProfilePublicEditFragment extends Fragment {
                 userFirstNameET.setText(user.getFirstName());
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
+                userNameET.setText(user.getUserName());
                 setImageButton(user.image,profileImageButton);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        userNameET.addTextChangedListener(new TextWatcher() {
+            boolean _ignore = false;
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (_ignore)
+                    return;
+
+                _ignore = true; // prevent infinite loop
+
+                if (editable.toString().equals("")) {
+                    userNameET.setText("@");
+                    userNameET.setSelection(userNameET.getText().length());
+                } else if (!editable.toString().substring(0,1).equals("@")) {
+                    userNameET.setText("@" + editable.toString().toLowerCase());
+                    userNameET.setSelection(userNameET.getText().length());
+                } else {
+                    int pos = userNameET.getSelectionStart();
+                    userNameET.setText(editable.toString().toLowerCase());
+                    userNameET.setSelection(pos);
+                }
+
+                _ignore = false; // release, so the TextWatcher start to listen again.
+
+
+
 
             }
         });
@@ -108,6 +151,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                 usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {

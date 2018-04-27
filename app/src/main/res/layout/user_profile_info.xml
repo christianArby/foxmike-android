@@ -22,24 +22,50 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
         android:text="@string/loading"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
         android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileIV"/>
 
     <TextView
-        android:id="@+id/edit_session_question"
-        android:layout_width="match_parent"
+        android:id="@+id/userNameTV"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/margin_left"
-        android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/margin_minimum"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="2dp"
         android:paddingBottom="@dimen/marginVertical"
-        android:text="@string/show_and_edit_profile_text"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:text="@string/loading"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorHint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileTV"/>
+
+    <View
+        android:id="@+id/spaceView0"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toBottomOf="@id/userNameTV"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <TextView
+        android:id="@+id/edit_session_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center"
+        android:paddingStart="@dimen/margin_left"
+        android:paddingEnd="@dimen/margin_left"
+        android:paddingTop="@dimen/marginVertical"
+        android:paddingBottom="@dimen/marginVertical"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:text="@string/show_and_edit_profile_text"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spaceView0"/>
 
     <View
         android:id="@+id/spaceView1"

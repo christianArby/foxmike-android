@@ -194,6 +194,8 @@ public class FriendsFragment extends Fragment {
                                 // Write the first letter heading
                                 if (userBranches.size()>0) {
                                     User dummyUser = new User();
+
+                                    ////// TODO !!!!!! fullname fuckup
                                     dummyUser.setAboutMe(userBranches.get(0).getUser().getFirstName().substring(0,1));
                                     UserBranch userBranch = new UserBranch("header",dummyUser);
                                     userBranches.add(0,userBranch);

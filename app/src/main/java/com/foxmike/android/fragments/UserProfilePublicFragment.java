@@ -83,8 +83,9 @@ public class UserProfilePublicFragment extends Fragment {
         profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
         list.addView(profile);
 
-        final TextView userNameTV = profile.findViewById(R.id.nameProfilePublicTV);
+        final TextView fullNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
+        final TextView userNameTV = profile.findViewById(R.id.userNameProfilePublicTV);
         sendRequestBtn = view.findViewById(R.id.send_request_btn);
         declineBtn = view.findViewById(R.id.decline_request_btn);
         sendMessageBtn = view.findViewById(R.id.send_message_btn);
@@ -112,8 +113,9 @@ public class UserProfilePublicFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
                 otherUser = dataSnapshot.getValue(User.class);
-                userNameTV.setText(otherUser.getFullName());
+                fullNameTV.setText(otherUser.getFullName());
                 userAboutMeTV.setText(otherUser.getAboutMe());
+                userNameTV.setText(otherUser.getUserName());
                 setCircleImage(otherUser.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
