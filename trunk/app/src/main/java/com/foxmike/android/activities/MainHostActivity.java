@@ -132,17 +132,17 @@ public class MainHostActivity extends AppCompatActivity implements
                 switch (position) {
                     case 0:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(hostInboxFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostInboxFragment"));
                             return true;
                         }
                     case 1:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(hostSessionsFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostSessionsFragment"));
                             return true;
                         }
                     case 2:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(hostUserAccountFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostUserAccountFragment"));
                             return true;
                         }
                 }
@@ -151,7 +151,7 @@ public class MainHostActivity extends AppCompatActivity implements
         });
 
         // Set 'start page' / default fragment
-        cleanMainActivityAndSwitch(hostInboxFragment);
+        cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostInboxFragment"));
 
         // Add listener to current user's chats to see if there are any chats the user has unread messages in, if so set notification to bottom bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
