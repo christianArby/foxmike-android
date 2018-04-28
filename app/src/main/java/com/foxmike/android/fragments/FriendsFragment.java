@@ -267,8 +267,8 @@ public class FriendsFragment extends Fragment {
                 if (userBranches.get(position).getUserID().equals("header")) {
                     ((HeaderViewHolder) holder).setHeading(userBranches.get(position).getUser().getAboutMe());
                 } else {
-                    ((UsersViewHolder) holder).setText("nothing", true);
                     final User friend = userBranches.get(position).getUser();
+                    ((UsersViewHolder) holder).setText(friend.getUserName(), true);
                     ((UsersViewHolder) holder).setHeading(friend.getFullName());
                     ((UsersViewHolder) holder).setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                     if (presenceHashMap.get(position) == null) {

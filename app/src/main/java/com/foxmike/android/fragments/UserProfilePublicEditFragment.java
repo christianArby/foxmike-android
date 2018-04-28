@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserFoundListener;
@@ -145,26 +148,35 @@ public class UserProfilePublicEditFragment extends Fragment {
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
-                myProgressBar.startProgressBar();
 
-                usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
-                usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
-                usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
-                usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
-                if(mImageUri!=null) {
-                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
-                        @Override
-                        public void onUserImageSet() {
-                            mListener.OnUserProfilePublicEditFragmentInteraction();
-                            myProgressBar.stopProgressBar();
-                        }
-                    });
-                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
+                char[] notContain = {'.', '#', '$', '[', ']'};
+
+                String cannotContain = getString(R.string.userName_cannotContain_text);
+
+                if (containsAny(userNameET.getText().toString(),notContain)) {
+                    Toast.makeText(getActivity(), cannotContain, Toast.LENGTH_SHORT).show();
                 } else {
-                    mListener.OnUserProfilePublicEditFragmentInteraction();
-                    myProgressBar.stopProgressBar();
+                    final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+                    myProgressBar.startProgressBar();
+
+                    usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
+                    usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
+                    usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+                    usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+                    if(mImageUri!=null) {
+                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                            @Override
+                            public void onUserImageSet() {
+                                mListener.OnUserProfilePublicEditFragmentInteraction();
+                                myProgressBar.stopProgressBar();
+                            }
+                        });
+                        setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
+                    } else {
+                        mListener.OnUserProfilePublicEditFragmentInteraction();
+                        myProgressBar.stopProgressBar();
+                    }
                 }
             }
         });
@@ -241,5 +253,20 @@ public class UserProfilePublicEditFragment extends Fragment {
         if (currentUserListener!=null) {
             usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
         }
+    }
+
+    public static boolean containsAny(String str, char[] searchChars) {
+        if (str == null || str.length() == 0 || searchChars == null || searchChars.length == 0) {
+            return false;
+        }
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            for (int j = 0; j < searchChars.length; j++) {
+                if (searchChars[j] == ch) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

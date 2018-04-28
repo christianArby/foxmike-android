@@ -288,5 +288,6 @@
     <string name="today_filter_text">Today</string>
     <string name="tomorrow_text">Tomorrow</string>
     <string name="today_text">Today</string>
+    <string name="userName_cannotContain_text">Username cannot contain charachters \'.\', \'#\', \'$\', \'[\', or \']\'</string>
 
 </resources>
