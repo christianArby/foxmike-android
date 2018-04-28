@@ -252,7 +252,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 switch (position) {
                     case 0:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(listSessionsFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainListSessionsFragment"));
                             weekdayFilterContainer.setVisibility(View.VISIBLE);
                             mapOrListBtn.setVisibility(View.VISIBLE);
                             mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
@@ -261,17 +261,17 @@ public class MainPlayerActivity extends AppCompatActivity
                         }
                     case 1:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(playerSessionsFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment"));
                             return true;
                         }
                     case 2:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(inboxFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainInboxFragment"));
                             return true;
                         }
                     case 3:
                         if (!wasSelected) {
-                            cleanMainActivityAndSwitch(userAccountFragment);
+                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainUserAccountFragment"));
                             return true;
                         }
                 }
@@ -312,14 +312,14 @@ public class MainPlayerActivity extends AppCompatActivity
         mapOrListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mapsFragment.isVisible()) {
+                if (fragmentManager.findFragmentByTag("xMainMapsFragment").isVisible()) {
                     FragmentTransaction transaction1 = fragmentManager.beginTransaction();
                     transaction1.hide(mapsFragment);
                     transaction1.show(listSessionsFragment);
                     transaction1.commit();
                     mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                     myLocationBtn.setVisibility(View.GONE);
-                } else if (listSessionsFragment.isVisible()) {
+                } else if (fragmentManager.findFragmentByTag("xMainListSessionsFragment").isVisible()) {
                     FragmentTransaction transaction2 = fragmentManager.beginTransaction();
                     transaction2.hide(listSessionsFragment);
                     transaction2.show(mapsFragment);
@@ -328,8 +328,8 @@ public class MainPlayerActivity extends AppCompatActivity
                     myLocationBtn.setVisibility(View.VISIBLE);
                 } else {
                     FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                    transaction3.hide(mapsFragment);
-                    transaction3.show(listSessionsFragment);
+                    transaction3.hide(fragmentManager.findFragmentByTag("xMainMapsFragment"));
+                    transaction3.show(fragmentManager.findFragmentByTag("xMainListSessionsFragment"));
                     transaction3.commit();
                     mapOrListBtn.setVisibility(View.VISIBLE);
                     mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
