@@ -142,7 +142,11 @@ public class RegisterActivity extends AppCompatActivity {
                     Random random = new Random();
                     randomPIN = random.nextInt(startRangeCeiling);
                     PINString = String.valueOf(randomPIN);
-                    userName = "@"+firstName.toLowerCase()+lastName.toLowerCase()+PINString;
+                    if (numberOfTriedUserNames>0) {
+                        userName = "@"+firstName.toLowerCase()+lastName.toLowerCase()+PINString;
+                    } else {
+                        userName = "@"+firstName.toLowerCase()+lastName.toLowerCase();
+                    }
 
                     //add the user
                     rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {

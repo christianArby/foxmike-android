@@ -67,6 +67,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/spaceView0"/>
 
+    <ImageView
+        android:contentDescription="edit_session_question_icon"
+        android:id="@+id/edit_session_questionIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_left"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/ic_mode_edit_black_24dp"
+        app:layout_constraintTop_toTopOf="@id/edit_session_question"
+        app:layout_constraintBottom_toBottomOf="@id/edit_session_question"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <View
         android:id="@+id/spaceView1"
         android:layout_width="match_parent"
