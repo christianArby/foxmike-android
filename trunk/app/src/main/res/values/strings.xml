@@ -155,6 +155,8 @@
     <string name="distance6_text">150 km</string>
     <string name="distanceMax">3000 km</string>
 
+    <string name="sort_type_date">date</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="choose_profile_picture">Choose profile picture</string>

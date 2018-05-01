@@ -156,6 +156,8 @@
     <string name="distance6_text">150 km</string>
     <string name="distanceMax">3000 km</string>
 
+    <string name="sort_type_date">Datum</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="choose_profile_picture">Välj profilbild</string>
@@ -215,7 +217,7 @@
     <string name="date_text">Datum</string>
     <string name="distance_word">Distans</string>
     <string name="switch_to_participant_mode_text">Byt till deltagarläge</string>
-    <string name="switch_to_host_mode_text">Byt till träninarläge</string>
+    <string name="switch_to_host_mode_text">Byt till tränarläge</string>
     <string name="hint_enter_message">Skriv meddelande ...</string>
     <string name="CD_send_button">Skicka-knappen</string>
     <string name="placeholder_user_name">Visningsnamn</string>
