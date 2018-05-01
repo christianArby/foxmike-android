@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Foxmike</string>
+    <string name="title_activity_maps">SportsApp</string>
+    <string name="title_activity_user_activity">Your page</string>
+    <string name="title_activity_training_session">Create session</string>
+    <string name="title_activity_register">Register</string>
+    <string name="title_activity_join_session">Session</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_list">Explore</string>
+    <string name="menu_profile">Profile</string>
+
+    <string-array name="sessionType_array">
+        <item>Löpning</item>
+        <item>Cykling</item>
+        <item>Trailing</item>
+        <item>Fysiskt</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="duration_array">
+        <item>10 min</item>
+        <item>20 min</item>
+        <item>30 min</item>
+        <item>40 min</item>
+        <item>50 min</item>
+        <item>60 min</item>
+        <item>70 min</item>
+        <item>80 min</item>
+        <item>90 min</item>
+        <item>100 min</item>
+        <item>110 min</item>
+        <item>120 min</item>
+    </string-array>
+
+    <string-array name="max_participants_array">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+        <item>32</item>
+        <item>33</item>
+        <item>34</item>
+        <item>35</item>
+        <item>36</item>
+        <item>37</item>
+        <item>38</item>
+        <item>39</item>
+        <item>40</item>
+        <item>41</item>
+        <item>42</item>
+        <item>43</item>
+        <item>44</item>
+        <item>45</item>
+        <item>46</item>
+        <item>47</item>
+        <item>48</item>
+        <item>49</item>
+        <item>50</item>
+        <item>51</item>
+        <item>52</item>
+        <item>53</item>
+        <item>54</item>
+        <item>55</item>
+        <item>56</item>
+        <item>57</item>
+        <item>58</item>
+        <item>59</item>
+        <item>60</item>
+        <item>61</item>
+        <item>62</item>
+        <item>63</item>
+        <item>64</item>
+        <item>65</item>
+        <item>66</item>
+        <item>67</item>
+        <item>68</item>
+        <item>69</item>
+        <item>70</item>
+        <item>71</item>
+        <item>72</item>
+        <item>73</item>
+        <item>74</item>
+        <item>75</item>
+        <item>76</item>
+        <item>77</item>
+        <item>78</item>
+        <item>79</item>
+        <item>80</item>
+        <item>81</item>
+        <item>82</item>
+        <item>83</item>
+        <item>84</item>
+        <item>85</item>
+        <item>86</item>
+        <item>87</item>
+        <item>88</item>
+        <item>89</item>
+        <item>90</item>
+        <item>91</item>
+        <item>92</item>
+        <item>93</item>
+        <item>94</item>
+        <item>95</item>
+        <item>96</item>
+        <item>97</item>
+        <item>98</item>
+        <item>99</item>
+        <item>100</item>
+    </string-array>
+
+    <string-array name="sort_list_array">
+        <item>Datum</item>
+        <item>Distans</item>
+    </string-array>
+
+    <string-array name="filter_list_array">
+        <item>600 km</item>
+        <item>3 km</item>
+        <item>1 km</item>
+    </string-array>
+
+    <string name="distance1_text">3 km</string>
+    <string name="distance2_text">8 km</string>
+    <string name="distance3_text">16 km</string>
+    <string name="distance4_text">40 km</string>
+    <string name="distance5_text">80 km</string>
+    <string name="distance6_text">150 km</string>
+    <string name="distanceMax">3000 km</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="choose_profile_picture">Välj profilbild</string>
+    <string name="session_image">Passbild</string>
+    <string name="switch_mode_icon">Växla lägesikonen</string>
+    <string name="loading">Läser in...</string>
+    <string name="switch_to_trainer_mode">Byt till tränarläge</string>
+    <string name="email">E-post</string>
+    <string name="password">Lösenord</string>
+    <string name="login">Logga in</string>
+    <string name="need_an_account">Behöver du ett konto?</string>
+    <string name="your_name">Ditt namn</string>
+    <string name="your_email">Din email</string>
+    <string name="your_password">Ditt lösenord</string>
+    <string name="sign_up">Bli Medlem</string>
+    <string name="finish_setup">Slutför registreringen</string>
+    <string name="session_name">Namn på passet</string>
+    <string name="session_type">Passtyp</string>
+    <string name="date">Datum</string>
+    <string name="time">Tid</string>
+    <string name="mlevel">Nivå</string>
+    <string name="maximum_participants">Maximalt antal deltagare</string>
+    <string name="mDescription">Beskrivning</string>
+    <string name="create_session">Skapa pass</string>
+    <string name="set">Bestäm</string>
+    <string name="join_session">Gå med i passet</string>
+    <string name="session_name_goes_here">Passnamn</string>
+    <string name="address">Adress</string>
+    <string name="trainer_name">Trainer namn</string>
+    <string name="log_out">Logga ut</string>
+    <string name="clear_db">Klar Db</string>
+    <string name="session_text">Sessiontext</string>
+    <string name="description_goes_here">Beskriv passet</string>
+    <string name="date_goes_here">Datum</string>
+    <string name="sessions">Pass</string>
+    <string name="is_you_trainer">är din tränare</string>
+    <string name="cancel_booking">Avboka pass</string>
+    <string name="update_session">Uppdatera pass</string>
+    <string name="sessions_attending">Bokade pass</string>
+    <string name="sessions_hosting">Mina pass</string>
+    <string name="display_session">Visningssession</string>
+    <string name="updating_session">Uppdaterar pass …</string>
+    <string name="creating_session">Skapa pass ...</string>
+    <string name="select_time">Välj tid</string>
+    <string name="choose_session_type">Välj passtyp</string>
+    <string name="session_duration">Passets varaktighet i minuter</string>
+    <string name="nr_participants">Antal deltagare</string>
+    <string name="type_in_necessary_information">Skriv in nödvändig information</string>
+    <string name="tab_messages">Meddelanden</string>
+    <string name="tab_friends">Vänner</string>
+    <string name="tab_notifications">Notifikationer</string>
+    <string name="unknown_area">Okänt område</string>
+    <string name="failed">misslyckades</string>
+    <string name="Session_not_found_please_try_again_later">Passet hittades inte, försök igen senare.</string>
+    <string name="meet_your_session_leader">Möt din passledare,</string>
+    <string name="upcoming_advertisements">Kommande annonser</string>
+    <string name="date_text">Datum</string>
+    <string name="distance_word">Distans</string>
+    <string name="switch_to_participant_mode_text">Byt till deltagarläge</string>
+    <string name="switch_to_host_mode_text">Byt till träninarläge</string>
+    <string name="hint_enter_message">Skriv meddelande ...</string>
+    <string name="CD_send_button">Skicka-knappen</string>
+    <string name="placeholder_user_name">Visningsnamn</string>
+    <string name="placeholder_last_seen">Sågs senast</string>
+    <string name="CD_choose_session_image_button">Välj sessionsbildsknapp</string>
+    <string name="CD_location_icon">Location_icon</string>
+    <string name="advertised_word">Annonserade</string>
+    <string name="CD_date_icon">Datum ikon</string>
+    <string name="CD_duration_icon">Varaktighetsikonen</string>
+    <string name="duration_hint">Varaktighet</string>
+    <string name="CD_participants_icon">Deltagarnas ikon</string>
+    <string name="CD_time_icon">Tidikonen</string>
+    <string name="what_hint">Vad vi ska göra</string>
+    <string name="who_hint">Vem som kan vara med</string>
+    <string name="where_hint">Var vi ska vara</string>
+    <string name="location_loading">Plats laddas ...</string>
+    <string name="advertised_text">Annonserade</string>
+    <string name="advertised_not_text">Ej annonserad</string>
+    <string name="booked_text">Bokningar</string>
+    <string name="booked_history_text">Tidigare</string>
+    <string name="send_message_text">Skicka meddelande</string>
+    <string name="what_heading">Vad vi ska göra</string>
+    <string name="who_heading">Vem som kan vara med</string>
+    <string name="where_heading">Var vi ska vara</string>
+    <string name="pick_location_text">Välj en plats genom att klicka på kartan!</string>
+    <string name="Sort_on_text">Sortera efter:</string>
+    <string name="filter_on_distance_text">Filtrera på avstånd:</string>
+    <string name="send_friend_request_text">Skicka vänförfrågan</string>
+    <string name="decline_friend_request_text">Avvisa vänförfrågan</string>
+    <string name="Write_something_hint_text">Skriva något…</string>
+    <string name="make_comment_text">Kommentera</string>
+    <string name="log_out_text">Logga ut</string>
+    <string name="show_and_edit_profile_text">Visa och redigera profil</string>
+    <string name="update_profile_button_text">Uppdatera profil</string>
+    <string name="post_text">Posta</string>
+    <string name="send_post_text">SKICKA</string>
+    <string name="friend_requests_text">Vänförfrågan</string>
+    <string name="your_friends_text">Dina vänner</string>
+    <string name="sessionLeader">Passledare:</string>
+    <string name="hosted_by_text">Anordnas av</string>
+    <string name="last_seen_text">Sågs \ u0020</string>
+    <string name="comment_text">\ u0020comment</string>
+    <string name="comments_text">\ u0020comments</string>
+    <string name="login_text">Logga in</string>
+    <string name="register_text">Registrera</string>
+    <string name="welcome_to_foxmike_text">Välkommen till Foxmike.</string>
+    <string name="continue_to_facebook_text">Fortsätt med Facebook</string>
+    <string name="create_account_text">Skapa konto</string>
+    <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes användarvillkor.</string>
+    <string name="aboutMe_text">Skriv något om dig själv</string>
+    <string name="first_name_text">Förnamn</string>
+    <string name="last_name_text">Efternamn</string>
+    <string name="today_filter_text">Idag</string>
+    <string name="tomorrow_text">Imorgon</string>
+    <string name="today_text">Idag</string>
+    <string name="userName_cannotContain_text">Användarnamnet kan inte innehålla följande tecken \ '. \', \ '# \', \ '$ \', \ '[\', Eller \ '] \'</string>
+</resources>

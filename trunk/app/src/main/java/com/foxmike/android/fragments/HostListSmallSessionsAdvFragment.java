@@ -99,7 +99,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
                                 if (sessionsAdv.get(n).getSession().supplyDate().after(twoWeeksDate) && keepLooking) {
                                     Session dummySession = new Session();
                                     dummySession.setImageUrl("sectionHeader");
-                                    dummySession.setSessionName(getString(R.string.upcoming_listings));
+                                    dummySession.setSessionName(getString(R.string.upcoming_advertisements));
                                     SessionBranch dummySessionBranch = new SessionBranch("irrelevant", dummySession);
                                     sessionsAdv.add(n, dummySessionBranch);
                                     keepLooking=false;

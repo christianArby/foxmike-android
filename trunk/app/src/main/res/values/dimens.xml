@@ -45,20 +45,25 @@
 
 
 
-    <dimen name="marginVertical">16dp</dimen>
-    <dimen name="marginHorizontal">16dp</dimen>
+
 
     <dimen name="profileImage_inText_height">48dp</dimen>
     <dimen name="profileImage_inText_width">48dp</dimen>
     <dimen name="singleAvatar_inText_height">56dp</dimen>
     <dimen name="singleAvatar_inText_width">56dp</dimen>
+    <dimen name="profileImageDiameterMini">40dp</dimen>
     <dimen name="margin_minimum">8dp</dimen>
 
     <dimen name="margin_left">16dp</dimen>
     <dimen name="margin_right">16dp</dimen>
+    <dimen name="marginVertical">16dp</dimen>
+    <dimen name="marginHorizontal">16dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
     <dimen name="leadSub2Body">4dp</dimen>
     <dimen name="leadDisplay1">7dp</dimen>
-    <dimen name="toolbar_height">56dp</dimen>
+
+
+
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="bottom_bar_elevation">16dp</dimen>
     <dimen name="marginSubHeadBottom">10dp</dimen>
@@ -66,7 +71,7 @@
     <dimen name="elevation_normal">4dp</dimen>
     <dimen name="appBarElevation">4dp</dimen>
     <dimen name="elevation_fullscreen">9dp</dimen>
-    <dimen name="profileImageDiameterMini">40dp</dimen>
+
     <dimen name="leadDisplay1ToSub">15dp</dimen>
 
 

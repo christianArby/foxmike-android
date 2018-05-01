@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -26,13 +27,18 @@ import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.foxmike.android.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -49,6 +55,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     private OnUserProfilePublicEditFragmentInteractionListener mListener;
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private ValueEventListener currentUserListener;
     private CircleImageView profileImageButton;
@@ -137,10 +144,6 @@ public class UserProfilePublicEditFragment extends Fragment {
                 }
 
                 _ignore = false; // release, so the TextWatcher start to listen again.
-
-
-
-
             }
         });
 
@@ -149,34 +152,64 @@ public class UserProfilePublicEditFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                char[] notContain = {'.', '#', '$', '[', ']'};
+                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+                myProgressBar.startProgressBar();
 
+                // Define characters not allowed in username
+                char[] notContain = {'.', '#', '$', '[', ']'};
                 String cannotContain = getString(R.string.userName_cannotContain_text);
 
-                if (containsAny(userNameET.getText().toString(),notContain)) {
+                String userName = userNameET.getText().toString();
+                // check input so that username only contains vaild characters
+                if (containsAny(userName,notContain)) {
+                    myProgressBar.stopProgressBar();
                     Toast.makeText(getActivity(), cannotContain, Toast.LENGTH_SHORT).show();
                 } else {
-                    final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
-                    myProgressBar.startProgressBar();
 
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
-                    usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
-                    if(mImageUri!=null) {
-                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
-                            @Override
-                            public void onUserImageSet() {
-                                mListener.OnUserProfilePublicEditFragmentInteraction();
-                                myProgressBar.stopProgressBar();
+                    // check if username already exists in database
+                    rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            if (mutableData.getValue() == null) {
+                                mutableData.setValue(currentFirebaseUser.getUid());
+                                return Transaction.success(mutableData);
                             }
-                        });
-                        setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
-                    } else {
-                        mListener.OnUserProfilePublicEditFragmentInteraction();
-                        myProgressBar.stopProgressBar();
-                    }
+
+                            return Transaction.abort();
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
+
+                            // if commited, username did not exist, write to database
+                            if (commited) {
+
+                                usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
+                                usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
+                                usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+                                usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+                                if(mImageUri!=null) {
+                                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                                        @Override
+                                        public void onUserImageSet() {
+                                            mListener.OnUserProfilePublicEditFragmentInteraction();
+                                            myProgressBar.stopProgressBar();
+                                        }
+                                    });
+                                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
+                                } else {
+                                    mListener.OnUserProfilePublicEditFragmentInteraction();
+                                    myProgressBar.stopProgressBar();
+                                }
+
+                            // else dismiss and tell the user the username is already taken
+                            } else {
+                                myProgressBar.stopProgressBar();
+                                Toast.makeText(getActivity(), "The username is already taken", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });
