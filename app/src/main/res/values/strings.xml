@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SportsApp</string>
+    <string name="app_name">Foxmike</string>
     <string name="title_activity_maps">SportsApp</string>
     <string name="title_activity_user_activity">Your page</string>
     <string name="title_activity_training_session">Create session</string>
@@ -10,15 +10,10 @@
     <string name="menu_profile">Profile</string>
 
     <string-array name="sessionType_array">
-               
         <item>Running</item>
-
         <item>Biking</item>
-               
         <item>Trailing</item>
-               
         <item>Physical</item>
-
         <item>Other</item>
     </string-array>
 
@@ -141,20 +136,6 @@
         <item>100</item>
     </string-array>
 
-    <string-array name="titles">
-        <item>Facebook</item>
-        <item>Instagram</item>
-        <item>Twitter</item>
-        <item>Google</item>
-    </string-array>
-
-    <string-array name="mDescription">
-        <item>Facebook Description</item>
-        <item>Instagram Description</item>
-        <item>Twitter Description</item>
-        <item>Google Description</item>
-    </string-array>
-
     <string-array name="sort_list_array">
         <item>Date</item>
         <item>Distance</item>
@@ -175,6 +156,7 @@
     <string name="distanceMax">3000 km</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="choose_profile_picture">Choose profile picture</string>
     <string name="session_image">Session image</string>
     <string name="switch_mode_icon">Switch mode icon</string>
@@ -214,26 +196,26 @@
     <string name="sessions_attending">Sessions Attending</string>
     <string name="sessions_hosting">Sessions Hosting</string>
     <string name="display_session">Display session</string>
-    <string name="updating_session">Updating session ...</string>
-    <string name="creating_session">Creating session ...</string>
+    <string name="updating_session">Updating session…</string>
+    <string name="creating_session">Creating session…</string>
     <string name="select_time">Select Time</string>
     <string name="choose_session_type">Choose session type</string>
     <string name="session_duration">Session duration in minutes</string>
     <string name="nr_participants">Nr of participants</string>
     <string name="type_in_necessary_information">Type in necessary information</string>
-    <string name="tab_messages">MESSAGES</string>
-    <string name="tab_friends">FRIENDS</string>
-    <string name="tab_notifications">NOTIFICATIONS</string>
+    <string name="tab_messages">Messages</string>
+    <string name="tab_friends">Friends</string>
+    <string name="tab_notifications">Notifications</string>
     <string name="unknown_area">Unknown area</string>
     <string name="failed">failed</string>
-    <string name="Session_not_found_please_try_again_later">Session not found, please try again later...</string>
+    <string name="Session_not_found_please_try_again_later">Session not found, please try again later.</string>
     <string name="meet_your_session_leader">Meet your session leader,</string>
-    <string name="upcoming_listings">Kommande annonseringar</string>
+    <string name="upcoming_advertisements">Upcoming advertisements</string>
     <string name="date_text">Date</string>
     <string name="distance_word">Distance</string>
     <string name="switch_to_participant_mode_text">Switch to participant mode</string>
     <string name="switch_to_host_mode_text">Switch to trainer mode</string>
-    <string name="hint_enter_message">Enter Message...</string>
+    <string name="hint_enter_message">Enter Message…</string>
     <string name="CD_send_button">Send button</string>
     <string name="placeholder_user_name">Display Name</string>
     <string name="placeholder_last_seen">Last Seen</string>
@@ -248,22 +230,22 @@
     <string name="what_hint">What will you do</string>
     <string name="who_hint">Who can attend</string>
     <string name="where_hint">Where will you be</string>
-    <string name="location_loading">Location loading...</string>
-    <string name="advertised_text">Annonserade</string>
-    <string name="advertised_not_text">Avannonserade</string>
-    <string name="booked_text">BOKADE</string>
-    <string name="booked_history_text">TIDIGARE</string>
+    <string name="location_loading">Location loading…</string>
+    <string name="advertised_text">Advertised</string>
+    <string name="advertised_not_text">Not advertised</string>
+    <string name="booked_text">Bookings</string>
+    <string name="booked_history_text">History</string>
     <string name="send_message_text">Send message</string>
-    <string name="what_heading">Vad vi ska göra</string>
-    <string name="who_heading">Vem som kan vara med</string>
-    <string name="where_heading">Var vi ska vara</string>
+    <string name="what_heading">What we’ll do</string>
+    <string name="who_heading">Who can come</string>
+    <string name="where_heading">Where we’ll be</string>
     <string name="pick_location_text">Pick a location by clicking on map!</string>
     <string name="Sort_on_text">Sort by:</string>
     <string name="filter_on_distance_text">Filter by distance:</string>
     <string name="send_friend_request_text">Send friend request</string>
     <string name="decline_friend_request_text">Decline friend request</string>
-    <string name="Write_something_hint_text">Skriv något...</string>
-    <string name="make_comment_text">Kommentera</string>
+    <string name="Write_something_hint_text">Write something…</string>
+    <string name="make_comment_text">Comment</string>
     <string name="log_out_text">Log out</string>
     <string name="show_and_edit_profile_text">Show and edit profile</string>
     <string name="update_profile_button_text">Update profile</string>
@@ -271,11 +253,11 @@
     <string name="send_post_text">SEND</string>
     <string name="friend_requests_text">Friend requests</string>
     <string name="your_friends_text">Your friends</string>
-    <string name="sessionLeader">Sessionleader:</string>
-    <string name="hosted_by_text">Anordnas av</string>
+    <string name="sessionLeader">Session leader:</string>
+    <string name="hosted_by_text">Arranged by</string>
     <string name="last_seen_text">Last seen\u0020</string>
-    <string name="comment_text">\u0020kommentar</string>
-    <string name="comments_text">\u0020kommentarer</string>
+    <string name="comment_text">\u0020comment</string>
+    <string name="comments_text">\u0020comments</string>
     <string name="login_text">Login</string>
     <string name="register_text">Register</string>
     <string name="welcome_to_foxmike_text">Welcome to Foxmike.</string>
@@ -288,6 +270,6 @@
     <string name="today_filter_text">Today</string>
     <string name="tomorrow_text">Tomorrow</string>
     <string name="today_text">Today</string>
-    <string name="userName_cannotContain_text">Username cannot contain charachters \'.\', \'#\', \'$\', \'[\', or \']\'</string>
+    <string name="userName_cannotContain_text">Username cannot contain characters \'.\', \'#\', \'$\', \'[\', or \']\'</string>
 
 </resources>
