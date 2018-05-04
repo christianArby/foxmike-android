@@ -10,6 +10,7 @@
     <string name="menu_list">Explore</string>
     <string name="menu_profile">Profile</string>
 
+
     <string-array name="sessionType_array">
         <item>Löpning</item>
         <item>Cykling</item>

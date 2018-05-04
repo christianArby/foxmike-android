@@ -9,6 +9,10 @@
     <string name="menu_list">Explore</string>
     <string name="menu_profile">Profile</string>
 
+    <string name="facebook_app_id">211455316122280</string>
+    <string name="fb_login_protocol_scheme">fb211455316122280</string>
+
+
     <string-array name="sessionType_array">
         <item>Running</item>
         <item>Biking</item>

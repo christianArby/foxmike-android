@@ -33,6 +33,8 @@ import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -125,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         currentUserID = mAuth.getCurrentUser().getUid();
 
-                        // ----------------------------------- NEW
+                        // ----------------------------------- NEW -------------------------
                         numberOfTriedUserNames =0;
                         startRangeCeiling = 10000;
                         addUserWithRandomUserName();
@@ -163,12 +165,13 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
                             if (commited) {
-                                mDatabaseUsers.child(currentUserID).child("userName").setValue(userName);
-                                mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
-                                mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
-                                mDatabaseUsers.child(currentUserID).child("fullName").setValue(firstName + " " + lastName);
-                                String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                                mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                                Map userMap = new HashMap();
+                                userMap.put("userName",userName);
+                                userMap.put("firstName",firstName);
+                                userMap.put("lastName",lastName);
+                                userMap.put("fullName",firstName + " " + lastName);
+                                mDatabaseUsers.child(currentUserID).setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();

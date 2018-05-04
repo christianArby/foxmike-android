@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 //Checked
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,11 +14,17 @@ import android.widget.ProgressBar;
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -78,19 +85,26 @@ public class SetupAccountActivity extends AppCompatActivity {
 
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && mImageUri != null){
 
-            mDatabaseUsers.child(currentUserID).child("firstName").setValue(firstName);
-            mDatabaseUsers.child(currentUserID).child("lastName").setValue(lastName);
-            SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-            setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+            Map userMap = new HashMap();
+            userMap.put("firstName", firstName);
+            userMap.put("lastName", lastName);
+
+            mDatabaseUsers.child(currentUserID).setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
-                public void onUserImageSet() {
-                    myProgressBar.stopProgressBar();
-                    Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
+                public void onComplete(@NonNull Task<Void> task) {
+                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                        @Override
+                        public void onUserImageSet() {
+                            myProgressBar.stopProgressBar();
+                            Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(mainIntent);
+                        }
+                    });
+                    setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this,mImageUri,currentUserID);
                 }
             });
-            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this,mImageUri,currentUserID);
         }
     }
     // when gallery intent has been opened and an image clicked start crop image activity
@@ -114,6 +128,20 @@ public class SetupAccountActivity extends AppCompatActivity {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
+        }
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+
+        if (mAuth.getCurrentUser()==null) {
+            Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
+            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(mainIntent);
         }
     }
 }

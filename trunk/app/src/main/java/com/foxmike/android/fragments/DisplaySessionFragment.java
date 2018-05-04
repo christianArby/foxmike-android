@@ -93,9 +93,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private ChildEventListener sessionChildEventListener;
     private ValueEventListener sessionListener;
     private Session session;
-    ArrayList<PostBranch> postBranchArrayList;
+
     private LinearLayoutManager linearLayoutManager;
     private Map<Long, String> postIDs = new HashMap<Long, String>();
+    private ArrayList<PostBranch> postBranchArrayList;
     private Map<String, Long> nrOfComments = new HashMap<String, Long>();
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private GoogleMap mMap;
