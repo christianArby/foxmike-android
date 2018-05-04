@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +14,13 @@ import com.foxmike.android.R;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private MyFirebaseDatabase myFirebaseDatabase;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private String deviceToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
     public void checkUserStatus() {
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        deviceToken = FirebaseInstanceId.getInstance().getToken();
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser!=null) {
             // User is signed in
@@ -130,15 +136,27 @@ public class MainActivity extends AppCompatActivity {
                         //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(setupAccount);
                     } else {
+                        //-------------------------THE DOOR OPENS--------------------------------------//
                         if (user.trainerMode) {
-                            Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
-                            //mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainHost);
+                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+                                    mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(mainHost);
+                                }
+                            });
                         } else {
-                            Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
-                            //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainPlayer);
+                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                                    mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(mainPlayer);
+                                }
+                            });
                         }
+                        //---------------------------------------------------------------//
                     }
                 }
             });

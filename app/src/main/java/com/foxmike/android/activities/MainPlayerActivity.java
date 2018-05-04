@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 //Checked
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -124,6 +125,9 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
+
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         sortType = getString(R.string.sort_type_date);
         distanceRadius = this.getResources().getInteger(R.integer.distanceMax);

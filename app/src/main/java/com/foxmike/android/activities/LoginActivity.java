@@ -100,26 +100,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(mainIntent);
-                        }
-                    });
+                    Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
+                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(mainIntent);
 
                 } else {
-                    mDatabaseUsers.child(currentUserID).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
-                            setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(setupIntent);
-                        }
-                    });
+                    Intent setupIntent = new Intent(LoginActivity.this,SetupAccountActivity.class);
+                    setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(setupIntent);
                 }
-
             }
 
             @Override
