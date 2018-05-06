@@ -16,9 +16,18 @@
         <item name="android:windowIsFloating">false</item>
     </style>
 
+    <style name="partscreenDialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowMinWidthMajor">75%</item>
+        <item name="android:windowMinWidthMinor">75%</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
 
-    <style name="TextLabel" parent="TextAppearance.AppCompat">
+
+    <style name="TextLabel" parent="Theme.Design.Light">
         <!-- Hint color and label color in FALSE state -->
         <item name="android:textColorHint">@color/secondaryTextColor</item>
         <item name="android:textSize">20sp</item>
@@ -26,6 +35,16 @@
         <item name="colorAccent">@color/secondaryTextColor</item>
         <item name="colorControlNormal">@color/secondaryTextColor</item>
         <item name="colorControlActivated">@color/secondaryTextColor</item>
+    </style>
+
+    <style name="TextLabelDark" parent="TextAppearance.AppCompat">
+        <!-- Hint color and label color in FALSE state -->
+        <item name="android:textColorHint">@color/primaryTextColor</item>
+        <item name="android:textSize">20sp</item>
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorAccent">@color/primaryTextColor</item>
+        <item name="colorControlNormal">@color/primaryTextColor</item>
+        <item name="colorControlActivated">@color/primaryTextColor</item>
     </style>
 
 
