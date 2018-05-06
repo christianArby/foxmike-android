@@ -3,14 +3,19 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
@@ -33,6 +38,8 @@ import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -43,16 +50,20 @@ import static com.foxmike.android.R.layout.activity_register;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText mFirstNameField;
-    private EditText mLastNameField;
-    private EditText mEmailField;
-    private EditText mPasswordField;
+    private TextInputLayout firstNameTIL;
+    private TextInputLayout lastNameTIL;
+    private TextInputLayout passwordTIL;
+    private TextInputLayout emailTIL;
+    private TextInputEditText mFirstNameField;
+    private TextInputEditText mLastNameField;
+    private TextInputEditText mEmailField;
+    private TextInputEditText mPasswordField;
     private CircleImageView mRegisterImageButton;
+    private TextView imageErrorTextTV;
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabaseUsers;
     private DatabaseReference rootDbRef;
-    private StorageReference mStorageImage;
     private ProgressBar progressBar;
     private String currentUserID;
     private Uri mImageUri = null;
@@ -74,19 +85,26 @@ public class RegisterActivity extends AppCompatActivity {
         mFirstNameField = findViewById(R.id.setupFirstNameField);
         mLastNameField = findViewById(R.id.setupLastNameField);
         mEmailField= findViewById(R.id.emailField);
+        firstNameTIL = findViewById(R.id.firstNameTIL);
+        lastNameTIL = findViewById(R.id.lastNameTIL);
+        emailTIL = findViewById(R.id.emailTIL);
+        passwordTIL = findViewById(R.id.passwordTIL);
         mPasswordField = findViewById(R.id.passwordField);
         mRegisterBtn = findViewById(R.id.registerBtn);
         mRegisterImageButton = findViewById(R.id.registerImageBtn);
+        imageErrorTextTV = findViewById(R.id.imageErrorText);
+
+        imageErrorTextTV.setText(null);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
         rootDbRef = FirebaseDatabase.getInstance().getReference();
-        mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
 
         // Setup image button to choose image from gallery
         mRegisterImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageErrorTextTV.setText(null);
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
@@ -98,6 +116,75 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startRegister();
+            }
+        });
+
+        mFirstNameField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                firstNameTIL.setError(null);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        mLastNameField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                lastNameTIL.setError(null);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        mPasswordField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                passwordTIL.setError(null);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        mEmailField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                emailTIL.setError(null);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
     }
@@ -112,7 +199,21 @@ public class RegisterActivity extends AppCompatActivity {
         String email = mEmailField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
 
-
+        if (TextUtils.isEmpty(firstName)) {
+            firstNameTIL.setError(getString(R.string.cannot_be_blank_text));
+        }
+        if (TextUtils.isEmpty(lastName)) {
+            lastNameTIL.setError(getString(R.string.cannot_be_blank_text));
+        }
+        if (TextUtils.isEmpty(email)) {
+            emailTIL.setError(getString(R.string.cannot_be_blank_text));
+        }
+        if (TextUtils.isEmpty(password)) {
+            passwordTIL.setError(getString(R.string.cannot_be_blank_text));
+        }
+        if (mImageUri==null) {
+            imageErrorTextTV.setText(R.string.please_choose_profile_image_text);
+        }
 
         // if all input has been filled in create user
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
@@ -124,9 +225,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     if (task.isSuccessful()) {
                         // Sign in success,  update Realtime Db with the signed-in user's information, when finished start MainActivity
-
                         currentUserID = mAuth.getCurrentUser().getUid();
-
                         // ----------------------------------- NEW -------------------------
                         numberOfTriedUserNames =0;
                         startRangeCeiling = 10000;

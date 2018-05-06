@@ -2,17 +2,16 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.LoginFilter;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -21,17 +20,16 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.foxmike.android.R;
+import com.foxmike.android.fragments.LinkWithFacebookFragment;
+import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.utils.MyProgressBar;
-import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,10 +37,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -68,6 +64,8 @@ public class WelcomeActivity extends AppCompatActivity {
     private int randomPIN;
     private String PINString;
     private String userName;
+    private String email;
+    public AuthCredential  credential;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +76,6 @@ public class WelcomeActivity extends AppCompatActivity {
         createAccountBtn = findViewById(R.id.createAccountBtn);
         loginButton = findViewById(R.id.continueWithFacebookButton);
         progressBar = findViewById(R.id.progressBar_cyclic);
-
         myProgressBar = new MyProgressBar(progressBar,this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -111,8 +108,6 @@ public class WelcomeActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(final LoginResult loginResult) {
 
-
-
                         // -- getting stuff from fb ----
                         String accessToken = loginResult.getAccessToken().getToken();
                         Log.i("accessToken", accessToken);
@@ -127,6 +122,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                 firstName = bFacebookData.getString("first_name");
                                 lastName = bFacebookData.getString("last_name");
                                 imageURL = bFacebookData.getString("profile_pic");
+                                email = bFacebookData.getString("email");
                                 handleFacebookAccessToken(loginResult.getAccessToken());
                             }
                         });
@@ -135,7 +131,6 @@ public class WelcomeActivity extends AppCompatActivity {
                         request.setParameters(parameters);
                         request.executeAsync();
                         // -- end --
-
                     }
 
                     @Override
@@ -157,7 +152,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -167,20 +162,21 @@ public class WelcomeActivity extends AppCompatActivity {
                             loginButton.setEnabled(true);
                             checkIfUserExistsInDb();
                         } else {
+
                             myProgressBar.stopProgressBar();
                             loginButton.setEnabled(true);
                             // If sign in fails, display a message to the user. task.getException()
-                            Toast.makeText(WelcomeActivity.this, "Error Login", Toast.LENGTH_LONG).show();
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            LinkWithFacebookFragment linkWithFacebookFragment = LinkWithFacebookFragment.newInstance(email);
+                            linkWithFacebookFragment.show(transaction,"sortAndFilterFragment");
                         }
 
-                        // ...
                     }
                 });
     }
 
-    private void checkIfUserExistsInDb() {
-
-
+    public void checkIfUserExistsInDb() {
 
         mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -295,7 +291,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     });
 
                 } else {
-                    Toast.makeText(WelcomeActivity.this, "Username exists", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(WelcomeActivity.this, R.string.username_exists_text, Toast.LENGTH_SHORT).show();
                     numberOfTriedUserNames++;
                     if (numberOfTriedUserNames>2) {
                         startRangeCeiling = startRangeCeiling*10;
@@ -303,11 +299,23 @@ public class WelcomeActivity extends AppCompatActivity {
                     if (numberOfTriedUserNames<10) {
                         addUserWithRandomUserName();
                     } else {
-                        Toast.makeText(WelcomeActivity.this, "Failed Registration", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WelcomeActivity.this, R.string.failed_registration_text, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
         // ----------------------------------- NEW END
+    }
+
+    public AuthCredential getCredential() {
+        return credential;
+    }
+
+    public void resetPassword (String email) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        PasswordResetFragment passwordResetFragment = PasswordResetFragment.newInstance(email);
+        passwordResetFragment.show(transaction,"passwordResetFragment");
+
     }
 }
