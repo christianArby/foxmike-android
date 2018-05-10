@@ -45,6 +45,8 @@ public class SetupAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_account);
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+
         Button mSubmitBtn;
 
         mAuth = FirebaseAuth.getInstance();

@@ -90,6 +90,8 @@ public class WelcomeActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+
         // -------------------Google Sign-in----------------------------------
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.

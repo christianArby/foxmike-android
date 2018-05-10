@@ -79,6 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(activity_register);
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+
         Button mRegisterBtn;
 
         progressBar = findViewById(R.id.progressBar_cyclic);

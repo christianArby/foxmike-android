@@ -53,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+
         FloatingActionButton mLoginBtn;
 
         mLoginEmailField = findViewById(R.id.loginEmailField);

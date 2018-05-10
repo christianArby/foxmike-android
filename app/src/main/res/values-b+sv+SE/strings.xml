@@ -267,7 +267,7 @@
     <string name="welcome_to_foxmike_text">Välkommen till Foxmike.</string>
     <string name="continue_to_facebook_text">Fortsätt med Facebook</string>
     <string name="create_account_text">Skapa konto</string>
-    <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes användarvillkor.</string>
+    <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med eller Skapa konto godkänner jag Foxmikes användarvillkor.</string>
     <string name="aboutMe_text">Skriv något om dig själv</string>
     <string name="first_name_text">Förnamn</string>
     <string name="last_name_text">Efternamn</string>
