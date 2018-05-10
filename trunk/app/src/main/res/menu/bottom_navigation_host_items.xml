@@ -5,13 +5,13 @@
         android:id="@+id/menuInbox"
         android:enabled="true"
         android:icon="@mipmap/ic_chat_bubble_outline_black_24dp"
-        android:title="Inbox"
+        android:title="@string/menu_inbox"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuHostSessions"
         android:enabled="true"
         android:icon="@mipmap/ic_list_black_24dp"
-        android:title="Sessions"
+        android:title="@string/menu_my_sessions"
         app:showAsAction="ifRoom" />
 
     <item

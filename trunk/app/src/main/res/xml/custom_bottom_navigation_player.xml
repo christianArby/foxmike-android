@@ -6,7 +6,7 @@
     <tab
         id="@+id/menuListOrMap"
         icon="@mipmap/ic_terrain_black_24dp"
-        title="@string/menu_list" />
+        title="@string/menu_explore" />
     <tab
         id="@+id/menuPlayerSessions"
         icon="@mipmap/ic_list_black_24dp"

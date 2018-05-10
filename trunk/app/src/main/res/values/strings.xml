@@ -5,9 +5,6 @@
     <string name="title_activity_training_session">Create session</string>
     <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Session</string>
-    <string name="menu_map">Map</string>
-    <string name="menu_list">Explore</string>
-    <string name="menu_profile">Profile</string>
 
     <string-array name="sessionType_array">
         <item>Running</item>
@@ -285,5 +282,10 @@
     <string name="forgotten_your_password_text">Forgotten your password?</string>
     <string name="type_in_your_email_below_and_we_will_send_you_a_link_to_reset_your_password_text">Type in your email below and we will send you a link to reset your password.</string>
     <string name="continue_with_google_text">Continue with Google</string>
+    <string name="menu_inbox">Inbox</string>
+    <string name="menu_my_sessions">My sessions</string>
+    <string name="menu_explore">Explore</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_profile">Account</string>
 
 </resources>

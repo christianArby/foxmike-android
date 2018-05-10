@@ -6,9 +6,6 @@
     <string name="title_activity_training_session">Create session</string>
     <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Session</string>
-    <string name="menu_map">Map</string>
-    <string name="menu_list">Explore</string>
-    <string name="menu_profile">Profile</string>
 
 
     <string-array name="sessionType_array">
@@ -287,4 +284,10 @@
     <string name="forgotten_your_password_text">Har du glömt ditt lösenord?</string>
     <string name="type_in_your_email_below_and_we_will_send_you_a_link_to_reset_your_password_text">Skriv in din e-post nedan så skickar vi en länk till dig där du kan återställa lösenordet</string>
     <string name="continue_with_google_text">Fortsätt med Google</string>
+    <string name="menu_inbox">Inkorg</string>
+    <string name="menu_my_sessions">Mina pass</string>
+    <string name="menu_explore">Utforska</string>
+    <string name="menu_map">Karta</string>
+    <string name="menu_profile">Konto</string>
+
 </resources>
