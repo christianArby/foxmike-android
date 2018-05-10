@@ -9,10 +9,6 @@
     <string name="menu_list">Explore</string>
     <string name="menu_profile">Profile</string>
 
-    <string name="facebook_app_id">211455316122280</string>
-    <string name="fb_login_protocol_scheme">fb211455316122280</string>
-
-
     <string-array name="sessionType_array">
         <item>Running</item>
         <item>Biking</item>
@@ -288,5 +284,6 @@
     <string name="a_link_has_been_sent_to_the_email_above_text">A link to reset your password has been sent to the email address above</string>
     <string name="forgotten_your_password_text">Forgotten your password?</string>
     <string name="type_in_your_email_below_and_we_will_send_you_a_link_to_reset_your_password_text">Type in your email below and we will send you a link to reset your password.</string>
+    <string name="continue_with_google_text">Continue with Google</string>
 
 </resources>

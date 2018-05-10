@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/welcomeParentView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -58,6 +59,19 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
+        android:id="@+id/googleSignInButton"
+        android:background="@drawable/rounded_edittext"
+        android:padding="@dimen/margin_minimum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="@color/foxmikePrimaryDarkColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/continue_with_google_text"
+        app:layout_constraintTop_toBottomOf="@id/continueWithFacebookButton"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
         android:id="@+id/createAccountBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,7 +82,7 @@
         android:text="@string/create_account_text"
         android:textColor="@color/secondaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/continueWithFacebookButton" />
+        app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
 
     <TextView
         android:layout_width="match_parent"

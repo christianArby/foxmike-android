@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -24,12 +25,19 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.LinkWithFacebookFragment;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.utils.MyProgressBar;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,7 +58,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private TextView loginTV;
     private Button createAccountBtn;
-    private Button loginButton;
+    private Button facebookLoginButton;
     private CallbackManager mCallbackManager;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
@@ -66,6 +74,8 @@ public class WelcomeActivity extends AppCompatActivity {
     private String userName;
     private String email;
     public AuthCredential  credential;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static int RC_SIGN_IN = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +84,38 @@ public class WelcomeActivity extends AppCompatActivity {
 
         loginTV = findViewById(R.id.loginTV);
         createAccountBtn = findViewById(R.id.createAccountBtn);
-        loginButton = findViewById(R.id.continueWithFacebookButton);
+        facebookLoginButton = findViewById(R.id.continueWithFacebookButton);
         progressBar = findViewById(R.id.progressBar_cyclic);
         myProgressBar = new MyProgressBar(progressBar,this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
+        // -------------------Google Sign-in----------------------------------
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+
+        // Set the dimensions of the sign-in button.
+        final Button googleSignInButton = findViewById(R.id.googleSignInButton);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.web_client_id_for_google))
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myProgressBar.startProgressBar();
+                googleSignInButton.setEnabled(false);
+                signIn();
+            }
+        });
+
+
+        // ----------------- E-mail and password login ------------------------
         loginTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,6 +124,7 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
 
+        // ----------------- Create account ------------------------
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,19 +133,19 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
 
+        // ----------------- Facebook login ------------------------
         mCallbackManager = CallbackManager.Factory.create();
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 myProgressBar.startProgressBar();
-                loginButton.setEnabled(false);
+                facebookLoginButton.setEnabled(false);
 
                 LoginManager.getInstance().logInWithReadPermissions(WelcomeActivity.this, Arrays.asList("email", "public_profile"));
                 LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(final LoginResult loginResult) {
-
+                        // Logged in to Facebook success
                         // -- getting stuff from fb ----
                         String accessToken = loginResult.getAccessToken().getToken();
                         Log.i("accessToken", accessToken);
@@ -123,11 +161,12 @@ public class WelcomeActivity extends AppCompatActivity {
                                 lastName = bFacebookData.getString("last_name");
                                 imageURL = bFacebookData.getString("profile_pic");
                                 email = bFacebookData.getString("email");
+                                // Continue login process with token
                                 handleFacebookAccessToken(loginResult.getAccessToken());
                             }
                         });
                         Bundle parameters = new Bundle();
-                        parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location"); // Parámetros que pedimos a facebook
+                        parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location");
                         request.setParameters(parameters);
                         request.executeAsync();
                         // -- end --
@@ -148,6 +187,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     }
 
+    // Sign in to Firebase with Facebook token
     private void handleFacebookAccessToken(AccessToken token) {
 
         mAuth = FirebaseAuth.getInstance();
@@ -158,33 +198,35 @@ public class WelcomeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            myProgressBar.stopProgressBar();
-                            loginButton.setEnabled(true);
                             checkIfUserExistsInDb();
                         } else {
 
                             myProgressBar.stopProgressBar();
-                            loginButton.setEnabled(true);
+                            facebookLoginButton.setEnabled(true);
                             // If sign in fails, display a message to the user. task.getException()
+                            // TODO IF GOOCLE ACCOUNT??
                             FragmentManager fragmentManager = getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
                             LinkWithFacebookFragment linkWithFacebookFragment = LinkWithFacebookFragment.newInstance(email);
-                            linkWithFacebookFragment.show(transaction,"sortAndFilterFragment");
+                            linkWithFacebookFragment.show(transaction,"linkWithFacebookFragment");
                         }
 
                     }
                 });
     }
 
+    // Check if user exists in database
     public void checkIfUserExistsInDb() {
-
         mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    myProgressBar.stopProgressBar();
+                    facebookLoginButton.setEnabled(true);
                     Intent mainIntent = new Intent(WelcomeActivity.this,MainActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(mainIntent);
+
 
                 } else {
                     numberOfTriedUserNames =0;
@@ -192,23 +234,38 @@ public class WelcomeActivity extends AppCompatActivity {
                     addUserWithRandomUserName();
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
 
-
+    // Handle Facebook and Google sign in result
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Pass the activity result back to the Facebook SDK
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                myProgressBar.stopProgressBar();
+                facebookLoginButton.setEnabled(true);
+                // Google Sign In failed, update UI appropriately
+                Snackbar.make(findViewById(R.id.welcomeParentView), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                Log.w("min app", "Google sign in failed", e);
+                // ...
+            }
+        }
     }
 
+    // Function to get Facebook data
     private Bundle getFacebookData(JSONObject object) {
 
         try {
@@ -224,7 +281,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return null;
             }
-
             bundle.putString("idFacebook", id);
             if (object.has("first_name"))
                 bundle.putString("first_name", object.getString("first_name"));
@@ -238,7 +294,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 bundle.putString("birthday", object.getString("birthday"));
             if (object.has("location"))
                 bundle.putString("location", object.getJSONObject("location").getString("name"));
-
             return bundle;
         }
         catch(JSONException e) {
@@ -247,6 +302,7 @@ public class WelcomeActivity extends AppCompatActivity {
         return null;
     }
 
+    // Add user to Firabase database
     private void addUserWithRandomUserName() {
         Random random = new Random();
         randomPIN = random.nextInt(startRangeCeiling);
@@ -256,7 +312,6 @@ public class WelcomeActivity extends AppCompatActivity {
         } else {
             userName = "@"+firstName.toLowerCase()+lastName.toLowerCase();
         }
-
         //add the user
         mDatabase.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
             @Override
@@ -268,11 +323,9 @@ public class WelcomeActivity extends AppCompatActivity {
 
                 return Transaction.abort();
             }
-
             @Override
             public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
                 if (commited) {
-
                     Map userMap = new HashMap();
                     userMap.put("userName",userName);
                     userMap.put("firstName",firstName);
@@ -284,12 +337,12 @@ public class WelcomeActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             myProgressBar.stopProgressBar();
+                            facebookLoginButton.setEnabled(true);
                             Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
                             mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(mainIntent);
                         }
                     });
-
                 } else {
                     Toast.makeText(WelcomeActivity.this, R.string.username_exists_text, Toast.LENGTH_SHORT).show();
                     numberOfTriedUserNames++;
@@ -304,13 +357,14 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
-        // ----------------------------------- NEW END
+        // ----------------------------------- END
     }
 
     public AuthCredential getCredential() {
         return credential;
     }
 
+    // ------------- Reset password -----------------------------
     public void resetPassword (String email) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -318,4 +372,40 @@ public class WelcomeActivity extends AppCompatActivity {
         passwordResetFragment.show(transaction,"passwordResetFragment");
 
     }
+
+    // ------------------- GOOGLE SIGN IN METHODS ----------------
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
+        firstName = acct.getGivenName();
+        lastName = acct.getFamilyName();
+        imageURL = acct.getPhotoUrl().toString();
+        email = acct.getEmail();
+        Log.d("min app", "firebaseAuthWithGoogle:" + acct.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            checkIfUserExistsInDb();
+                        } else {
+                            myProgressBar.stopProgressBar();
+                            facebookLoginButton.setEnabled(true);
+                            // If sign in fails, display a message to the user.
+                            Log.w("min app", "signInWithCredential:failure", task.getException());
+                            Snackbar.make(findViewById(R.id.welcomeParentView), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
+    // ------------------- GOOGLE SIGN METHODS ENDS ----------------
 }
