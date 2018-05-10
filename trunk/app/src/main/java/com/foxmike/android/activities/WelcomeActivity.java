@@ -76,6 +76,7 @@ public class WelcomeActivity extends AppCompatActivity {
     public AuthCredential  credential;
     private GoogleSignInClient mGoogleSignInClient;
     private static int RC_SIGN_IN = 1;
+    private Button googleSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +98,7 @@ public class WelcomeActivity extends AppCompatActivity {
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
 
         // Set the dimensions of the sign-in button.
-        final Button googleSignInButton = findViewById(R.id.googleSignInButton);
+        googleSignInButton = findViewById(R.id.googleSignInButton);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.web_client_id_for_google))
@@ -205,8 +206,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
                             myProgressBar.stopProgressBar();
                             facebookLoginButton.setEnabled(true);
-                            // If sign in fails, display a message to the user. task.getException()
-                            // TODO IF GOOCLE ACCOUNT??
+                            // If sign in fails, account already exists, ask user if he/she wants to link the accounts
                             FragmentManager fragmentManager = getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
                             LinkWithFacebookFragment linkWithFacebookFragment = LinkWithFacebookFragment.newInstance(email);
@@ -258,10 +258,10 @@ public class WelcomeActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 myProgressBar.stopProgressBar();
-                facebookLoginButton.setEnabled(true);
+                googleSignInButton.setEnabled(true);
                 // Google Sign In failed, update UI appropriately
-                Snackbar.make(findViewById(R.id.welcomeParentView), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                Log.w("min app", "Google sign in failed", e);
+                Snackbar.make(findViewById(R.id.welcomeParentView), "Google Authentication Failed." + getString(R.string.web_client_id_for_google), Snackbar.LENGTH_SHORT).show();
+                Log.w("min app", "Google Authentication Failed." + getString(R.string.web_client_id_for_google), e);
                 // ...
             }
         }
@@ -398,10 +398,8 @@ public class WelcomeActivity extends AppCompatActivity {
                             checkIfUserExistsInDb();
                         } else {
                             myProgressBar.stopProgressBar();
-                            facebookLoginButton.setEnabled(true);
-                            // If sign in fails, display a message to the user.
-                            Log.w("min app", "signInWithCredential:failure", task.getException());
-                            Snackbar.make(findViewById(R.id.welcomeParentView), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            googleSignInButton.setEnabled(true);
+                            Snackbar.make(findViewById(R.id.welcomeParentView), "Google Firebase authentication failed.", Snackbar.LENGTH_SHORT).show();
                         }
 
                         // ...

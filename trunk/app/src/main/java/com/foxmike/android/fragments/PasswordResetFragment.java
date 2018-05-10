@@ -3,8 +3,10 @@ package com.foxmike.android.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,19 +64,28 @@ public class PasswordResetFragment extends DialogFragment {
 
         mSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 FirebaseAuth auth = FirebaseAuth.getInstance();
                 String email = mLoginEmailField.getText().toString().trim();
 
-                auth.sendPasswordResetEmail(email)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getContext(), R.string.a_link_has_been_sent_to_the_email_above_text, Toast.LENGTH_LONG).show();
+                if (!TextUtils.isEmpty(email)) {
+                    auth.sendPasswordResetEmail(email)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(getContext(), R.string.a_link_has_been_sent_to_the_email_above_text, Toast.LENGTH_LONG).show();
+                                        Snackbar.make(view, R.string.a_link_has_been_sent_to_the_email_above_text, Snackbar.LENGTH_SHORT).show();
+                                    } else {
+                                        Snackbar.make(view, "We failed sending a mail to the mail address above.", Snackbar.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                } else {
+                    Snackbar.make(view, "Please type in your mail address", Snackbar.LENGTH_SHORT).show();
+                }
+
+
             }
         });
         return view;
