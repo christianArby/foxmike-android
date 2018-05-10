@@ -129,7 +129,7 @@ public class MainPlayerActivity extends AppCompatActivity
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
-        sortType = getString(R.string.sort_type_date);
+        sortType = "date";
         distanceRadius = this.getResources().getInteger(R.integer.distanceMax);
 
         // get views

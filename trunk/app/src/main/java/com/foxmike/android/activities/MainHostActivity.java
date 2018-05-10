@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 //Checked
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -86,6 +87,9 @@ public class MainHostActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_host);
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
+
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         mAuth = FirebaseAuth.getInstance();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
