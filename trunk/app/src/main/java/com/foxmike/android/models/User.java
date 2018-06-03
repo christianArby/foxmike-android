@@ -22,8 +22,9 @@ public class User implements Comparable<User>{
     public String thumb_image;
     public boolean trainerMode;
     public String aboutMe;
+    public boolean hasLoggedInBefore;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, boolean hasLoggedInBefore) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
@@ -35,6 +36,7 @@ public class User implements Comparable<User>{
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
         this.aboutMe = aboutMe;
+        this.hasLoggedInBefore = hasLoggedInBefore;
     }
 
     public User() {
@@ -130,8 +132,18 @@ public class User implements Comparable<User>{
         return userName;
     }
 
+    public boolean isHasLoggedInBefore() {
+        return hasLoggedInBefore;
+    }
+
+    public void setHasLoggedInBefore(boolean hasLoggedInBefore) {
+        this.hasLoggedInBefore = hasLoggedInBefore;
+    }
+
     @Override
     public int compareTo(@NonNull User user) {
         return this.getFirstName().compareToIgnoreCase(user.getFirstName());
     }
+
+
 }

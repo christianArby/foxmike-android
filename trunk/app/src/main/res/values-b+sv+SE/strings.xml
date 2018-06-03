@@ -256,9 +256,9 @@
     <string name="your_friends_text">Dina vänner</string>
     <string name="sessionLeader">Passledare:</string>
     <string name="hosted_by_text">Anordnas av</string>
-    <string name="last_seen_text">Sågs \ u0020</string>
-    <string name="comment_text">\ u0020comment</string>
-    <string name="comments_text">\ u0020comments</string>
+    <string name="last_seen_text">Sågs\u0020</string>
+    <string name="comment_text">\u0020kommentar</string>
+    <string name="comments_text">\u0020kommentarer</string>
     <string name="login_text">Logga in</string>
     <string name="register_text">Registrera</string>
     <string name="welcome_to_foxmike_text">Välkommen till Foxmike.</string>
@@ -276,7 +276,7 @@
     <string name="email_or_password_incorrect_text">Oj, e-post och/eller lösenord stämmer inte.</string>
     <string name="cannot_be_blank_text">Måste fyllas i.</string>
     <string name="please_choose_profile_image_text">Välj en profilbild genom att klicka på avataren ovan.</string>
-    <string name="username_exists_text">Ett användarnamn med ditt fulla namn existerar redan, genererar ett unikt användarnamn...</string>
+    <string name="username_exists_text">Ett användarnamn med ditt namn existerar redan, genererar ett unikt användarnamn...</string>
     <string name="failed_registration_text">Registreringen misslyckades.</string>
     <string name="account_exists_link_with_facebook_question_text">Ett konto med din mailadress finns redan. Skapade du kontot med hjälp av en annan tjänst? Skriv in kontots lösenord för att i fortsättningen även kunna logga in med Facebook.</string>
     <string name="authentication_failed">Inloggning misslyckades.</string>
@@ -289,5 +289,25 @@
     <string name="menu_explore">Utforska</string>
     <string name="menu_map">Karta</string>
     <string name="menu_profile">Konto</string>
+    <string name="agree_terms_privacy">Genom att registrera ditt konto, godkänner du vårat <a href="https://stripe.com/us/connect-account/legal">Serviceavtal</a> och <a href="https://stripe.com/us/connect-account/legal">Stripe Connected Account Agreement</a></string>
+    <string name="no_first_name_error">Fyll i ditt förnman.</string>
+    <string name="no_last_name_error">Fyll i ditt efternamn.</string>
+    <string name="no_street_address_error">Fyll i din gatuaddress.</string>
+    <string name="no_postal_code_error">Fyll i ditt postnummer.</string>
+    <string name="no_valid_postal_code_error">Fyll i ett giltigt postnummer.</string>
+    <string name="no_city_address_error">Fyll i din postort.</string>
+    <string name="no_dob_error">Fyll i ditt födelsedatum.</string>
+    <string name="no_valid_dob_error">Fyll i ett giltigt födelsedatum.</string>
+    <string name="input_account_details_text">Kontouppgifter</string>
+    <string name="street_hint">Gata</string>
+    <string name="postal_code_hint">Postnummer</string>
+    <string name="city_hint">Ort</string>
+    <string name="input_dob_text">Födelsedatum</string>
+    <string name="yyyy_mm_dd_hint">ÅÅÅÅ MM DD</string>
+    <string name="continue_text">Fortsätt</string>
+    <string name="iban_number_text">IBAN nummer</string>
+    <string name="iban_hint">SEXX XXXX XXXX XXXX XXXX XXXX</string>
+    <string name="register_your_account_stripe_text">Registrera ditt konto</string>
+    <string name="add_payout_method_text">Utbetalningsinställningar</string>
 
 </resources>
