@@ -74,6 +74,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
     private CircleImageView mCurrentUserPostImage;
+    private TextView mHostAboutTV;
     private TextView mHost;
     private TextView mWhatTW;
     private TextView mWhoTW;
@@ -152,6 +153,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mParticipants = displaySession.findViewById(R.id.participantsTW);
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
+        mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
         mSessionName = displaySession.findViewById(R.id.sessionName);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
         writePostLsyout = displaySession.findViewById(R.id.write_post_layout);
@@ -393,6 +395,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 setImage(user.getImage(), mHostImage);
                 String hostText = getString(R.string.hosted_by_text) + " " + user.getFirstName();
                 mHost.setText(hostText);
+                mHostAboutTV.setText(user.getAboutMe());
             }
 
             @Override

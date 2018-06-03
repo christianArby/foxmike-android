@@ -56,6 +56,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rd.PageIndicatorView;
+import com.stripe.android.Stripe;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -635,8 +637,10 @@ public class MainPlayerActivity extends AppCompatActivity
                 }
             }
         });
-        //sessionIDref.child("participants").child(mAuth.getCurrentUser().getUid()).setValue(true);
-        //rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("sessionsAttending").child(sessionID).setValue(true);
+
+        Intent testIntent = new Intent(MainPlayerActivity.this, TestPayActivity.class);
+        startActivity(testIntent);
+
     }
 
     @Override

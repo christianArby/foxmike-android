@@ -231,7 +231,7 @@
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginTop="@dimen/marginVertical"
-            android:text="Tjena! Perra ska vi ha möte imorgon? Jag tänker främst det vi snacka om i helgen, att jag drar lite snabbt för dig hur jag och slätte ligger till i programmeringen. @Fredrik Slätte när kommer du hem? (ej nödvändigt att du är med på mötet, frågar mer av intresse)"
+            android:text="@string/loading"
             app:layout_constraintTop_toBottomOf="@id/displaySessionHostImage"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

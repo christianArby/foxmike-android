@@ -64,6 +64,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     private Uri mImageUri = null;
     private LinearLayout list;
     private View profile;
+    private User user;
     static UserProfilePublicEditFragment fragment;
 
     public UserProfilePublicEditFragment() {
@@ -98,7 +99,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
+                user = dataSnapshot.getValue(User.class);
                 userFirstNameET.setText(user.getFirstName());
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
@@ -112,8 +113,18 @@ public class UserProfilePublicEditFragment extends Fragment {
             }
         });
 
+        userNameET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    if (userNameET.getText().length()==0) {
+                        userNameET.setText("@");
+                    }
+                }
+            }
+        });
+
         userNameET.addTextChangedListener(new TextWatcher() {
-            boolean _ignore = false;
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -126,24 +137,22 @@ public class UserProfilePublicEditFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (_ignore)
-                    return;
 
-                _ignore = true; // prevent infinite loop
+                for (int i =0; i < editable.length(); i++) {
 
-                if (editable.toString().equals("")) {
-                    userNameET.setText("@");
-                    userNameET.setSelection(userNameET.getText().length());
-                } else if (!editable.toString().substring(0,1).equals("@")) {
-                    userNameET.setText("@" + editable.toString().toLowerCase());
-                    userNameET.setSelection(userNameET.getText().length());
-                } else {
-                    int pos = userNameET.getSelectionStart();
-                    userNameET.setText(editable.toString().toLowerCase());
-                    userNameET.setSelection(pos);
+                    // If it is a S position and does not contain a S insert a S
+                    if (i==0) {
+                        CharSequence s = "@";
+                        if (editable.charAt(i)!='@') {
+                            editable.insert(i, s);
+                        }
+                    } else {
+                        // If it is NOT a S position and contains a S position remove a character
+                        if (editable.charAt(i)=='@') {
+                            editable.replace(i,i+1, "");
+                        }
+                    }
                 }
-
-                _ignore = false; // release, so the TextWatcher start to listen again.
             }
         });
 
@@ -166,50 +175,66 @@ public class UserProfilePublicEditFragment extends Fragment {
                     Toast.makeText(getActivity(), cannotContain, Toast.LENGTH_SHORT).show();
                 } else {
 
-                    // check if username already exists in database
-                    rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
-                        @Override
-                        public Transaction.Result doTransaction(MutableData mutableData) {
-                            if (mutableData.getValue() == null) {
-                                mutableData.setValue(currentFirebaseUser.getUid());
-                                return Transaction.success(mutableData);
-                            }
+                    // check if user has changed username
+                    if (user!=null) {
+                        if (userName.equals(user.userName)) {
+                            // no changes in userName, write to database...
+                            writeToDatabase(myProgressBar);
 
-                            return Transaction.abort();
-                        }
+                        } else {
+                            // check if username already exists in database
+                            rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
+                                @Override
+                                public Transaction.Result doTransaction(MutableData mutableData) {
+                                    if (mutableData.getValue() == null) {
+                                        mutableData.setValue(currentFirebaseUser.getUid());
+                                        return Transaction.success(mutableData);
+                                    }
 
-                        @Override
-                        public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
-
-                            // if commited, username did not exist, write to database
-                            if (commited) {
-
-                                usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
-                                usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
-                                usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
-                                usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
-                                if(mImageUri!=null) {
-                                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
-                                        @Override
-                                        public void onUserImageSet() {
-                                            mListener.OnUserProfilePublicEditFragmentInteraction();
-                                            myProgressBar.stopProgressBar();
-                                        }
-                                    });
-                                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
-                                } else {
-                                    mListener.OnUserProfilePublicEditFragmentInteraction();
-                                    myProgressBar.stopProgressBar();
+                                    return Transaction.abort();
                                 }
 
-                            // else dismiss and tell the user the username is already taken
-                            } else {
-                                myProgressBar.stopProgressBar();
-                                Toast.makeText(getActivity(), "The username is already taken", Toast.LENGTH_SHORT).show();
-                            }
+                                @Override
+                                public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
+
+                                    // if commited, username did not exist, write to database
+                                    if (commited) {
+
+                                        writeToDatabase(myProgressBar);
+
+                                        // else dismiss and tell the user the username is already taken
+                                    } else {
+                                        myProgressBar.stopProgressBar();
+                                        Toast.makeText(getActivity(), "The username is already taken", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+
+
+                }
+            }
+
+            private void writeToDatabase(final MyProgressBar myProgressBar) {
+                usersDbRef.child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+                if(mImageUri!=null) {
+                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                        @Override
+                        public void onUserImageSet() {
+                            mListener.OnUserProfilePublicEditFragmentInteraction();
+                            myProgressBar.stopProgressBar();
                         }
                     });
+                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
+                } else {
+                    mListener.OnUserProfilePublicEditFragmentInteraction();
+                    myProgressBar.stopProgressBar();
                 }
             }
         });

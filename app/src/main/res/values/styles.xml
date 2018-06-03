@@ -47,5 +47,16 @@
         <item name="colorControlActivated">@color/primaryTextColor</item>
     </style>
 
+    <style name="TextLabelDark2" parent="foxmike">
+        <!-- Hint color and label color in FALSE state -->
+        <item name="android:textColorHint">@color/primaryTextColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="android:textSize">14sp</item>
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorAccent">@color/primaryTextColor</item>
+        <item name="colorControlNormal">@color/primaryTextColor</item>
+        <item name="colorControlActivated">@color/primaryTextColor</item>
+    </style>
+
 
 </resources>

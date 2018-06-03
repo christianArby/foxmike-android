@@ -167,7 +167,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/register_text"
                 app:layout_constraintTop_toBottomOf="@id/passwordTIL"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <ProgressBar
                 android:id="@+id/progressBar_cyclic"
