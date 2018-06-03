@@ -290,7 +290,7 @@
     <string name="menu_map">Karta</string>
     <string name="menu_profile">Konto</string>
     <string name="agree_terms_privacy">Genom att registrera ditt konto, godkänner du vårat <a href="https://stripe.com/us/connect-account/legal">Serviceavtal</a> och <a href="https://stripe.com/us/connect-account/legal">Stripe Connected Account Agreement</a></string>
-    <string name="no_first_name_error">Fyll i ditt förnman.</string>
+    <string name="no_first_name_error">Fyll i ditt förnamn.</string>
     <string name="no_last_name_error">Fyll i ditt efternamn.</string>
     <string name="no_street_address_error">Fyll i din gatuaddress.</string>
     <string name="no_postal_code_error">Fyll i ditt postnummer.</string>
