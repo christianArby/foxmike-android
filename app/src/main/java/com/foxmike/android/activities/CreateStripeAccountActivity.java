@@ -1,11 +1,10 @@
 package com.foxmike.android.activities;
 
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
-import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,28 +14,20 @@ import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.foxmike.android.R;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.foxmike.android.fragments.FinalizeStripeAccountCreationFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
-import com.google.firebase.functions.HttpsCallableResult;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
-public class CreateStripeAccountActivity extends AppCompatActivity {
+public class CreateStripeAccountActivity extends AppCompatActivity implements FinalizeStripeAccountCreationFragment.OnStripeAccountCreatedListener {
 
     private TextInputEditText firstNameET;
     private TextInputEditText lastNameET;
@@ -258,9 +249,17 @@ public class CreateStripeAccountActivity extends AppCompatActivity {
                     accountData.put("ip", getLocalIpAddress());
                     accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-                    Intent finalizeStripeAccount = new Intent(CreateStripeAccountActivity.this,FinalizeStripeBankAccountActivity.class);
-                    finalizeStripeAccount.putExtra("accountData",accountData);
-                    startActivity(finalizeStripeAccount);
+                    FinalizeStripeAccountCreationFragment finalizeStripeAccountCreationFragment = new FinalizeStripeAccountCreationFragment();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("accountData",accountData);
+                    finalizeStripeAccountCreationFragment.setArguments(bundle);
+
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                    transaction.add(R.id.container_finalize_fragment, finalizeStripeAccountCreationFragment, "finalize").addToBackStack(null);
+                    transaction.commit();
                 }
             }
         });
@@ -284,5 +283,10 @@ public class CreateStripeAccountActivity extends AppCompatActivity {
             Log.e(TAG, ex.toString());
         }
         return null;
+    }
+
+    @Override
+    public void OnStripeAccountCreated() {
+        finish();
     }
 }

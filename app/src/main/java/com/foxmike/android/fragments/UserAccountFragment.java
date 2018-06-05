@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,17 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.CreateStripeAccountActivity;
-import com.foxmike.android.activities.LoginActivity;
-import com.foxmike.android.activities.MainActivity;
 import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
+import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.activities.WelcomeActivity;
-import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyProgressBar;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,16 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
-import com.google.firebase.functions.HttpsCallableResult;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * This Fragment creates the user profile view by using the xml files:
@@ -64,6 +50,7 @@ public class UserAccountFragment extends Fragment {
     private LinearLayout list;
     private View profile;
     private TextView addPaymentMethod;
+    private TextView addPayoutMethod;
     private View view;
 
     public UserAccountFragment() {
@@ -108,6 +95,7 @@ public class UserAccountFragment extends Fragment {
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
+        addPayoutMethod = profile.findViewById(R.id.addPayoutMethodTV);
         switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -189,8 +177,16 @@ public class UserAccountFragment extends Fragment {
         addPaymentMethod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent createStripeAccount = new Intent(getActivity(),CreateStripeAccountActivity.class);
-                startActivity(createStripeAccount);
+                Intent payoutPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                startActivity(payoutPreferencesIntent);
+            }
+        });
+
+        addPayoutMethod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent payoutPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                startActivity(payoutPreferencesIntent);
             }
         });
 
