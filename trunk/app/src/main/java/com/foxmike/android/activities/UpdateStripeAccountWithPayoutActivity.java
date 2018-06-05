@@ -12,13 +12,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
+import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,40 +31,33 @@ import com.stripe.android.TokenCallback;
 import com.stripe.android.model.BankAccount;
 import com.stripe.android.model.Token;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
-public class FinalizeStripeBankAccountActivity extends AppCompatActivity {
+public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
 
     private FirebaseFunctions mFunctions;
     private View mainView;
     private HashMap<String, Object> accountData;
-    private Button createAccountBtn;
-    private TextView agreeServiceAgreementTV;
-    private CheckBox TOSCheckBox;
-    private TextInputLayout TOSTIL;
+    private Button updateAccountBtn;
     private EditText ibanET;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_finalize_stripe_bank_account);
+        setContentView(R.layout.activity_update_stripe_account_with_payout);
 
         mainView = findViewById(R.id.mainView);
-        createAccountBtn = findViewById(R.id.createStripeAccountBtn);
-        agreeServiceAgreementTV = findViewById(R.id.agreeTermsPrivacyTV);
-        agreeServiceAgreementTV.setMovementMethod(LinkMovementMethod.getInstance());
-        TOSCheckBox = findViewById(R.id.TOScheckbox);
-        TOSTIL = findViewById(R.id.TOSTIL);
+        updateAccountBtn = findViewById(R.id.createStripeAccountBtn);
         ibanET = findViewById(R.id.ibanET);
+        progressBar = findViewById(R.id.progressBar_cyclic);
+
+        accountData = (HashMap) getIntent().getSerializableExtra("accountData");
 
         mFunctions = FirebaseFunctions.getInstance();
-        // Get data sent from previous activity
-        accountData = (HashMap) getIntent().getSerializableExtra("accountData");
         // Set default iban text
         ibanET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -143,88 +137,83 @@ public class FinalizeStripeBankAccountActivity extends AppCompatActivity {
             }
         });
 
-        TOSCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                TOSTIL.setError(null);
-            }
-        });
-
-        createAccountBtn.setOnClickListener(new View.OnClickListener() {
+        updateAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (TOSCheckBox.isChecked()) {
 
-                    String iban = ibanET.getText().toString().trim().replaceAll("\\s+","");
+                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, UpdateStripeAccountWithPayoutActivity.this);
+                myProgressBar.startProgressBar();
+                //String iban = ibanET.getText().toString().trim().replaceAll("\\s+","");
 
-                    // TODO REMOVE TEST IBAN
-                    iban = "DE89370400440532013000";
+                // TODO REMOVE TEST IBAN
+                String iban = "DE89370400440532013000";
+                //String iban = "DE62370400440532013001";
 
-                    BankAccount bankAccount = new BankAccount(iban,"de","eur","");
-                    Stripe stripe = new Stripe(FinalizeStripeBankAccountActivity.this, "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
+                BankAccount bankAccount = new BankAccount(iban,"de","eur","");
+                Stripe stripe = new Stripe(UpdateStripeAccountWithPayoutActivity.this, "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
 
-                    // Create Bank Account token
-                    stripe.createBankAccountToken(bankAccount, new TokenCallback() {
-                        @Override
-                        public void onError(Exception error) {
-                            // Show localized error message
-                            Toast.makeText(FinalizeStripeBankAccountActivity.this,
-                                    error.getLocalizedMessage(),
-                                    Toast.LENGTH_LONG
-                            ).show();
-                        }
-                        @Override
-                        public void onSuccess(Token token) {
-                            accountData.put("account_token", token.getId());
-                            // If successfully created Bank Account create Stripe Account with all the collected info
-                            createStripeAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
-                                @Override
-                                public void onComplete(@NonNull Task<String> task) {
-                                    // If not succesful, show error
-                                    if (!task.isSuccessful()) {
-                                        Exception e = task.getException();
-                                        if (e instanceof FirebaseFunctionsException) {
-                                            FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                                            // Function error code, will be INTERNAL if the failure
-                                            // was not handled properly in the function call.
-                                            FirebaseFunctionsException.Code code = ffe.getCode();
-                                            // Arbitrary error details passed back from the function,
-                                            // usually a Map<String, Object>.
-                                            Object details = ffe.getDetails();
-                                        }
-
-                                        // [START_EXCLUDE]
-                                        Log.w(TAG, "create:onFailure", e);
-                                        showSnackbar("An error occurred.");
-                                        return;
-                                        // [END_EXCLUDE]
+                // Create Bank Account token
+                stripe.createBankAccountToken(bankAccount, new TokenCallback() {
+                    @Override
+                    public void onError(Exception error) {
+                        // Show localized error message
+                        Toast.makeText(UpdateStripeAccountWithPayoutActivity.this,
+                                error.getLocalizedMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                    @Override
+                    public void onSuccess(Token token) {
+                        accountData.put("account_token", token.getId());
+                        // If successfully created Bank Account create Stripe Account with all the collected info
+                        changeExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
+                            @Override
+                            public void onComplete(@NonNull Task<String> task) {
+                                // If not succesful, show error
+                                if (!task.isSuccessful()) {
+                                    Exception e = task.getException();
+                                    if (e instanceof FirebaseFunctionsException) {
+                                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                                        // Function error code, will be INTERNAL if the failure
+                                        // was not handled properly in the function call.
+                                        FirebaseFunctionsException.Code code = ffe.getCode();
+                                        // Arbitrary error details passed back from the function,
+                                        // usually a Map<String, Object>.
+                                        Object details = ffe.getDetails();
                                     }
 
-                                    // Show the string passed from the Firebase server if task/function call on server is successful
-                                    String result = task.getResult();
-                                    showSnackbar(result);
+                                    // [START_EXCLUDE]
+                                    Log.w(TAG, "create:onFailure", e);
+                                    showSnackbar("An error occurred.");
+                                    return;
                                     // [END_EXCLUDE]
                                 }
-                            });
+
+                                // Show the string passed from the Firebase server if task/function call on server is successful
+                                String result = task.getResult();
+                                if (result.equals("success")) {
+                                    myProgressBar.stopProgressBar();
+                                    setResult(RESULT_OK, null);
+                                    finish();
+                                }
+                                // [END_EXCLUDE]
+                            }
+                        });
 
 
-                        }
-                    });
-
-                } else {
-                    TOSTIL.setError("You must agree to the above in order to register your account.");
-                }
+                    }
+                });
 
             }
         });
     }
 
     // Function createStripeAccount
-    private Task<String> createStripeAccount(Map<String, Object> accountData) {
+    private Task<String> changeExternalAccount(Map<String, Object> accountData) {
 
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable("create")
+                .getHttpsCallable("changeExternalAccount")
                 .call(accountData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override

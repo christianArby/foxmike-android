@@ -308,6 +308,9 @@
     <string name="iban_number_text">IBAN nummer</string>
     <string name="iban_hint">SEXX XXXX XXXX XXXX XXXX XXXX</string>
     <string name="register_your_account_stripe_text">Registrera ditt konto</string>
-    <string name="add_payout_method_text">Utbetalningsinställningar</string>
+    <string name="add_payout_method_text">Lägg till utbetalningsmetod</string>
+    <string name="bank_account_text">Bankkonto</string>
+    <string name="change_payout_method_text">Ändra utbetalningsmetod</string>
+    <string name="edit_your_payout_methods">Redigera dina utbetalningsmetoder</string>
 
 </resources>

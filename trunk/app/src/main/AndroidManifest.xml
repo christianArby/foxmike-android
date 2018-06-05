@@ -119,7 +119,10 @@
         <activity android:name=".activities.PayActivity" />
         <activity android:name=".activities.TestPayActivity" />
         <activity android:name=".activities.CreateStripeAccountActivity" />
-        <activity android:name=".activities.FinalizeStripeBankAccountActivity"></activity>
+        <activity android:name=".activities.FinalizeStripeAccountCreationActivity" />
+        <activity android:name=".activities.PayoutPreferencesActivity" />
+        <activity android:name=".activities.UpdateStripeAccountWithPayoutActivity" />
+        <activity android:name=".activities.PaymentPreferencesActivity"></activity>
     </application>
 
 </manifest>

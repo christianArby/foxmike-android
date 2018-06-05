@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/payoutMethodType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/payoutMethodStandard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:textColor="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/last4digits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/leadSub2Body"
+        android:layout_marginStart="@dimen/margin_left"
+        app:layout_constraintTop_toBottomOf="@id/payoutMethodType"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <View
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_left"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        app:layout_constraintTop_toBottomOf="@id/last4digits"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

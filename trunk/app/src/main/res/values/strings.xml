@@ -306,6 +306,11 @@
     <string name="iban_number_text">IBAN number</string>
     <string name="iban_hint">SEXX XXXX XXXX XXXX XXXX XXXX</string>
     <string name="register_your_account_stripe_text">Register your account</string>
-    <string name="add_payout_method_text">Payout preferences</string>
+    <string name="payout_preferences">Payout preferences</string>
+    <string name="add_payout_method_text">Add payout method</string>
+    <string name="bank_account_text">Bank account</string>
+    <string name="change_payout_method_text">Change payout method</string>
+    <string name="edit_your_payout_methods">Edit your payout methods</string>
+    <string name="payment_methods_text">Payment methods</string>
 
 </resources>

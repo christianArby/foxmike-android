@@ -8,6 +8,13 @@
     android:background="@color/color_background_dark"
     tools:context="com.foxmike.android.activities.CreateStripeAccountActivity">
 
+    <FrameLayout
+        android:id="@+id/container_finalize_fragment"
+        android:elevation="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
