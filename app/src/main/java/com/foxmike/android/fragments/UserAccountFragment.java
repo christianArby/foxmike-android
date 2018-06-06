@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
+import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.utils.MyFirebaseDatabase;
@@ -177,8 +178,8 @@ public class UserAccountFragment extends Fragment {
         addPaymentMethod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent payoutPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
-                startActivity(payoutPreferencesIntent);
+                Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
+                startActivity(paymentPreferencesIntent);
             }
         });
 

@@ -1,7 +1,6 @@
 package com.foxmike.android.activities;
 
 import android.support.v4.app.FragmentManager;
-import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentTransaction;
@@ -248,6 +247,10 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
                     accountData.put("dobDay",dobDay);
                     accountData.put("ip", getLocalIpAddress());
                     accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    accountData.put("accountType", "custom");
+                    accountData.put("country","SE");
+                    accountData.put("legalEntityType", "individual");
+
 
                     FinalizeStripeAccountCreationFragment finalizeStripeAccountCreationFragment = new FinalizeStripeAccountCreationFragment();
 
@@ -287,6 +290,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
 
     @Override
     public void OnStripeAccountCreated() {
+        setResult(RESULT_OK, null);
         finish();
     }
 }

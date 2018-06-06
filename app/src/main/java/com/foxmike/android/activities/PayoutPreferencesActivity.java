@@ -39,7 +39,6 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
 
     private FirebaseFunctions mFunctions;
     private View mainView;
-    private HashMap<String, Object> accountData = new HashMap<>();
     private RecyclerView listPayoutMethodsRV;
     private ListPayoutMethodsAdapter listPayoutMethodsAdapter;
     private ProgressBar progressBar;
@@ -57,6 +56,8 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
         progressBar = findViewById(R.id.progressBar_cyclic);
         addPayoutMethodTV = findViewById(R.id.addPayoutMethodTV);
         listPayoutMethodsRV = findViewById(R.id.listPayoutMethodsRV);
+
+        findStripeAccount();
     }
 
     private void findStripeAccount() {
@@ -91,7 +92,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
                         @Override
                         public void onClick(View view) {
                             Intent createIntent = new Intent(PayoutPreferencesActivity.this,CreateStripeAccountActivity.class);
-                            startActivity(createIntent);
+                            startActivityForResult(createIntent, 1);
                         }
                     });
                     progressBar.setVisibility(View.GONE);
@@ -114,12 +115,6 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
             startActivity(refresh);
             this.finish();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        findStripeAccount();
     }
 
     private void RetrieveStripeExternalAccounts(String accountID) {
