@@ -76,9 +76,15 @@ public class PaymentPreferencesActivity extends AppCompatActivity {
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
+                            HashMap<String, Object> customerData = new HashMap<>();
+                            customerData.put("updateWithCustomerId", stripeCustomerId);
+                            createIntent.putExtra("customerData",customerData);
+                            startActivityForResult(createIntent, 1);
                             /*HashMap<String, Object> accountData = new HashMap<>();
                             accountData.put("stripeCustomerId", stripeCustomerId);
                             Intent updateIntent = new Intent(PayoutPreferencesActivity.this,UpdateStripeAccountWithPayoutActivity.class);
+
                             updateIntent.putExtra("accountData",accountData);
                             startActivityForResult(updateIntent, 1);*/
 

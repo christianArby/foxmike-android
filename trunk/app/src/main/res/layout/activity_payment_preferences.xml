@@ -31,14 +31,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/listPaymentMethodsRV"
+    <RelativeLayout
+        android:id="@+id/recyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@id/paymentPreferencesHeading">
-    </android.support.v7.widget.RecyclerView>
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listPaymentMethodsRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+
+    </RelativeLayout>
     <TextView
         android:id="@+id/addPaymentMethodTV"
         android:layout_width="match_parent"
@@ -47,7 +53,7 @@
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="@color/foxmikePrimaryColor"
-        app:layout_constraintTop_toBottomOf="@id/listPaymentMethodsRV"
+        app:layout_constraintTop_toBottomOf="@id/recyclerViewContainer"
         app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>
