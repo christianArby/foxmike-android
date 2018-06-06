@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 public class PayoutPreferencesActivity extends AppCompatActivity{
 
@@ -72,7 +71,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     stripeAccountId = dataSnapshot.getValue().toString();
-                    RetrieveStripeExternalAccounts(stripeAccountId);
+                    retrieveStripeExternalAccounts(stripeAccountId);
                     addPayoutMethodTV.setText(R.string.change_payout_method_text);
                     addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -117,7 +116,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
         }
     }
 
-    private void RetrieveStripeExternalAccounts(String accountID) {
+    private void retrieveStripeExternalAccounts(String accountID) {
         // Retrieve Stripe Account
         retrieveStripeAccount(accountID).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override

@@ -23,8 +23,10 @@ public class User implements Comparable<User>{
     public boolean trainerMode;
     public String aboutMe;
     public boolean hasLoggedInBefore;
+    private String stripeAccountId;
+    private String stripeCustomerId;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, boolean hasLoggedInBefore) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, boolean hasLoggedInBefore, String stripeAccountId, String stripeCustomerId) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
@@ -37,6 +39,8 @@ public class User implements Comparable<User>{
         this.trainerMode = trainerMode;
         this.aboutMe = aboutMe;
         this.hasLoggedInBefore = hasLoggedInBefore;
+        this.stripeAccountId = stripeAccountId;
+        this.stripeCustomerId = stripeCustomerId;
     }
 
     public User() {
@@ -145,5 +149,19 @@ public class User implements Comparable<User>{
         return this.getFirstName().compareToIgnoreCase(user.getFirstName());
     }
 
+    public String getStripeAccountId() {
+        return stripeAccountId;
+    }
 
+    public void setStripeAccountId(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
+    }
+
+    public String getStripeCustomerId() {
+        return stripeCustomerId;
+    }
+
+    public void setStripeCustomerId(String stripeCustomerId) {
+        this.stripeCustomerId = stripeCustomerId;
+    }
 }

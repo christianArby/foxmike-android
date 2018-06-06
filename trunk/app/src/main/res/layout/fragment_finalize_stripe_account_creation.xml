@@ -7,6 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
@@ -20,7 +26,6 @@
 
     <TextView
         android:id="@+id/IBANexplanation"
-        android:focusableInTouchMode="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/iban_number_text"
@@ -43,7 +48,6 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputLayout
-                android:focusedByDefault="false"
                 android:id="@+id/ibanTIL"
                 android:theme="@style/TextLabelDark2"
                 android:layout_width="match_parent"
