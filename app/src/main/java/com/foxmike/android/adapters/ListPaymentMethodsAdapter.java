@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
-import com.foxmike.android.utils.MaskedCardView;
-import com.stripe.android.model.Card;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +92,7 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
             if (payoutMethodStandard) {
                 paymentMethodStandardTV.setText("STANDARD");
             } else {
-                paymentMethodStandardTV.setText("");
+                paymentMethodStandardTV.setVisibility(View.GONE);
             }
         }
     }

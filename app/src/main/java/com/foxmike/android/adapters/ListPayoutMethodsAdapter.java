@@ -102,7 +102,7 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
             if (payoutMethodStandard) {
                 payoutMethodStandardTV.setText("STANDARD");
             } else {
-                payoutMethodStandardTV.setText("");
+                payoutMethodStandardTV.setVisibility(View.GONE);
             }
         }
     }

@@ -43,6 +43,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     private Card cardToSave;
     private CardMultilineWidget mCardInputWidget;
     private ProgressBar progressBar;
+    private HashMap<String, Object> customerData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,10 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         createStripeCustomerBtn = findViewById(R.id.createStripeCustomerBtn);
 
         mFunctions = FirebaseFunctions.getInstance();
+
+        if (getIntent().getSerializableExtra("customerData")!= null) {
+            customerData = (HashMap) getIntent().getSerializableExtra("customerData");
+        }
 
         createStripeCustomerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +101,6 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                             public void onSuccess(Token token) {
 
                                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                                HashMap<String, Object> customerData = new HashMap<>();
 
                                 customerData.put("email", mAuth.getCurrentUser().getEmail());
                                 customerData.put("tokenId", token.getId());
@@ -156,9 +160,15 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     // Function createStripeAccount
     private Task<String> createStripeCustomer(Map<String, Object> customerData) {
 
+        String function = "createCustomer";
+
+        if (customerData.get("updateWithCustomerId")!=null) {
+            function = "addSourceForCustomer";
+        }
+
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable("createCustomer")
+                .getHttpsCallable(function)
                 .call(customerData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
