@@ -312,5 +312,6 @@
     <string name="change_payout_method_text">Change payout method</string>
     <string name="edit_your_payout_methods">Edit your payout methods</string>
     <string name="payment_methods_text">Payment methods</string>
+    <string name="ending_in">ending in</string>
 
 </resources>
