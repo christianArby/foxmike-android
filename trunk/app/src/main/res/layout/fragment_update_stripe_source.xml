@@ -1,0 +1,126 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainView"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/color_background_dark"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.foxmike.android.fragments.UpdateStripeSourceFragment">
+
+    <TextView
+        android:id="@+id/paymentPreferencesHeading"
+        android:text="Credit Card"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar_cyclic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/height_progressBar"
+        android:minWidth="@dimen/width_progressBar"
+        android:visibility="invisible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cardInfoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/paymentPreferencesHeading"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/cardIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:text="@string/loading"
+            android:src="@drawable/visa"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:padding="@dimen/margin_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/last4digits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginBottom="@dimen/marginVertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cardIcon"/>
+
+        <TextView
+            android:id="@+id/paymentMethodStandard"
+            android:textAllCaps="true"
+            android:background="@color/lightGrayLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_minimum"
+            android:textStyle="bold"
+            android:text="@string/loading"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginBottom="@dimen/marginVertical"
+            android:layout_marginEnd="@dimen/margin_right"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <View
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_width="match_parent"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            app:layout_constraintTop_toBottomOf="@id/last4digits"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/deletePaymentMethodTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:padding="@dimen/margin_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/foxmikePrimaryColor"
+        app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/setAsDefaultTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Make default"
+        android:padding="@dimen/margin_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/foxmikePrimaryColor"
+        app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+
+</android.support.constraint.ConstraintLayout>

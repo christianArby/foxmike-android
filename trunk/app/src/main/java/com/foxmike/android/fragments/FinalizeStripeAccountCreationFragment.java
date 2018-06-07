@@ -237,6 +237,9 @@ public class FinalizeStripeAccountCreationFragment extends Fragment {
                                     if (result.equals("success")) {
                                         myProgressBar.stopProgressBar();
                                         onStripeAccountCreatedListener.OnStripeAccountCreated();
+                                    } else {
+                                        myProgressBar.stopProgressBar();
+                                        showSnackbar("An error occurred:" + " " + result);
                                     }
                                 }
                             });

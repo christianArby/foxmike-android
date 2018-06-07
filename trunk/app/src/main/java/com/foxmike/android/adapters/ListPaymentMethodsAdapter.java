@@ -45,15 +45,27 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
 
     @Override
     public void onBindViewHolder(@NonNull ListPaymentMethodsAdapter.ListPaymentMethodsViewHolder holder, int position) {
-        holder.setCard(sourcesDataList.get(position).get("brand").toString(), sourcesDataList.get(position).get("last4").toString());
 
-        if (sourcesDataList.get(position).get("id").toString().equals(defaultSource)) {
-            holder.setPaymentMethodStandard(true);
-        } else {
-            holder.setPaymentMethodStandard(false);
+        if (sourcesDataList.get(position).get("object").equals("card")) {
+            String sourceId = sourcesDataList.get(position).get("id").toString();
+            String cardBrand = sourcesDataList.get(position).get("brand").toString();
+            String last4 = sourcesDataList.get(position).get("last4").toString();
+            boolean isDefault;
+
+            holder.setCard(cardBrand, last4);
+
+            if (sourceId.equals(defaultSource)) {
+                isDefault = true;
+                holder.setPaymentMethodStandard(true);
+            } else {
+                isDefault = false;
+                holder.setPaymentMethodStandard(false);
+            }
+
+            holder.setPaymentMethodClickedListener(sourceId,cardBrand,last4,isDefault);
         }
 
-        holder.setPaymentMethodClickedListener(sourcesDataList.get(position).get("id").toString());
+
     }
 
     @Override
@@ -65,11 +77,11 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
 
         View mView;
 
-        public void setPaymentMethodClickedListener(final String customerID) {
+        public void setPaymentMethodClickedListener(final String customerID, final String cardBrand, final String last4, final boolean isDefault) {
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onPaymentMethodClickedListener.OnPaymentMethodClicked(customerID);
+                    onPaymentMethodClickedListener.OnPaymentMethodClicked(customerID, cardBrand, last4, isDefault);
                 }
             });
         }
