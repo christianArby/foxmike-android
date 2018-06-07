@@ -3,6 +3,8 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPaymentMethodsAdapter;
+import com.foxmike.android.fragments.FinalizeStripeAccountCreationFragment;
+import com.foxmike.android.fragments.UpdateStripeSourceFragment;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +38,7 @@ import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
-public class PaymentPreferencesActivity extends AppCompatActivity {
+public class PaymentPreferencesActivity extends AppCompatActivity implements UpdateStripeSourceFragment.OnStripeCustomerUpdatedListener {
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -164,8 +168,15 @@ public class PaymentPreferencesActivity extends AppCompatActivity {
                     listPaymentMethodsRV.setLayoutManager(new LinearLayoutManager(PaymentPreferencesActivity.this));
                     listPaymentMethodsAdapter = new ListPaymentMethodsAdapter(sourcesDataList, PaymentPreferencesActivity.this, defaultSource, new OnPaymentMethodClickedListener() {
                         @Override
-                        public void OnPaymentMethodClicked(String customerId) {
-                            showSnackbar(customerId + "Was clicked!");
+                        public void OnPaymentMethodClicked(String sourceId, String cardBrand, String last4, Boolean isDefault) {
+
+                            UpdateStripeSourceFragment updateStripeSourceFragment = UpdateStripeSourceFragment.newInstance(stripeCustomerId, sourceId, cardBrand, last4, isDefault);
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                            transaction.add(R.id.container_update_fragment, updateStripeSourceFragment, "updateSource").addToBackStack(null);
+                            transaction.commit();
+
                         }
                     });
                     listPaymentMethodsRV.setAdapter(listPaymentMethodsAdapter);
@@ -214,5 +225,12 @@ public class PaymentPreferencesActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnStripeCustomerUpdated() {
+        Intent refresh = new Intent(this, PaymentPreferencesActivity.class);
+        startActivity(refresh);
+        this.finish();
     }
 }

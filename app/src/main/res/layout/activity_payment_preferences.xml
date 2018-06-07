@@ -7,6 +7,13 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.PaymentPreferencesActivity">
 
+    <FrameLayout
+        android:id="@+id/container_update_fragment"
+        android:elevation="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true" />
+
     <TextView
         android:id="@+id/paymentPreferencesHeading"
         android:text="Edit your payment methods"
@@ -14,10 +21,11 @@
         android:layout_marginTop="40dp"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"

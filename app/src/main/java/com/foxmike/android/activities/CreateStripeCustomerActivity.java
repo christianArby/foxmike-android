@@ -60,6 +60,8 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
 
         if (getIntent().getSerializableExtra("customerData")!= null) {
             customerData = (HashMap) getIntent().getSerializableExtra("customerData");
+        } else {
+            customerData = new HashMap<>();
         }
 
         createStripeCustomerBtn.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +139,9 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                                             myProgressBar.stopProgressBar();
                                             setResult(RESULT_OK, null);
                                             finish();
+                                        } else {
+                                            myProgressBar.stopProgressBar();
+                                            showSnackbar("An error occurred:" + " " + result);
                                         }
                                     }
                                 });
