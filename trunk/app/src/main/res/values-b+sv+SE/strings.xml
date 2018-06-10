@@ -308,9 +308,25 @@
     <string name="iban_number_text">IBAN nummer</string>
     <string name="iban_hint">SEXX XXXX XXXX XXXX XXXX XXXX</string>
     <string name="register_your_account_stripe_text">Registrera ditt konto</string>
+    <string name="payout_preferences">Utbetalningsinställningar</string>
     <string name="add_payout_method_text">Lägg till utbetalningsmetod</string>
     <string name="bank_account_text">Bankkonto</string>
     <string name="change_payout_method_text">Ändra utbetalningsmetod</string>
     <string name="edit_your_payout_methods">Redigera dina utbetalningsmetoder</string>
+    <string name="payment_methods_text">Betalningar</string>
+    <string name="default_text">STANDARD</string>
+    <string name="add_payment_method">Lägg till betalningsmetod</string>
+    <string name="edit_your_payment_methods">Redigera dina betalningsmetoder</string>
+    <string name="credit_card">Kreditkort</string>
+    <string name="delete">Radera</string>
+    <string name="make_default">Använd som standard</string>
+    <string name="acc_label_card_number">Kort nummer</string>
+    <string name="acc_label_expiry_date">Giltigt till</string>
+    <string name="expiry_date_hint">MM/ÅÅ</string>
+    <string name="cvc_number_hint">CVC</string>
+    <string name="invalid_card_number">Kortnumret är ogiltigt.</string>
+    <string name="invalid_expiry_month">Utgångsdatumet är ogiltigt.</string>
+    <string name="invalid_expiry_year">Utgångsdatumet är ogiltigt.</string>
+    <string name="invalid_cvc">Säkerhetskoden är ogiltig.</string>
 
 </resources>

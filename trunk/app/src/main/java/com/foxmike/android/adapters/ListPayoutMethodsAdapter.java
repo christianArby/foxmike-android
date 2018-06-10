@@ -100,7 +100,7 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
         public void setPayoutMethodStandard(Boolean payoutMethodStandard) {
             TextView payoutMethodStandardTV = (TextView) mView.findViewById(R.id.payoutMethodStandard);
             if (payoutMethodStandard) {
-                payoutMethodStandardTV.setText("STANDARD");
+                payoutMethodStandardTV.setText(R.string.default_text);
             } else {
                 payoutMethodStandardTV.setVisibility(View.GONE);
             }

@@ -102,7 +102,7 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
         public void setPaymentMethodStandard(Boolean payoutMethodStandard) {
             TextView paymentMethodStandardTV = (TextView) mView.findViewById(R.id.paymentMethodStandard);
             if (payoutMethodStandard) {
-                paymentMethodStandardTV.setText("STANDARD");
+                paymentMethodStandardTV.setText(R.string.default_text);
             } else {
                 paymentMethodStandardTV.setVisibility(View.GONE);
             }
