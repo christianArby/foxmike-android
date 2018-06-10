@@ -43,25 +43,29 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
     @Override
     public void onBindViewHolder(@NonNull ListPayoutMethodsViewHolder holder, int position) {
 
+        String accountId = external_accountsDataList.get(position).get("account").toString();
+        String externalAccountId = external_accountsDataList.get(position).get("id").toString();
+        String last4 = external_accountsDataList.get(position).get("last4").toString();
+        String currency = external_accountsDataList.get(position).get("currency").toString();
+        Boolean isDefault;
+
         if (external_accountsDataList.get(position).get("object").equals("bank_account")) {
             holder.setPayoutMethodType(context.getString(R.string.bank_account_text));
-            String last4 = external_accountsDataList.get(position).get("last4").toString();
-            String currency = external_accountsDataList.get(position).get("currency").toString();
             holder.setPayoutMethodLast4("IBAN" + " *****" + last4 + " (" + currency.toUpperCase() + ")");
         } else {
             holder.setPayoutMethodType(external_accountsDataList.get(position).get("object").toString());
-            String last4 = external_accountsDataList.get(position).get("last4").toString();
-            String currency = external_accountsDataList.get(position).get("currency").toString();
             holder.setPayoutMethodLast4("*****" + last4 + "(" + currency.toUpperCase() + ")");
         }
 
         if (external_accountsDataList.get(position).get("default_for_currency").toString().equals("true")) {
             holder.setPayoutMethodStandard(true);
+            isDefault = true;
         } else {
             holder.setPayoutMethodStandard(false);
+            isDefault = false;
         }
 
-        holder.setPayoutMethodClickedListener(external_accountsDataList.get(position).get("id").toString());
+        holder.setPayoutMethodClickedListener(accountId, externalAccountId, last4, currency, isDefault);
     }
 
     @Override
@@ -73,11 +77,11 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
 
         View mView;
 
-        public void setPayoutMethodClickedListener(final String accountID) {
+        public void setPayoutMethodClickedListener(final String accountId, final String externalAccountId, final String last4, final String currency, final Boolean isDefault) {
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onPayoutMethodClickedListener.OnPayoutMethodClicked(accountID);
+                    onPayoutMethodClickedListener.OnPayoutMethodClicked(accountId, externalAccountId, last4, currency, isDefault);
                 }
             });
         }

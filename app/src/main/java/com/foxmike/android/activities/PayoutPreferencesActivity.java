@@ -3,6 +3,8 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
+import com.foxmike.android.fragments.UpdateStripeExternalAccountFragment;
 import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +37,7 @@ import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
-public class PayoutPreferencesActivity extends AppCompatActivity{
+public class PayoutPreferencesActivity extends AppCompatActivity implements UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener{
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -72,7 +75,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
                 if (dataSnapshot.getValue()!=null) {
                     stripeAccountId = dataSnapshot.getValue().toString();
                     retrieveStripeExternalAccounts(stripeAccountId);
-                    addPayoutMethodTV.setText(R.string.change_payout_method_text);
+                    addPayoutMethodTV.setText(R.string.add_payout_method_text);
                     addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -156,8 +159,15 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
                     listPayoutMethodsRV.setLayoutManager(new LinearLayoutManager(PayoutPreferencesActivity.this));
                     listPayoutMethodsAdapter = new ListPayoutMethodsAdapter(external_accountsDataList, PayoutPreferencesActivity.this, new OnPayoutMethodClickedListener() {
                         @Override
-                        public void OnPayoutMethodClicked(String accountId) {
-                            showSnackbar(accountId + "Was clicked!");
+                        public void OnPayoutMethodClicked(String accountId, String externalAccountId, String last4, String currency, Boolean isDefault) {
+
+                            UpdateStripeExternalAccountFragment updateStripeExternalAccountFragment = UpdateStripeExternalAccountFragment.newInstance(accountId, externalAccountId, last4, currency, isDefault);
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                            transaction.add(R.id.container_update_fragment, updateStripeExternalAccountFragment, "updateAccount").addToBackStack(null);
+                            transaction.commit();
+
                         }
                     });
                     listPayoutMethodsRV.setAdapter(listPayoutMethodsAdapter);
@@ -202,5 +212,12 @@ public class PayoutPreferencesActivity extends AppCompatActivity{
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnStripeAccountUpdated() {
+        Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
+        startActivity(refresh);
+        this.finish();
     }
 }

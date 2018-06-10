@@ -166,7 +166,7 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                     public void onSuccess(Token token) {
                         accountData.put("account_token", token.getId());
                         // If successfully created Bank Account create Stripe Account with all the collected info
-                        changeExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
+                        createExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
                             public void onComplete(@NonNull Task<String> task) {
                                 // If not succesful, show error
@@ -183,7 +183,7 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                                     }
 
                                     // [START_EXCLUDE]
-                                    Log.w(TAG, "create:onFailure", e);
+                                    Log.w(TAG, "createExternalAccount:onFailure", e);
                                     showSnackbar("An error occurred.");
                                     return;
                                     // [END_EXCLUDE]
@@ -195,6 +195,9 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                                     myProgressBar.stopProgressBar();
                                     setResult(RESULT_OK, null);
                                     finish();
+                                } else {
+                                    myProgressBar.stopProgressBar();
+                                    showSnackbar("An error occurred:" + " " + result);
                                 }
                                 // [END_EXCLUDE]
                             }
@@ -209,11 +212,11 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
     }
 
     // Function createStripeAccount
-    private Task<String> changeExternalAccount(Map<String, Object> accountData) {
+    private Task<String> createExternalAccount(Map<String, Object> accountData) {
 
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable("changeExternalAccount")
+                .getHttpsCallable("createExternalAccount")
                 .call(accountData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override

@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
-import com.foxmike.android.activities.CreateStripeCustomerActivity;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,41 +31,41 @@ import static android.content.ContentValues.TAG;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UpdateStripeSourceFragment extends Fragment {
+public class UpdateStripeExternalAccountFragment extends Fragment {
 
-    private String customerId;
-    private String sourceId;
-    private String cardBrand;
+    private String accountId;
+    private String externalAccountId;
     private String last4;
+    private String currency;
     private boolean isDefault;
+    private TextView payoutHeadingTV;
     private TextView last4TV;
     private TextView isDefaultTV;
-    private ImageView cardBrandIV;
     private TextView deleteTV;
     private TextView makeDefaultTV;
     private View view;
     private FirebaseFunctions mFunctions;
     private ProgressBar progressBar;
-    private HashMap<String, Object> customerData;
+    private HashMap<String, Object> accountData;
 
-    private OnStripeCustomerUpdatedListener onStripeCustomerUpdatedListener;
+    private OnStripeAccountUpdatedListener onStripeAccountUpdatedListener;
 
 
-    public UpdateStripeSourceFragment() {
+    public UpdateStripeExternalAccountFragment() {
         // Required empty public constructor
     }
 
-    public static UpdateStripeSourceFragment newInstance(String customerId, String sourceId, String cardBrand, String last4, Boolean isDefault) {
+    public static UpdateStripeExternalAccountFragment newInstance(String accountId, String externalAccountId, String last4, String currency, Boolean isDefault) {
 
         Bundle args = new Bundle();
 
-        args.putString("customerId", customerId);
-        args.putString("sourceId", sourceId);
-        args.putString("cardBrand", cardBrand);
+        args.putString("accountId", accountId);
+        args.putString("externalAccountId", externalAccountId);
         args.putString("last4", last4);
+        args.putString("currency", currency);
         args.putBoolean("isDefault", isDefault);
 
-        UpdateStripeSourceFragment fragment = new UpdateStripeSourceFragment();
+        UpdateStripeExternalAccountFragment fragment = new UpdateStripeExternalAccountFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,33 +75,32 @@ public class UpdateStripeSourceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_update_stripe_source, container, false);
+        view = inflater.inflate(R.layout.fragment_update_stripe_external_account, container, false);
 
-        cardBrandIV = view.findViewById(R.id.cardIcon);
+        payoutHeadingTV = view.findViewById(R.id.payoutPreferencesHeading);
         last4TV = view.findViewById(R.id.last4digits);
-        isDefaultTV = view.findViewById(R.id.paymentMethodStandard);
-        deleteTV = view.findViewById(R.id.deletePaymentMethodTV);
+        isDefaultTV = view.findViewById(R.id.payoutMethodStandard);
+        deleteTV = view.findViewById(R.id.deletePayoutMethodTV);
         makeDefaultTV = view.findViewById(R.id.setAsDefaultTV);
         progressBar = view.findViewById(R.id.progressBar_cyclic);
 
 
-        customerId = getArguments().getString("customerId");
-        sourceId = getArguments().getString("sourceId");
-        cardBrand = getArguments().getString("cardBrand");
+        accountId = getArguments().getString("accountId");
+        externalAccountId = getArguments().getString("externalAccountId");
         last4 = getArguments().getString("last4");
+        currency = getArguments().getString("currency");
         isDefault = getArguments().getBoolean("isDefault");
 
         mFunctions = FirebaseFunctions.getInstance();
 
-        customerData = new HashMap<>();
+        accountData = new HashMap<>();
 
-        customerData.put("customerId", customerId);
-        customerData.put("sourceId", sourceId);
+        accountData.put("accountId", accountId);
+        accountData.put("externalAccountId", externalAccountId);
 
+        payoutHeadingTV.setText(getResources().getString(R.string.bank_account_text));
 
-        // TODO set cardBrand icon
-
-        last4TV.setText(cardBrand + " " + last4);
+        last4TV.setText("IBAN" + " *****" + last4 + " (" + currency.toUpperCase() + ")");
 
         if (isDefault) {
             isDefaultTV.setText("STANDARD");
@@ -113,25 +111,25 @@ public class UpdateStripeSourceFragment extends Fragment {
         deleteTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateSource("deleteCardForCustomer");
+                updateAccount("deleteExternalAccountForAccount");
             }
         });
 
         makeDefaultTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateSource("setDefaultSourceForCustomer");
+                updateAccount("setDefaultExternalAccountForAccount");
             }
         });
 
         return view;
     }
 
-    private void updateSource(String type) {
+    private void updateAccount(String type) {
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
         myProgressBar.startProgressBar();
 
-        deleteStripeCustomerSource(customerData, type).addOnCompleteListener(new OnCompleteListener<String>() {
+        updateStripeAccount(accountData, type).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 // If not succesful, show error
@@ -150,7 +148,7 @@ public class UpdateStripeSourceFragment extends Fragment {
                     myProgressBar.stopProgressBar();
 
                     // [START_EXCLUDE]
-                    Log.w(TAG, "createCustomer:onFailure", e);
+                    Log.w(TAG, "deleteStripeExternalAccount:onFailure", e);
                     showSnackbar("An error occurred." + e.getMessage());
                     return;
                     // [END_EXCLUDE]
@@ -160,7 +158,7 @@ public class UpdateStripeSourceFragment extends Fragment {
                 String result = task.getResult();
                 if (result.equals("success")) {
                     myProgressBar.stopProgressBar();
-                    onStripeCustomerUpdatedListener.OnStripeCustomerUpdated();
+                    onStripeAccountUpdatedListener.OnStripeAccountUpdated();
                 } else {
                     myProgressBar.stopProgressBar();
                     showSnackbar("An error occurred:" + " " + result);
@@ -170,12 +168,12 @@ public class UpdateStripeSourceFragment extends Fragment {
     }
 
     // Function createStripeAccount
-    private Task<String> deleteStripeCustomerSource(Map<String, Object> customerData, String function) {
+    private Task<String> updateStripeAccount(Map<String, Object> accountData, String function) {
 
         // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable(function)
-                .call(customerData)
+                .call(accountData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
@@ -195,22 +193,22 @@ public class UpdateStripeSourceFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnStripeCustomerUpdatedListener) {
-            onStripeCustomerUpdatedListener = (OnStripeCustomerUpdatedListener) context;
+        if (context instanceof UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener) {
+            onStripeAccountUpdatedListener = (UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnStripeCustomerUpdatedListener");
+                    + " must implement OnStripeAccountUpdatedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onStripeCustomerUpdatedListener = null;
+        onStripeAccountUpdatedListener = null;
     }
 
-    public interface OnStripeCustomerUpdatedListener {
-        void OnStripeCustomerUpdated();
+    public interface OnStripeAccountUpdatedListener {
+        void OnStripeAccountUpdated();
     }
 
 }
