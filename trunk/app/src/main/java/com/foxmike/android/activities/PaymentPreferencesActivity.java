@@ -76,7 +76,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                 if (dataSnapshot.getValue()!=null) {
                     stripeCustomerId = dataSnapshot.getValue().toString();
                     retrieveStripeCustomerSources(stripeCustomerId);
-                    addPaymentMethodTV.setText("Add payment method");
+                    addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

@@ -5,5 +5,5 @@ package com.foxmike.android.interfaces;
  */
 
 public interface OnPayoutMethodClickedListener {
-    void OnPayoutMethodClicked(String accountId);
+    void OnPayoutMethodClicked(String accountId, String externalAccountId, String last4, String currency, Boolean isDefault);
 }

@@ -328,5 +328,6 @@
     <string name="invalid_expiry_month">Utgångsdatumet är ogiltigt.</string>
     <string name="invalid_expiry_year">Utgångsdatumet är ogiltigt.</string>
     <string name="invalid_cvc">Säkerhetskoden är ogiltig.</string>
+    <string name="credit_card_information">Kortinformation</string>
 
 </resources>

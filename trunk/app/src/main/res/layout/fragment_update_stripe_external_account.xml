@@ -8,7 +8,7 @@
     tools:context="com.foxmike.android.fragments.UpdateStripeExternalAccountFragment">
 
     <TextView
-        android:id="@+id/paymentPreferencesHeading"
+        android:id="@+id/payoutPreferencesHeading"
         android:text="@string/credit_card"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:layout_marginTop="40dp"
@@ -34,41 +34,14 @@
         />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/cardInfoContainer"
+        android:id="@+id/accountInfoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/paymentPreferencesHeading"
+        app:layout_constraintTop_toBottomOf="@id/payoutPreferencesHeading"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/cardIcon"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:text="@string/loading"
-            android:src="@drawable/visa"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/primaryTextColor"
-            android:padding="@dimen/margin_left"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
-
         <TextView
-            android:id="@+id/last4digits"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/loading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:layout_marginBottom="@dimen/marginVertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/cardIcon"/>
-
-        <TextView
-            android:id="@+id/paymentMethodStandard"
+            android:id="@+id/payoutMethodStandard"
             android:textAllCaps="true"
             android:background="@color/lightGrayLine"
             android:layout_width="wrap_content"
@@ -85,6 +58,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <TextView
+            android:id="@+id/last4digits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginTop="@dimen/leadSub2Body"
+            android:layout_marginStart="@dimen/margin_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
         <View
             android:layout_marginTop="@dimen/marginVertical"
             android:layout_width="match_parent"
@@ -100,14 +86,14 @@
     </android.support.constraint.ConstraintLayout>
 
     <TextView
-        android:id="@+id/deletePaymentMethodTV"
+        android:id="@+id/deletePayoutMethodTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/delete"
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="@color/foxmikePrimaryColor"
-        app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
+        app:layout_constraintTop_toBottomOf="@id/accountInfoContainer"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
@@ -118,7 +104,7 @@
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="@color/foxmikePrimaryColor"
-        app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
+        app:layout_constraintTop_toBottomOf="@id/accountInfoContainer"
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
