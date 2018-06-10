@@ -163,7 +163,15 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
                     ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
 
-                    String defaultSource = result.get("default_source").toString();
+                    String defaultSource;
+
+                    if (result.get("default_source")!= null) {
+                        defaultSource = result.get("default_source").toString();
+                    } else {
+                        defaultSource = null;
+                    }
+
+
 
                     listPaymentMethodsRV.setLayoutManager(new LinearLayoutManager(PaymentPreferencesActivity.this));
                     listPaymentMethodsAdapter = new ListPaymentMethodsAdapter(sourcesDataList, PaymentPreferencesActivity.this, defaultSource, new OnPaymentMethodClickedListener() {
