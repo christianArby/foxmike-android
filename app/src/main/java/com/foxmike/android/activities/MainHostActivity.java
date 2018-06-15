@@ -314,6 +314,17 @@ public class MainHostActivity extends AppCompatActivity implements
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
+
+    @Override
+    public void OnEditSession(String sessionID, Session session) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        bundle.putSerializable("session", session);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+    }
+
     // Starts Mapsfragment when location on session should be changed.
     @Override
     public void OnEditLocation(String sessionID ,Session session) {

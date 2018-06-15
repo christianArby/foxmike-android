@@ -196,7 +196,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable("retrieve")
+                .getHttpsCallable("retrieveExternalAccounts")
                 .call(accountId)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override

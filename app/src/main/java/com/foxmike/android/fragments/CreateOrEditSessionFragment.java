@@ -10,13 +10,19 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,6 +34,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -36,12 +43,19 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.PayoutPreferencesActivity;
+import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
+import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +63,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.FirebaseFunctionsException;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -56,11 +73,15 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.ContentValues.TAG;
+
 /**
  * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
  * It also updates existing sessions.
@@ -71,21 +92,22 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
-    private LinearLayout mLocationFrame;
-    private LinearLayout mDateFrame;
-    private LinearLayout mTimeFrame;
-    private LinearLayout mDurationFrame;
-    private LinearLayout mMaxParticipantsFrame;
-    private LinearLayout mSessionTypeFrame;
-    private EditText mSessionName;
-    private EditText mSessionType;
-    private EditText mDate;
-    private EditText mTime;
-    private EditText mMaxParticipants;
-    private EditText mDuration;
+    private TextInputLayout mDateTIL;
+    private TextInputLayout mTimeTIL;
+    private TextInputLayout mDurationTIL;
+    private TextInputLayout mMaxParticipantsTIL;
+    private TextInputLayout mSessionTypeTIL;
+    private TextInputLayout mPriceTIL;
+    private TextInputEditText mSessionName;
+    private TextInputEditText mSessionType;
+    private TextInputEditText mDate;
+    private TextInputEditText mTime;
+    private TextInputEditText mMaxParticipants;
+    private TextInputEditText mDuration;
     private EditText mWhat;
     private EditText mWho;
     private EditText mWhere;
+    private EditText mPrice;
     private CheckedTextView mAdvertised;
     private Button mCreateSessionBtn;
     private final Calendar myCalendar = Calendar.getInstance();
@@ -114,6 +136,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private OnHostSessionChangedListener onHostSessionChangedListener;
     private OnEditLocationListener onEditLocationListener;
     static CreateOrEditSessionFragment fragment;
+    private ProgressBar progressBar;
+    private View view;
+    private String accountCountry;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -139,40 +164,44 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_create_or_edit_session, container, false);
+        view = inflater.inflate(R.layout.fragment_create_or_edit_session, container, false);
 
         /* Set and inflate "create session" layout*/
         View createSession;
         LinearLayout createSessionContainer = view.findViewById(R.id.create_session_container);
         createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
-
         // Setup views
         mLocation = createSession.findViewById(R.id.locationTV);
         mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
-        mSessionTypeFrame = createSession.findViewById(R.id.sessionTypeFrame);
+        mSessionTypeTIL = createSession.findViewById(R.id.sessionTypeTIL);
         mTime = createSession.findViewById(R.id.timeET);
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
         mDuration = createSession.findViewById(R.id.durationET);
-        mLocationFrame  = createSession.findViewById(R.id.locationFrame);
-        mDateFrame = createSession.findViewById(R.id.dateFrame);
-        mTimeFrame = createSession.findViewById(R.id.timeFrame);
-        mDurationFrame = createSession.findViewById(R.id.durationFrame);
-        mMaxParticipantsFrame = createSession.findViewById(R.id.maxParticipantFrame);
+        mDateTIL = createSession.findViewById(R.id.dateTIL);
+        mTimeTIL = createSession.findViewById(R.id.timeTIL);
+        mDurationTIL = createSession.findViewById(R.id.durationTIL);
+        mMaxParticipantsTIL = createSession.findViewById(R.id.maxParticipantTIL);
         mWhat = createSession.findViewById(R.id.whatET);
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(getActivity());
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
+        mPrice = createSession.findViewById(R.id.priceET);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mAdvertised = createSession.findViewById(R.id.advertised);
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
+        progressBar = createSession.findViewById(R.id.progressBar_cyclic);
+        mPriceTIL = createSession.findViewById(R.id.priceTIL);
 
         // Set default state of advertised checkedTextview
         mAdvertised.setChecked(true);
         mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+
+        progressBar.setVisibility(View.VISIBLE);
+        mPriceTIL.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -217,6 +246,8 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
+
+        // FILL VIEW with the session in bundle or with the session with the sessionID
         sessionExist=0;
         if (existingSessionID != null | existingSession!=null) {
             /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
@@ -228,33 +259,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         existingSession = dataSnapshot.getValue(Session.class);
-                        clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-                        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-                        mLocation.setText(address);
-                        setImage(existingSession.getImageUrl(),mSessionImageButton);
-                        mSessionName.setText(existingSession.getSessionName());
-                        mSessionType.setText(existingSession.getSessionType());
-                        // Date
-                        myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
-                        updateLabel();
-                        // Time
-                        TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
-                        mTime.setText(textTimestamp.textTime());
-                        mMaxParticipants.setText(existingSession.getMaxParticipants());
-                        mDuration.setText(existingSession.getDuration());
-                        mWhat.setText(existingSession.getWhat());
-                        mWho.setText(existingSession.getWho());
-                        mWhere.setText(existingSession.getWhere());
-
-                        mCreateSessionBtn.setText(R.string.update_session);
-                        mAdvertised.setChecked(existingSession.isAdvertised());
-                        if (existingSession.isAdvertised()) {
-                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-                            mAdvertised.setChecked(true);
-                        } else {
-                            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
-                            mAdvertised.setChecked(false);
-                        }
+                        fillUI();
                     }
 
                     @Override
@@ -264,43 +269,17 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 });
 
             } else {
-                existingSession = existingSession;
-                clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-                String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-                mLocation.setText(address);
-                setImage(existingSession.getImageUrl(),mSessionImageButton);
-                mSessionName.setText(existingSession.getSessionName());
-                mSessionType.setText(existingSession.getSessionType());
-                // Date
-                myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
-                updateLabel();
-                // Time
-                TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
-                mTime.setText(textTimestamp.textTime());
-                mMaxParticipants.setText(existingSession.getMaxParticipants());
-                mDuration.setText(existingSession.getDuration());
-                mWhat.setText(existingSession.getWhat());
-                mWho.setText(existingSession.getWho());
-                mWhere.setText(existingSession.getWhere());
-
-                mCreateSessionBtn.setText(R.string.update_session);
-                mAdvertised.setChecked(existingSession.isAdvertised());
-                if (existingSession.isAdvertised()) {
-                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-                    mAdvertised.setChecked(true);
-                } else {
-                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
-                    mAdvertised.setChecked(false);
-                }
+                fillUI();
             }
 
 
-        } /* If no bundle exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
+        } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
 
             String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
+            setPrice(0);
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
         }
 
@@ -334,7 +313,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
 
         // Setup location icon click listener
-        mLocationFrame.setOnClickListener(new View.OnClickListener() {
+        mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -348,7 +327,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
 
         /** When item is clicked create a dialog with the specified title and string array */
-        mSessionTypeFrame.setOnClickListener(new View.OnClickListener() {
+        mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
@@ -377,7 +356,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         };
         /**If date field is clicked start Android datepicker and retrive data */
-        mDateFrame.setOnClickListener(new View.OnClickListener() {
+        mDateTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new DatePickerDialog(getContext(), date, myCalendar
@@ -395,7 +374,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
 
         /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
-        mTimeFrame.setOnClickListener(new View.OnClickListener() {
+        mTimeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 pickTime();
@@ -409,7 +388,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
-        mDurationFrame.setOnClickListener(new View.OnClickListener() {
+        mDurationTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
@@ -422,7 +401,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
-        mMaxParticipantsFrame.setOnClickListener(new View.OnClickListener() {
+        mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
@@ -436,6 +415,119 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
 
         return view;
+    }
+
+    private void fillUI() {
+        clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
+        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+        mLocation.setText(address);
+        setImage(existingSession.getImageUrl(),mSessionImageButton);
+        mSessionName.setText(existingSession.getSessionName());
+        mSessionType.setText(existingSession.getSessionType());
+        // Date
+        myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
+        updateLabel();
+        // Time
+        TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
+        mTime.setText(textTimestamp.textTime());
+        mMaxParticipants.setText(existingSession.getMaxParticipants());
+        mDuration.setText(existingSession.getDuration());
+        mWhat.setText(existingSession.getWhat());
+        mWho.setText(existingSession.getWho());
+        mWhere.setText(existingSession.getWhere());
+
+
+
+
+        mCreateSessionBtn.setText(R.string.update_session);
+        mAdvertised.setChecked(existingSession.isAdvertised());
+        if (existingSession.isAdvertised()) {
+            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
+            mAdvertised.setChecked(true);
+        } else {
+            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
+            mAdvertised.setChecked(false);
+        }
+
+        setPrice(existingSession.getPrice());
+    }
+
+    private void setPrice(final int price) {
+        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                retrieveStripeAccount(dataSnapshot.getValue().toString()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                        // If not succesful, show error and return from function, will trigger if account ID does not exist
+
+                        progressBar.setVisibility(View.GONE);
+                        mPriceTIL.setVisibility(View.VISIBLE);
+
+                        if (!task.isSuccessful()) {
+                            Exception e = task.getException();
+
+                            // [START_EXCLUDE]
+                            Log.w(TAG, "retrieve:onFailure", e);
+                            showSnackbar("An error occurred." + e.getMessage());
+                            return;
+                            // [END_EXCLUDE]
+                        }
+                        // If successful, extract
+                        HashMap<String, Object> result = task.getResult();
+
+                        if (result.get("resultType").toString().equals("account")) {
+
+                            HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
+                            accountCountry = account.get("country").toString();
+
+                            if (accountCountry.equals("SE")) {
+                                mPrice.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        createDialog("Price per person in SEK", R.array.price_array_SE,mPrice);
+                                    }
+                                });
+
+                                mPrice.setText(price + " kr");
+                            }
+
+                        } else {
+                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                            showSnackbar(error.get("message").toString());
+                        }
+                        // [END_EXCLUDE]
+                    }
+                });
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    // Function createStripeAccount
+    private Task<HashMap<String, Object>> retrieveStripeAccount(String accountId) {
+        FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
+        return mFunctions
+                .getHttpsCallable("retrieveAccount")
+                .call(accountId)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void pickTime() {
@@ -483,6 +575,13 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         session.setLatitude(clickedLatLng.latitude);
         session.setHost(currentFirebaseUser.getUid());
         session.setAdvertised(mAdvertised.isChecked());
+
+        if (accountCountry.equals("SE")) {
+            String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
+            int intPrice = Integer.parseInt(sPrice);
+            session.setCurrency("sek");
+            session.setPrice(intPrice);
+        }
 
         /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/

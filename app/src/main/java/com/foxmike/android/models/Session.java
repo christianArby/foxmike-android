@@ -26,8 +26,10 @@ public class Session implements Comparable<Session>, Serializable {
     private String who;
     private String where;
     private String duration;
+    private String currency;
+    private int price;
 
-    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration) {
+    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration, String currency, int price) {
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -43,6 +45,8 @@ public class Session implements Comparable<Session>, Serializable {
         this.who = who;
         this.where = where;
         this.duration = duration;
+        this.currency = currency;
+        this.price = price;
     }
 
     public Session() {
@@ -172,6 +176,22 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setPosts(HashMap<String, Boolean> posts) {
         this.posts = posts;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public Date supplyDate() {

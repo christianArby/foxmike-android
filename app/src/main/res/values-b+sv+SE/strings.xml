@@ -31,6 +31,17 @@
         <item>120 min</item>
     </string-array>
 
+    <string-array name="price_array">
+        <item>30 kr</item>
+        <item>40 kr</item>
+        <item>50 kr</item>
+        <item>60 kr</item>
+        <item>70 kr</item>
+        <item>80 kr</item>
+        <item>90 kr</item>
+        <item>100 kr</item>
+    </string-array>
+
     <string-array name="max_participants_array">
         <item>0</item>
         <item>1</item>

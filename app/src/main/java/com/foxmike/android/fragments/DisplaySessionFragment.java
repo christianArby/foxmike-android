@@ -204,7 +204,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                  and send the session key to that activity as bundle.
                  */
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                    onEditSessionListener.OnEditSession(sessionID);
+                    //onEditSessionListener.OnEditSession(sessionID);
+                    onEditSessionListener.OnEditSession(sessionID,session);
                 }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
@@ -683,6 +684,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
     public interface OnEditSessionListener {
         void OnEditSession(String sessionID);
+        void OnEditSession(String sessionID , Session session);
     }
     public interface OnBookSessionListener {
         void OnBookSession(String sessionID);

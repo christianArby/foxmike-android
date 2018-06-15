@@ -29,6 +29,17 @@
         <item>120 min</item>
     </string-array>
 
+    <string-array name="price_array_SE">
+        <item>30 kr</item>
+        <item>40 kr</item>
+        <item>50 kr</item>
+        <item>60 kr</item>
+        <item>70 kr</item>
+        <item>80 kr</item>
+        <item>90 kr</item>
+        <item>100 kr</item>
+    </string-array>
+
     <string-array name="max_participants_array">
         <item>0</item>
         <item>1</item>
@@ -327,5 +338,6 @@
     <string name="invalid_expiry_year">Your card\'s expiration year is invalid.</string>
     <string name="invalid_cvc">Your card\'s security code is invalid.</string>
     <string name="credit_card_information">Credit card information</string>
+    <string name="you_have_no_stripe_account">You need to have a payout method in order to create a session. Please add payout method under your account.</string>
 
 </resources>
