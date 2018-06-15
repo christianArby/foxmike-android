@@ -9,6 +9,8 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
@@ -18,6 +20,13 @@ import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
 import com.foxmike.android.models.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -63,12 +72,32 @@ public class HostSessionsFragment extends Fragment {
         tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
         // Setup create session button
         createSessionBtn = view.findViewById(R.id.add_session_btn);
+
         createSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onCreateSessionClickedListener.OnCreateSessionClicked();
+                DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+                rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final boolean userHasStripeAccount;
+                        userHasStripeAccount = dataSnapshot.getValue() != null;
+                        if (userHasStripeAccount) {
+                            onCreateSessionClickedListener.OnCreateSessionClicked();
+                        } else {
+                            Toast.makeText(getContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
             }
         });
+
+
 
         hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.advertised_text), getString(R.string.advertised_not_text));
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);

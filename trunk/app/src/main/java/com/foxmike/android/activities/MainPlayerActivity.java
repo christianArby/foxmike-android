@@ -619,6 +619,11 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
+    public void OnEditSession(String sessionID, Session session) {
+        // Not possible in player environment
+    }
+
+    @Override
     public void OnHostSessionChanged() {
         // Not possible in player environment
     }
