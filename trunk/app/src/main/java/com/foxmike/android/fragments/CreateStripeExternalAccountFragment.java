@@ -41,6 +41,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     private View mainView;
     private HashMap<String, Object> accountData;
     private Button createAccountBtn;
+    private Button addPayoutMethodLaterBtn;
     private EditText ibanET;
     private ProgressBar progressBar;
 
@@ -78,6 +79,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
 
         mainView = view.findViewById(R.id.mainView);
         createAccountBtn = view.findViewById(R.id.createStripeAccountBtn);
+        addPayoutMethodLaterBtn = view.findViewById(R.id.addPayoutMethodLaterBtn);
         ibanET = view.findViewById(R.id.ibanET);
         progressBar = view.findViewById(R.id.progressBar_cyclic);
 
@@ -158,6 +160,13 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                         }
                     }
                 }
+            }
+        });
+
+        addPayoutMethodLaterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onStripeExternalAccountCreatedListener.OnStripeExternalAccountCreated();
             }
         });
 

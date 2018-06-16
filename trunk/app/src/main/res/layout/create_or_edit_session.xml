@@ -264,7 +264,8 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/marginVertical">
 
             <ProgressBar
                 android:id="@+id/progressBar_cyclic"
@@ -284,16 +285,17 @@
                 app:layout_constraintTop_toBottomOf="@id/durationTIL">
 
                 <EditText
+                    android:textColor="@color/primaryTextColor"
+                    android:backgroundTint="@color/primaryTextColor"
                     android:id="@+id/priceET"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawablePadding="@dimen/margin_left"
-                    android:paddingStart="@dimen/margin_left"
-                    android:paddingEnd="@dimen/margin_right"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginEnd="@dimen/margin_right"
                     android:hint="Price per person"
                     android:inputType="phone"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:background="@android:color/transparent"
                     android:focusable="false"
                     android:layout_gravity="center_vertical"/>
 
