@@ -15,7 +15,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.foxmike.android.R;
-import com.foxmike.android.fragments.FinalizeStripeAccountCreationFragment;
+import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
+import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.net.InetAddress;
@@ -26,21 +27,20 @@ import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
-public class CreateStripeAccountActivity extends AppCompatActivity implements FinalizeStripeAccountCreationFragment.OnStripeAccountCreatedListener {
+public class CreateStripeAccountActivity extends AppCompatActivity implements CreateStripeAccountDobTosFragment.OnStripeAccountCreatedListener, CreateStripeExternalAccountFragment.OnStripeExternalAccountCreatedListener {
 
     private TextInputEditText firstNameET;
     private TextInputEditText lastNameET;
     private TextInputEditText addressStreetET;
     private TextInputEditText addressPostalCodeET;
     private TextInputEditText addressCityET;
-    private TextInputEditText dobET;
     private TextInputLayout firstNameTIL;
     private TextInputLayout lastNameTIL;
     private TextInputLayout addressStreetTIL;
     private TextInputLayout addressPostalCodeTIL;
     private TextInputLayout addressCityTIL;
-    private TextInputLayout dobTIL;
     private Button createStripeAccountBtn;
+    private HashMap<String, Object> accountData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +52,11 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
         addressStreetET = findViewById(R.id.addressLine1ET);
         addressPostalCodeET = findViewById(R.id.postalCodeET);
         addressCityET = findViewById(R.id.cityET);
-        dobET = findViewById(R.id.dobYearET);
         firstNameTIL = findViewById(R.id.firstNameTIL);
         lastNameTIL = findViewById(R.id.lastNameTIL);
         addressStreetTIL = findViewById(R.id.addressLine1TIL);
         addressPostalCodeTIL = findViewById(R.id.postalCodeTIL);
         addressCityTIL = findViewById(R.id.cityTIL);
-        dobTIL = findViewById(R.id.dobYearTIL);
         createStripeAccountBtn = findViewById(R.id.createStripeAccountBtn);
 
         firstNameET.addTextChangedListener(new TextWatcher() {
@@ -142,46 +140,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
             }
         });
 
-        dobET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int count, int after) {
-                dobTIL.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                CharSequence charSequence = " ";
-                int[] intArray = {4,7};
-                // Loop through all characters
-                for (int i =0; i < editable.length(); i++) {
-                    boolean spacePosition = false;
-                    // Check if position is a space position
-                    for (int n = 0; n < intArray.length; n++) {
-                        if (i==intArray[n]) {
-                            spacePosition = true;
-                        }
-                    }
-                    // If it is a space position and does not contain a space position insert a space position
-                    if (spacePosition) {
-                        if (editable.charAt(i)!=' ') {
-                            editable.insert(i, charSequence);
-                        }
-                    } else {
-                        // If it is NOT a space position and contains a space position remove a character
-                        if (editable.charAt(i)==' ') {
-                            editable.replace(i,i+1, "");
-                        }
-                    }
-                }
-            }
-        });
-
         createStripeAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -191,7 +149,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
                 String addressStreet = addressStreetET.getText().toString();
                 String addressPostalCode = addressPostalCodeET.getText().toString();
                 String addressCity = addressCityET.getText().toString();
-                String dob = dobET.getText().toString();
 
                 boolean infoIsValid = true;
 
@@ -220,31 +177,17 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
                     infoIsValid = false;
                 }
 
-                if (TextUtils.isEmpty(dob)) {
-                    dobTIL.setError(getString(R.string.no_dob_error));
-                    infoIsValid = false;
-                }
-
-                if (dob.length()!=10) {
-                    dobTIL.setError(getString(R.string.no_valid_dob_error));
-                    infoIsValid = false;
-                }
-
                 if (infoIsValid) {
 
-                    int dobYear = Integer.parseInt(dob.substring(0,4));
-                    int dobMonth = Integer.parseInt(dob.substring(5,7));
-                    int dobDay = Integer.parseInt(dob.substring(8,10));
 
-                    HashMap<String, Object> accountData = new HashMap<>();
+
+                    accountData = new HashMap<>();
                     accountData.put("firstName", firstName);
                     accountData.put("lastName", lastName);
                     accountData.put("addressStreet", addressStreet);
                     accountData.put("addressPostalCode", addressPostalCode);
                     accountData.put("addressCity", addressCity);
-                    accountData.put("dobYear",dobYear);
-                    accountData.put("dobMonth",dobMonth);
-                    accountData.put("dobDay",dobDay);
+
                     accountData.put("ip", getLocalIpAddress());
                     accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
                     accountData.put("accountType", "custom");
@@ -252,16 +195,16 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
                     accountData.put("legalEntityType", "individual");
 
 
-                    FinalizeStripeAccountCreationFragment finalizeStripeAccountCreationFragment = new FinalizeStripeAccountCreationFragment();
+                    CreateStripeAccountDobTosFragment createStripeAccountDobTosFragment = new CreateStripeAccountDobTosFragment();
 
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("accountData",accountData);
-                    finalizeStripeAccountCreationFragment.setArguments(bundle);
+                    createStripeAccountDobTosFragment.setArguments(bundle);
 
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-                    transaction.add(R.id.container_finalize_fragment, finalizeStripeAccountCreationFragment, "finalize").addToBackStack(null);
+                    transaction.add(R.id.container_finalize_fragment, createStripeAccountDobTosFragment, "finalize").addToBackStack(null);
                     transaction.commit();
                 }
             }
@@ -289,7 +232,23 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Fi
     }
 
     @Override
-    public void OnStripeAccountCreated() {
+    public void OnStripeAccountCreated(String accountId) {
+        CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
+
+        Bundle bundle = new Bundle();
+        accountData.put("stripeAccountId",accountId);
+        bundle.putSerializable("accountData",accountData);
+        createStripeExternalAccountFragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.add(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize").addToBackStack(null);
+        transaction.commit();
+    }
+
+    @Override
+    public void OnStripeExternalAccountCreated() {
         setResult(RESULT_OK, null);
         finish();
     }

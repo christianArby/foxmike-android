@@ -339,5 +339,6 @@
     <string name="invalid_cvc">Your card\'s security code is invalid.</string>
     <string name="credit_card_information">Credit card information</string>
     <string name="you_have_no_stripe_account">You need to have a payout method in order to create a session. Please add payout method under your account.</string>
+    <string name="become_trainer">Become a trainer</string>
 
 </resources>
