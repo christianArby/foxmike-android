@@ -144,6 +144,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private boolean payoutsEnabled;
     private boolean infoIsValid;
     private Session mUpdatedSession;
+    private String accountCurrency;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -512,6 +513,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
                             HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
                             accountCountry = account.get("country").toString();
+                            accountCurrency = account.get("default_currency").toString();
                             if (account.get("payouts_enabled").toString().equals("true")) {
                                 payoutsEnabled = true;
                             }
@@ -598,8 +600,8 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
             if (sPrice.length()>1) {
                 int intPrice = Integer.parseInt(sPrice);
-                session.setCurrency("sek");
                 session.setPrice(intPrice);
+                session.setCurrency(accountCurrency);
             } else {
                 infoIsValid=false;
             }

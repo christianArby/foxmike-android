@@ -156,7 +156,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                 // If successful, extract
                 HashMap<String, Object> result = task.getResult();
 
-                if (result.get("resultType").toString().equals("sources")) {
+                if (result.get("resultType").toString().equals("customer")) {
 
                     HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
                     ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");

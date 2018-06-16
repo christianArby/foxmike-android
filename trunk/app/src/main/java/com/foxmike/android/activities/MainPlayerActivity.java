@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -48,6 +50,8 @@ import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.utils.WrapContentViewPager;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +59,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.rd.PageIndicatorView;
 import com.stripe.android.Stripe;
 
@@ -629,8 +635,17 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String sessionID) {
-        Map requestMap = new HashMap<>();
+    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency) {
+
+        Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
+        bookIntent.putExtra("sessionId", sessionId);
+        bookIntent.putExtra("hostId", hostId);
+        bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
+        bookIntent.putExtra("amount",amount);
+        bookIntent.putExtra("currency",currency);
+        startActivityForResult(bookIntent, 1);
+        
+        /*Map requestMap = new HashMap<>();
         requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), true);
         requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, true);
         rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
@@ -641,11 +656,19 @@ public class MainPlayerActivity extends AppCompatActivity
                     ps.loadPages(true);
                 }
             }
-        });
+        });*/
 
-        Intent testIntent = new Intent(MainPlayerActivity.this, TestPayActivity.class);
-        startActivity(testIntent);
 
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+            PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+            ps.loadPages(true);
+        }
     }
 
     @Override
