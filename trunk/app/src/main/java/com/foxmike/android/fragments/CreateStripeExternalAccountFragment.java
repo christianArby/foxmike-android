@@ -1,21 +1,20 @@
-package com.foxmike.android.activities;
+package com.foxmike.android.fragments;
 
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
@@ -36,26 +35,51 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
-public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
+public class CreateStripeExternalAccountFragment extends Fragment {
 
     private FirebaseFunctions mFunctions;
     private View mainView;
     private HashMap<String, Object> accountData;
-    private Button updateAccountBtn;
+    private Button createAccountBtn;
     private EditText ibanET;
     private ProgressBar progressBar;
 
+    private OnStripeExternalAccountCreatedListener onStripeExternalAccountCreatedListener;
+
+    public CreateStripeExternalAccountFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_stripe_account_with_payout);
+        // Get data sent from previous activity
+        if (getArguments() != null) {
+            Bundle bundle = getArguments();
+            if(bundle.getSerializable("accountData") != null)
+                accountData = (HashMap<String, Object>)bundle.getSerializable("accountData");
+        }
+    }
 
-        mainView = findViewById(R.id.mainView);
-        updateAccountBtn = findViewById(R.id.createStripeAccountBtn);
-        ibanET = findViewById(R.id.ibanET);
-        progressBar = findViewById(R.id.progressBar_cyclic);
+    public static CreateStripeExternalAccountFragment newInstance() {
 
-        accountData = (HashMap) getIntent().getSerializableExtra("accountData");
+        Bundle args = new Bundle();
+
+        CreateStripeExternalAccountFragment fragment = new CreateStripeExternalAccountFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_create_stripe_external_account, container, false);
+
+        mainView = view.findViewById(R.id.mainView);
+        createAccountBtn = view.findViewById(R.id.createStripeAccountBtn);
+        ibanET = view.findViewById(R.id.ibanET);
+        progressBar = view.findViewById(R.id.progressBar_cyclic);
 
         mFunctions = FirebaseFunctions.getInstance();
         // Set default iban text
@@ -137,27 +161,26 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
             }
         });
 
-        updateAccountBtn.setOnClickListener(new View.OnClickListener() {
+        createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, UpdateStripeAccountWithPayoutActivity.this);
+                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                 myProgressBar.startProgressBar();
+
                 //String iban = ibanET.getText().toString().trim().replaceAll("\\s+","");
 
                 // TODO REMOVE TEST IBAN
                 String iban = "DE89370400440532013000";
-                //String iban = "DE62370400440532013001";
 
                 BankAccount bankAccount = new BankAccount(iban,"de","eur","");
-                Stripe stripe = new Stripe(UpdateStripeAccountWithPayoutActivity.this, "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
+                Stripe stripe = new Stripe(getContext(), "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
 
                 // Create Bank Account token
                 stripe.createBankAccountToken(bankAccount, new TokenCallback() {
                     @Override
                     public void onError(Exception error) {
                         // Show localized error message
-                        Toast.makeText(UpdateStripeAccountWithPayoutActivity.this,
+                        Toast.makeText(getContext(),
                                 error.getLocalizedMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
@@ -166,7 +189,7 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                     public void onSuccess(Token token) {
                         accountData.put("account_token", token.getId());
                         // If successfully created Bank Account create Stripe Account with all the collected info
-                        createExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
+                        createStripeAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
                             public void onComplete(@NonNull Task<String> task) {
                                 // If not succesful, show error
@@ -183,7 +206,7 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                                     }
 
                                     // [START_EXCLUDE]
-                                    Log.w(TAG, "createExternalAccount:onFailure", e);
+                                    Log.w(TAG, "create:onFailure", e);
                                     showSnackbar("An error occurred.");
                                     return;
                                     // [END_EXCLUDE]
@@ -193,13 +216,11 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
                                 String result = task.getResult();
                                 if (result.equals("success")) {
                                     myProgressBar.stopProgressBar();
-                                    setResult(RESULT_OK, null);
-                                    finish();
+                                    onStripeExternalAccountCreatedListener.OnStripeExternalAccountCreated();
                                 } else {
                                     myProgressBar.stopProgressBar();
                                     showSnackbar("An error occurred:" + " " + result);
                                 }
-                                // [END_EXCLUDE]
                             }
                         });
 
@@ -209,10 +230,12 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
 
             }
         });
+
+        return view;
     }
 
     // Function createStripeAccount
-    private Task<String> createExternalAccount(Map<String, Object> accountData) {
+    private Task<String> createStripeAccount(Map<String, Object> accountData) {
 
         // Call the function and extract the operation from the result which is a String
         return mFunctions
@@ -232,5 +255,26 @@ public class UpdateStripeAccountWithPayoutActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnStripeExternalAccountCreatedListener) {
+            onStripeExternalAccountCreatedListener = (OnStripeExternalAccountCreatedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnStripeExternalAccountCreatedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onStripeExternalAccountCreatedListener = null;
+    }
+
+    public interface OnStripeExternalAccountCreatedListener {
+        void OnStripeExternalAccountCreated();
     }
 }

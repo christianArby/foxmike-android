@@ -64,20 +64,9 @@
         android:text="@string/show_and_edit_profile_text"
         android:clickable="true"
         android:focusable="true"
+        android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/spaceView0"/>
-
-    <ImageView
-        android:contentDescription="edit_session_question_icon"
-        android:id="@+id/edit_session_questionIV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_mode_edit_black_24dp"
-        app:layout_constraintTop_toTopOf="@id/edit_session_question"
-        app:layout_constraintBottom_toBottomOf="@id/edit_session_question"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <View
         android:id="@+id/spaceView1"
@@ -102,21 +91,9 @@
         android:text="@string/switch_to_trainer_mode"
         android:clickable="true"
         android:focusable="true"
+        android:drawableEnd="@mipmap/ic_swap_calls_black_24dp"
         app:layout_constraintTop_toBottomOf="@id/spaceView1"
         app:layout_constraintStart_toStartOf="parent"/>
-
-    <ImageView
-        android:contentDescription="@string/switch_mode_icon"
-        android:id="@+id/switchModeIV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_swap_calls_black_24dp"
-        app:layout_constraintTop_toTopOf="@id/switchModeTV"
-        app:layout_constraintBottom_toBottomOf="@id/switchModeTV"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <View
         android:id="@+id/spaceView2"
@@ -141,21 +118,9 @@
         android:text="@string/payment_methods_text"
         android:clickable="true"
         android:focusable="true"
+        android:drawableEnd="@drawable/ic_credit_card_black_24dp"
         app:layout_constraintTop_toBottomOf="@id/spaceView2"
         app:layout_constraintStart_toStartOf="parent"/>
-
-    <ImageView
-        android:contentDescription="PaymentMethodIcon"
-        android:id="@+id/addPaymentMethodIV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/ic_credit_card_black_24dp"
-        app:layout_constraintTop_toTopOf="@id/addPaymentMethodTV"
-        app:layout_constraintBottom_toBottomOf="@id/addPaymentMethodTV"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <View
         android:id="@+id/spaceView3"
@@ -167,44 +132,42 @@
         app:layout_constraintTop_toBottomOf="@id/addPaymentMethodTV"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <TextView
-        android:id="@+id/addPayoutMethodTV"
+    <LinearLayout
+        android:id="@+id/payoutMethodContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|center"
-        android:paddingStart="@dimen/margin_left"
-        android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/marginVertical"
-        android:paddingBottom="@dimen/marginVertical"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-        android:text="@string/payout_preferences"
-        android:clickable="true"
-        android:focusable="true"
         app:layout_constraintTop_toBottomOf="@id/spaceView3"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:orientation="vertical">
 
-    <ImageView
-        android:contentDescription="PayoutMethodIcon"
-        android:id="@+id/addPayoutMethodIV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/ic_attach_money_black_24dp"
-        app:layout_constraintTop_toTopOf="@id/addPayoutMethodTV"
-        app:layout_constraintBottom_toBottomOf="@id/addPayoutMethodTV"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <TextView
+            android:id="@+id/addPayoutMethodTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:paddingStart="@dimen/margin_left"
+            android:paddingEnd="@dimen/margin_left"
+            android:paddingTop="@dimen/marginVertical"
+            android:paddingBottom="@dimen/marginVertical"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:text="@string/payout_preferences"
+            android:clickable="true"
+            android:focusable="true"
+            android:drawableEnd="@drawable/ic_attach_money_black_24dp"
+            app:layout_constraintTop_toBottomOf="@id/spaceView3"
+            app:layout_constraintStart_toStartOf="parent"/>
 
-    <View
-        android:id="@+id/spaceView4"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/color_divider"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        app:layout_constraintTop_toBottomOf="@id/addPayoutMethodTV"
-        app:layout_constraintStart_toStartOf="parent"/>
+        <View
+            android:id="@+id/spaceView4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            app:layout_constraintTop_toBottomOf="@id/addPayoutMethodTV"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/logOutTV"
@@ -218,18 +181,8 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/spaceView4"
+        android:drawableEnd="@mipmap/ic_cancel_black_24dp"
+        app:layout_constraintTop_toBottomOf="@id/payoutMethodContainer"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <ImageView
-        android:contentDescription="log_out_icon"
-        android:id="@+id/logOutIV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:scaleType="centerCrop"
-        app:srcCompat="@mipmap/ic_cancel_black_24dp"
-        app:layout_constraintTop_toTopOf="@id/logOutTV"
-        app:layout_constraintBottom_toBottomOf="@id/logOutTV"
-        app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

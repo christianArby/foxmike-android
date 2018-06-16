@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
+import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.fragments.UpdateStripeExternalAccountFragment;
 import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
 import com.google.android.gms.tasks.Continuation;
@@ -37,7 +38,7 @@ import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
-public class PayoutPreferencesActivity extends AppCompatActivity implements UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener{
+public class PayoutPreferencesActivity extends AppCompatActivity implements UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener, CreateStripeExternalAccountFragment.OnStripeExternalAccountCreatedListener{
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -72,34 +73,35 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
         rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    stripeAccountId = dataSnapshot.getValue().toString();
-                    retrieveStripeExternalAccounts(stripeAccountId);
-                    addPayoutMethodTV.setText(R.string.add_payout_method_text);
-                    addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            HashMap<String, Object> accountData = new HashMap<>();
-                            accountData.put("stripeAccountId", stripeAccountId);
-                            Intent updateIntent = new Intent(PayoutPreferencesActivity.this,UpdateStripeAccountWithPayoutActivity.class);
-                            updateIntent.putExtra("accountData",accountData);
-                            startActivityForResult(updateIntent, 1);
 
-                        }
-                    });
-                } else {
-                    addPayoutMethodTV.setText(R.string.add_payout_method_text);
-                    // If no stripe account exist, show add payout method text
-                    addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent createIntent = new Intent(PayoutPreferencesActivity.this,CreateStripeAccountActivity.class);
-                            startActivityForResult(createIntent, 1);
-                        }
-                    });
-                    progressBar.setVisibility(View.GONE);
-                    addPayoutMethodTV.setVisibility(View.VISIBLE);
-                }
+                stripeAccountId = dataSnapshot.getValue().toString();
+
+                retrieveStripeExternalAccounts(stripeAccountId);
+
+                addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
+
+                        HashMap<String, Object> accountData = new HashMap<>();
+
+                        Bundle bundle = new Bundle();
+                        accountData.put("stripeAccountId",stripeAccountId);
+                        bundle.putSerializable("accountData",accountData);
+                        createStripeExternalAccountFragment.setArguments(bundle);
+
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                        transaction.add(R.id.container_update_fragment, createStripeExternalAccountFragment, "update").addToBackStack(null);
+                        transaction.commit();
+
+                        progressBar.setVisibility(View.GONE);
+                        addPayoutMethodTV.setVisibility(View.VISIBLE);
+
+
+                    }
+                });
             }
 
             @Override
@@ -107,16 +109,6 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK){
-            Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
-            startActivity(refresh);
-            this.finish();
-        }
     }
 
     private void retrieveStripeExternalAccounts(String accountID) {
@@ -182,6 +174,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                         }
                     });
 
+
                 } else {
                     HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
                     showSnackbar(error.get("message").toString());
@@ -216,6 +209,13 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
     @Override
     public void OnStripeAccountUpdated() {
+        Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+
+    @Override
+    public void OnStripeExternalAccountCreated() {
         Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
         startActivity(refresh);
         this.finish();

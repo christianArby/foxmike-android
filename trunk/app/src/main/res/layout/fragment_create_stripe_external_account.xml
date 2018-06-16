@@ -3,9 +3,9 @@
     android:id="@+id/mainView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/color_background_dark"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.foxmike.android.activities.UpdateStripeAccountWithPayoutActivity">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:focusable="true"
@@ -26,7 +26,6 @@
 
     <TextView
         android:id="@+id/IBANexplanation"
-        android:focusableInTouchMode="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/iban_number_text"
@@ -49,7 +48,6 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputLayout
-                android:focusedByDefault="false"
                 android:id="@+id/ibanTIL"
                 android:theme="@style/TextLabelDark2"
                 android:layout_width="match_parent"
@@ -89,7 +87,22 @@
         android:textColor="@color/color_background_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_payout_method_text"
-        android:layout_below="@id/IBANcard"/>
+        android:layout_below="@id/IBANcard"
+        android:text="@string/add_payout_method_text" />
+
+    <Button
+        android:id="@+id/addPayoutMethodLaterBtn"
+        android:background="@drawable/square_button_transparent"
+        android:padding="@dimen/margin_minimum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="@color/foxmikePrimaryColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/createStripeAccountBtn"
+        android:text="Later"
+        />
+
+
 
 </RelativeLayout>

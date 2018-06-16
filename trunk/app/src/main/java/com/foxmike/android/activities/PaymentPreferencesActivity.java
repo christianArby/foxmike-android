@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPaymentMethodsAdapter;
-import com.foxmike.android.fragments.FinalizeStripeAccountCreationFragment;
 import com.foxmike.android.fragments.UpdateStripeSourceFragment;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
 import com.google.android.gms.tasks.Continuation;
@@ -34,7 +33,6 @@ import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static android.content.ContentValues.TAG;
 

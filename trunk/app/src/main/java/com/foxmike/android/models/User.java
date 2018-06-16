@@ -22,11 +22,10 @@ public class User implements Comparable<User>{
     public String thumb_image;
     public boolean trainerMode;
     public String aboutMe;
-    public boolean hasLoggedInBefore;
     private String stripeAccountId;
     private String stripeCustomerId;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, boolean hasLoggedInBefore, String stripeAccountId, String stripeCustomerId) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, String stripeCustomerId) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.chats = chats;
@@ -38,7 +37,6 @@ public class User implements Comparable<User>{
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
         this.aboutMe = aboutMe;
-        this.hasLoggedInBefore = hasLoggedInBefore;
         this.stripeAccountId = stripeAccountId;
         this.stripeCustomerId = stripeCustomerId;
     }
@@ -134,14 +132,6 @@ public class User implements Comparable<User>{
 
     public String getUserName() {
         return userName;
-    }
-
-    public boolean isHasLoggedInBefore() {
-        return hasLoggedInBefore;
-    }
-
-    public void setHasLoggedInBefore(boolean hasLoggedInBefore) {
-        this.hasLoggedInBefore = hasLoggedInBefore;
     }
 
     @Override

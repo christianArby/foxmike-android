@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -9,11 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.CreateStripeAccountActivity;
 import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
@@ -30,8 +33,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * This Fragment creates the user profile view by using the xml files:
@@ -49,6 +56,7 @@ public class UserAccountFragment extends Fragment {
     private String currentUserID;
     private DatabaseReference rootDbRef;
     private LinearLayout list;
+    private LinearLayout payoutMethodContainer;
     private View profile;
     private TextView addPaymentMethod;
     private TextView addPayoutMethod;
@@ -86,7 +94,6 @@ public class UserAccountFragment extends Fragment {
         profile = inflater.inflate(R.layout.user_profile_info,list,false);
         list.addView(profile);
         ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
-        final FrameLayout progressBackground = view.findViewById(R.id.progressBackground);
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         final TextView fullNameTV = profile.findViewById(R.id.profileTV);
@@ -97,13 +104,13 @@ public class UserAccountFragment extends Fragment {
         final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
         addPayoutMethod = profile.findViewById(R.id.addPayoutMethodTV);
+        payoutMethodContainer = profile.findViewById(R.id.payoutMethodContainer);
         switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 myProgressBar.startProgressBar();
-                progressBackground.setVisibility(View.VISIBLE);
-                DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+                final DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -119,13 +126,20 @@ public class UserAccountFragment extends Fragment {
                                 }
                             });
                         } else {
-                            usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent intent = new Intent(getActivity(), MainHostActivity.class);
-                                    getActivity().startActivity(intent);
-                                }
-                            });
+                            if (user.getStripeAccountId()!=null) {
+                                usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Intent intent = new Intent(getActivity(), MainHostActivity.class);
+                                        getActivity().startActivity(intent);
+                                    }
+                                });
+                            } else {
+                                myProgressBar.stopProgressBar();
+                                Intent createIntent = new Intent(getContext(),CreateStripeAccountActivity.class);
+                                startActivityForResult(createIntent, 1);
+                            }
+
                         }
                     }
                     @Override
@@ -146,8 +160,16 @@ public class UserAccountFragment extends Fragment {
                 setCircleImage(user.image,(CircleImageView) profile.findViewById(R.id.profileIV));
                 if (user.trainerMode) {
                     switchModeTV.setText(R.string.switch_to_participant_mode_text);
+                    payoutMethodContainer.setVisibility(View.VISIBLE);
                 } else {
-                    switchModeTV.setText(R.string.switch_to_host_mode_text);
+                    if (user.getStripeAccountId()!=null) {
+                        switchModeTV.setText(R.string.switch_to_host_mode_text);
+                        payoutMethodContainer.setVisibility(View.GONE);
+                    } else {
+                        switchModeTV.setText(R.string.become_trainer);
+                        payoutMethodContainer.setVisibility(View.GONE);
+                    }
+
                 }
             }
 
@@ -203,6 +225,18 @@ public class UserAccountFragment extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK){
+            Intent intent = new Intent(getActivity(), MainHostActivity.class);
+            getActivity().startActivity(intent);
+            getActivity().finish();
+        }
+    }
+
+
 
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
