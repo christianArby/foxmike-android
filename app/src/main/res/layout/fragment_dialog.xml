@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.foxmike.android.fragments.DialogFragment">
+
+    <TextView
+        android:layout_margin="@dimen/margin_left"
+        android:id="@+id/textTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/okBtn"
+        android:textColor="@color/color_background_light"
+        android:background="@drawable/square_button_primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/margin_left"
+        android:layout_below="@id/textTV"/>
+
+</RelativeLayout>

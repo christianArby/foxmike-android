@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -18,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -139,6 +141,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private ProgressBar progressBar;
     private View view;
     private String accountCountry;
+    private boolean payoutsEnabled;
+    private boolean infoIsValid;
+    private Session mUpdatedSession;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -202,6 +207,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
         progressBar.setVisibility(View.VISIBLE);
         mPriceTIL.setVisibility(View.GONE);
+        mCreateSessionBtn.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
@@ -246,43 +252,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
-
-        // FILL VIEW with the session in bundle or with the session with the sessionID
-        sessionExist=0;
-        if (existingSessionID != null | existingSession!=null) {
-            /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
-             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
-            sessionExist=1;
-            if (existingSession==null) {
-                final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
-                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        existingSession = dataSnapshot.getValue(Session.class);
-                        fillUI();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-            } else {
-                fillUI();
-            }
-
-
-        } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
-          if so extract the LatLng and set the image to the default image (Create view)*/
-        else {
-
-            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-            mLocation.setText(address);
-            setPrice(0);
-            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
-        }
-
         /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -293,22 +262,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 galleryIntent.setType("image/*");
                 fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
 
-            }
-        });
-
-        /**When button is clicked set the values in the edittext fields to a session object */
-        mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mProgress.setMessage(getString(R.string.updating_session));
-                mProgress.show();
-                updateSessionObjectFromUI(new OnSessionUpdatedListener() {
-                    @Override
-                    public void OnSessionUpdated(Session updatedSession) {
-                        sendSession(updatedSession);
-                    }
-                });
             }
         });
 
@@ -414,6 +367,82 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
+        // FILL VIEW with the session in bundle or with the session with the sessionID
+        sessionExist=0;
+        if (existingSessionID != null | existingSession!=null) {
+            /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
+             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
+            sessionExist=1;
+            if (existingSession==null) {
+                final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
+                sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        existingSession = dataSnapshot.getValue(Session.class);
+                        fillUI();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            } else {
+                fillUI();
+            }
+
+
+        } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
+          if so extract the LatLng and set the image to the default image (Create view)*/
+        else {
+
+            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            mLocation.setText(address);
+            setPrice(0);
+            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
+        }
+
+        /**When button is clicked set the values in the edittext fields to a session object */
+        mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mProgress.setMessage(getString(R.string.updating_session));
+                mProgress.show();
+                updateSessionObjectFromUI(new OnSessionUpdatedListener() {
+                    @Override
+                    public void OnSessionUpdated(final Session updatedSession) {
+                        mUpdatedSession = updatedSession;
+
+                        if (!payoutsEnabled && updatedSession.isAdvertised()) {
+
+                            LayoutInflater factory = LayoutInflater.from(getContext());
+                            final View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
+                            final AlertDialog okDialog = new AlertDialog.Builder(getContext()).create();
+                            okDialog.setView(okDialogView);
+                            TextView tv = okDialogView.findViewById(R.id.textTV);
+                            tv.setText("You have no active payout method, please add payout method under your account settings. The session will be saved as not advertised.");
+                            okDialogView.findViewById(R.id.okBtn).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //your business logic
+                                    updatedSession.setAdvertised(false);
+                                    sendSession(updatedSession);
+                                    okDialog.dismiss();
+                                }
+                            });
+
+                            okDialog.show();
+
+                        } else {
+                            sendSession(updatedSession);
+                        }
+                    }
+                });
+            }
+        });
+
         return view;
     }
 
@@ -435,9 +464,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mWhat.setText(existingSession.getWhat());
         mWho.setText(existingSession.getWho());
         mWhere.setText(existingSession.getWhere());
-
-
-
 
         mCreateSessionBtn.setText(R.string.update_session);
         mAdvertised.setChecked(existingSession.isAdvertised());
@@ -465,6 +491,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
                         progressBar.setVisibility(View.GONE);
                         mPriceTIL.setVisibility(View.VISIBLE);
+                        mCreateSessionBtn.setVisibility(View.VISIBLE);
 
                         if (!task.isSuccessful()) {
                             Exception e = task.getException();
@@ -482,6 +509,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
                             HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
                             accountCountry = account.get("country").toString();
+                            if (account.get("payouts_enabled").toString().equals("true")) {
+                                payoutsEnabled = true;
+                            }
 
                             if (accountCountry.equals("SE")) {
                                 mPrice.setOnClickListener(new View.OnClickListener() {
@@ -491,7 +521,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                                     }
                                 });
 
-                                mPrice.setText(price + " kr");
+                                if (price!=0) {
+                                    mPrice.setText(price + " kr");
+                                }
                             }
 
                         } else {
@@ -501,8 +533,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                         // [END_EXCLUDE]
                     }
                 });
-
-
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -511,7 +541,121 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         });
     }
 
-    // Function createStripeAccount
+    @NonNull
+    public void updateSessionObjectFromUI(final OnSessionUpdatedListener onSessionUpdatedListener) {
+
+        infoIsValid = true;
+        final Session session = new Session();
+
+        /**If session exists get the existing session id */
+        if (sessionExist==1) {
+            mSessionId = existingSessionID;
+            session.setPosts(existingSession.getPosts());
+        }
+        /**If session not exists create a new random session key*/
+        else {
+            mSessionId = mMarkerDbRef.push().getKey();
+        }
+
+        mSessionTimestamp = myCalendar.getTimeInMillis();
+        session.setSessionName(mSessionName.getText().toString());
+        session.setSessionType(mSessionType.getText().toString());
+        session.setWhat(mWhat.getText().toString());
+        session.setWho(mWho.getText().toString());
+        session.setWhere(mWhere.getText().toString());
+        session.setSessionTimestamp(mSessionTimestamp);
+        session.setMaxParticipants(mMaxParticipants.getText().toString());
+        session.setDuration(mDuration.getText().toString());
+        session.setLongitude(clickedLatLng.longitude);
+        session.setLatitude(clickedLatLng.latitude);
+        session.setHost(currentFirebaseUser.getUid());
+        session.setAdvertised(mAdvertised.isChecked());
+
+        if (TextUtils.isEmpty(session.getSessionName())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getSessionType())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getWhat())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getMaxParticipants())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getDuration())) {
+            infoIsValid = false;
+        }
+
+        if (accountCountry.equals("SE")) {
+            String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
+            if (sPrice.length()>1) {
+                int intPrice = Integer.parseInt(sPrice);
+                session.setCurrency("sek");
+                session.setPrice(intPrice);
+            } else {
+                infoIsValid=false;
+            }
+        }
+
+        /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
+         * photo to the Storage database*/
+        if(mImageUri != null && infoIsValid){
+            StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
+            filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    String downloadUri = taskSnapshot.getDownloadUrl().toString();
+                    /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
+                     * to the main activity*/
+                    session.setImageUrl(downloadUri);
+
+                    if (infoIsValid){
+                        onSessionUpdatedListener.OnSessionUpdated(session);
+                    }   else    {
+                        Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                    }
+                    mProgress.dismiss();
+                }
+            });
+        }
+        /**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*/
+        else {
+            /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
+             * and send the user back to the main activity*/
+            if (sessionExist==1) {
+                session.setImageUrl(existingSession.getImageUrl());
+                mProgress.dismiss();
+
+                if (infoIsValid){
+                    onSessionUpdatedListener.OnSessionUpdated(session);
+                }   else    {
+                    Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                }
+
+            }
+            /**If the session is NOT an existing session tell the user that a photo must be chosen*/
+            else {
+                mProgress.dismiss();
+                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    /**Send session object to database */
+    private void sendSession(final Session sendSession) {
+
+        mMarkerDbRef.child(mSessionId).setValue(sendSession);
+        geoFire.setLocation(mSessionId, new GeoLocation(sendSession.getLatitude(), sendSession.getLongitude()));
+        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+        onHostSessionChangedListener.OnHostSessionChanged();
+    }
+
+    // Function retrieveStripeAccount
     private Task<HashMap<String, Object>> retrieveStripeAccount(String accountId) {
         FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
         return mFunctions
@@ -548,89 +692,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mTimePicker.show();
     }
 
-    @NonNull
-    public void updateSessionObjectFromUI(final OnSessionUpdatedListener onSessionUpdatedListener) {
-        final Session session = new Session();
-
-        /**If session exists get the existing session id */
-        if (sessionExist==1) {
-            mSessionId = existingSessionID;
-            session.setPosts(existingSession.getPosts());
-        }
-        /**If session not exists create a new random session key*/
-        else {
-            mSessionId = mMarkerDbRef.push().getKey();
-        }
-
-        mSessionTimestamp = myCalendar.getTimeInMillis();
-        session.setSessionName(mSessionName.getText().toString());
-        session.setSessionType(mSessionType.getText().toString());
-        session.setWhat(mWhat.getText().toString());
-        session.setWho(mWho.getText().toString());
-        session.setWhere(mWhere.getText().toString());
-        session.setSessionTimestamp(mSessionTimestamp);
-        session.setMaxParticipants(mMaxParticipants.getText().toString());
-        session.setDuration(mDuration.getText().toString());
-        session.setLongitude(clickedLatLng.longitude);
-        session.setLatitude(clickedLatLng.latitude);
-        session.setHost(currentFirebaseUser.getUid());
-        session.setAdvertised(mAdvertised.isChecked());
-
-        if (accountCountry.equals("SE")) {
-            String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
-            int intPrice = Integer.parseInt(sPrice);
-            session.setCurrency("sek");
-            session.setPrice(intPrice);
-        }
-
-        /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
-         * photo to the Storage database*/
-        if(mImageUri != null){
-            StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
-            filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String downloadUri = taskSnapshot.getDownloadUrl().toString();
-                    /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
-                     * to the main activity*/
-                    session.setImageUrl(downloadUri);
-
-                    if (session.getWhat() != null){
-
-                        onSessionUpdatedListener.OnSessionUpdated(session);
-
-                    }   else    {
-                        Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
-                    }
-                    mProgress.dismiss();
-                }
-            });
-        }
-        /**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*/
-        else {
-            /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
-             * and send the user back to the main activity*/
-            if (sessionExist==1) {
-                session.setImageUrl(existingSession.getImageUrl());
-                mProgress.dismiss();
-
-                if (session.getWhat() != null){
-
-                    onSessionUpdatedListener.OnSessionUpdated(session);
-
-                }   else    {
-                    Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
-                }
-
-            }
-            /**If the session is NOT an existing session tell the user that a photo must be chosen*/
-            else {
-                mProgress.dismiss();
-                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
     // If location has been changed through opening MapsFragment catch the clickedLatLng from OnSessionClickedListener
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
@@ -643,29 +704,11 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mapsFragmentContainer.setVisibility(View.GONE);
     }
 
-    /**Send session object to database */
-    private void sendSession(final Session sendSession) {
-
-        mMarkerDbRef.child(mSessionId).setValue(sendSession);
-        geoFire.setLocation(mSessionId, new GeoLocation(sendSession.getLatitude(), sendSession.getLongitude()));
-        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
-
-        goToMain();
-    }
-
-    private void goToMain() {
-        onHostSessionChangedListener.OnHostSessionChanged();
-        /*Intent mainIntent = new Intent(CreateOrEditSessionActivity.this,MainActivity.class);
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(mainIntent);*/
-    }
-
     private void updateLabel() {
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         mDate.setText(sdf.format(myCalendar.getTime()));
     }
-
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
@@ -787,7 +830,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         onEditLocationListener = null;
     }
 
-     public interface OnEditLocationListener {
+    public interface OnEditLocationListener {
 
         void OnEditLocation(String sessionID, Session session);
      }
