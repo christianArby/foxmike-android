@@ -436,7 +436,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                             okDialog.show();
 
                         } else {
-                            sendSession(updatedSession);
+                            if (infoIsValid) {sendSession(updatedSession);} else {
+                                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                            }
+
                         }
                     }
                 });
