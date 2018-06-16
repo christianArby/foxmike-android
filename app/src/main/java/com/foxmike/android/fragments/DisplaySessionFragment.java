@@ -103,7 +103,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private GoogleMap mMap;
     private RecyclerView postList;
     private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
-    User user;
+    private User currentUser;
     private OnEditSessionListener onEditSessionListener;
     private OnBookSessionListener onBookSessionListener;
     private OnCancelBookedSessionListener onCancelBookedSessionListener;
@@ -205,6 +205,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                  */
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
                     //onEditSessionListener.OnEditSession(sessionID);
+                    Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     onEditSessionListener.OnEditSession(sessionID,session);
                 }
                 /*
@@ -220,7 +221,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                      Else (button will show join session) add the user id to the session participant list and
                      the user sessions attending list when button is clicked.
                      */
-                    onBookSessionListener.OnBookSession(sessionID);
+                    onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomerId(), session.getPrice(), session.getCurrency());
                 }
             }
         });
@@ -292,8 +293,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                setImage(user.getThumb_image(), mCurrentUserPostImage);
+                currentUser = dataSnapshot.getValue(User.class);
+                setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -364,8 +365,16 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private void fillUI(DataSnapshot dataSnapshot) {
         session = dataSnapshot.getValue(Session.class);
         sessionID = dataSnapshot.getRef().getKey();
+        String currencyString = "?";
+
+        if (session.getCurrency().equals("sek")) {
+            currencyString = "kr";
+        }
+
+        String bookText = "Book session" + " " + session.getPrice() + " " + currencyString;
+
         // Set default text on button
-        mDisplaySessionBtn.setText("Book session");
+        mDisplaySessionBtn.setText(bookText);
         // Count participants
         long countParticipants;
         if (dataSnapshot.hasChild("participants")) {
@@ -687,7 +696,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         void OnEditSession(String sessionID , Session session);
     }
     public interface OnBookSessionListener {
-        void OnBookSession(String sessionID);
+        void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency);
     }
     public interface OnCancelBookedSessionListener {
         void OnCancelBookedSession(String sessionID);

@@ -123,7 +123,8 @@
         <activity android:name=".activities.PayoutPreferencesActivity" />
         <activity android:name=".activities.UpdateStripeAccountWithPayoutActivity" />
         <activity android:name=".activities.PaymentPreferencesActivity" />
-        <activity android:name=".activities.CreateStripeCustomerActivity"></activity>
+        <activity android:name=".activities.CreateStripeCustomerActivity" />
+        <activity android:name=".activities.BookingActivity"></activity>
     </application>
 
 </manifest>
