@@ -155,7 +155,7 @@ public class BookingActivity extends AppCompatActivity {
                                                             HashMap<String, Object> result = task.getResult();
 
                                                             if (result.get("operationResult").toString().equals("success")) {
-                                                                showSnackbar("YEEEEEES");
+                                                                showSnackbar("Booking successful.");
                                                                 addCurrentUserToSessionParticipantList();
 
                                                             } else {

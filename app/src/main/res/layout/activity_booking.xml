@@ -7,6 +7,15 @@
     tools:context="com.foxmike.android.activities.BookingActivity"
     android:id="@+id/mainView">
 
+    <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/progressBarHorizontal"
+        android:layout_margin="@dimen/marginVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Booking..."/>
+
     <ProgressBar
         android:id="@+id/progressBarHorizontal"
         android:layout_width="wrap_content"
