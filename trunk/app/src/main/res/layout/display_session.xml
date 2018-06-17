@@ -164,8 +164,7 @@
             app:layout_constraintStart_toStartOf="@id/participantsTW"
             android:textColor="@color/primaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="40 min"
-            android:id="@+id/durationTW"
+            android:id="@+id/durationTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"/>

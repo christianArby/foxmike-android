@@ -196,12 +196,9 @@ public class UserProfilePublicEditFragment extends Fragment {
 
                                 @Override
                                 public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
-
                                     // if commited, username did not exist, write to database
                                     if (commited) {
-
                                         writeToDatabase(myProgressBar);
-
                                         // else dismiss and tell the user the username is already taken
                                     } else {
                                         myProgressBar.stopProgressBar();

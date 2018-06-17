@@ -53,137 +53,141 @@ public class BookingActivity extends AppCompatActivity {
 
         progressBarHorizontal.setProgress(20);
 
+        // Get data from previous activity
         sessionId = getIntent().getStringExtra("sessionId");
         hostId = getIntent().getStringExtra("hostId");
         stripeCustomerId = getIntent().getStringExtra("stripeCustomerId");
         amount = getIntent().getIntExtra("amount", 0);
         currency = getIntent().getStringExtra("currency");
 
+        // get host stripeAccount
         rootDbRef.child("users").child(hostId).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 progressBarHorizontal.setProgress(40);
-                stripeAccountId = dataSnapshot.getValue().toString();
-
-                if (stripeCustomerId==null) {
-                    Intent createIntent = new Intent(BookingActivity.this, CreateStripeCustomerActivity.class);
-                    startActivityForResult(createIntent, 1);
+                if (dataSnapshot.getValue()==null) {
+                    progressBarHorizontal.setProgress(100);
+                    addCurrentUserToSessionParticipantList();
                 } else {
 
-                    retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                            progressBarHorizontal.setProgress(60);
+                    stripeAccountId = dataSnapshot.getValue().toString();
 
-                            if (!task.isSuccessful()) {
-                                Exception e = task.getException();
-                                progressBarHorizontal.setProgress(100);
-                                // [START_EXCLUDE]
-                                Log.w(TAG, "retrieve:onFailure", e);
-                                showSnackbar("An error occurred." + e.getMessage());
-                                return;
-                                // [END_EXCLUDE]
-                            }
+                    // If stripe customerID is null create customer
+                    if (stripeCustomerId==null) {
+                        Intent createIntent = new Intent(BookingActivity.this, CreateStripeCustomerActivity.class);
+                        startActivityForResult(createIntent, 1);
+                    } else {
 
-                            // If successful, extract
-                            HashMap<String, Object> result = task.getResult();
-                            if (result.get("resultType").toString().equals("customer")) {
-                                HashMap<String, Object> customer = (HashMap<String, Object>) result.get("customer");
+                        retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                progressBarHorizontal.setProgress(60);
 
-                                String defaultSource;
-
-                                if (result.get("default_source")!= null) {
-
-                                    // ----------------------- ALL INFO IS AVAILABLE ------------------------
-                                    HashMap<String,String> idMap = new HashMap<>();
-
-                                    idMap.put("customer", stripeCustomerId);
-                                    idMap.put("account", stripeAccountId);
-
-                                    createChargeToken(idMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                                            progressBarHorizontal.setProgress(80);
-
-                                            if (!task.isSuccessful()) {
-                                                Exception e = task.getException();
-                                                progressBarHorizontal.setProgress(100);
-                                                // [START_EXCLUDE]
-                                                Log.w(TAG, "retrieve:onFailure", e);
-                                                showSnackbar("An error occurred." + e.getMessage());
-                                                return;
-                                                // [END_EXCLUDE]
-                                            }
-
-                                            // If successful, extract
-                                            HashMap<String, Object> result = task.getResult();
-
-                                            if (result.get("tokenId").toString()!=null) {
-
-                                                // ----------------------- ALL SET, CREATE CHARGE ------------------------
-
-                                                HashMap<String,Object> chargeMap = new HashMap<>();
-                                                chargeMap.put("amount", amount*100);
-                                                chargeMap.put("currency", currency);
-                                                chargeMap.put("tokenId", result.get("tokenId").toString());
-                                                chargeMap.put("account", stripeAccountId);
-
-
-                                                createCharge(chargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                                                        progressBarHorizontal.setProgress(100);
-                                                        if (!task.isSuccessful()) {
-                                                            Exception e = task.getException();
-                                                            progressBarHorizontal.setProgress(100);
-                                                            // [START_EXCLUDE]
-                                                            Log.w(TAG, "retrieve:onFailure", e);
-                                                            showSnackbar("An error occurred." + e.getMessage());
-                                                            return;
-                                                            // [END_EXCLUDE]
-                                                        }
-
-                                                        // If successful, extract
-                                                        HashMap<String, Object> result = task.getResult();
-
-                                                        if (result.get("operationResult").toString().equals("success")) {
-                                                            showSnackbar("YEEEEEES");
-                                                            addCurrentUserToSessionParticipantList();
-
-                                                        } else {
-                                                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
-                                                            showSnackbar(error.get("message").toString());
-                                                        }
-
-                                                    }
-                                                });
-
-                                            } else {
-                                                showSnackbar(result.get("error").toString());
-                                            }
-
-
-                                        }
-                                    });
-
-                                } else {
-                                    Intent createIntent = new Intent(BookingActivity.this,CreateStripeCustomerActivity.class);
-                                    HashMap<String, Object> customerData = new HashMap<>();
-                                    customerData.put("updateWithCustomerId", stripeCustomerId);
-                                    createIntent.putExtra("customerData",customerData);
-                                    startActivityForResult(createIntent, 1);
+                                if (!task.isSuccessful()) {
+                                    Exception e = task.getException();
+                                    progressBarHorizontal.setProgress(100);
+                                    // [START_EXCLUDE]
+                                    Log.w(TAG, "retrieve:onFailure", e);
+                                    showSnackbar("An error occurred." + e.getMessage());
+                                    return;
+                                    // [END_EXCLUDE]
                                 }
 
-                            } else {
-                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                showSnackbar(error.get("message").toString());
+                                // If successful, extract
+                                HashMap<String, Object> result = task.getResult();
+                                if (result.get("resultType").toString().equals("customer")) {
+                                    HashMap<String, Object> customer = (HashMap<String, Object>) result.get("customer");
+
+                                    String defaultSource;
+
+                                    if (result.get("default_source")!= null) {
+
+                                        // ----------------------- ALL INFO IS AVAILABLE ------------------------
+                                        HashMap<String,String> idMap = new HashMap<>();
+
+                                        idMap.put("customer", stripeCustomerId);
+                                        idMap.put("account", stripeAccountId);
+
+                                        createChargeToken(idMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                                progressBarHorizontal.setProgress(80);
+
+                                                if (!task.isSuccessful()) {
+                                                    Exception e = task.getException();
+                                                    progressBarHorizontal.setProgress(100);
+                                                    // [START_EXCLUDE]
+                                                    Log.w(TAG, "retrieve:onFailure", e);
+                                                    showSnackbar("An error occurred." + e.getMessage());
+                                                    return;
+                                                    // [END_EXCLUDE]
+                                                }
+
+                                                // If successful, extract
+                                                HashMap<String, Object> result = task.getResult();
+
+                                                if (result.get("tokenId").toString()!=null) {
+
+                                                    // ----------------------- ALL SET, CREATE CHARGE ------------------------
+
+                                                    HashMap<String,Object> chargeMap = new HashMap<>();
+                                                    chargeMap.put("amount", amount*100);
+                                                    chargeMap.put("currency", currency);
+                                                    chargeMap.put("tokenId", result.get("tokenId").toString());
+                                                    chargeMap.put("account", stripeAccountId);
+
+
+                                                    createCharge(chargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                                            progressBarHorizontal.setProgress(100);
+                                                            if (!task.isSuccessful()) {
+                                                                Exception e = task.getException();
+                                                                progressBarHorizontal.setProgress(100);
+                                                                // [START_EXCLUDE]
+                                                                Log.w(TAG, "retrieve:onFailure", e);
+                                                                showSnackbar("An error occurred." + e.getMessage());
+                                                                return;
+                                                                // [END_EXCLUDE]
+                                                            }
+
+                                                            // If successful, extract
+                                                            HashMap<String, Object> result = task.getResult();
+
+                                                            if (result.get("operationResult").toString().equals("success")) {
+                                                                showSnackbar("YEEEEEES");
+                                                                addCurrentUserToSessionParticipantList();
+
+                                                            } else {
+                                                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
+                                                                showSnackbar(error.get("message").toString());
+                                                            }
+
+                                                        }
+                                                    });
+                                                } else {
+                                                    showSnackbar(result.get("error").toString());
+                                                }
+                                            }
+                                        });
+
+                                    } else {
+                                        Intent createIntent = new Intent(BookingActivity.this,CreateStripeCustomerActivity.class);
+                                        HashMap<String, Object> customerData = new HashMap<>();
+                                        customerData.put("updateWithCustomerId", stripeCustomerId);
+                                        createIntent.putExtra("customerData",customerData);
+                                        startActivityForResult(createIntent, 1);
+                                    }
+
+                                } else {
+                                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                    showSnackbar(error.get("message").toString());
+                                }
+                                // [END_EXCLUDE]
                             }
-                            // [END_EXCLUDE]
-                        }
-                    });
-
+                        });
+                    }
                 }
-
             }
 
             @Override
@@ -198,27 +202,29 @@ public class BookingActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         //LOOP UNTIL ALL INFO IS AVAILABLE
+        if(resultCode==RESULT_OK){
+            rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Intent refresh = new Intent(BookingActivity.this, BookingActivity.class);
+                    refresh.putExtra("sessionId", sessionId);
+                    refresh.putExtra("hostId", hostId);
+                    refresh.putExtra("stripeCustomerId", dataSnapshot.getValue().toString());
+                    refresh.putExtra("amount",amount);
+                    refresh.putExtra("currency",currency);
+                    startActivity(refresh);
+                    BookingActivity.this.finish();
+                }
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Intent refresh = new Intent(BookingActivity.this, BookingActivity.class);
-                refresh.putExtra("sessionId", sessionId);
-                refresh.putExtra("hostId", hostId);
-                refresh.putExtra("stripeCustomerId", dataSnapshot.getValue().toString());
-                refresh.putExtra("amount",amount);
-                refresh.putExtra("currency",currency);
-                startActivity(refresh);
-                BookingActivity.this.finish();
-            }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                }
+            });
 
-            }
-        });
-
-
+        } else {
+            this.finish();
+        }
 
     }
 
@@ -232,7 +238,6 @@ public class BookingActivity extends AppCompatActivity {
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 setResult(RESULT_OK, null);
                 finish();
-                // TODO Tell MainPLayerActivity to update playersessionfragment
             }
         });
     }

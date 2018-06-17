@@ -219,39 +219,36 @@ public class RegisterActivity extends AppCompatActivity {
 
         // if all input has been filled in create user
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
-
             myProgressBar.startProgressBar();
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-
                     if (task.isSuccessful()) {
-                        // Sign in success,  update Realtime Db with the signed-in user's information, when finished start MainActivity
+                        // Register success,  create random user name and save user in Realtime database
                         currentUserID = mAuth.getCurrentUser().getUid();
                         // ----------------------------------- NEW -------------------------
                         numberOfTriedUserNames =0;
                         startRangeCeiling = 10000;
                         addUserWithRandomUserName();
-
                     } else {
                         myProgressBar.stopProgressBar();
                         FirebaseAuthException e = (FirebaseAuthException )task.getException();
                         Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-
                 }
-
                 private void addUserWithRandomUserName() {
+                    // Create a random number between 0 and 9999, convert it to a string.
                     Random random = new Random();
                     randomPIN = random.nextInt(startRangeCeiling);
                     PINString = String.valueOf(randomPIN);
+                    // If this is not the first try to create a random username add the random number, ie 334, after firstname + lastname, ie christianarby334
+                    // else try to create username with only firstname + lastname christianarby
                     if (numberOfTriedUserNames>0) {
                         userName = "@"+firstName.toLowerCase()+lastName.toLowerCase()+PINString;
                     } else {
                         userName = "@"+firstName.toLowerCase()+lastName.toLowerCase();
                     }
-
-                    //add the user
+                    // Try the username in the database/usernames, see if it is unique. If it is unique, the below function will return commited=true in function onComplete
                     rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
                         @Override
                         public Transaction.Result doTransaction(MutableData mutableData) {
@@ -259,14 +256,12 @@ public class RegisterActivity extends AppCompatActivity {
                                 mutableData.setValue(currentUserID);
                                 return Transaction.success(mutableData);
                             }
-
                             return Transaction.abort();
                         }
-
                         @Override
                         public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
+                            // if commited=true the username is unique, save the user with username to database
                             if (commited) {
-
                                 Map userMap = new HashMap();
                                 userMap.put("userName",userName);
                                 userMap.put("firstName",firstName);
@@ -288,8 +283,8 @@ public class RegisterActivity extends AppCompatActivity {
                                         setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
                                     }
                                 });
-
                             } else {
+                                // Try the loop 2 times, then multiple random range with 10 each try, if no success after 10 times give up
                                 Toast.makeText(RegisterActivity.this, "Username exists", Toast.LENGTH_SHORT).show();
                                 numberOfTriedUserNames++;
                                 if (numberOfTriedUserNames>2) {
@@ -303,9 +298,7 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         }
                     });
-                    // ----------------------------------- NEW END
                 }
-
             });
         }
     }
