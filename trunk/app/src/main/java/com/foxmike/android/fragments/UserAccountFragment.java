@@ -60,6 +60,7 @@ public class UserAccountFragment extends Fragment {
     private View profile;
     private TextView addPaymentMethod;
     private TextView addPayoutMethod;
+    private FrameLayout progressBackground;
     private View view;
 
     public UserAccountFragment() {
@@ -93,12 +94,13 @@ public class UserAccountFragment extends Fragment {
         list = view.findViewById(R.id.list1);
         profile = inflater.inflate(R.layout.user_profile_info,list,false);
         list.addView(profile);
-        ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
+        final ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         final TextView fullNameTV = profile.findViewById(R.id.profileTV);
         final TextView userNameTV = profile.findViewById(R.id.userNameTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
+        progressBackground = view.findViewById(R.id.progressBackground);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         final TextView switchModeTV = view.findViewById(R.id.switchModeTV);
@@ -110,6 +112,7 @@ public class UserAccountFragment extends Fragment {
             public void onClick(View view) {
 
                 myProgressBar.startProgressBar();
+                progressBackground.setVisibility(View.VISIBLE);
                 final DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -138,6 +141,7 @@ public class UserAccountFragment extends Fragment {
                                 myProgressBar.stopProgressBar();
                                 Intent createIntent = new Intent(getContext(),CreateStripeAccountActivity.class);
                                 startActivityForResult(createIntent, 1);
+                                progressBackground.setVisibility(View.GONE);
                             }
 
                         }

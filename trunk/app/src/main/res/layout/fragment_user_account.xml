@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     android:clickable="false">
 
+    <FrameLayout
+        android:elevation="8dp"
+        android:visibility="gone"
+        android:id="@+id/progressBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_background_light">
+    </FrameLayout>
+
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
