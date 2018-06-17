@@ -341,5 +341,6 @@
     <string name="you_have_no_stripe_account">You need to have a payout method in order to create a session. Please add payout method under your account.</string>
     <string name="become_trainer">Become a trainer</string>
     <string name="not_possible_to_edit_as_participant">It is not possible to edit session in participant mode. Change to trainer mode under account settings.</string>
+    <string name="about">About</string>
 
 </resources>

@@ -7,8 +7,8 @@ android {
         applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 137
-        versionName "1.3.7-alpha"
+        versionCode 140
+        versionName "1.4.0-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true //important

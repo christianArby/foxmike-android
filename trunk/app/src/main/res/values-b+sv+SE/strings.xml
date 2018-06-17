@@ -31,7 +31,7 @@
         <item>120 min</item>
     </string-array>
 
-    <string-array name="price_array">
+    <string-array name="price_array_SE">
         <item>30 kr</item>
         <item>40 kr</item>
         <item>50 kr</item>
@@ -340,5 +340,9 @@
     <string name="invalid_expiry_year">Utgångsdatumet är ogiltigt.</string>
     <string name="invalid_cvc">Säkerhetskoden är ogiltig.</string>
     <string name="credit_card_information">Kortinformation</string>
+    <string name="you_have_no_stripe_account">Du behöver en lägga till en utbetalningsmetod för att kunna skapa ett pass. Lägg till utbetalningsmetod i ditt konto.</string>
+    <string name="become_trainer">Bli Foxmikeledare</string>
+    <string name="not_possible_to_edit_as_participant">Det är inte möjligt att ändra passet i deltagarläge. Ändra till ledare under kontoinställningar.</string>
+    <string name="about">Om</string>
 
 </resources>
