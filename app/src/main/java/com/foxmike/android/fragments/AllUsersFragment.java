@@ -89,17 +89,6 @@ public class AllUsersFragment extends Fragment {
         actionBar.setDisplayShowCustomEnabled(true);
         View action_bar_view = inflater.inflate(R.layout.search_bar, null);
 
-        pp = PublishProcessor.create();
-        pp.debounce(500, TimeUnit.MILLISECONDS)
-                .onBackpressureLatest()
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        userSearch(s);
-
-                    }
-                });
-
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
@@ -120,46 +109,49 @@ public class AllUsersFragment extends Fragment {
         searchFieldET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
                 pp.onNext(charSequence.toString());
-
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
+
+        pp = PublishProcessor.create();
+        pp.debounce(500, TimeUnit.MILLISECONDS)
+                .onBackpressureLatest()
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        userSearch(s);
+                    }
+                });
 
         return view;
     }
 
     private void userSearch(final String searchText) {
-
+        // Only run function if searchtext is not empty.
         if (!searchText.equals("")) {
+            // If searchText starts with @ we will search for users with username in seachtext
             if (searchText.substring(0,1).equals("@")) {
-
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         if (firebaseRecyclerAdapter!=null) {
                             firebaseRecyclerAdapter.stopListening();
                         }
-
                         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        // Find usernames which starts with our searchtext and ends with our searchtext and any other text (any other text = "\uf8ff")
                         Query query = mUsersDatabase.orderByChild("userName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
 
                         FirebaseRecyclerOptions<User> options =
                                 new FirebaseRecyclerOptions.Builder<User>()
                                         .setQuery(query, User.class)
                                         .build();
-
+                        // Setup our RecyclerView
                         firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
                             @Override
                             public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -172,9 +164,7 @@ public class AllUsersFragment extends Fragment {
                                 holder.setHeading(model.getFullName());
                                 holder.setText(model.getFullName(),true);
                                 holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
-
                                 final String userId = getRef(position).getKey();
-
                                 holder.mView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -183,20 +173,17 @@ public class AllUsersFragment extends Fragment {
                                         } else {
                                             onUserClickedListener.OnUserClicked(userId);
                                         }
-
                                     }
                                 });
                             }
                         };
-
                         allUsersList.setAdapter(firebaseRecyclerAdapter);
                         firebaseRecyclerAdapter.startListening();
-
                     }
                 });
 
             } else {
-
+                // If searchtext does not start with @ we will search for users with the fullName in the searchtext
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -204,15 +191,15 @@ public class AllUsersFragment extends Fragment {
                         if (firebaseRecyclerAdapter!=null) {
                             firebaseRecyclerAdapter.stopListening();
                         }
-
                         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        // Find fullnames which starts with our searchtext and ends with our searchtext and any other text (any other text = "\uf8ff")
                         Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
 
                         FirebaseRecyclerOptions<User> options =
                                 new FirebaseRecyclerOptions.Builder<User>()
                                         .setQuery(query, User.class)
                                         .build();
-
+                        // Setup our RecyclerView
                         firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
                             @Override
                             public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

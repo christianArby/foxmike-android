@@ -47,6 +47,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
+
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,6 +73,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private CardView sessionImageCardView;
     private TextView mDateAndTime;
     private TextView mParticipants;
+    private TextView mDuration;
     private TextView mSessionName;
     private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
@@ -145,11 +149,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         displaySessionContainer = view.findViewById(R.id.display_session_container);
         displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
 
-        /*progressBar = displaySession.findViewById(R.id.progressBar_cyclic);
-        myProgressBar = new MyProgressBar(progressBar, getActivity());
-        myProgressBar.startProgressBar();*/
-
         mDateAndTime = displaySession.findViewById(R.id.dateAndTimeTW);
+        mDuration = displaySession.findViewById(R.id.durationTV);
         mParticipants = displaySession.findViewById(R.id.participantsTW);
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
@@ -367,11 +368,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionID = dataSnapshot.getRef().getKey();
         String currencyString = "?";
 
-        if (session.getCurrency().equals("sek")) {
+        if (session.getCurrency()==null) {
+            currencyString = "";
+        } else {
             currencyString = "kr";
         }
+        String bookText;
 
-        String bookText = "Book session" + " " + session.getPrice() + " " + currencyString;
+        if (session.getPrice()== 0) {
+            bookText = "Book session";
+        } else {
+            bookText = "Book session" + " " + session.getPrice() + " " + currencyString;
+        }
 
         // Set default text on button
         mDisplaySessionBtn.setText(bookText);
@@ -395,6 +403,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mWhoTW.setText(session.getWho());
         mWhereTW.setText(session.getWhere());
         mSessionType.setText(session.getSessionType());
+        mDuration.setText(session.getDuration());
         /*
          Get the host image from the database (found under users with the userID=session.host)
          */
