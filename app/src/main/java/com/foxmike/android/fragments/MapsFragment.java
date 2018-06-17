@@ -179,6 +179,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
         }
 
+        // mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
+
         // when marker is clicked find latitude value in child in realtime database
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override

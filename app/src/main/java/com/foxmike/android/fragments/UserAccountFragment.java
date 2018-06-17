@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.AboutActivity;
 import com.foxmike.android.activities.CreateStripeAccountActivity;
 import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
@@ -62,6 +63,7 @@ public class UserAccountFragment extends Fragment {
     private TextView addPayoutMethod;
     private FrameLayout progressBackground;
     private View view;
+    private TextView aboutTV;
 
     public UserAccountFragment() {
         // Required empty public constructor
@@ -99,6 +101,7 @@ public class UserAccountFragment extends Fragment {
 
         final TextView fullNameTV = profile.findViewById(R.id.profileTV);
         final TextView userNameTV = profile.findViewById(R.id.userNameTV);
+        aboutTV = profile.findViewById(R.id.aboutTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         progressBackground = view.findViewById(R.id.progressBackground);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
@@ -107,12 +110,20 @@ public class UserAccountFragment extends Fragment {
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
         addPayoutMethod = profile.findViewById(R.id.addPayoutMethodTV);
         payoutMethodContainer = profile.findViewById(R.id.payoutMethodContainer);
+
+        aboutTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent aboutIntent = new Intent(getContext(), AboutActivity.class);
+                startActivity(aboutIntent);
+            }
+        });
+
         switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 myProgressBar.startProgressBar();
-                progressBackground.setVisibility(View.VISIBLE);
                 final DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -121,6 +132,7 @@ public class UserAccountFragment extends Fragment {
                         DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
                         User user = dataSnapshot.getValue(User.class);
                         if (user.trainerMode) {
+                            progressBackground.setVisibility(View.VISIBLE);
                             usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(false).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -130,6 +142,7 @@ public class UserAccountFragment extends Fragment {
                             });
                         } else {
                             if (user.getStripeAccountId()!=null) {
+                                progressBackground.setVisibility(View.VISIBLE);
                                 usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -141,7 +154,6 @@ public class UserAccountFragment extends Fragment {
                                 myProgressBar.stopProgressBar();
                                 Intent createIntent = new Intent(getContext(),CreateStripeAccountActivity.class);
                                 startActivityForResult(createIntent, 1);
-                                progressBackground.setVisibility(View.GONE);
                             }
 
                         }
