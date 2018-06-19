@@ -93,7 +93,13 @@ public class FriendsFragment extends Fragment {
                     // if there are requests, save them in array
                     for (DataSnapshot requestSnapshot : dataSnapshot.getChildren()) {
                         requestsUserIDs.add(requestSnapshot.getKey());
-                        requests.put(requestSnapshot.getKey(), requestSnapshot.child("request_type").getValue().toString());
+                        String requestType = requestSnapshot.child("request_type").getValue().toString();
+                        // TODO Check so that IOS version has "sent" and "received" as strings
+                        if (requestType.equals("sent")) {
+                            requests.put(requestSnapshot.getKey(), getString(R.string.friend_request_sent));
+                        } else if (requestType.equals("received")) {
+                            requests.put(requestSnapshot.getKey(), getString(R.string.friend_request_received));
+                        }
                         requestsHeading.setVisibility(View.VISIBLE);
                         friendsHeading.setVisibility(View.VISIBLE);
                     }

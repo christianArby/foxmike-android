@@ -344,5 +344,18 @@
     <string name="become_trainer">Bli Foxmikeledare</string>
     <string name="not_possible_to_edit_as_participant">Det är inte möjligt att ändra passet i deltagarläge. Ändra till ledare under kontoinställningar.</string>
     <string name="about">Om</string>
+    <string name="just_now">alldeles nyss</string>
+    <string name="a_minute_ago">en minut sedan</string>
+    <string name="minutes_ago">\u0020minuter sen</string>
+    <string name="an_hour_ago">en timme sedan</string>
+    <string name="hours_ago">\u0020timmar sedan</string>
+    <string name="yesterday">igår</string>
+    <string name="accept_friend_request">Acceptera vänförfrågan</string>
+    <string name="cancel_friend_request">Avböj vänförfrågan</string>
+    <string name="unfriend_this_person">Ta bort vän</string>
+    <string name="send_friend_request">Skicka vänförfrågan</string>
+    <string name="username_already_taken">Användarnamnet är redan taget</string>
+    <string name="friend_request_sent">Vänförfrågan har skickats</string>
+    <string name="friend_request_received">Mottagen vänförfrågan</string>
 
 </resources>

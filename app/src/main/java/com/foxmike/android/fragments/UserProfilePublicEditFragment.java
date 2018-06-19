@@ -202,7 +202,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                                         // else dismiss and tell the user the username is already taken
                                     } else {
                                         myProgressBar.stopProgressBar();
-                                        Toast.makeText(getActivity(), "The username is already taken", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getActivity(), R.string.username_already_taken, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
