@@ -342,5 +342,19 @@
     <string name="become_trainer">Become a trainer</string>
     <string name="not_possible_to_edit_as_participant">It is not possible to edit session in participant mode. Change to trainer mode under account settings.</string>
     <string name="about">About</string>
+    <string name="just_now">just now</string>
+    <string name="a_minute_ago">a minute ago</string>
+    <string name="minutes_ago">\u0020minutes ago</string>
+    <string name="an_hour_ago">an hour ago</string>
+    <string name="hours_ago">\u0020hours ago</string>
+    <string name="yesterday">yesterday</string>
+    <string name="days_ago">\u0020days ago</string>
+    <string name="accept_friend_request">Accept friend Request</string>
+    <string name="cancel_friend_request">Cancel friend Request</string>
+    <string name="unfriend_this_person">Unfriend this person</string>
+    <string name="send_friend_request">Send friend Request</string>
+    <string name="username_already_taken">The username is already taken</string>
+    <string name="friend_request_sent">Friend request sent</string>
+    <string name="friend_request_received">Friend request received</string>
 
 </resources>

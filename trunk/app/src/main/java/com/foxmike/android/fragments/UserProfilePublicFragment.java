@@ -128,14 +128,14 @@ public class UserProfilePublicFragment extends Fragment {
                             String req_type = dataSnapshot.child(otherUserID).child("request_type").getValue().toString();
                             if (req_type.equals("received")) {
                                 areFriends = 2;     // If there are a recieved friend request
-                                sendRequestBtn.setText("Accept friend Request");
+                                sendRequestBtn.setText(R.string.accept_friend_request);
 
                                 declineBtn.setVisibility(View.VISIBLE);
                                 declineBtn.setEnabled(true);
 
                             } else if (req_type.equals("sent")) {
                                 areFriends = 1;
-                                sendRequestBtn.setText("Cancel friend Request");
+                                sendRequestBtn.setText(R.string.cancel_friend_request);
 
                                 declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
@@ -149,7 +149,7 @@ public class UserProfilePublicFragment extends Fragment {
 
                                     if (dataSnapshot.hasChild(otherUserID)) {
                                         areFriends = 3;
-                                        sendRequestBtn.setText("Unfriend this person");
+                                        sendRequestBtn.setText(R.string.unfriend_this_person);
 
                                         declineBtn.setVisibility(View.GONE);
                                         declineBtn.setEnabled(false);
@@ -210,7 +210,7 @@ public class UserProfilePublicFragment extends Fragment {
                                 sendRequestBtn.setEnabled(true);
                             } else {
                                 areFriends = 1;
-                                sendRequestBtn.setText("Cancel friend Request");
+                                sendRequestBtn.setText(R.string.cancel_friend_request);
                                 sendRequestBtn.setEnabled(true);
 
                                 declineBtn.setVisibility(View.GONE);
@@ -235,7 +235,7 @@ public class UserProfilePublicFragment extends Fragment {
 
                                     sendRequestBtn.setEnabled(true);
                                     areFriends = 0;
-                                    sendRequestBtn.setText("Send friend Request");
+                                    sendRequestBtn.setText(R.string.send_friend_request);
 
                                     declineBtn.setVisibility(View.GONE);
                                     declineBtn.setEnabled(false);
@@ -266,7 +266,7 @@ public class UserProfilePublicFragment extends Fragment {
                             if (databaseError == null) {
 
                                 areFriends = 3;
-                                sendRequestBtn.setText("Unfriend this person");
+                                sendRequestBtn.setText(R.string.unfriend_this_person);
 
                                 declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
@@ -298,7 +298,7 @@ public class UserProfilePublicFragment extends Fragment {
                             if (databaseError == null) {
 
                                 areFriends = 0;
-                                sendRequestBtn.setText("Send friend Request");
+                                sendRequestBtn.setText(R.string.send_friend_request);
 
                                 declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
@@ -339,7 +339,7 @@ public class UserProfilePublicFragment extends Fragment {
                             if (databaseError == null) {
 
                                 areFriends = 0;
-                                sendRequestBtn.setText("Send friend Request");
+                                sendRequestBtn.setText(R.string.send_friend_request);
 
                                 declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);

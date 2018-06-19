@@ -85,6 +85,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mWhereTW;
     private TextView mSessionType;
     private TextView mAddressAndSessionType;
+    private TextView mSendMessageToHost;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
     private LinearLayout writePostLsyout;
@@ -164,6 +165,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = displaySession.findViewById(R.id.sessionImageCardView);
         mSessionType = displaySession.findViewById(R.id.sessionType);
+        mSendMessageToHost = displaySession.findViewById(R.id.sendMessageToHost);
+        progressBar = displaySession.findViewById(R.id.progressBar_cyclic);
 
         /*
          Get latitude and longitude of session from previous activity.
@@ -173,6 +176,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionLatitude = getArguments().getDouble(SESSION_LATITUDE);
         sessionLongitude = getArguments().getDouble(SESSION_LONGITUDE);
         sessionID = getArguments().getString(SESSION_ID);
+
+        progressBar.setVisibility(View.VISIBLE);
 
         if (sessionLatitude!=null | !sessionID.equals("")) {
             // FINDS SESSION AND FILLS UI
@@ -206,8 +211,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                  */
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
                     //onEditSessionListener.OnEditSession(sessionID);
-                    Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
-                    onEditSessionListener.OnEditSession(sessionID,session);
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        onEditSessionListener.OnEditSession(sessionID,session);
+                    }
                 }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
@@ -227,61 +235,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
-        // When clicked on add post text a dialog fragment where posts can be written is opened
-        writePostLsyout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                WritePostFragment writePostFragment = WritePostFragment.newInstance(sessionID);
-                FragmentManager fragmentManager = getChildFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                if (writePostFragment!=null) {
-                    transaction.remove(writePostFragment);
-                }
-
-                writePostFragment.show(transaction,"writePostFragment");
-
-            }
-        });
-
-        // Posts are displayed in a RecyclerView
-        postList = (RecyclerView) view.findViewById(R.id.post_list);
-        postList.setLayoutManager(new LinearLayoutManager(getContext()));
-        postsViewHolderAdapter = new RecyclerView.Adapter<PostsViewHolder>() {
-            @Override
-            public PostsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.session_post_single_layout, parent, false);
-                return new PostsViewHolder(view);
-            }
-            @Override
-            public void onBindViewHolder(PostsViewHolder holder, int position) {
-                if (postBranchArrayList.size()>0) {
-                    holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
-
-                    TextTimestamp textTimestamp = new TextTimestamp((long) postBranchArrayList.get(position).getPost().getTimestamp());
-                    String timeText = textTimestamp.textDateAndTime();
-                    holder.setTime(timeText);
-
-                    holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
-                    holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
-                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID());
-                    holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
-                }
-            }
-            @Override
-            public int getItemCount() {
-                return postBranchArrayList.size();
-            }
-        };
-        linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
-        postList.setLayoutManager(linearLayoutManager);
-        postList.setAdapter(postsViewHolderAdapter);
-
-        postList.setNestedScrollingEnabled(false);
-
         // Setup static map with session location
         GoogleMapOptions options = new GoogleMapOptions();
         options.liteMode(true);
@@ -289,18 +242,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, mapFragment).commit();
         mapFragment.getMapAsync(this);
-
-        // Set the users profile image to the "write post" layout
-        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
-                setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
 
         return view;
     }
@@ -367,6 +308,15 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         session = dataSnapshot.getValue(Session.class);
         sessionID = dataSnapshot.getRef().getKey();
         String currencyString = "?";
+
+
+        // SETUP WALL ----------
+        if (session.getParticipants().containsKey(currentFirebaseUser.getUid()) | session.getHost().equals(currentFirebaseUser.getUid())) {
+            setupWall();
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+        // ---------------------
 
         if (session.getCurrency()==null) {
             currencyString = "";
@@ -447,66 +397,146 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          If the current user is the session host change the button text to "Edit session"
          */
         if (session.getHost().equals(currentFirebaseUser.getUid())) {
+            mSendMessageToHost.setVisibility(View.INVISIBLE);
             mDisplaySessionBtn.setText("Edit session");
         }
         // Set the session image
         ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
         setImage(session.getImageUrl(), sessionImage);
         sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
-        // Listen for posts and add add them to wall
-        if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
-            ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Session session = new Session();
-                    postBranchArrayList.clear();
-                    session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
-                    if (dataSnapshot.getChildrenCount()>0) {
-                        for (final String postID : session.getPosts().keySet()) {
-                            rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Post post = dataSnapshot.getValue(Post.class);
-                                    PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
-                                    postBranchArrayList.add(postBranch);
-                                    Collections.sort(postBranchArrayList);
-                                    postsViewHolderAdapter.notifyDataSetChanged();
-                                    // Number of comments listener
-                                    if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
 
-                                        ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                nrOfComments.put(dataSnapshot.getKey(),dataSnapshot.getChildrenCount());
-                                                for (int i = 0; i < postBranchArrayList.size(); i++) {
-                                                    if (postBranchArrayList.get(i).postID.equals(dataSnapshot.getKey())) {
-                                                        postsViewHolderAdapter.notifyItemChanged(i);
+        if (session.getParticipants().containsKey(currentFirebaseUser.getUid()) | session.getHost().equals(currentFirebaseUser.getUid())) {
+            if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
+                ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Session session = new Session();
+                        postBranchArrayList.clear();
+                        session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+                        if (dataSnapshot.getChildrenCount()>0) {
+                            for (final String postID : session.getPosts().keySet()) {
+                                rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Post post = dataSnapshot.getValue(Post.class);
+                                        PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                                        postBranchArrayList.add(postBranch);
+                                        Collections.sort(postBranchArrayList);
+                                        postsViewHolderAdapter.notifyDataSetChanged();
+                                        // Number of comments listener
+                                        if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
+
+                                            ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    nrOfComments.put(dataSnapshot.getKey(),dataSnapshot.getChildrenCount());
+                                                    for (int i = 0; i < postBranchArrayList.size(); i++) {
+                                                        if (postBranchArrayList.get(i).postID.equals(dataSnapshot.getKey())) {
+                                                            postsViewHolderAdapter.notifyItemChanged(i);
+                                                        }
                                                     }
+                                                    postsViewHolderAdapter.notifyDataSetChanged();
                                                 }
-                                                postsViewHolderAdapter.notifyDataSetChanged();
-                                            }
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                            }
-                                        });
-                                        listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+                                                }
+                                            });
+                                            listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+                                        }
                                     }
-                                }
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                }
-                            });
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+                            }
                         }
                     }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                }
-            });
-            listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
+                    }
+                });
+                listenerMap.put(mSessionDbRef.child(dataSnapshot.getKey()).child("posts"), postsListener);
+            }
+
         }
+
     }
+
+    private void setupWall() {
+        // When clicked on add post text a dialog fragment where posts can be written is opened
+        progressBar.setVisibility(View.GONE);
+        writePostLsyout.setVisibility(View.VISIBLE);
+        writePostLsyout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WritePostFragment writePostFragment = WritePostFragment.newInstance(sessionID);
+                FragmentManager fragmentManager = getChildFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (writePostFragment!=null) {
+                    transaction.remove(writePostFragment);
+                }
+
+                writePostFragment.show(transaction,"writePostFragment");
+            }
+        });
+
+        // Set the users profile image to the "write post" layout
+        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentUser = dataSnapshot.getValue(User.class);
+                setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        // Posts are displayed in a RecyclerView
+        postList = (RecyclerView) view.findViewById(R.id.post_list);
+        postList.setVisibility(View.VISIBLE);
+        postList.setLayoutManager(new LinearLayoutManager(getContext()));
+        postsViewHolderAdapter = new RecyclerView.Adapter<PostsViewHolder>() {
+            @Override
+            public PostsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.session_post_single_layout, parent, false);
+                return new PostsViewHolder(view);
+            }
+            @Override
+            public void onBindViewHolder(PostsViewHolder holder, int position) {
+                if (postBranchArrayList.size()>0) {
+                    holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
+
+                    TextTimestamp textTimestamp = new TextTimestamp((long) postBranchArrayList.get(position).getPost().getTimestamp());
+                    String timeText = textTimestamp.textDateAndTime();
+                    holder.setTime(timeText);
+
+                    holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
+                    holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
+                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID());
+                    holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
+                }
+            }
+            @Override
+            public int getItemCount() {
+                return postBranchArrayList.size();
+            }
+        };
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        postList.setLayoutManager(linearLayoutManager);
+        postList.setAdapter(postsViewHolderAdapter);
+
+        postList.setNestedScrollingEnabled(false);
+    }
+
+
 
     // Setup static map
     @Override
