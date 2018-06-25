@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -177,9 +178,6 @@ public class ChatFragment extends Fragment {
                                     if (friendUser.getChats()!= null) {
                                         if (friendUser.getChats().containsKey(userChatID)) {
                                             chatID = userChatID;
-                                            // Set that current user has seen the chat
-                                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                                         }
                                     }
                                 }
@@ -188,12 +186,12 @@ public class ChatFragment extends Fragment {
                             if (chatID==null) {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
-                        } else {
-                            // Set that current user has seen the chat
-                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                         }
                         // --------------- chatID IS NOW SET ----------------
+
+                        // Set that current user has seen the chat
+                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                         // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                         messageQuery = messageRef.limitToLast(getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));
@@ -208,6 +206,9 @@ public class ChatFragment extends Fragment {
                             public void onItemRangeInserted(int positionStart, int itemCount) {
                                 super.onItemRangeInserted(positionStart, itemCount);
                                 messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
+                                // Set that current user has seen the chat
+                                rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                                rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                             }
                         });
                         messagesListRV.setAdapter(messageFirebaseAdapter);
@@ -284,6 +285,13 @@ public class ChatFragment extends Fragment {
                         } else {
                             messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
                         }
+                        // make sure the above if is only valid for refresh event and not every onItemRangeInserted (for example if a message has been added)
+                        if (positionStart== currentItems + itemsLoaded -1) {
+                            refreshTriggeredByScroll = false;
+                        }
+                        // Set that current user has seen the chat
+                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                     }
                 });
 
@@ -337,6 +345,7 @@ public class ChatFragment extends Fragment {
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+        messageFirebaseAdapter.stopListening();
     }
 
     @Override
