@@ -11,7 +11,7 @@
     <integer name="card_flip_time_half">200</integer>
     <integer name="card_flip_time_full">400</integer>
 
-    <integer name="TOTAL_ITEMS_TO_LOAD">100</integer>
+    <integer name="TOTAL_ITEMS_TO_LOAD">10</integer>
 
     <integer name="heightOfSessionImageNumerator">12</integer>
     <integer name="heightOfSessionImageDenominator">20</integer>

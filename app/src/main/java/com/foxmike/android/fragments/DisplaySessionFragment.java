@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
@@ -115,6 +116,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnCommentClickedListener onCommentClickedListener;
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
+
+    private OnChatClickedListener onChatClickedListener;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -360,11 +363,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
+                final User user = dataSnapshot.getValue(User.class);
                 setImage(user.getImage(), mHostImage);
                 String hostText = getString(R.string.hosted_by_text) + " " + user.getFirstName();
                 mHost.setText(hostText);
                 mHostAboutTV.setText(user.getAboutMe());
+
+                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        onChatClickedListener.OnChatClicked(session.getHost(),user.getFirstName(),user.getThumb_image(),null);
+                    }
+                });
             }
 
             @Override
@@ -721,6 +732,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnCommentClickedListener");
         }
+        if (context instanceof OnChatClickedListener) {
+            onChatClickedListener = (OnChatClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnChatClickedListener");
+        }
     }
     @Override
     public void onDetach() {
@@ -729,6 +746,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         onBookSessionListener = null;
         onCancelBookedSessionListener = null;
         onCommentClickedListener = null;
+        onChatClickedListener = null;
     }
     public interface OnEditSessionListener {
         void OnEditSession(String sessionID);
