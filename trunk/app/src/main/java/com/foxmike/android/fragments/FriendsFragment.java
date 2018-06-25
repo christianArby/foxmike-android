@@ -259,7 +259,12 @@ public class FriendsFragment extends Fragment {
                 if (viewType==1) {
                     View view = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.friends_letter_heading, parent, false);
-                    return new HeaderViewHolder(view);
+                    HeaderViewHolder headerViewHolder = new HeaderViewHolder(view);
+                    if (userBranches.size()<10) {
+                        view.setVisibility(View.GONE);
+                        headerViewHolder.setVisibilityGone();
+                    }
+                    return headerViewHolder;
                 } else {
                     View view = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.users_list_single_layout_mini, parent, false);

@@ -23,4 +23,9 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView firstLetterHeading = (TextView) mView.findViewById(R.id.firstLetterTV);
         firstLetterHeading.setText(letter);
     }
+
+    public void setVisibilityGone() {
+        TextView firstLetterHeading = (TextView) mView.findViewById(R.id.firstLetterTV);
+        firstLetterHeading.setVisibility(View.GONE);
+    }
 }
