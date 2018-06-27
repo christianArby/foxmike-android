@@ -1,11 +1,14 @@
 package com.foxmike.android.activities;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -46,6 +49,9 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Cr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_stripe_account);
+
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         firstNameET = findViewById(R.id.firstNameET);
         lastNameET = findViewById(R.id.lastNameET);
@@ -210,6 +216,19 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Cr
             }
         });
 
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     public String getLocalIpAddress() {

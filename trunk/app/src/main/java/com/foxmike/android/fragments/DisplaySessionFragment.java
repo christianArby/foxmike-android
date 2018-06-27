@@ -6,8 +6,14 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,6 +54,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
+import android.widget.Toolbar;
 
 import org.w3c.dom.Text;
 
@@ -71,7 +78,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
-    private CardView sessionImageCardView;
+    private ConstraintLayout sessionImageCardView;
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mDuration;
@@ -116,6 +123,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnCommentClickedListener onCommentClickedListener;
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
+    private android.support.v7.widget.Toolbar toolbar;
 
     private OnChatClickedListener onChatClickedListener;
 
@@ -159,17 +168,37 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
         mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
-        mSessionName = displaySession.findViewById(R.id.sessionName);
         mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
         writePostLsyout = displaySession.findViewById(R.id.write_post_layout);
         mWhatTW = displaySession.findViewById(R.id.whatTW);
         mWhoTW = displaySession.findViewById(R.id.whoTW);
         mWhereTW = displaySession.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
-        sessionImageCardView = displaySession.findViewById(R.id.sessionImageCardView);
-        mSessionType = displaySession.findViewById(R.id.sessionType);
+        sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
+        mSessionType = view.findViewById(R.id.sessionType);
         mSendMessageToHost = displaySession.findViewById(R.id.sendMessageToHost);
         progressBar = displaySession.findViewById(R.id.progressBar_cyclic);
+        collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
+        toolbar = view.findViewById(R.id.toolbar);
+
+        // Setup toolbar
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+
+        AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
+
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset!=0) {
+                    mSessionType.setVisibility(View.GONE);
+                } else {
+                    mSessionType.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         /*
          Get latitude and longitude of session from previous activity.
@@ -349,7 +378,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionDateAndTime = sessionDateAndTime.substring(0,1).toUpperCase() + sessionDateAndTime.substring(1);
         mDateAndTime.setText(sessionDateAndTime);
         mParticipants.setText(countParticipants +"/" + session.getMaxParticipants());
-        mSessionName.setText(session.getSessionName());
+        collapsingToolbarLayout.setTitle(session.getSessionName());
         String address = getAddress(session.getLatitude(),session.getLongitude());
         mAddressAndSessionType.setText(address);
         mWhatTW.setText(session.getWhat());

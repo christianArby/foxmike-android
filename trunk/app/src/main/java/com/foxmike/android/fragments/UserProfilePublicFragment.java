@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,6 +93,13 @@ public class UserProfilePublicFragment extends Fragment {
         declineBtn = view.findViewById(R.id.decline_request_btn);
         sendMessageBtn = view.findViewById(R.id.send_message_btn);
         sendMessageBtn.setVisibility(View.GONE);
+
+        // Setup toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
 
         // Set initial visibility of decline button
         declineBtn.setVisibility(View.GONE);

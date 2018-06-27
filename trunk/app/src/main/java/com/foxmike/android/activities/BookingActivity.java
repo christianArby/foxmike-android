@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,6 +48,9 @@ public class BookingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking);
         mAuth = FirebaseAuth.getInstance();
         rootDbRef = FirebaseDatabase.getInstance().getReference();
+
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         progressBarHorizontal = findViewById(R.id.progressBarHorizontal);
         mainView = findViewById(R.id.mainView);

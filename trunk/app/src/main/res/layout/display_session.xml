@@ -5,68 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        app:layout_constraintTop_toTopOf="parent"
-        android:id="@+id/cardViewContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/sessionImageCardView"
-            android:layout_width="match_parent"
-            android:layout_height="200dp">
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:contentDescription="@string/session_image"
-                    android:id="@+id/displaySessionImage"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/add_btn" />
-
-                <TextView
-                    android:textColor="@color/secondaryTextColor"
-                    android:id="@+id/sessionType"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="test2"
-                    android:textAllCaps="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:layout_marginStart="@dimen/margin_left"
-                    app:layout_constraintBottom_toTopOf="@id/sessionName"
-                    app:layout_constraintStart_toStartOf="parent"/>
-
-                <TextView
-
-                    android:id="@+id/sessionName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_left"
-                    android:layout_marginBottom="@dimen/leadDisplay1"
-                    android:text="@string/session_name_goes_here"
-                    android:textAllCaps="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                    android:textColor="@color/secondaryTextColor"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-            </android.support.constraint.ConstraintLayout>
-
-        </android.support.v7.widget.CardView>
-
-
-    </RelativeLayout>
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/infoBlock"
-        app:layout_constraintTop_toBottomOf="@id/cardViewContainer"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:paddingBottom="@dimen/marginVertical"

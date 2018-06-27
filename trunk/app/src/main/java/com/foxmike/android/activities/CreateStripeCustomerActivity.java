@@ -1,9 +1,12 @@
 package com.foxmike.android.activities;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +53,9 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_stripe_customer);
 
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
         mainView = findViewById(R.id.mainView);
 
         mCardInputWidget = (CardMultilineWidget) findViewById(R.id.card_input_widget);
@@ -70,6 +76,19 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                 onChargeClicked();
             }
         });
+
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void onChargeClicked() {

@@ -17,8 +17,11 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -201,6 +204,13 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         mPriceTIL = createSession.findViewById(R.id.priceTIL);
+
+        // Setup toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
 
         // Set default state of advertised checkedTextview
         mAdvertised.setChecked(true);

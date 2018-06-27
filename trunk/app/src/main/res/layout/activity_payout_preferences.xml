@@ -7,6 +7,14 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.PayoutPreferencesActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:id="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent">
+    </android.support.v7.widget.Toolbar>
+
     <FrameLayout
         android:id="@+id/container_update_fragment"
         android:elevation="4dp"
@@ -18,12 +26,12 @@
         android:id="@+id/payoutPreferencesHeading"
         android:text="@string/edit_your_payout_methods"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="@dimen/marginVertical"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

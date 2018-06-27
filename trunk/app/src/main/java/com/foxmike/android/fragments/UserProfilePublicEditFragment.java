@@ -6,6 +6,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -94,6 +97,15 @@ public class UserProfilePublicEditFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
+
+        // Setup toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+
         // setup the imagebutton with the users profile image
 
         currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {

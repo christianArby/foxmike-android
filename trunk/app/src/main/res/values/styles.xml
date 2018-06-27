@@ -10,6 +10,12 @@
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
     </style>
 
+    <style name="foxmikeActionbar" parent="Theme.AppCompat.Light.DarkActionBar" >
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="colorPrimary">@color/foxmikePrimaryColor</item>
+        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+    </style>
+
     <style name="fullscreenDialog" parent="foxmike" >
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
