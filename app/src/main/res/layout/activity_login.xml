@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.LoginActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:id="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent">
+    </android.support.v7.widget.Toolbar>
+
     <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
     <LinearLayout
         android:focusable="true"
@@ -30,7 +38,7 @@
         android:nextFocusUp="@id/loginText"
         android:nextFocusLeft="@id/loginText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
     <android.support.design.widget.TextInputLayout
         android:focusedByDefault="false"
