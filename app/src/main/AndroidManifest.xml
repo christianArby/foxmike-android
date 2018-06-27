@@ -116,16 +116,14 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PayActivity" />
         <activity android:name=".activities.TestPayActivity" />
         <activity android:name=".activities.CreateStripeAccountActivity" />
-        <activity android:name=".activities.FinalizeStripeAccountCreationActivity" />
         <activity android:name=".activities.PayoutPreferencesActivity" />
-        <activity android:name=".activities.UpdateStripeAccountWithPayoutActivity" />
         <activity android:name=".activities.PaymentPreferencesActivity" />
         <activity android:name=".activities.CreateStripeCustomerActivity" />
         <activity android:name=".activities.BookingActivity" />
-        <activity android:name=".activities.AboutActivity"></activity>
+        <activity android:name=".activities.AboutActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -82,6 +85,13 @@ public class CreateStripeExternalAccountFragment extends Fragment {
         addPayoutMethodLaterBtn = view.findViewById(R.id.addPayoutMethodLaterBtn);
         ibanET = view.findViewById(R.id.ibanET);
         progressBar = view.findViewById(R.id.progressBar_cyclic);
+
+        // Setup toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
 
         mFunctions = FirebaseFunctions.getInstance();
         // Set default iban text

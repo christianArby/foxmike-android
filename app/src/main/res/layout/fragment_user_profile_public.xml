@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/fragment_user_profile_public"
@@ -7,7 +7,15 @@
     android:background="@color/color_background_light"
     android:clickable="false">
 
+    <android.support.v7.widget.Toolbar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:id="@+id/toolbar">
+    </android.support.v7.widget.Toolbar>
+
     <ScrollView
+        android:layout_alignParentTop="true"
         android:id="@+id/scrollview_user_profile_public"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -30,7 +38,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/send_request_btn"
         android:text="@string/send_friend_request_text"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/scrollview_user_profile_public"/>
 
     <Button
         android:background="@drawable/rounded_button_primary"
@@ -40,7 +49,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/decline_request_btn"
         android:text="@string/decline_friend_request_text"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/send_request_btn"/>
 
     <Button
         android:background="@drawable/rounded_button_primary"
@@ -50,6 +60,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/send_message_btn"
         android:text="@string/send_message_text"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/decline_request_btn"/>
 
-</LinearLayout>
+</RelativeLayout>
