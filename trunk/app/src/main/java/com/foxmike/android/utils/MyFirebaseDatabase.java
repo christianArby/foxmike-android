@@ -7,6 +7,8 @@ import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -28,9 +30,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,17 +139,22 @@ public class MyFirebaseDatabase extends Service {
     public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
         ArrayList<Session> sessions = new ArrayList<>();
+        Long currentTimestamp = System.currentTimeMillis();
 
         for (Session nearSession : nearSessions) {
             if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
                 if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
-                    sessions.add(nearSession);
+                    if (nearSession.getSessionTimestamp() > currentTimestamp) {
+                        sessions.add(nearSession);
+                    }
                 }
             }
 
             if (secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
                 if (secondWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
-                    sessions.add(nearSession);
+                    if (nearSession.getSessionTimestamp() > currentTimestamp) {
+                        sessions.add(nearSession);
+                    }
                 }
             }
         }
