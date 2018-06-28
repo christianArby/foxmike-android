@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -346,6 +347,7 @@ public class ChatFragment extends Fragment {
             ref.removeEventListener(listener);
         }
         messageFirebaseAdapter.stopListening();
+        hideKeyboard(getActivity());
     }
 
     @Override
@@ -363,5 +365,16 @@ public class ChatFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager inputManager = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = activity.getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }

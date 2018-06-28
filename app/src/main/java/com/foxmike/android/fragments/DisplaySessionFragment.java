@@ -358,9 +358,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         String bookText;
 
         if (session.getPrice()== 0) {
-            bookText = "Book session";
+            bookText = getString(R.string.book_session);
         } else {
-            bookText = "Book session" + " " + session.getPrice() + " " + currencyString;
+            bookText = getString(R.string.book_session)+ " " + session.getPrice() + " " + currencyString;
         }
 
         // Set default text on button
@@ -438,7 +438,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          */
         if (session.getHost().equals(currentFirebaseUser.getUid())) {
             mSendMessageToHost.setVisibility(View.INVISIBLE);
-            mDisplaySessionBtn.setText("Edit session");
+            mDisplaySessionBtn.setText(R.string.edit_session);
         }
         // Set the session image
         ImageView sessionImage = view.findViewById(R.id.displaySessionImage);

@@ -356,5 +356,7 @@
     <string name="username_already_taken">The username is already taken</string>
     <string name="friend_request_sent">Friend request sent</string>
     <string name="friend_request_received">Friend request received</string>
+    <string name="book_session">Book session</string>
+    <string name="edit_session">Edit session</string>
 
 </resources>

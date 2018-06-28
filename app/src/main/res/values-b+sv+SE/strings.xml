@@ -357,5 +357,7 @@
     <string name="username_already_taken">Användarnamnet är redan taget</string>
     <string name="friend_request_sent">Vänförfrågan har skickats</string>
     <string name="friend_request_received">Mottagen vänförfrågan</string>
+    <string name="book_session">Boka pass</string>
+    <string name="edit_session">Ändra pass</string>
 
 </resources>
