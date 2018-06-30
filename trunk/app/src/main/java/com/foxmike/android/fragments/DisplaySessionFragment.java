@@ -107,6 +107,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private ChildEventListener sessionChildEventListener;
     private ValueEventListener sessionListener;
     private Session session;
+    private TextView priceTV;
 
     private LinearLayoutManager linearLayoutManager;
     private Map<Long, String> postIDs = new HashMap<Long, String>();
@@ -121,10 +122,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnBookSessionListener onBookSessionListener;
     private OnCancelBookedSessionListener onCancelBookedSessionListener;
     private OnCommentClickedListener onCommentClickedListener;
+    private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
+    private User host;
 
     private OnChatClickedListener onChatClickedListener;
 
@@ -180,6 +183,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         progressBar = displaySession.findViewById(R.id.progressBar_cyclic);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
         toolbar = view.findViewById(R.id.toolbar);
+        priceTV = view.findViewById(R.id.priceTV);
+        mDisplaySessionBtn = view.findViewById(R.id.displaySessionBtn);
+        displaySessionContainer.addView(displaySession);
 
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -211,14 +217,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         progressBar.setVisibility(View.VISIBLE);
 
-        if (sessionLatitude!=null | !sessionID.equals("")) {
-            // FINDS SESSION AND FILLS UI
-            findSessionAndFillInUI(sessionLatitude, sessionLongitude);
-        } else {
-            Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
-            toast.show();
-        }
-
         // Setup standard aspect ratio of session image
         sessionImageCardView.post(new Runnable() {
             @Override
@@ -231,49 +229,60 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
-        // Setup Booking, Cancelling and Editing Button
-        mDisplaySessionBtn = displaySession.findViewById(R.id.displaySessionBtn);
-        displaySessionContainer.addView(displaySession);
-        mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
+        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentUser = dataSnapshot.getValue(User.class);
+
+                // Setup Booking, Cancelling and Editing Button
+                mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                 /*
                  If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
                  and send the session key to that activity as bundle.
                  */
-                if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                    //onEditSessionListener.OnEditSession(sessionID);
-                    if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
-                    } else {
-                        onEditSessionListener.OnEditSession(sessionID,session);
-                    }
-                }
+                        if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                            //onEditSessionListener.OnEditSession(sessionID);
+                            if (!currentUser.isTrainerMode()) {
+                                Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                            } else {
+                                onEditSessionListener.OnEditSession(sessionID,session);
+                            }
+                        }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                  remove the current user from that session participant list and go back to main activity.
                  */
-                else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
-                    onCancelBookedSessionListener.OnCancelBookedSession(sessionID);
-                }
+                        else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+                            onCancelBookedSessionListener.OnCancelBookedSession(sessionID);
+                        }
 
-                else {
+                        else {
                     /*
                      Else (button will show join session) add the user id to the session participant list and
                      the user sessions attending list when button is clicked.
                      */
-                    onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomerId(), session.getPrice(), session.getCurrency());
+                            onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomerId(), session.getPrice(), session.getCurrency());
+                        }
+                    }
+                });
+
+                if (sessionLatitude!=null | !sessionID.equals("")) {
+                    // FINDS SESSION AND FILLS UI
+                    findSessionAndFillInUI(sessionLatitude, sessionLongitude);
+                } else {
+                    Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
+                    toast.show();
                 }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
-        // Setup static map with session location
-        GoogleMapOptions options = new GoogleMapOptions();
-        options.liteMode(true);
-        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
-        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, mapFragment).commit();
-        mapFragment.getMapAsync(this);
 
         return view;
     }
@@ -341,6 +350,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionID = dataSnapshot.getRef().getKey();
         String currencyString = "?";
 
+        // Setup static map with session location
+        GoogleMapOptions options = new GoogleMapOptions();
+        options.liteMode(true);
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.child_fragment_container, mapFragment).commit();
+        mapFragment.getMapAsync(this);
+
 
         // SETUP WALL ----------
         if (session.getParticipants().containsKey(currentFirebaseUser.getUid()) | session.getHost().equals(currentFirebaseUser.getUid())) {
@@ -355,16 +372,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         } else {
             currencyString = "kr";
         }
-        String bookText;
+        String priceText;
 
         if (session.getPrice()== 0) {
-            bookText = getString(R.string.book_session);
+            priceText = "Free";
         } else {
-            bookText = getString(R.string.book_session)+ " " + session.getPrice() + " " + currencyString;
+            priceText = session.getPrice() + " " + currencyString + " " + "per person";
         }
 
+        priceTV.setText(priceText);
+
         // Set default text on button
-        mDisplaySessionBtn.setText(bookText);
+        mDisplaySessionBtn.setText(getString(R.string.book_session));
         // Count participants
         long countParticipants;
         if (dataSnapshot.hasChild("participants")) {
@@ -392,19 +411,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final User user = dataSnapshot.getValue(User.class);
-                setImage(user.getImage(), mHostImage);
-                String hostText = getString(R.string.hosted_by_text) + " " + user.getFirstName();
+                host = dataSnapshot.getValue(User.class);
+                setImage(host.getImage(), mHostImage);
+                String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
                 mHost.setText(hostText);
-                mHostAboutTV.setText(user.getAboutMe());
-
-                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        onChatClickedListener.OnChatClicked(session.getHost(),user.getFirstName(),user.getThumb_image(),null);
-                    }
-                });
+                mHostAboutTV.setText(host.getAboutMe());
             }
 
             @Override
@@ -437,8 +448,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          If the current user is the session host change the button text to "Edit session"
          */
         if (session.getHost().equals(currentFirebaseUser.getUid())) {
-            mSendMessageToHost.setVisibility(View.INVISIBLE);
-            mDisplaySessionBtn.setText(R.string.edit_session);
+            mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+            mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                }
+            });
+        } else {
+            mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
+                }
+            });
         }
         // Set the session image
         ImageView sessionImage = view.findViewById(R.id.displaySessionImage);
@@ -522,18 +546,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         });
 
         // Set the users profile image to the "write post" layout
-        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
-                setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
 
 
         // Posts are displayed in a RecyclerView
@@ -767,7 +780,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnChatClickedListener");
         }
+        if (context instanceof UserAccountFragment.OnUserAccountFragmentInteractionListener) {
+            onUserAccountFragmentInteractionListener = (UserAccountFragment.OnUserAccountFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnUserAccountFragmentInteractionListener");
+        }
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -776,6 +796,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         onCancelBookedSessionListener = null;
         onCommentClickedListener = null;
         onChatClickedListener = null;
+        onUserAccountFragmentInteractionListener = null;
     }
     public interface OnEditSessionListener {
         void OnEditSession(String sessionID);
