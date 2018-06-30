@@ -159,7 +159,7 @@
             android:id="@+id/hostAbout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginTop="@dimen/marginVertical"
@@ -179,10 +179,11 @@
 
         <View
             android:id="@+id/spaceView"
-            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginTop="@dimen/dividerDistance"
             android:layout_width="match_parent"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
 
@@ -200,18 +201,19 @@
             android:textColor="@color/primaryTextColor"
             android:id="@+id/whatTW"
             android:layout_width="match_parent"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/leadSub2Body"
+            android:layout_marginTop="@dimen/marginVertical"
             android:layout_marginStart="@dimen/margin_left"
             />
 
         <View
-            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginTop="@dimen/dividerDistance"
             android:layout_width="match_parent"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
 
@@ -228,19 +230,20 @@
 
         <TextView
             android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/leadSub2Body"
+            android:layout_marginTop="@dimen/marginVertical"
             android:id="@+id/whoTW"
             android:layout_width="match_parent"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_left"/>
 
         <View
-            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginTop="@dimen/dividerDistance"
             android:layout_width="match_parent"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
 
@@ -257,10 +260,10 @@
 
         <TextView
             android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/leadSub2Body"
+            android:layout_marginTop="@dimen/marginVertical"
             android:layout_marginEnd="@dimen/margin_left"
             android:id="@+id/whereTW"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_left"/>
@@ -269,7 +272,7 @@
     <FrameLayout
         android:id="@+id/child_fragment_container"
         app:layout_constraintTop_toBottomOf="@id/novelInfo"
-        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginTop="@dimen/dividerDistance"
         android:layout_width="match_parent"
         android:layout_height="@dimen/mini_map_height"/>
 
