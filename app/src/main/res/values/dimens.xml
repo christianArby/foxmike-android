@@ -73,6 +73,8 @@
     <dimen name="elevation_fullscreen">9dp</dimen>
 
     <dimen name="leadDisplay1ToSub">15dp</dimen>
+    <dimen name="dividerDistance">32dp</dimen>
+    <dimen name="dividerBottom">12dp</dimen>
 
 
 </resources>

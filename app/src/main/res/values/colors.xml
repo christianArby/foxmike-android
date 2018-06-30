@@ -14,7 +14,7 @@
     <color name="red">#FF0000</color>
     <color name="lightGrayLine">#eeeeee</color>
 
-    <color name="primaryTextColor">#333333</color>
+    <color name="primaryTextColor">#484848</color>
     <color name="secondaryTextColor">#ffffff</color>
     <color name="grayTextColor">#9B9B9B</color>
 
@@ -24,7 +24,7 @@
     <color name="primaryDarkColor">#c7c7c7</color>
     <color name="secondaryColor">#fff176</color>
     <color name="color_background_light">#FFFFFF</color>
-    <color name="color_divider">#E0E0E0</color>
+    <color name="color_divider">#EBEBEB</color>
     <color name="color_accent">#00bfa5</color>
 
 
