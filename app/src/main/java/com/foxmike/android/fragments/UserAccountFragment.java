@@ -64,6 +64,7 @@ public class UserAccountFragment extends Fragment {
     private FrameLayout progressBackground;
     private View view;
     private TextView aboutTV;
+    private DatabaseReference usersDbRef;
 
     public UserAccountFragment() {
         // Required empty public constructor
@@ -129,7 +130,7 @@ public class UserAccountFragment extends Fragment {
                 userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+                        usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
                         User user = dataSnapshot.getValue(User.class);
                         if (user.trainerMode) {
                             progressBackground.setVisibility(View.VISIBLE);
@@ -246,9 +247,15 @@ public class UserAccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==RESULT_OK){
-            Intent intent = new Intent(getActivity(), MainHostActivity.class);
-            getActivity().startActivity(intent);
-            getActivity().finish();
+
+            usersDbRef.child(mAuth.getCurrentUser().getUid()).child("trainerMode").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Intent intent = new Intent(getActivity(), MainHostActivity.class);
+                    getActivity().startActivity(intent);
+                    getActivity().finish();
+                }
+            });
         }
     }
 

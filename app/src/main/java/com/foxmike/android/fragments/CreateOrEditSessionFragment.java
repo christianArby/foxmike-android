@@ -418,8 +418,12 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (sessionExist==1) {
+                    mProgress.setMessage(getString(R.string.updating_session));
+                } else {
+                    mProgress.setMessage(getString(R.string.creating_session));
+                }
 
-                mProgress.setMessage(getString(R.string.updating_session));
                 mProgress.show();
                 updateSessionObjectFromUI(new OnSessionUpdatedListener() {
                     @Override

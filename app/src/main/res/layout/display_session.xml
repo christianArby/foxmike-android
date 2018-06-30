@@ -113,18 +113,9 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <Button
-        app:layout_constraintTop_toBottomOf="@id/infoBlock"
-        android:id="@+id/displaySessionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/foxmikePrimaryColor"
-        android:text="@string/join_session"
-        android:textColor="@color/secondaryTextColor" />
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/hostInfoContainer"
-        app:layout_constraintTop_toBottomOf="@id/displaySessionBtn"
+        app:layout_constraintTop_toBottomOf="@id/infoBlock"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
