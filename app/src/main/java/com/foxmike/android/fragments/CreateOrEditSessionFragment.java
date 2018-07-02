@@ -598,15 +598,23 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getWhat())) {
-            infoIsValid = false;
-        }
-
         if (TextUtils.isEmpty(session.getMaxParticipants())) {
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(session.getDuration())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getWhat())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getWho())) {
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(session.getWhere())) {
             infoIsValid = false;
         }
 

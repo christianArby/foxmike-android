@@ -77,15 +77,11 @@ public class LinkWithFacebookFragment extends DialogFragment {
         );
 
         mLinkAccountText.setText(R.string.account_exists_link_with_facebook_question_text);
-
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 mAuth = FirebaseAuth.getInstance();
-
                 final WelcomeActivity welcomeActivity = (WelcomeActivity)getActivity();
-
                 final AuthCredential credential = welcomeActivity.getCredential();
 
                 mAuth.signInWithEmailAndPassword(mLoginEmailField.getText().toString().trim(),mLoginPasswordField.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -103,7 +99,6 @@ public class LinkWithFacebookFragment extends DialogFragment {
                                             }
                                         }
                                     });
-
                         } else {
                             Toast.makeText(getActivity(), R.string.authentication_failed, Toast.LENGTH_SHORT).show();
                         }
@@ -111,7 +106,6 @@ public class LinkWithFacebookFragment extends DialogFragment {
                 });
             }
         });
-
         resetText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

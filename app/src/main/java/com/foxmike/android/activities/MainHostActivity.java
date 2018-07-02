@@ -79,6 +79,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private Session editedSession;
     private String editedSessionID;
+    private boolean resumed = false;
 
 
     @Override
@@ -135,18 +136,21 @@ public class MainHostActivity extends AppCompatActivity implements
             public boolean onTabSelected(int position, boolean wasSelected) {
                 switch (position) {
                     case 0:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostInboxFragment"));
+                            resumed=false;
                             return true;
                         }
                     case 1:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostSessionsFragment"));
+                            resumed = false;
                             return true;
                         }
                     case 2:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostUserAccountFragment"));
+                            resumed = false;
                             return true;
                         }
                 }
@@ -463,5 +467,7 @@ public class MainHostActivity extends AppCompatActivity implements
             transaction.hide(hostInboxFragment);
         }
         transaction.commit();
+        resumed = true;
+        bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
     }
 }

@@ -15,13 +15,13 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
+import com.foxmike.android.models.User;
+import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,23 +29,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import org.w3c.dom.Text;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -244,77 +233,39 @@ public class RegisterActivity extends AppCompatActivity {
                         // Register success,  create random user name and save user in Realtime database
                         currentUserID = mAuth.getCurrentUser().getUid();
                         // ----------------------------------- NEW -------------------------
-                        numberOfTriedUserNames =0;
-                        startRangeCeiling = 10000;
-                        addUserWithRandomUserName();
+
+                        final User user = new User();
+                        user.setFirstName(firstName);
+                        user.setLastName(lastName);
+                        user.setFullName(firstName + " " + lastName);
+
+                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
+                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                            @Override
+                            public void onUserImageSet(Map imageUrlHashMap) {
+
+                                user.setImage(imageUrlHashMap.get("image").toString());
+                                user.setThumb_image(imageUrlHashMap.get("thumb_image").toString());
+
+                                AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
+                                addUserToDatabase.AddUserToDatabaseWithUniqueUsername(RegisterActivity.this, user);
+                                addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
+                                    @Override
+                                    public void OnUserAddedToDatabase() {
+                                        myProgressBar.stopProgressBar();
+                                        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(mainIntent);
+                                    }
+                                });
+                            }
+                        });
                     } else {
                         myProgressBar.stopProgressBar();
                         FirebaseAuthException e = (FirebaseAuthException )task.getException();
                         Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                }
-                private void addUserWithRandomUserName() {
-                    // Create a random number between 0 and 9999, convert it to a string.
-                    Random random = new Random();
-                    randomPIN = random.nextInt(startRangeCeiling);
-                    PINString = String.valueOf(randomPIN);
-                    // If this is not the first try to create a random username add the random number, ie 334, after firstname + lastname, ie christianarby334
-                    // else try to create username with only firstname + lastname christianarby
-                    if (numberOfTriedUserNames>0) {
-                        userName = "@"+firstName.toLowerCase()+lastName.toLowerCase()+PINString;
-                    } else {
-                        userName = "@"+firstName.toLowerCase()+lastName.toLowerCase();
-                    }
-                    // Try the username in the database/usernames, see if it is unique. If it is unique, the below function will return commited=true in function onComplete
-                    rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
-                        @Override
-                        public Transaction.Result doTransaction(MutableData mutableData) {
-                            if (mutableData.getValue() == null) {
-                                mutableData.setValue(currentUserID);
-                                return Transaction.success(mutableData);
-                            }
-                            return Transaction.abort();
-                        }
-                        @Override
-                        public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
-                            // if commited=true the username is unique, save the user with username to database
-                            if (commited) {
-                                Map userMap = new HashMap();
-                                userMap.put("userName",userName);
-                                userMap.put("firstName",firstName);
-                                userMap.put("lastName",lastName);
-                                userMap.put("fullName",firstName + " " + lastName);
-                                mDatabaseUsers.child(currentUserID).setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
-                                            @Override
-                                            public void onUserImageSet() {
-                                                myProgressBar.stopProgressBar();
-                                                Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                startActivity(mainIntent);
-                                            }
-                                        });
-                                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
-                                    }
-                                });
-                            } else {
-                                // Try the loop 2 times, then multiple random range with 10 each try, if no success after 10 times give up
-                                Toast.makeText(RegisterActivity.this, "Username exists", Toast.LENGTH_SHORT).show();
-                                numberOfTriedUserNames++;
-                                if (numberOfTriedUserNames>2) {
-                                    startRangeCeiling = startRangeCeiling*10;
-                                }
-                                if (numberOfTriedUserNames<10) {
-                                    addUserWithRandomUserName();
-                                } else {
-                                    Toast.makeText(RegisterActivity.this, "Failed Registration", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-                    });
                 }
             });
         }
