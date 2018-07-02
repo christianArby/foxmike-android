@@ -53,6 +53,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     private Button createStripeAccountBtn;
     private HashMap<String, Object> accountData;
     private String accountId;
+    private boolean stripeAccountCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,8 +195,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
 
                 if (infoIsValid) {
 
-
-
                     accountData = new HashMap<>();
                     accountData.put("firstName", firstName);
                     accountData.put("lastName", lastName);
@@ -210,17 +209,56 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
                     accountData.put("legalEntityType", "individual");
 
 
-                    CreateStripeAccountDobTosFragment createStripeAccountDobTosFragment = new CreateStripeAccountDobTosFragment();
 
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("accountData",accountData);
-                    createStripeAccountDobTosFragment.setArguments(bundle);
+                    String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    FirebaseDatabase.getInstance().getReference().child("users").child(currentUserID).child("aboutMe").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-                    transaction.add(R.id.container_finalize_fragment, createStripeAccountDobTosFragment, "finalize").addToBackStack(null);
-                    transaction.commit();
+                            boolean aboutMeTextEmpty = false;
+
+                            if (dataSnapshot.getValue()==null) {
+                                aboutMeTextEmpty = true;
+                            } else {
+                                if (dataSnapshot.getValue().toString().length()<1) {
+                                    aboutMeTextEmpty = true;
+                                }
+                            }
+
+                            if (aboutMeTextEmpty) {
+                                AboutUserFragment aboutUserFragment = new AboutUserFragment();
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                                transaction.add(R.id.container_finalize_fragment, aboutUserFragment, "aboutUserFragment").addToBackStack("2nd");
+                                transaction.commit();
+                            } else {
+
+                                CreateStripeAccountDobTosFragment createStripeAccountDobTosFragment = new CreateStripeAccountDobTosFragment();
+
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("accountData",accountData);
+                                createStripeAccountDobTosFragment.setArguments(bundle);
+
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                                transaction.add(R.id.container_finalize_fragment, createStripeAccountDobTosFragment, "finalize").addToBackStack("2nd");
+                                transaction.commit();
+
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
                 }
             }
         });
@@ -236,8 +274,20 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        if (stripeAccountCreated) {
+            finish();
+        } else {
+            onBackPressed();
+        }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (stripeAccountCreated) {
+            finish();
+        }
     }
 
     public String getLocalIpAddress() {
@@ -262,45 +312,22 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     @Override
     public void OnStripeAccountCreated(String accountId) {
 
+        stripeAccountCreated = true;
+
         this.accountId = accountId;
 
-        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference().child("users").child(currentUserID).child("aboutMe").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
 
-                if (dataSnapshot.getValue()== null) {
-                    AboutUserFragment aboutUserFragment = new AboutUserFragment();
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-                    transaction.add(R.id.container_finalize_fragment, aboutUserFragment, "aboutUserFragment").addToBackStack(null);
-                    transaction.commit();
-                } else {
+        Bundle bundle = new Bundle();
+        accountData.put("stripeAccountId",accountId);
+        bundle.putSerializable("accountData",accountData);
+        createStripeExternalAccountFragment.setArguments(bundle);
 
-                    CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
-
-                    Bundle bundle = new Bundle();
-                    accountData.put("stripeAccountId",CreateStripeAccountActivity.this.accountId);
-                    bundle.putSerializable("accountData",accountData);
-                    createStripeExternalAccountFragment.setArguments(bundle);
-
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-                    transaction.add(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize").addToBackStack(null);
-                    transaction.commit();
-
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.replace(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize");
+        transaction.commit();
     }
 
 
@@ -314,17 +341,18 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     @Override
     public void onAboutMeInteraction() {
 
-        CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
+
+
+        CreateStripeAccountDobTosFragment createStripeAccountDobTosFragment = new CreateStripeAccountDobTosFragment();
 
         Bundle bundle = new Bundle();
-        accountData.put("stripeAccountId",accountId);
         bundle.putSerializable("accountData",accountData);
-        createStripeExternalAccountFragment.setArguments(bundle);
+        createStripeAccountDobTosFragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-        transaction.add(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize").addToBackStack(null);
+        transaction.add(R.id.container_finalize_fragment, createStripeAccountDobTosFragment, "finalize").addToBackStack(null);
         transaction.commit();
 
     }
