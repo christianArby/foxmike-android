@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -193,7 +194,12 @@ public class UserProfilePublicEditFragment extends Fragment {
                     if (user!=null) {
                         if (userName.equals(user.userName)) {
                             // no changes in userName, write to database...
-                            writeToDatabase(myProgressBar);
+                            if (user.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
+                                myProgressBar.stopProgressBar();
+                                Toast.makeText(getActivity(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
+                            } else {
+                                writeToDatabase(myProgressBar);
+                            }
 
                         } else {
                             // check if username already exists in database
@@ -212,7 +218,12 @@ public class UserProfilePublicEditFragment extends Fragment {
                                 public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
                                     // if commited, username did not exist, write to database
                                     if (commited) {
-                                        writeToDatabase(myProgressBar);
+                                        if (user.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
+                                            myProgressBar.stopProgressBar();
+                                            Toast.makeText(getActivity(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            writeToDatabase(myProgressBar);
+                                        }
                                         // else dismiss and tell the user the username is already taken
                                     } else {
                                         myProgressBar.stopProgressBar();
