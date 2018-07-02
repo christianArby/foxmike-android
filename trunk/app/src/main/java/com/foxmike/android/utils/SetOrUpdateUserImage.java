@@ -67,7 +67,7 @@ public class SetOrUpdateUserImage {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                final String downloadUri = taskSnapshot.getDownloadUrl().toString();
+                final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
 
                 UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
                 uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -78,15 +78,11 @@ public class SetOrUpdateUserImage {
 
                         if(thumb_task.isSuccessful()) {
 
-                            Map update_hashMap = new HashMap();
-                            update_hashMap.put("image", downloadUri);
-                            update_hashMap.put("thumb_image", thumb_downloadUrl);
+                            Map imageUrlHashMap = new HashMap();
+                            imageUrlHashMap.put("image", downloadUrl);
+                            imageUrlHashMap.put("thumb_image", thumb_downloadUrl);
 
-                            mDatabaseUsers.child(currentUserID).updateChildren(update_hashMap);
-
-                            onUserImageSetListener.onUserImageSet();
-
-
+                            onUserImageSetListener.onUserImageSet(imageUrlHashMap);
 
                         } else {
                             //TODO Handle error
@@ -104,6 +100,6 @@ public class SetOrUpdateUserImage {
     }
 
     public interface OnUserImageSetListener {
-        void onUserImageSet();
+        void onUserImageSet(Map imageUrlHashMap);
     }
 }

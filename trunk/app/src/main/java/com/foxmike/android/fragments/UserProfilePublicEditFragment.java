@@ -47,6 +47,8 @@ import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.Map;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
@@ -233,14 +235,21 @@ public class UserProfilePublicEditFragment extends Fragment {
                 usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
                     setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
                         @Override
-                        public void onUserImageSet() {
-                            mListener.OnUserProfilePublicEditFragmentInteraction();
-                            myProgressBar.stopProgressBar();
+                        public void onUserImageSet(Map imageUrlHashMap) {
+                            usersDbRef.child(currentFirebaseUser.getUid()).updateChildren(imageUrlHashMap).addOnCompleteListener(new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+                                    mListener.OnUserProfilePublicEditFragmentInteraction();
+                                    myProgressBar.stopProgressBar();
+                                }
+                            });
+
                         }
                     });
-                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
+
                 } else {
                     mListener.OnUserProfilePublicEditFragmentInteraction();
                     myProgressBar.stopProgressBar();

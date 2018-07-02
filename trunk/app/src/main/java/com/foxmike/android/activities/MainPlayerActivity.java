@@ -126,6 +126,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private String sortType;
     private int distanceRadius;
     Boolean started = false;
+    private boolean resumed = false;
 
     private SortAndFilterFragment sortAndFilterFragment;
 
@@ -263,27 +264,31 @@ public class MainPlayerActivity extends AppCompatActivity
             public boolean onTabSelected(int position, boolean wasSelected) {
                 switch (position) {
                     case 0:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainListSessionsFragment"));
                             weekdayFilterContainer.setVisibility(View.VISIBLE);
                             mapOrListBtn.setVisibility(View.VISIBLE);
                             mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                             sortAndFilterFAB.setVisibility(View.VISIBLE);
+                            resumed = false;
                             return true;
                         }
                     case 1:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment"));
+                            resumed = false;
                             return true;
                         }
                     case 2:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainInboxFragment"));
+                            resumed = false;
                             return true;
                         }
                     case 3:
-                        if (!wasSelected) {
+                        if (!wasSelected | resumed) {
                             cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainUserAccountFragment"));
+                            resumed = false;
                             return true;
                         }
                 }
@@ -847,6 +852,9 @@ public class MainPlayerActivity extends AppCompatActivity
             transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
             transaction.hide(inboxFragment);
         }
+
+        resumed=true;
+        bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
         transaction.commitNow();
     }
 }

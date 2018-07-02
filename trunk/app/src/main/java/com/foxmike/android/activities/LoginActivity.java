@@ -155,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     }
-
+    // TODO den här behövs inte då detta kollas i MainActivity
     private void checkIfUserExistsInDb() {
 
         mDatabaseUsers.child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {

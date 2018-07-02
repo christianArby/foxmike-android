@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -176,7 +178,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mMap.clear();
         for (Session session: sessions) {
             LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
+            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(getMarkerIcon("#00897b")).snippet(session.supplyTextTimeStamp().textTime()));
         }
 
         // mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
@@ -190,6 +192,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 return false;
             }
         });
+    }
+
+    // method definition
+    public BitmapDescriptor getMarkerIcon(String color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(Color.parseColor(color), hsv);
+        return BitmapDescriptorFactory.defaultMarker(hsv[0]);
     }
 
     // Method to start CreateOrEditSessionActivity

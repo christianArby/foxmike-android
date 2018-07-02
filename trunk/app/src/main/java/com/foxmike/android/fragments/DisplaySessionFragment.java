@@ -448,6 +448,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          If the current user is the session host change the button text to "Edit session"
          */
         if (session.getHost().equals(currentFirebaseUser.getUid())) {
+            mDisplaySessionBtn.setText(R.string.edit_session);
             mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
             mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                 @Override
