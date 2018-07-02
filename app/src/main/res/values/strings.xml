@@ -358,5 +358,7 @@
     <string name="friend_request_received">Friend request received</string>
     <string name="book_session">Book session</string>
     <string name="edit_session">Edit session</string>
+    <string name="next">Next</string>
+    <string name="describe_yourself">As a Foxmike leader, you need to have a description of yourself.</string>
 
 </resources>

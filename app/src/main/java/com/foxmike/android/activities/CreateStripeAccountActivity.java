@@ -18,9 +18,14 @@ import android.view.View;
 import android.widget.Button;
 
 import com.foxmike.android.R;
+import com.foxmike.android.fragments.AboutUserFragment;
 import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -30,7 +35,10 @@ import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
-public class CreateStripeAccountActivity extends AppCompatActivity implements CreateStripeAccountDobTosFragment.OnStripeAccountCreatedListener, CreateStripeExternalAccountFragment.OnStripeExternalAccountCreatedListener {
+public class CreateStripeAccountActivity extends AppCompatActivity implements
+        CreateStripeAccountDobTosFragment.OnStripeAccountCreatedListener,
+        AboutUserFragment.OnAboutMeInteractionListener,
+        CreateStripeExternalAccountFragment.OnStripeExternalAccountCreatedListener {
 
     private TextInputEditText firstNameET;
     private TextInputEditText lastNameET;
@@ -44,6 +52,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Cr
     private TextInputLayout addressCityTIL;
     private Button createStripeAccountBtn;
     private HashMap<String, Object> accountData;
+    private String accountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,6 +261,59 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Cr
 
     @Override
     public void OnStripeAccountCreated(String accountId) {
+
+        this.accountId = accountId;
+
+        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference().child("users").child(currentUserID).child("aboutMe").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue()== null) {
+                    AboutUserFragment aboutUserFragment = new AboutUserFragment();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                    transaction.add(R.id.container_finalize_fragment, aboutUserFragment, "aboutUserFragment").addToBackStack(null);
+                    transaction.commit();
+                } else {
+
+                    CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
+
+                    Bundle bundle = new Bundle();
+                    accountData.put("stripeAccountId",CreateStripeAccountActivity.this.accountId);
+                    bundle.putSerializable("accountData",accountData);
+                    createStripeExternalAccountFragment.setArguments(bundle);
+
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+                    transaction.add(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize").addToBackStack(null);
+                    transaction.commit();
+
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
+    @Override
+    public void OnStripeExternalAccountCreated() {
+        setResult(RESULT_OK, null);
+        finish();
+    }
+
+    @Override
+    public void onAboutMeInteraction() {
+
         CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
 
         Bundle bundle = new Bundle();
@@ -264,11 +326,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements Cr
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
         transaction.add(R.id.container_finalize_fragment, createStripeExternalAccountFragment, "finalize").addToBackStack(null);
         transaction.commit();
-    }
 
-    @Override
-    public void OnStripeExternalAccountCreated() {
-        setResult(RESULT_OK, null);
-        finish();
     }
 }
