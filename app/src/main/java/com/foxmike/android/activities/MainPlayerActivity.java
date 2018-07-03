@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.foxmike.android.R;
@@ -238,25 +240,7 @@ public class MainPlayerActivity extends AppCompatActivity
         }
 
         /** Setup List and Map with sessions*/
-        myFirebaseDatabase= new MyFirebaseDatabase();
-        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
-            @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
-                sessionListArrayList.clear();
-                sessionListArrayList = nearSessions;
-                locationClosetoSessions = location;
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-                    @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
-                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions);
-
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.generateSessionListView(sessions,locationClosetoSessions);
-                    }
-                });
-            }
-        });
+        setupListAndMapWithSessions();
 
         /** Setup Bottom navigation */
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
@@ -392,6 +376,38 @@ public class MainPlayerActivity extends AppCompatActivity
                 if(mapsFragment.isVisible()) {
                     myLocationBtn.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+    }
+
+    private void setupListAndMapWithSessions() {
+        myFirebaseDatabase= new MyFirebaseDatabase();
+        // TODO if new filtersessions int is smaller than previous this function should only filter and not download
+        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
+            @Override
+            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
+                sessionListArrayList.clear();
+                sessionListArrayList = nearSessions;
+                locationClosetoSessions = location;
+                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+                    @Override
+                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
+                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                        mapsFragment.addMarkersToMap(sessions);
+
+                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                        listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
+                        listSessionsFragment.stopSwipeRefreshingSymbol();
+                    }
+                });
+            }
+
+            @Override
+            public void OnLocationNotFound() {
+                Toast.makeText(MainPlayerActivity.this,"Your location was not found, please try again later.", Toast.LENGTH_LONG).show();
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                listSessionsFragment.emptyListView();
+                listSessionsFragment.stopSwipeRefreshingSymbol();
             }
         });
     }
@@ -556,26 +572,7 @@ public class MainPlayerActivity extends AppCompatActivity
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
     @Override
     public void OnRefreshSessions() {
-        myFirebaseDatabase= new MyFirebaseDatabase();
-        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
-            @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
-                sessionListArrayList.clear();
-                sessionListArrayList = nearSessions;
-                locationClosetoSessions = location;
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-                    @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
-                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions);
-
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
-                        listSessionsFragment.stopSwipeRefreshingSymbol();
-                    }
-                });
-            }
-        });
+        setupListAndMapWithSessions();
     }
 
     /** INTERFACE triggered when sort buttons are clicked, SORTS sessions*/
@@ -598,30 +595,8 @@ public class MainPlayerActivity extends AppCompatActivity
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
     @Override
     public void OnListSessionsFilter(int filterDistance) {
-
         distanceRadius = filterDistance;
-        myFirebaseDatabase= new MyFirebaseDatabase();
-        // TODO if new filtersessions int is smaller than previous this funtion should only filter and not download
-        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
-            @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
-
-                sessionListArrayList.clear();
-                sessionListArrayList = nearSessions;
-                locationClosetoSessions = location;
-
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-                    @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
-                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions);
-
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
-                    }
-                });
-            }
-        });
+        setupListAndMapWithSessions();
     }
 
     @Override

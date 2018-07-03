@@ -7,4 +7,7 @@ import java.util.ArrayList;
 public interface OnNearSessionsFoundListener {
 
     void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location);
+
+    void OnLocationNotFound();
+
 }

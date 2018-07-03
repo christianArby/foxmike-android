@@ -255,6 +255,8 @@ public class MyFirebaseDatabase extends Service {
                                 public void onGeoQueryError(DatabaseError error) {
                                 }
                             });
+                        } else {
+                            onNearSessionsFoundListener.OnLocationNotFound();
                         }
                     }
                 });
