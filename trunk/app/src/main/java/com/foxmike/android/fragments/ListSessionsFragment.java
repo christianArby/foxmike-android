@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.HeaderItemDecoration;
@@ -31,6 +32,7 @@ public class  ListSessionsFragment extends Fragment {
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
+    private TextView noSessionsFound;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -57,6 +59,7 @@ public class  ListSessionsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = view.findViewById(R.id.session_list);
         listSessionsSwipeRefreshLayout = view.findViewById(R.id.session_list_swipe_layout);
+        noSessionsFound = view.findViewById(R.id.noSessionsFound);
         //mSessionList.setHasFixedSize(true); TODO What does this mean
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
@@ -85,20 +88,22 @@ public class  ListSessionsFragment extends Fragment {
     // Function to refresh data in sessionsAdapter
     public void updateSessionListView(ArrayList<Session> sessions, Location location) {
         if (sessionsAdapter!=null) {
+            noSessionsFound.setVisibility(View.GONE);
             sessionsAdapter.refreshData(sessions,location);
+        } else {
+            noSessionsFound.setVisibility(View.GONE);
+            sessionsAdapter = new sessionsAdapter(sessions, getActivity(), location, onSessionClickedListener);
+            if (mSessionList!=null) {
+                HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
+                mSessionList.addItemDecoration(headerItemDecoration);
+                mSessionList.setAdapter(sessionsAdapter);
+            }
+            sessionsAdapter.notifyDataSetChanged();
         }
     }
 
-    /** Generate view in RecyclerView with sessionsAdapter*/
-    public void generateSessionListView(ArrayList<Session> sessions, Location location) {
-        currentLocation =location;
-        sessionsAdapter = new sessionsAdapter(sessions, getActivity(), currentLocation, onSessionClickedListener);
-        if (mSessionList!=null) {
-            HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
-            mSessionList.addItemDecoration(headerItemDecoration);
-            mSessionList.setAdapter(sessionsAdapter);
-        }
-        sessionsAdapter.notifyDataSetChanged();
+    public void emptyListView() {
+        noSessionsFound.setVisibility(View.VISIBLE);
     }
 
     public void stopSwipeRefreshingSymbol() {

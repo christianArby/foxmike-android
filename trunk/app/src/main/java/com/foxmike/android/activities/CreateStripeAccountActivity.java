@@ -21,9 +21,11 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.AboutUserFragment;
 import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
+import com.foxmike.android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -74,6 +76,23 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
         addressPostalCodeTIL = findViewById(R.id.postalCodeTIL);
         addressCityTIL = findViewById(R.id.cityTIL);
         createStripeAccountBtn = findViewById(R.id.createStripeAccountBtn);
+
+        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        rootDbRef.child("users").child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                firstNameET.setText(currentUser.getFirstName());
+                lastNameET.setText(currentUser.getLastName());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         firstNameET.addTextChangedListener(new TextWatcher() {
             @Override

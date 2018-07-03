@@ -359,5 +359,8 @@
     <string name="friend_request_received">Mottagen vänförfrågan</string>
     <string name="book_session">Boka pass</string>
     <string name="edit_session">Ändra pass</string>
+    <string name="next">Nästa</string>
+    <string name="describe_yourself">Som Foxmike ledare så behöver du beskriva dig själv.</string>
+    <string name="sessions_not_found">Hoppsan! Vi hittade inte din position just nu, försök igen senare. Tips: Du uppdaterar listan genom att scrolla.</string>
 
 </resources>

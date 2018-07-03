@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,13 +12,32 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v7.widget.RecyclerView
-            android:clipToPadding="false"
-            android:background="@color/color_background_light"
-            android:id="@+id/session_list"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+            android:layout_height="match_parent">
+
+            <TextView
+                android:clipToPadding="false"
+                android:visibility="gone"
+                android:id="@+id/noSessionsFound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primaryTextColor"
+                android:paddingTop="100dp"
+                android:layout_margin="@dimen/margin_left"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/sessions_not_found"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:gravity="center_horizontal|center_vertical"
+                android:clipToPadding="false"
+                android:background="@color/color_background_light"
+                android:id="@+id/session_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </FrameLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.constraint.ConstraintLayout>
