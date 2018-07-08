@@ -362,5 +362,6 @@
     <string name="next">Nästa</string>
     <string name="describe_yourself">Som Foxmike ledare så behöver du beskriva dig själv.</string>
     <string name="sessions_not_found">Hoppsan! Vi hittade inte din position just nu, försök igen senare. Tips: Du uppdaterar listan genom att scrolla.</string>
+    <string name="location_not_found">Vi kunde inte hitta din position, försök igen senare.</string>
 
 </resources>
