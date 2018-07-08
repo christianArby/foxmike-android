@@ -16,6 +16,9 @@
     <integer name="heightOfSessionImageNumerator">12</integer>
     <integer name="heightOfSessionImageDenominator">20</integer>
 
+    <string name="geofire_pathname">geofire</string>
+    <string name="studios_pathname">studiosTEST</string>
+
     <string name="facebook_app_id">211455316122280</string>
     <string name="fb_login_protocol_scheme">fb211455316122280</string>
 

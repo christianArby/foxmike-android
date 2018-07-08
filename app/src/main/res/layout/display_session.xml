@@ -276,17 +276,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/mini_map_height"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar_cyclic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/child_fragment_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="20dp"/>
-
     <LinearLayout
-        android:visibility="gone"
         android:id="@+id/write_post_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -316,7 +306,6 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/write_post_layout"
         android:id="@+id/post_list"
         android:layout_width="match_parent"

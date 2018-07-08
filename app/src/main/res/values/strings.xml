@@ -361,5 +361,7 @@
     <string name="next">Next</string>
     <string name="describe_yourself">As a Foxmike leader, you need to have a description of yourself.</string>
     <string name="sessions_not_found">Oops! We could not find your position, please try again later. Tip: Update the list by scrolling the list downwards.</string>
+    <string name="location_not_found">Your location was not found, please try again later.</string>
+    <string name="GEOFIRE_PATH">geofire</string>
 
 </resources>
