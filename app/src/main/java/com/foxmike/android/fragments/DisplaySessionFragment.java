@@ -790,24 +790,39 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         List<Address> addresses;
         String returnAddress;
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
+
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName();
-            String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
-            if (street != null) {
-                if (!street.equals(knownName)) {
-                    returnAddress = street + " " + knownName;
+
+            if (addresses.size()!=0) {
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String address2 = addresses.get(0).getAddressLine(1);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+                String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
+
+                if (street != null) {
+
+                    if (!street.equals(knownName)) {
+                        returnAddress = street + " " + knownName;
+                    } else {
+                        returnAddress = street;
+                    }
                 } else {
-                    returnAddress = street;
+                    if (addresses.get(0).getLocality()!=null) {
+                        returnAddress = addresses.get(0).getLocality() + " " + addresses.get(0).getPremises();
+                    } else {
+                        returnAddress = "Unknown area";
+                    }
+
                 }
             } else {
                 returnAddress = "Unknown area";
             }
+
         } catch (IOException ex) {
             returnAddress = "failed";
         }

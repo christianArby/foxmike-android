@@ -791,11 +791,12 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
             if (addresses.size()!=0) {
-                /*String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();*/
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String address2 = addresses.get(0).getAddressLine(1);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName();
                 String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
 
@@ -807,7 +808,12 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                         returnAddress = street;
                     }
                 } else {
-                    returnAddress = "Unknown area";
+                    if (addresses.get(0).getLocality()!=null) {
+                        returnAddress = addresses.get(0).getLocality() + " " + addresses.get(0).getPremises();
+                    } else {
+                        returnAddress = "Unknown area";
+                    }
+
                 }
             } else {
                 returnAddress = "Unknown area";

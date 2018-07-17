@@ -3,6 +3,8 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,7 +13,10 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
@@ -37,7 +42,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This fragment displays a google map with all sessions passed as arguments shown as markers on map
@@ -68,6 +76,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private TextView createSessionMapTextTV;
     private int changeLocation;
     private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private Button chooseLocation;
+    private LatLng chosenPoint;
+
+    private Marker tempMarker;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -101,6 +114,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mapView = myView.findViewById(R.id.map);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
+        }
+
+        chooseLocation = myView.findViewById(R.id.chooseLocation);
+        if (chosenPoint==null) {
+            chooseLocation.setVisibility(View.GONE);
+        } else {
+            chooseLocation.setVisibility(View.VISIBLE);
         }
 
         createSessionMapTextTV = myView.findViewById(R.id.create_session_map_text);
@@ -154,16 +174,36 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override
                         public void onMapClick(LatLng point) {
-                            if (changeLocation==1) {
-                                onSessionLocationChangedListener.OnSessionLocationChanged(point);
-                                //onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
-                            } else {
-                                addSession(point);
+
+                            chosenPoint = point;
+
+                            if(tempMarker!=null) {
+                                tempMarker.remove();
                             }
+
+                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
+
+                            createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
+
+                            chooseLocation.setVisibility(View.VISIBLE);
                         }
                     });
                 } else {
                     createSessionMapTextTV.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        chooseLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (chosenPoint!=null) {
+                    if (changeLocation==1) {
+                        onSessionLocationChangedListener.OnSessionLocationChanged(chosenPoint);
+                        //onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
+                    } else {
+                        addSession(chosenPoint);
+                    }
                 }
             }
         });
@@ -236,8 +276,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(Bundle bundle) {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10 * 1000);
+        mLocationRequest = new LocationRequest();
         mLocationRequest.setFastestInterval(1*1000);    // TODO Check this
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if (ContextCompat.checkSelfPermission(getContext(),
@@ -267,6 +306,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         if(moveCamera){
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
+            mLocationRequest.setInterval(10 * 1000);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             moveCamera=false;
         }
@@ -320,5 +360,49 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     public interface OnSessionLocationChangedListener {
         void OnSessionLocationChanged(LatLng latLng);
+    }
+
+    private String getAddress(double latitude, double longitude) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String returnAddress;
+        geocoder = new Geocoder(getActivity(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            if (addresses.size()!=0) {
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String address2 = addresses.get(0).getAddressLine(1);
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+                String street = addresses.get(0).getThoroughfare();// Only if available else return NULL
+
+                if (street != null) {
+
+                    if (!street.equals(knownName)) {
+                        returnAddress = street + " " + knownName;
+                    } else {
+                        returnAddress = street;
+                    }
+                } else {
+                    if (addresses.get(0).getLocality()!=null) {
+                        returnAddress = addresses.get(0).getLocality() + " " + addresses.get(0).getPremises();
+                    } else {
+                        returnAddress = "Unknown area";
+                    }
+
+                }
+            } else {
+                returnAddress = "Unknown area";
+            }
+
+        } catch (IOException ex) {
+            returnAddress = "failed";
+        }
+        return returnAddress;
     }
 }
