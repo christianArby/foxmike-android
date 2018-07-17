@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -26,6 +24,7 @@ import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
+import com.foxmike.android.fragments.DisplayStudioFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
@@ -34,6 +33,7 @@ import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.models.Studio;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
@@ -52,8 +52,6 @@ import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.utils.WrapContentViewPager;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -61,10 +59,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 import com.rd.PageIndicatorView;
-import com.stripe.android.Stripe;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -92,12 +87,12 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
-        MapsFragment.OnCreateSessionListener,
+        MapsFragment.OnCreateStudioListener,
         MapsFragment.OnSessionLocationChangedListener,
         OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
-        InboxFragment.OnSearchClickedListener{
+        InboxFragment.OnSearchClickedListener, DisplayStudioFragment.OnStudioInteractionListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -383,7 +378,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private void setupListAndMapWithSessions() {
         myFirebaseDatabase= new MyFirebaseDatabase();
         // TODO if new filtersessions int is smaller than previous this function should only filter and not download
-        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
+        myFirebaseDatabase.getNearStudiosAndSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
             @Override
             public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
                 sessionListArrayList.clear();
@@ -508,6 +503,12 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude,"");
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+    }
+
+    @Override
+    public void OnSessionClicked(String sessionId) {
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
     }
 
@@ -670,7 +671,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCreateSession(LatLng latLng) {
+    public void OnCreateStudio(LatLng latLng) {
         // Not possible in player environment
     }
 
@@ -703,6 +704,21 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnSearchClicked() {
         AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
         cleanMainFullscreenActivityAndSwitch(allUsersFragment,true);
+    }
+
+    @Override
+    public void OnEditStudio(String studioID, Studio studio) {
+        // Not possible in player environment
+    }
+
+    @Override
+    public void OnPreviewStudio(String studioID, Studio studio) {
+        // Not possible in player environment
+    }
+
+    @Override
+    public void OnAdvertiseStudio(String studioID, Studio studio) {
+        // Not possible in player environment
     }
 
     // Sets up weekday pager

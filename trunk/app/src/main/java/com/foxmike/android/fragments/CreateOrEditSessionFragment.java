@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -20,14 +19,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -48,13 +45,10 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.PayoutPreferencesActivity;
-import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
+import com.foxmike.android.interfaces.OnStudioChangedListener;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
@@ -69,7 +63,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -78,7 +71,6 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -92,9 +84,9 @@ import static android.content.ContentValues.TAG;
  * It also updates existing sessions.
  */
 public class CreateOrEditSessionFragment extends Fragment implements OnSessionClickedListener{
-
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
     private TextInputLayout mDateTIL;
@@ -140,6 +132,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private FrameLayout mapsFragmentContainer;
     private OnHostSessionChangedListener onHostSessionChangedListener;
     private OnEditLocationListener onEditLocationListener;
+    private OnStudioChangedListener onStudioChangedListener;
     static CreateOrEditSessionFragment fragment;
     private ProgressBar progressBar;
     private View view;
@@ -430,20 +423,17 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                     public void OnSessionUpdated(final Session updatedSession) {
                         mUpdatedSession = updatedSession;
 
-                        if (!payoutsEnabled && updatedSession.isAdvertised()) {
+                        if (!payoutsEnabled) {
 
                             LayoutInflater factory = LayoutInflater.from(getContext());
                             final View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
                             final AlertDialog okDialog = new AlertDialog.Builder(getContext()).create();
                             okDialog.setView(okDialogView);
                             TextView tv = okDialogView.findViewById(R.id.textTV);
-                            tv.setText("You have no active payout method, please add payout method under your account settings. The session will be saved as not advertised.");
+                            tv.setText("You have no active payout method, please add payout method under your account settings.");
                             okDialogView.findViewById(R.id.okBtn).setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    //your business logic
-                                    updatedSession.setAdvertised(false);
-                                    sendSession(updatedSession);
                                     okDialog.dismiss();
                                 }
                             });
@@ -484,14 +474,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mWhere.setText(existingSession.getWhere());
 
         mCreateSessionBtn.setText(R.string.update_session);
-        mAdvertised.setChecked(existingSession.isAdvertised());
-        if (existingSession.isAdvertised()) {
-            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-            mAdvertised.setChecked(true);
-        } else {
-            mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
-            mAdvertised.setChecked(false);
-        }
 
         setPrice(existingSession.getPrice());
     }
@@ -570,6 +552,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         if (sessionExist==1) {
             mSessionId = existingSessionID;
             session.setPosts(existingSession.getPosts());
+            session.setStudioId(existingSession.getStudioId());
         }
         /**If session not exists create a new random session key*/
         else {
@@ -588,7 +571,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         session.setLongitude(clickedLatLng.longitude);
         session.setLatitude(clickedLatLng.latitude);
         session.setHost(currentFirebaseUser.getUid());
-        session.setAdvertised(mAdvertised.isChecked());
 
         if (TextUtils.isEmpty(session.getSessionName())) {
             infoIsValid = false;
@@ -675,11 +657,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
 
     /**Send session object to database */
     private void sendSession(final Session sendSession) {
-
-        mMarkerDbRef.child(mSessionId).setValue(sendSession);
-        geoFire.setLocation(mSessionId, new GeoLocation(sendSession.getLatitude(), sendSession.getLongitude()));
-        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+        rootDbRef.child("sessions").child(mSessionId).setValue(sendSession);
+        rootDbRef.child("studiosTEST").child(sendSession.getStudioId()).child("sessions").child(mSessionId).setValue(sendSession.getSessionTimestamp());
         onHostSessionChangedListener.OnHostSessionChanged();
+        onStudioChangedListener.OnStudioChanged();
     }
 
     // Function retrieveStripeAccount
@@ -729,6 +710,11 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         transaction2.remove(fragmentManager.findFragmentByTag("mapsFragmentChange"));
         transaction2.commit();
         mapsFragmentContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void OnSessionClicked(String sessionId) {
+
     }
 
     private void updateLabel() {
@@ -848,6 +834,12 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             throw new RuntimeException(context.toString()
                     + " must implement OnEditLocationListener");
         }
+        if (context instanceof OnStudioChangedListener) {
+            onStudioChangedListener = (OnStudioChangedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnStudioChangedListener");
+        }
     }
 
     @Override
@@ -855,6 +847,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         super.onDetach();
         onHostSessionChangedListener = null;
         onEditLocationListener = null;
+        onStudioChangedListener = null;
     }
 
     public interface OnEditLocationListener {

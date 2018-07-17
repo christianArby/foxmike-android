@@ -7,20 +7,23 @@ import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
+import com.foxmike.android.interfaces.OnNearStudiosFoundListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
+import com.foxmike.android.interfaces.OnStudioBranchesFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.interfaces.OnUsersFoundListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.models.SessionMap;
+import com.foxmike.android.models.Studio;
+import com.foxmike.android.models.StudioBranch;
 import com.foxmike.android.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -30,12 +33,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,10 +50,15 @@ public class MyFirebaseDatabase extends Service {
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private TreeMap<Integer, String> nearSessionsIDs = new TreeMap<Integer, String>();
+    private ArrayList<String> nearSessionIdsArray = new ArrayList<>();
+    private TreeMap<Integer, String> nearStudioIDs = new TreeMap<Integer, String>();
     private Location currentLocation;
     private GeoFire geoFire;
+    private SessionMap sessionMap;
+    private int studioDownloadedCounter = 0;
+    private HashMap<String,Integer> studioDistances = new HashMap<>();
 
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
 
     public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Boolean> sessionsHashMap) {
 
@@ -90,6 +95,29 @@ public class MyFirebaseDatabase extends Service {
                     sessionBranches.add(sessionBranch);
                     if (sessionBranches.size() == sessionsHashMap.size()) {
                         onSessionBranchesFoundListener.OnSessionBranchesFound(sessionBranches);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
+    public void getStudioBranches(final HashMap<String, Boolean> studioHashMap, final OnStudioBranchesFoundListener onStudioBranchesFoundListener) {
+
+        final ArrayList<StudioBranch> studioBranches = new ArrayList<StudioBranch>();
+        for (String key : studioHashMap.keySet()) {
+            dbRef.child("studiosTEST").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Studio studio;
+                    studio = dataSnapshot.getValue(Studio.class);
+                    StudioBranch studioBranch = new StudioBranch(dataSnapshot.getKey(),studio);
+                    studioBranches.add(studioBranch);
+                    if (studioBranches.size() == studioHashMap.size()) {
+                        onStudioBranchesFoundListener.OnStudioBranchesFound(studioBranches);
                     }
                 }
 
@@ -179,11 +207,11 @@ public class MyFirebaseDatabase extends Service {
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
     }
 
-    public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    /*public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        *//*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -192,7 +220,7 @@ public class MyFirebaseDatabase extends Service {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }*/
+        }*//*
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -251,6 +279,116 @@ public class MyFirebaseDatabase extends Service {
                                     }
                                 }
 
+                                @Override
+                                public void onGeoQueryError(DatabaseError error) {
+                                }
+                            });
+                        } else {
+                            onNearSessionsFoundListener.OnLocationNotFound();
+                        }
+                    }
+                });
+    }*/
+
+    public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+        FusedLocationProviderClient mFusedLocationClient;
+        geoFire = new GeoFire(mGeofireDbRef);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }*/
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(final Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            currentLocation = location;
+                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
+                            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                                @Override
+                                public void onKeyEntered(String key, GeoLocation location) {
+                                    //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
+                                    //You can fetch the actual data for this location by creating another firebase query here
+                                    String distString = getDistance(location.latitude, location.longitude, currentLocation);
+                                    Integer dist = Integer.parseInt(distString);
+                                    studioDistances.put(key,dist);
+                                    nearStudioIDs.put(dist, key);
+                                }
+                                @Override
+                                public void onKeyExited(String key) {
+                                }
+
+                                @Override
+                                public void onKeyMoved(String key, GeoLocation location) {
+                                }
+
+                                @Override
+                                public void onGeoQueryReady() {
+                                    studioDownloadedCounter = 0;
+
+                                    for (final Integer str : nearStudioIDs.keySet()) {
+                                        dbRef.child("studiosTEST").child(nearStudioIDs.get(str)).child("sessions").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                HashMap<String, Long> studioSessions;
+                                                studioDownloadedCounter++;
+                                                if (dataSnapshot.getValue()!=null) {
+                                                    studioSessions = (HashMap<String, Long>) dataSnapshot.getValue();
+                                                    Long currentTimestamp = System.currentTimeMillis();
+                                                    for (String sessionId: studioSessions.keySet()) {
+                                                        if (studioSessions.get(sessionId)>currentTimestamp) {
+                                                            nearSessionIdsArray.add(sessionId);
+                                                        }
+                                                    }
+                                                    if (studioDownloadedCounter == nearStudioIDs.size()) {
+                                                        final ArrayList<Session> sessions = new ArrayList<Session>();
+                                                        final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                                        for (String sessionId : nearSessionIdsArray) {
+                                                            dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                    Session session;
+                                                                    session = dataSnapshot.getValue(Session.class);
+                                                                    SessionMap sessionMap = new SessionMap(session, studioDistances.get(session.getStudioId()));
+                                                                    sessionMapArrayList.add(sessionMap);
+                                                                    if (sessionMapArrayList.size() == nearSessionIdsArray.size()) {
+                                                                        Collections.sort(sessionMapArrayList);
+                                                                        for (SessionMap sessionMapSorted: sessionMapArrayList) {
+                                                                            sessions.add(sessionMapSorted.getSession());
+                                                                        }
+                                                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                                                    }
+                                                                }
+                                                                @Override
+                                                                public void onCancelled(DatabaseError databaseError) {
+                                                                }
+                                                            });
+                                                        }
+                                                        if (nearSessionIdsArray.size() < 1) {
+                                                            onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                            }
+                                        });
+                                    }
+                                    if (nearStudioIDs.size() < 1) {
+                                        final ArrayList<Session> sessions = new ArrayList<Session>();
+                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                    }
+                                }
                                 @Override
                                 public void onGeoQueryError(DatabaseError error) {
                                 }

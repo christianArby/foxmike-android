@@ -12,14 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
-import com.foxmike.android.interfaces.OnSessionsFoundListener;
-import com.foxmike.android.interfaces.OnUserFoundListener;
-import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.utils.MyFirebaseDatabase;
-import com.foxmike.android.models.Session;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
-import com.foxmike.android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,19 +20,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 /**
  * This fragment lists all sessions the current user is hosting
  */
 public class HostSessionsFragment extends Fragment {
 
-    private OnCreateSessionClickedListener onCreateSessionClickedListener;
+    private OnCreateStudioClickedListener onCreateStudioClickedListener;
     private FloatingActionButton createSessionBtn;
     private ViewPager hostSessionsPager;
     private SmallSessionsPagerAdapter hostSessionsPagerAdapter;
@@ -83,7 +69,7 @@ public class HostSessionsFragment extends Fragment {
                         final boolean userHasStripeAccount;
                         userHasStripeAccount = dataSnapshot.getValue() != null;
                         if (userHasStripeAccount) {
-                            onCreateSessionClickedListener.OnCreateSessionClicked();
+                            onCreateStudioClickedListener.OnCreateStudioClicked();
                         } else {
                             Toast.makeText(getContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
                         }
@@ -99,7 +85,7 @@ public class HostSessionsFragment extends Fragment {
 
 
 
-        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.advertised_text), getString(R.string.advertised_not_text));
+        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.advertised_text));
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
         tabLayout.setupWithViewPager(hostSessionsPager);
 
@@ -111,7 +97,7 @@ public class HostSessionsFragment extends Fragment {
     public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
         if (!update) {
-            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.advertised_text), getString(R.string.advertised_not_text));
+            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.advertised_text));
             hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
             tabLayout.setupWithViewPager(hostSessionsPager);
         } else {
@@ -122,19 +108,19 @@ public class HostSessionsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnCreateSessionClickedListener) {
-            onCreateSessionClickedListener = (OnCreateSessionClickedListener) context;
+        if (context instanceof OnCreateStudioClickedListener) {
+            onCreateStudioClickedListener = (OnCreateStudioClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement onCreateSessionClickedListener");
+                    + " must implement onCreateStudioClickedListener");
         }
     }
     @Override
     public void onDetach() {
         super.onDetach();
-        onCreateSessionClickedListener = null;
+        onCreateStudioClickedListener = null;
     }
-    public interface OnCreateSessionClickedListener {
-        void OnCreateSessionClicked();
+    public interface OnCreateStudioClickedListener {
+        void OnCreateStudioClicked();
     }
 }
