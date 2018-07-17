@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 
 public class Session implements Comparable<Session>, Serializable {
+    private String studioId;
     private String host;
     private String sessionName;
     private String sessionType;
@@ -18,8 +19,7 @@ public class Session implements Comparable<Session>, Serializable {
     private double latitude;
     private double longitude;
     private long sessionTimestamp;
-    private boolean advertised;
-    private HashMap<String,Boolean> participants;
+    private HashMap<String,Boolean> participants  = new HashMap<String, Boolean>();
     private HashMap<String,Boolean> posts;
     private String imageUrl;
     private String what;
@@ -29,7 +29,8 @@ public class Session implements Comparable<Session>, Serializable {
     private String currency;
     private int price;
 
-    public Session(String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, boolean advertised, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration, String currency, int price) {
+    public Session(String studioId, String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration, String currency, int price) {
+        this.studioId = studioId;
         this.host = host;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
@@ -37,7 +38,6 @@ public class Session implements Comparable<Session>, Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.sessionTimestamp = sessionTimestamp;
-        this.advertised = advertised;
         this.participants = participants;
         this.posts = posts;
         this.imageUrl = imageUrl;
@@ -50,6 +50,14 @@ public class Session implements Comparable<Session>, Serializable {
     }
 
     public Session() {
+    }
+
+    public String getStudioId() {
+        return studioId;
+    }
+
+    public void setStudioId(String studioId) {
+        this.studioId = studioId;
     }
 
     public String getHost() {
@@ -106,14 +114,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setSessionTimestamp(long sessionTimestamp) {
         this.sessionTimestamp = sessionTimestamp;
-    }
-
-    public boolean isAdvertised() {
-        return advertised;
-    }
-
-    public void setAdvertised(boolean advertised) {
-        this.advertised = advertised;
     }
 
     public String getImageUrl() {

@@ -13,6 +13,7 @@ public class User implements Comparable<User>{
 
     public HashMap<String,Boolean> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
+    public HashMap<String,Boolean> studios;
     public HashMap<String,Boolean> chats;
     public String firstName;
     public String lastName;
@@ -25,9 +26,10 @@ public class User implements Comparable<User>{
     private String stripeAccountId;
     private String stripeCustomerId;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, String stripeCustomerId) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, String stripeCustomerId) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
+        this.studios = studios;
         this.chats = chats;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -44,6 +46,7 @@ public class User implements Comparable<User>{
     public User() {
         this.sessionsAttending = new HashMap<String,Boolean>();
         this.sessionsHosting = new HashMap<String,Boolean>();
+        this.studios = new HashMap<String,Boolean>();
     }
 
     public HashMap<String, Boolean> getSessionsAttending() {
@@ -132,6 +135,15 @@ public class User implements Comparable<User>{
 
     public String getUserName() {
         return userName;
+    }
+
+
+    public HashMap<String, Boolean> getStudios() {
+        return studios;
+    }
+
+    public void setStudios(HashMap<String, Boolean> studios) {
+        this.studios = studios;
     }
 
     @Override

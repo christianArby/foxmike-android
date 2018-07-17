@@ -94,9 +94,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 stripeAccountId = dataSnapshot.getValue().toString();
-
                 retrieveStripeExternalAccounts(stripeAccountId);
-
                 addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

@@ -39,7 +39,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
-import static android.app.Activity.RESULT_OK;
 /**
  * This fragment displays a google map with all sessions passed as arguments shown as markers on map
  * In case the bundle includes an int changeLocation which is 1 it will not display markers, it will
@@ -64,7 +63,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private boolean moveCamera;
     private View myView;
     private OnSessionClickedListener onSessionClickedListener;
-    private OnCreateSessionListener onCreateSessionListener;
+    private OnCreateStudioListener onCreateStudioListener;
     private OnSessionLocationChangedListener onSessionLocationChangedListener;
     private TextView createSessionMapTextTV;
     private int changeLocation;
@@ -203,7 +202,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     // Method to start CreateOrEditSessionActivity
     private void addSession(LatLng clickedPosition) {
-        onCreateSessionListener.OnCreateSession(clickedPosition);
+        onCreateStudioListener.OnCreateStudio(clickedPosition);
     }
 
     // Method that adds a marker to the map when map is clicked and CreateOrEditSessionActivity
@@ -293,11 +292,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
-        if (context instanceof OnCreateSessionListener) {
-            onCreateSessionListener = (OnCreateSessionListener) context;
+        if (context instanceof OnCreateStudioListener) {
+            onCreateStudioListener = (OnCreateStudioListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnCreateSessionListener");
+                    + " must implement OnCreateStudioListener");
         }
         if (context instanceof OnSessionLocationChangedListener) {
             onSessionLocationChangedListener = (OnSessionLocationChangedListener) context;
@@ -311,12 +310,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
-        onCreateSessionListener = null;
+        onCreateStudioListener = null;
         onSessionLocationChangedListener = null;
     }
 
-    public interface OnCreateSessionListener {
-        void OnCreateSession(LatLng latLng);
+    public interface OnCreateStudioListener {
+        void OnCreateStudio(LatLng latLng);
     }
 
     public interface OnSessionLocationChangedListener {
