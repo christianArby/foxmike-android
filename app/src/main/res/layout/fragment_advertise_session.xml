@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:layout_margin="@dimen/margin_left"
-        android:text="Advertise"
+        android:text="@string/advertise"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -57,13 +57,13 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textStyle="bold"
-                    android:text="Payout method"/>
+                    android:text="@string/payout_method"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:text="You have no payout method registered, please add payout method in order to advertise your session."/>
+                    android:text="@string/add_payout_method_explanation"/>
 
                 <Button
                     android:id="@+id/addPayoutMethodBtn"
@@ -74,7 +74,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/secondaryTextColor"
                     android:background="@drawable/square_button_primary"
-                    android:text="Add payout method"
+                    android:text="@string/add_payout_method_text"
                     />
 
             </LinearLayout>
@@ -106,7 +106,7 @@
                 android:drawablePadding="@dimen/margin_left"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_right"
-                android:hint="Price per person"
+                android:hint="@string/price_per_person"
                 android:inputType="phone"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:focusable="false"
@@ -170,6 +170,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="Advertise session"/>
+            android:text="@string/advertise_session"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

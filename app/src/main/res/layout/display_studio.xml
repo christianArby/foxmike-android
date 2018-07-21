@@ -16,7 +16,7 @@
         android:paddingBottom="@dimen/marginVertical"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textColor="@color/primaryTextColor"
-        android:text="Edit session details"
+        android:text="@string/edit_session_details"
         android:clickable="true"
         android:focusable="true"
         android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
@@ -44,7 +44,7 @@
         android:paddingBottom="@dimen/marginVertical"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textColor="@color/primaryTextColor"
-        android:text="Preview session"
+        android:text="@string/preview_session"
         android:clickable="true"
         android:focusable="true"
         android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
@@ -79,13 +79,13 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textStyle="bold"
-                    android:text="Annonsera ditt pass"/>
+                    android:text="@string/advertise_your_session"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:text="Ditt pass är för närvarande avannonserat, vilket innebär att det inte visas i sökningar. Annonsera ut det så att deltagare kan boka ditt pass."/>
+                    android:text="@string/not_advertised_explanation"/>
 
                 <Button
                     android:id="@+id/advertiseBtn"
@@ -96,7 +96,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/secondaryTextColor"
                     android:background="@drawable/square_button_primary"
-                    android:text="Annonsera ut passet"
+                    android:text="@string/advertise_session"
                     />
 
             </LinearLayout>
@@ -115,7 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="Advertised"
+            android:text="@string/advertised_text"
             android:textColor="@color/primaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
@@ -137,7 +137,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
-                android:text="Add advertisement"
+                android:text="@string/add_advertisement"
                 android:drawableStart="@mipmap/ic_add_black_24dp"
                 android:drawableTint="@color/foxmikePrimaryColor"
                 android:drawablePadding="@dimen/margin_left"
@@ -154,7 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="Previous sessions"
+            android:text="@string/previous_sessions"
             android:textColor="@color/primaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
