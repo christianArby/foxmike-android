@@ -363,5 +363,17 @@
     <string name="describe_yourself">Som Foxmike ledare så behöver du beskriva dig själv.</string>
     <string name="sessions_not_found">Hoppsan! Vi hittade inte din position just nu, försök igen senare. Tips: Du uppdaterar listan genom att scrolla.</string>
     <string name="location_not_found">Vi kunde inte hitta din position, försök igen senare.</string>
+    <string name="GEOFIRE_PATH">geofire</string>
+    <string name="edit_session_details">Ändra detaljer</string>
+    <string name="preview_session">Förhandsgranska</string>
+    <string name="advertise_your_session">Annonsera ditt pass</string>
+    <string name="not_advertised_explanation">Ditt pass är för närvarande avannonserat, vilket innebär att det inte visas i sökningar. Annonsera ut det så att deltagare kan boka ditt pass.</string>
+    <string name="advertise_session">Annonsera ut passet</string>
+    <string name="add_advertisement">Lägg till annons</string>
+    <string name="previous_sessions">Tidigare annonser</string>
+    <string name="advertise">Annonsera</string>
+    <string name="payout_method">Utbetalningsmetod</string>
+    <string name="add_payout_method_explanation">Du har ingen utbetalningsmetod, lägg till en utbetalningsmetod för att kunna annonsera ut ditt pass.</string>
+    <string name="price_per_person">Pris per person</string>
 
 </resources>

@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         //-------------------------THE DOOR OPENS--------------------------------------//
                         if (user.trainerMode) {
-                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         } else {
-                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").setValue(deviceToken).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);

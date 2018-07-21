@@ -70,6 +70,7 @@ public class AdvertiseSessionFragment extends Fragment {
     private TextInputLayout timeTIL;
     private Calendar myCalendar = Calendar.getInstance();
     private Button advertiseBtn;
+    private Button addPayoutMethod;
 
     private boolean payoutMethodChecked;
     private boolean payoutMethodAndViewUsed;
@@ -258,7 +259,6 @@ public class AdvertiseSessionFragment extends Fragment {
 
                 if (infoIsValid) {
                     session.setStudioId(studioId);
-                    session.setCurrency(studio.getCurrency());
                     session.setImageUrl(studio.getImageUrl());
                     session.setLongitude(studio.getLongitude());
                     session.setLatitude(studio.getLatitude());
@@ -275,13 +275,8 @@ public class AdvertiseSessionFragment extends Fragment {
 
                     sendSession(session);
                 }
-
-
-
             }
         });
-
-
         return view;
     }
 
