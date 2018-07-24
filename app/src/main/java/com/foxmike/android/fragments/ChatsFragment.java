@@ -206,7 +206,7 @@ public class ChatsFragment extends Fragment {
             @Override
             public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.users_list_single_layout, parent, false);
+                        .inflate(R.layout.message_list_single_layout, parent, false);
                 return new UsersViewHolder(view);
             }
 
