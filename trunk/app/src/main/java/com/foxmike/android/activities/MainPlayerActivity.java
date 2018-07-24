@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 //Checked
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -762,6 +764,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
         }
+        hideKeyboard(MainPlayerActivity.this);
     }
 
     // Before starting activity, make sure user is signed-in, otherwise start login activity
@@ -805,6 +808,7 @@ public class MainPlayerActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getSupportFragmentManager().popBackStack();
+            hideKeyboard(MainPlayerActivity.this);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -847,5 +851,16 @@ public class MainPlayerActivity extends AppCompatActivity
         resumed=true;
         bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
         transaction.commitNow();
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager inputManager = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = activity.getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }

@@ -54,6 +54,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
+
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
@@ -485,6 +487,7 @@ public class MainHostActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getSupportFragmentManager().popBackStack();
+            hideKeyboard(MainHostActivity.this);
         }
         return super.onOptionsItemSelected(item);
     }
