@@ -374,5 +374,11 @@
     <string name="payout_method">Payout method</string>
     <string name="add_payout_method_explanation">You have no payout method registered, please add payout method in order to advertise your session.</string>
     <string name="price_per_person">Price per person</string>
+    <string name="you_have_no_messages">You have no messages.</string>
+    <string name="you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below">You have not added any friends, search and add friends by clicking on search button below!</string>
+    <string name="you_have_no_booked_sessions">You have no booked sessions.</string>
+    <string name="you_have_not_attended_any_sessions_yet">You have not attended any sessions yet.</string>
+    <string name="you_have_not_created_any_session_yet_start_by_clicking_on_the_plus_button_below">You have not created any session yet. Start by clicking on the plus button below.</string>
+    <string name="you_have_no_advertised_sessions">You have no advertised sessions.</string>
 
 </resources>

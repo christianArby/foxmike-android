@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListStudiosAdapter;
@@ -30,6 +31,7 @@ public class HostListStudiosFragment extends Fragment {
     private RecyclerView studioListRV;
     private ListStudiosAdapter listStudiosAdapter;
     private ArrayList<StudioBranch> studios = new ArrayList<>();
+    private TextView noContent;
 
 
     public HostListStudiosFragment() {
@@ -60,6 +62,7 @@ public class HostListStudiosFragment extends Fragment {
         studioListRV.setLayoutManager(new LinearLayoutManager(getContext()));
         listStudiosAdapter = new ListStudiosAdapter(studios, onStudioBranchClickedListener, getContext());
         studioListRV.setAdapter(listStudiosAdapter);
+        noContent = view.findViewById(R.id.noContent);
 
         return view;
     }
@@ -80,6 +83,13 @@ public class HostListStudiosFragment extends Fragment {
                             for (StudioBranch studioBranch: studioBranches) {
                                 studios.add(studioBranch);
                             }
+
+                            if (studios.size()>0) {
+                                noContent.setVisibility(View.GONE);
+                            } else {
+                                noContent.setVisibility(View.VISIBLE);
+                            }
+
                             if (listStudiosAdapter!=null) {
                                 listStudiosAdapter.notifyDataSetChanged();
                             }

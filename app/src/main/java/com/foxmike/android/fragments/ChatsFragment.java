@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.models.Chats;
@@ -59,6 +61,9 @@ public class ChatsFragment extends Fragment {
         mMainView = inflater.inflate(R.layout.fragment_chats, container, false);
 
         mConvList = (RecyclerView) mMainView.findViewById(R.id.conv_list);
+
+        final TextView noContent = mMainView.findViewById(R.id.noContent);
+
         mAuth = FirebaseAuth.getInstance();
 
         mCurrent_user_id = mAuth.getCurrentUser().getUid();
@@ -243,6 +248,9 @@ public class ChatsFragment extends Fragment {
 
             @Override
             public int getItemCount() {
+                if (chats.size()>0) {
+                    noContent.setVisibility(View.GONE);
+                }
                 return chats.size();
             }
         };

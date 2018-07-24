@@ -349,33 +349,33 @@ public class MyFirebaseDatabase extends Service {
                                                             nearSessionIdsArray.add(sessionId);
                                                         }
                                                     }
-                                                    if (studioDownloadedCounter == nearStudioIDs.size()) {
-                                                        final ArrayList<Session> sessions = new ArrayList<Session>();
-                                                        final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
-                                                        for (String sessionId : nearSessionIdsArray) {
-                                                            dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                @Override
-                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                    Session session;
-                                                                    session = dataSnapshot.getValue(Session.class);
-                                                                    SessionMap sessionMap = new SessionMap(session, studioDistances.get(session.getStudioId()));
-                                                                    sessionMapArrayList.add(sessionMap);
-                                                                    if (sessionMapArrayList.size() == nearSessionIdsArray.size()) {
-                                                                        Collections.sort(sessionMapArrayList);
-                                                                        for (SessionMap sessionMapSorted: sessionMapArrayList) {
-                                                                            sessions.add(sessionMapSorted.getSession());
-                                                                        }
-                                                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                                }
+                                                if (studioDownloadedCounter == nearStudioIDs.size()) {
+                                                    final ArrayList<Session> sessions = new ArrayList<Session>();
+                                                    final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                                    for (String sessionId : nearSessionIdsArray) {
+                                                        dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                Session session;
+                                                                session = dataSnapshot.getValue(Session.class);
+                                                                SessionMap sessionMap = new SessionMap(session, studioDistances.get(session.getStudioId()));
+                                                                sessionMapArrayList.add(sessionMap);
+                                                                if (sessionMapArrayList.size() == nearSessionIdsArray.size()) {
+                                                                    Collections.sort(sessionMapArrayList);
+                                                                    for (SessionMap sessionMapSorted: sessionMapArrayList) {
+                                                                        sessions.add(sessionMapSorted.getSession());
                                                                     }
+                                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                                                 }
-                                                                @Override
-                                                                public void onCancelled(DatabaseError databaseError) {
-                                                                }
-                                                            });
-                                                        }
-                                                        if (nearSessionIdsArray.size() < 1) {
-                                                            onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
-                                                        }
+                                                            }
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+                                                            }
+                                                        });
+                                                    }
+                                                    if (nearSessionIdsArray.size() < 1) {
+                                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                                     }
                                                 }
                                             }

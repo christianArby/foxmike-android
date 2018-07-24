@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
@@ -30,6 +31,7 @@ public class PlayerListSmallSessionsBookedFragment extends Fragment {
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
     private ArrayList<SessionBranch> sessionsBooked = new ArrayList<>();
+    private TextView noContent;
 
     public PlayerListSmallSessionsBookedFragment() {
         // Required empty public constructor
@@ -59,6 +61,7 @@ public class PlayerListSmallSessionsBookedFragment extends Fragment {
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
         listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsBooked, onSessionBranchClickedListener, getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
+        noContent = view.findViewById(R.id.noContent);
         return view;
     }
 
@@ -99,6 +102,12 @@ public class PlayerListSmallSessionsBookedFragment extends Fragment {
                             }
                         }
                         Collections.sort(sessionsBooked);
+
+                        if (sessionsBooked.size()>0) {
+                            noContent.setVisibility(View.GONE);
+                        } else {
+                            noContent.setVisibility(View.VISIBLE);
+                        }
 
                         if (listSmallSessionsAdapter!=null) {
                             listSmallSessionsAdapter.notifyDataSetChanged();
