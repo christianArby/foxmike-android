@@ -190,9 +190,6 @@ public class ChatFragment extends Fragment {
                         }
                         // --------------- chatID IS NOW SET ----------------
 
-                        // Set that current user has seen the chat
-                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
                         // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                         messageQuery = messageRef.limitToLast(getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));

@@ -2,6 +2,8 @@ package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -58,6 +60,7 @@ public class FriendsFragment extends Fragment {
     private RecyclerView.Adapter<UsersViewHolder> requestsViewHolderAdapter;
     private TextView requestsHeading;
     private TextView friendsHeading;
+    private TextView noContent;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -75,6 +78,7 @@ public class FriendsFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_friends, container, false);
         requestsHeading = mainView.findViewById(R.id.friendRequestsHeadingTV);
         friendsHeading = mainView.findViewById(R.id.friendsHeadingTV);
+        noContent = mainView.findViewById(R.id.noContent);
 
 
         // -------------------------- REQUEST LIST -------------------------
@@ -101,12 +105,10 @@ public class FriendsFragment extends Fragment {
                             requests.put(requestSnapshot.getKey(), getString(R.string.friend_request_received));
                         }
                         requestsHeading.setVisibility(View.VISIBLE);
-                        friendsHeading.setVisibility(View.VISIBLE);
                     }
                     // if no requests, notify the recycler view to load empty view
                 } else {
                     requestsHeading.setVisibility(View.GONE);
-                    friendsHeading.setVisibility(View.GONE);
                     requestsViewHolderAdapter.notifyDataSetChanged();
                 }
 
@@ -183,6 +185,9 @@ public class FriendsFragment extends Fragment {
                 } else {
                     // if current user does not have any friends, notify recyclerview and load empty list
                     requestsViewHolderAdapter.notifyDataSetChanged();
+                    noContent.setVisibility(View.VISIBLE);
+                    friendsHeading.setVisibility(View.GONE);
+                    friendsList.setVisibility(View.GONE);
                 }
 
                 // Loop all the current users friends userIDs and download their user objects
@@ -195,6 +200,11 @@ public class FriendsFragment extends Fragment {
                             userBranches.add(new UserBranch(dataSnapshot.getKey(),user));
                             // When this condition has been met all listeners have been triggered and all the user objects have been saved in userBranches
                             if (userBranches.size()==friendUserIDs.size()) {
+
+                                noContent.setVisibility(View.GONE);
+                                friendsHeading.setVisibility(View.VISIBLE);
+                                friendsList.setVisibility(View.VISIBLE);
+
                                 // Sort the userBranches based on user names
                                 Collections.sort(userBranches);
                                 // Write the first letter heading
@@ -310,6 +320,7 @@ public class FriendsFragment extends Fragment {
             }
         };
         friendsList.setAdapter(friendsViewHolderAdapter);
+
         return mainView;
     }
 

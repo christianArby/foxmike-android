@@ -9,4 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <TextView
+        android:id="@+id/noContent"
+        android:background="@color/color_background_dark"
+        android:textColor="@color/primaryTextColor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:padding="@dimen/margin_left"
+        android:text="@string/you_have_no_booked_sessions"/>
+
 </FrameLayout>

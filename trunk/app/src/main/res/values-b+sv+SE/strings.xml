@@ -375,5 +375,11 @@
     <string name="payout_method">Utbetalningsmetod</string>
     <string name="add_payout_method_explanation">Du har ingen utbetalningsmetod, lägg till en utbetalningsmetod för att kunna annonsera ut ditt pass.</string>
     <string name="price_per_person">Pris per person</string>
+    <string name="you_have_no_messages">Du har inga meddelanden.</string>
+    <string name="you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below">Du har inte lagt till några vänner än, sök efter vänner genom att klicka på sökknappen nedanför!</string>
+    <string name="you_have_no_booked_sessions">Du har inga bokade pass.</string>
+    <string name="you_have_not_attended_any_sessions_yet">Du har inte varit med på några pass än.</string>
+    <string name="you_have_not_created_any_session_yet_start_by_clicking_on_the_plus_button_below">Du har inte skapat några pass än, börja skapa ett pass genom att klicka på plusknappen nedanför!</string>
+    <string name="you_have_no_advertised_sessions">Du har inga annonserade pass.</string>
 
 </resources>
