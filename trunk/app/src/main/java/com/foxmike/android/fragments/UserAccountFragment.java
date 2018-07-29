@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.AboutActivity;
@@ -65,6 +67,7 @@ public class UserAccountFragment extends Fragment {
     private View view;
     private TextView aboutTV;
     private DatabaseReference usersDbRef;
+    private boolean connected;
 
     public UserAccountFragment() {
         // Required empty public constructor
@@ -82,6 +85,18 @@ public class UserAccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                connected = snapshot.getValue(Boolean.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+            }
+        });
     }
 
     @Override
@@ -123,6 +138,11 @@ public class UserAccountFragment extends Fragment {
         switchModeTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (!connected) {
+                    Toast.makeText(getContext(),"No internet connection", Toast.LENGTH_LONG).show();
+                    return;
+                }
 
                 myProgressBar.startProgressBar();
                 final DatabaseReference userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());

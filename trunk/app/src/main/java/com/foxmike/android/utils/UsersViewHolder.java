@@ -35,9 +35,9 @@ public class UsersViewHolder extends RecyclerView.ViewHolder {
         userStatusView.setText(text);
 
         if (!normal) {
-            userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.BOLD);
+            userStatusView.setTypeface(null, Typeface.BOLD);
         } else {
-            userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.NORMAL);
+            userStatusView.setTypeface(null, Typeface.NORMAL);
         }
     }
 

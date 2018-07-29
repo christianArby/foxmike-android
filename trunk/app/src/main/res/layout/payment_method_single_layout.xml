@@ -3,33 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <ImageView
-        android:id="@+id/cardIcon"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="centerCrop"
-        android:text="@string/loading"
-        android:src="@drawable/visa"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textColor="@color/primaryTextColor"
-        android:padding="@dimen/margin_left"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
     <TextView
-        android:id="@+id/last4digits"
+        android:id="@+id/cardTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/loading"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="@color/primaryTextColor"
+        android:drawableStart="@drawable/ic_visa_card"
+        android:drawablePadding="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
         android:layout_marginBottom="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cardIcon"/>
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/paymentMethodStandard"

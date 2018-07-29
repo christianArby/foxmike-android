@@ -39,10 +39,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Keep database in sync offline/online
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.keepSynced(true);
-
         // Check location permissions (different functions depending on Android version)
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -123,7 +119,46 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser!=null) {
             // User is signed in
-            myFirebaseDatabase = new MyFirebaseDatabase();
+            final DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+            rootDbRef.child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user==null) {
+                        Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
+                        //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(setupAccount);
+                    } else {
+                        //-------------------------THE DOOR OPENS--------------------------------------//
+                        if (user.trainerMode) {
+                            rootDbRef.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+                                    mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(mainHost);
+                                }
+                            });
+                        } else {
+                            rootDbRef.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+                                    mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(mainPlayer);
+                                }
+                            });
+                        }
+                        //---------------------------------------------------------------//
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            /*myFirebaseDatabase = new MyFirebaseDatabase();
             myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
                 @Override
                 public void OnUserFound(User user) {
@@ -155,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                         //---------------------------------------------------------------//
                     }
                 }
-            });
+            });*/
 
             //--------------------- Set presence of current user---------------------------------
             String currentUserID = mAuth.getCurrentUser().getUid();
