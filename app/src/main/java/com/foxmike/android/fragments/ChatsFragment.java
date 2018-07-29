@@ -3,6 +3,9 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,20 +52,16 @@ public class ChatsFragment extends Fragment {
     private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
     private RecyclerView.Adapter<UsersViewHolder> chatsViewHolderAdapter;
     private OnChatClickedListener onChatClickedListener;
+    private boolean chatsViewHolderAdapterInitiated;
+    private boolean chatsLoaded;
 
     public ChatsFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        mMainView = inflater.inflate(R.layout.fragment_chats, container, false);
-
-        mConvList = (RecyclerView) mMainView.findViewById(R.id.conv_list);
-
-        final TextView noContent = mMainView.findViewById(R.id.noContent);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -75,25 +74,16 @@ public class ChatsFragment extends Fragment {
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         mUsersDatabase.keepSynced(true);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
-
-        mConvList.setHasFixedSize(true);
-        mConvList.setLayoutManager(linearLayoutManager);
-
         // Listener which triggers each time a chat which the current user is part of changes or is created
         if (!listenerMap.containsKey(mUsersDatabase.child(mCurrent_user_id).child("chats"))) {
             ValueEventListener currentUserChatsListener = mUsersDatabase.child(mCurrent_user_id).child("chats").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     chatIDs.clear();
-
                     // Collect all chat IDs current user is part of
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         chatIDs.add(child.getKey());
                     }
-
                     // Loop thorugh all chat IDs
                     for (String key : chatIDs) {
 
@@ -113,7 +103,10 @@ public class ChatsFragment extends Fragment {
                                         int pos = chatIDs.indexOf(dataSnapshot.getKey());
                                         if (chats.containsKey(pos)) {
                                             chats.put(pos,chat);
-                                            chatsViewHolderAdapter.notifyItemChanged(pos);
+                                            chatsLoaded=true;
+                                            if (chatsViewHolderAdapter!=null) {
+                                                chatsViewHolderAdapter.notifyItemChanged(pos);
+                                            }
                                         } else {
                                             chats.put(pos,chat);
                                         }
@@ -144,11 +137,19 @@ public class ChatsFragment extends Fragment {
                                                                 int pos = chatIDs.indexOf(friendChats);
                                                                 if (users.containsKey(pos)) {
                                                                     users.put(pos,user);
-                                                                    chatsViewHolderAdapter.notifyItemChanged(pos);
+                                                                    if (chatsViewHolderAdapter!=null) {
+                                                                        chatsViewHolderAdapter.notifyItemChanged(pos);
+                                                                    }
+
                                                                 } else {
                                                                     users.put(pos,user);
                                                                     if (users.size()==chats.size()) {
-                                                                        chatsViewHolderAdapter.notifyDataSetChanged();
+                                                                        chatsLoaded=true;
+                                                                        if (chatsViewHolderAdapter!=null) {
+                                                                            chatsViewHolderAdapterInitiated = true;
+                                                                            chatsViewHolderAdapter.notifyDataSetChanged();
+                                                                        }
+
                                                                     }
                                                                 }
 
@@ -164,7 +165,10 @@ public class ChatsFragment extends Fragment {
                                                                     for (Integer userIdInt : userIDs.keySet()) {
                                                                         if (userIDs.get(userIdInt).equals(dataSnapshot.getKey()) ) {
                                                                             presenceHashMap.put(userIdInt,presence);
-                                                                            chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                            if (chatsViewHolderAdapter!=null) {
+                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                            }
+
                                                                         }
                                                                     }
                                                                 }
@@ -201,6 +205,24 @@ public class ChatsFragment extends Fragment {
             });
             listenerMap.put(mUsersDatabase.child(mCurrent_user_id).child("chats"),currentUserChatsListener);
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        mMainView = inflater.inflate(R.layout.fragment_chats, container, false);
+
+        mConvList = (RecyclerView) mMainView.findViewById(R.id.conv_list);
+
+        final TextView noContent = mMainView.findViewById(R.id.noContent);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+
+        mConvList.setHasFixedSize(true);
+        mConvList.setLayoutManager(linearLayoutManager);
 
         chatsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {
             @Override
@@ -256,12 +278,15 @@ public class ChatsFragment extends Fragment {
         };
 
         mConvList.setAdapter(chatsViewHolderAdapter);
+        if (!chatsViewHolderAdapterInitiated && chatsLoaded) {
+            chatsViewHolderAdapter.notifyDataSetChanged();
+        }
         return mMainView;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();

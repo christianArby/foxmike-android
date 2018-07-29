@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/red"
+    android:background="@color/color_background_dark"
     tools:context="com.foxmike.android.fragments.ChatsFragment">
 
     <android.support.v7.widget.RecyclerView
@@ -13,6 +13,7 @@
         android:layout_alignParentStart="true"/>
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/noContent"
         android:background="@color/color_background_dark"
         android:textColor="@color/primaryTextColor"

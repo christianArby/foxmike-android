@@ -25,6 +25,7 @@ public class Sportu extends Application {
         super.onCreate();
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        String test = "test";
 
     }
 }
