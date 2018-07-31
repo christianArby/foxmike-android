@@ -20,6 +20,7 @@ import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -39,7 +40,7 @@ public class UpdateStripeSourceFragment extends Fragment {
     private String cardBrand;
     private String last4;
     private boolean isDefault;
-    private TextView last4TV;
+    private TextView cardTV;
     private TextView isDefaultTV;
     private ImageView cardBrandIV;
     private TextView deleteTV;
@@ -78,12 +79,13 @@ public class UpdateStripeSourceFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_update_stripe_source, container, false);
 
-        cardBrandIV = view.findViewById(R.id.cardIcon);
-        last4TV = view.findViewById(R.id.last4digits);
+        cardTV = view.findViewById(R.id.cardTV);
         isDefaultTV = view.findViewById(R.id.paymentMethodStandard);
         deleteTV = view.findViewById(R.id.deletePaymentMethodTV);
         makeDefaultTV = view.findViewById(R.id.setAsDefaultTV);
         progressBar = view.findViewById(R.id.progressBar_cyclic);
+
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
         customerId = getArguments().getString("customerId");
@@ -98,11 +100,12 @@ public class UpdateStripeSourceFragment extends Fragment {
 
         customerData.put("customerId", customerId);
         customerData.put("sourceId", sourceId);
+        customerData.put("userID", userId);
 
 
         // TODO set cardBrand icon
 
-        last4TV.setText(cardBrand + " " + last4);
+        cardTV.setText(cardBrand + " " + last4);
 
         if (isDefault) {
             isDefaultTV.setText("STANDARD");
@@ -135,6 +138,7 @@ public class UpdateStripeSourceFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 // If not succesful, show error
+
                 if (!task.isSuccessful()) {
                     Exception e = task.getException();
                     if (e instanceof FirebaseFunctionsException) {

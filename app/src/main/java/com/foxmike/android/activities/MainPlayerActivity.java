@@ -5,16 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -54,6 +58,9 @@ import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.utils.WrapContentViewPager;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -61,6 +68,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.rd.PageIndicatorView;
 
 import java.text.SimpleDateFormat;
@@ -69,6 +78,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
+
+import static android.content.ContentValues.TAG;
 
 public class MainPlayerActivity extends AppCompatActivity
 
@@ -126,6 +143,12 @@ public class MainPlayerActivity extends AppCompatActivity
     private int distanceRadius;
     Boolean started = false;
     private boolean resumed = false;
+    private FirebaseFunctions mFunctions;
+    private View mainView;
+
+    public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
+    public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
+    public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
 
     private SortAndFilterFragment sortAndFilterFragment;
 
@@ -133,6 +156,10 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_player);
+
+        setStripeDefaultSource(new HashMap());
+        mainView = findViewById(R.id.activity_main_player);
+        mFunctions = FirebaseFunctions.getInstance();
 
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -277,6 +304,67 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
+        // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
+        ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue()==null) {
+                    Toast.makeText(MainPlayerActivity.this, "NO STRIPE CUSTOMER", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                String stripeCustomerId = dataSnapshot.child("id").getValue().toString();
+
+                // Retrieve Stripe Account
+                retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                        // If not succesful, show error and return from function, will trigger if account ID does not exist
+                        if (!task.isSuccessful()) {
+                            Exception e = task.getException();
+                            // [START_EXCLUDE]
+                            Log.w(TAG, "retrieve:onFailure", e);
+                            showSnackbar("An error occurred." + e.getMessage());
+                            return;
+                            // [END_EXCLUDE]
+                        }
+                        // If successful, extract
+                        HashMap<String, Object> result = task.getResult();
+                        if (result.get("resultType").toString().equals("customer")) {
+                            HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
+                            ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
+                            String defaultSource;
+                            if (result.get("default_source")!= null) {
+                                defaultSource = result.get("default_source").toString();
+                            } else {
+                                defaultSource = null;
+                                setStripeDefaultSource(new HashMap());
+                            }
+                            for(int i=0; i<sourcesDataList.size(); i++){
+                                if (sourcesDataList.get(i).get("id").toString().equals(defaultSource)) {
+                                    setStripeDefaultSource(sourcesDataList.get(i));
+                                }
+                            }
+                        } else {
+                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                            showSnackbar(error.get("message").toString());
+                        }
+                        // [END_EXCLUDE]
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer"), stripeCustomerListener);
+
+        // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set notifications to the bottom navigation bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
             @Override
@@ -862,5 +950,27 @@ public class MainPlayerActivity extends AppCompatActivity
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    private Task<HashMap<String, Object>> retrieveStripeCustomer(String customerID) {
+
+        // Call the function and extract the operation from the result which is a String
+        return mFunctions
+                .getHttpsCallable("retrieveCustomer")
+                .call(customerID)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
     }
 }

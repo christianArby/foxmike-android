@@ -24,9 +24,9 @@ public class User implements Comparable<User>{
     public boolean trainerMode;
     public String aboutMe;
     private String stripeAccountId;
-    private String stripeCustomerId;
+    private HashMap<String,Object> stripeCustomer;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, String stripeCustomerId) {
+    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.studios = studios;
@@ -40,13 +40,14 @@ public class User implements Comparable<User>{
         this.trainerMode = trainerMode;
         this.aboutMe = aboutMe;
         this.stripeAccountId = stripeAccountId;
-        this.stripeCustomerId = stripeCustomerId;
+        this.stripeCustomer = stripeCustomer;
     }
 
     public User() {
         this.sessionsAttending = new HashMap<String,Boolean>();
         this.sessionsHosting = new HashMap<String,Boolean>();
         this.studios = new HashMap<String,Boolean>();
+        this.stripeCustomer = new HashMap<String,Object>();
     }
 
     public HashMap<String, Boolean> getSessionsAttending() {
@@ -159,11 +160,11 @@ public class User implements Comparable<User>{
         this.stripeAccountId = stripeAccountId;
     }
 
-    public String getStripeCustomerId() {
-        return stripeCustomerId;
+    public HashMap<String, Object> getStripeCustomer() {
+        return stripeCustomer;
     }
 
-    public void setStripeCustomerId(String stripeCustomerId) {
-        this.stripeCustomerId = stripeCustomerId;
+    public void setStripeCustomer(HashMap<String, Object> stripeCustomer) {
+        this.stripeCustomer = stripeCustomer;
     }
 }

@@ -87,11 +87,11 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.getValue().toString();
+                    stripeCustomerId = dataSnapshot.child("id").getValue().toString();
                     retrieveStripeCustomerSources(stripeCustomerId);
                     addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
@@ -229,7 +229,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         });
     }
 
-    // Function createStripeAccount
+    // Function retrieveStripeCustomer
     private Task<HashMap<String, Object>> retrieveStripeCustomer(String customerID) {
 
         // Call the function and extract the operation from the result which is a String
