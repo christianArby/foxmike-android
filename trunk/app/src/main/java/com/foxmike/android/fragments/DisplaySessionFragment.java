@@ -1,10 +1,12 @@
 package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -30,6 +32,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.MainHostActivity;
+import com.foxmike.android.activities.MainPlayerActivity;
+import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnStudioChangedListener;
@@ -39,6 +44,7 @@ import com.foxmike.android.models.Studio;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.TextTimestamp;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -70,8 +76,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.functions.Consumer;
+
+import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
+
 /**
  * This fragment takes a longitude and latitude and displays the corresponding session with that longitude and latitude.
  */
@@ -135,15 +146,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean postCommentsLoaded;
     private Studio studio;
     private String studioId;
+    private TextView paymentMethodTV;
+    private DotProgressBar paymentMethodProgressBar;
+    private boolean hasPaymentSystem;
+    private TextView addPaymentMethodTV;
+    private LinearLayout paymentFrame;
+    private HashMap defaultSourceMap;
 
 
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
-    private boolean sessionAndViewUsed;
     private boolean currentUserAndSessionAndViewUsed;
     private boolean hostAndViewUsed;
     private boolean postsUsed;
     private boolean postCommentsUsed;
+    private boolean paymentMethodLoaded;
+    private boolean sessionAndPaymentAndViewUsed;
 
 
     private ImageView sessionImage;
@@ -210,6 +228,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             studio = (Studio) getArguments().getSerializable("studio");
         }
 
+        // GET THE PAYMENT INFO FROM CURRENT USER
+        getDefaultSourceMap();
+
+
         // GET CURRENT USER FROM DATABASE
         mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -245,7 +267,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             session.setSessionTimestamp(myCalendar.getTimeInMillis());
 
             currentUserAndSessionAndViewUsed = false;
-            sessionAndViewUsed = false;
+            sessionAndPaymentAndViewUsed = false;
             sessionUsed = false;
             sessionLoaded = true;
             onTaskFinished();
@@ -266,7 +288,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     session = thisSession;
                                     sessionID = dataSnapshot.getRef().getKey();
                                     currentUserAndSessionAndViewUsed = false;
-                                    sessionAndViewUsed = false;
+                                    sessionAndPaymentAndViewUsed = false;
                                     sessionUsed = false;
                                     sessionLoaded = true;
                                     onTaskFinished();
@@ -281,7 +303,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     session = thisSession;
                                     sessionID = dataSnapshot.getRef().getKey();
                                     currentUserAndSessionAndViewUsed = false;
-                                    sessionAndViewUsed = false;
+                                    sessionAndPaymentAndViewUsed = false;
                                     sessionUsed = false;
                                     sessionLoaded = true;
                                     onTaskFinished();
@@ -310,7 +332,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 session = dataSnapshot.getValue(Session.class);
                                 sessionID = dataSnapshot.getRef().getKey();
                                 currentUserAndSessionAndViewUsed = false;
-                                sessionAndViewUsed = false;
+                                sessionAndPaymentAndViewUsed = false;
                                 sessionUsed = false;
                                 sessionLoaded = true;
                                 onTaskFinished();
@@ -330,9 +352,39 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 toast.show();
             }
         }
+    }
 
+    private void getDefaultSourceMap () {
+        try {
+            MainPlayerActivity mainPlayerActivity = (MainPlayerActivity) getActivity();
+            mainPlayerActivity.subject.subscribe(new Consumer<HashMap>() {
+                @Override
+                public void accept(HashMap hashMap) throws Exception {
 
+                    if (hashMap.get("brand")!=null) {
+                        defaultSourceMap = hashMap;
+                        hasPaymentSystem = true;
+                        sessionAndPaymentAndViewUsed = false;
+                        paymentMethodLoaded = true;
+                        onTaskFinished();
 
+                    } else {
+                        hasPaymentSystem = false;
+                        defaultSourceMap = new HashMap();
+                        sessionAndPaymentAndViewUsed = false;
+                        paymentMethodLoaded = true;
+                        onTaskFinished();
+
+                    }
+                }
+            });
+            return;
+        } catch (RuntimeException e){
+            defaultSourceMap = new HashMap();
+            sessionAndPaymentAndViewUsed = false;
+            paymentMethodLoaded = true;
+            onTaskFinished();
+        }
     }
 
     private void getSessionHost() {
@@ -447,6 +499,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionImage = view.findViewById(R.id.displaySessionImage);
         postList = (RecyclerView) view.findViewById(R.id.post_list);
         postList.setVisibility(View.GONE);
+        paymentMethodProgressBar = view.findViewById(R.id.paymentMethodProgressBar);
+        addPaymentMethodTV = view.findViewById(R.id.addPaymentMethodTV);
+        paymentFrame = view.findViewById(R.id.framePayment);
+        paymentMethodTV = view.findViewById(R.id.paymentMethod);
+
+        paymentFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
+                startActivity(paymentPreferencesIntent);
+            }
+        });
 
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -521,6 +585,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void onTaskFinished() {
+
         // ---------------- CURRENTUSER && VIEW-----------------
         if (currentUserLoaded && getView()!=null && !currentUserAndViewUsed) {
             currentUserAndViewUsed=true;
@@ -560,11 +625,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
 
                     else {
+                        if (!hasPaymentSystem) {
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            NeedPaymentMethodFragment needPaymentMethodFragment = NeedPaymentMethodFragment.newInstance();
+                            needPaymentMethodFragment.show(transaction,"needPaymentMethodFragment");
+                            return;
+                        }
                         /*
                         Else (button will show join session) add the user id to the session participant list and
                         the user sessions attending list when button is clicked.
                         */
-                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomerId(), session.getPrice(), session.getCurrency());
+                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomer().get("id").toString(), session.getPrice(), session.getCurrency());
                     }
                 }
             });
@@ -590,8 +662,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             postsViewHolderAdapter.notifyDataSetChanged();
         }
 
-        if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
-            sessionAndViewUsed=true;
+        // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
+        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
+            sessionAndPaymentAndViewUsed = true;
 
             if (sessionID.equals("preview")) {
                 postList.setVisibility(View.GONE);
@@ -615,12 +688,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         }
                     });
 
-
                 } else {
                     postList.setVisibility(View.GONE);
                     writePostLsyout.setVisibility(View.GONE);
                 }
-
             }
 
             // ---------- Set price text ---------------
@@ -680,23 +751,61 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             });
 
             // ------------------ Set the text to the display session button ----------------------------------
-            // Set default text on button
-            mDisplaySessionBtn.setText(getString(R.string.book_session));
 
+            // ---------- BOOK SESSION ---------------------------
+            // Set default text on button
+
+            if (!session.getHost().equals(currentFirebaseUser.getUid())) {
+                if (defaultSourceMap.get("brand")!=null) {
+                    String last4 = defaultSourceMap.get("last4").toString();
+                    paymentMethodTV.setText("**** " + last4);
+                    String cardBrand = defaultSourceMap.get("brand").toString();
+                    int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
+                    paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
+                    paymentMethodTV.setVisibility(View.VISIBLE);
+                    paymentMethodProgressBar.setVisibility(View.GONE);
+                    mDisplaySessionBtn.setEnabled(true);
+                    addPaymentMethodTV.setVisibility(View.GONE);
+                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+                } else {
+                    hasPaymentSystem = false;
+                    mDisplaySessionBtn.setEnabled(true);
+                    addPaymentMethodTV.setVisibility(View.VISIBLE);
+                    paymentMethodTV.setVisibility(View.GONE);
+                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
+                    paymentMethodProgressBar.setVisibility(View.GONE);
+                }
+            }
+            mDisplaySessionBtn.setText(getString(R.string.book_session));
+            // ---------- CANCEL BOOKING -----------------------------------------
             /**
              If participants are more than zero, see if the current user is one of the participants and if so
              change the button text to "Cancel booking"
              */
             if (session.getParticipants() != null) {
                 if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
+
+                    mDisplaySessionBtn.setEnabled(true);
+                    addPaymentMethodTV.setVisibility(View.GONE);
+                    paymentMethodTV.setVisibility(View.GONE);
+                    paymentMethodProgressBar.setVisibility(View.GONE);
+
+
                     writePostLsyout.setVisibility(View.VISIBLE);
                     mDisplaySessionBtn.setText(R.string.cancel_booking);
                 }
             }
+            // ----------- EDIT SESSION -----------------------------------------------------
             /**
              If the current user is the session host change the button text to "Edit session"
              */
             if (session.getHost().equals(currentFirebaseUser.getUid())) {
+
+                mDisplaySessionBtn.setEnabled(true);
+                addPaymentMethodTV.setVisibility(View.GONE);
+                paymentMethodTV.setVisibility(View.GONE);
+                paymentMethodProgressBar.setVisibility(View.GONE);
+
                 mDisplaySessionBtn.setText(R.string.edit_session);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
@@ -707,13 +816,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 });
             } else {
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-
                     @Override
                     public void onClick(View view) {
                         onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
                     }
                 });
             }
+
+            // -----------------------------------------------------------------------------------------------
         }
     }
 
@@ -854,7 +964,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         currentUserAndSessionAndViewUsed = false;
         hostAndViewUsed = false;
         sessionUsed = false;
-        sessionAndViewUsed = false;
+        sessionAndPaymentAndViewUsed = false;
         postsUsed = false;
         postCommentsUsed = false;
     }

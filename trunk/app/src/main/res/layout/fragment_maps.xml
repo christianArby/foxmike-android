@@ -32,6 +32,6 @@
         android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:layout_margin="40dp"
-        android:text="Choose location"/>
+        android:text="@string/choose_location"/>
 
 </FrameLayout>

@@ -380,5 +380,9 @@
     <string name="you_have_not_attended_any_sessions_yet">You have not attended any sessions yet.</string>
     <string name="you_have_not_created_any_session_yet_start_by_clicking_on_the_plus_button_below">You have not created any session yet. Start by clicking on the plus button below.</string>
     <string name="you_have_no_advertised_sessions">You have no advertised sessions.</string>
+    <string name="cancel">Cancel</string>
+    <string name="you_need_a_payment_method_in_order_to_book_this_session">You need a payment method in order to book this session.</string>
+    <string name="booking_failed">Booking failed</string>
+    <string name="choose_location">Choose location</string>
 
 </resources>
