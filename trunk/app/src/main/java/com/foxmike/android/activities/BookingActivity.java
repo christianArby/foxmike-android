@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.google.android.gms.tasks.Continuation;
@@ -19,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -70,6 +72,7 @@ public class BookingActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 progressBarHorizontal.setProgress(40);
                 if (dataSnapshot.getValue()==null) {
+                    // SESSION IS FREE
                     progressBarHorizontal.setProgress(100);
                     addCurrentUserToSessionParticipantList();
                 } else {
@@ -139,6 +142,8 @@ public class BookingActivity extends AppCompatActivity {
                                                     chargeMap.put("currency", currency);
                                                     chargeMap.put("tokenId", result.get("tokenId").toString());
                                                     chargeMap.put("account", stripeAccountId);
+                                                    chargeMap.put("userID", mAuth.getCurrentUser().getUid());
+                                                    chargeMap.put("sessionId", sessionId);
 
 
                                                     createCharge(chargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
@@ -159,9 +164,9 @@ public class BookingActivity extends AppCompatActivity {
                                                             HashMap<String, Object> result = task.getResult();
 
                                                             if (result.get("operationResult").toString().equals("success")) {
-                                                                showSnackbar("Booking successful.");
-                                                                addCurrentUserToSessionParticipantList();
-
+                                                                Toast.makeText(BookingActivity.this, "Booking successful", Toast.LENGTH_LONG).show();
+                                                                setResult(RESULT_OK, null);
+                                                                finish();
                                                             } else {
                                                                 HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
                                                                 showSnackbar(error.get("message").toString());
@@ -235,8 +240,8 @@ public class BookingActivity extends AppCompatActivity {
     private void addCurrentUserToSessionParticipantList() {
         // write current user as participant in session to database
         Map requestMap = new HashMap<>();
-        requestMap.put("sessions/" + sessionId + "/participants/" + mAuth.getCurrentUser().getUid(), true);
-        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionId, true);
+        requestMap.put("sessions/" + sessionId + "/participants/" + mAuth.getCurrentUser().getUid(), "FREE");
+        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionId, ServerValue.TIMESTAMP);
         rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

@@ -60,7 +60,7 @@ public class MyFirebaseDatabase extends Service {
 
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
 
-    public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Boolean> sessionsHashMap) {
+    public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Long> sessionsHashMap) {
 
         final ArrayList<Session> sessions = new ArrayList<Session>();
         for (String key : sessionsHashMap.keySet()) {
@@ -82,7 +82,7 @@ public class MyFirebaseDatabase extends Service {
         }
     }
 
-    public void getSessionBranches(final HashMap<String, Boolean> sessionsHashMap, final OnSessionBranchesFoundListener onSessionBranchesFoundListener) {
+    public void getSessionBranches(final HashMap<String, Long> sessionsHashMap, final OnSessionBranchesFoundListener onSessionBranchesFoundListener) {
 
         final ArrayList<SessionBranch> sessionBranches = new ArrayList<SessionBranch>();
         for (String key : sessionsHashMap.keySet()) {

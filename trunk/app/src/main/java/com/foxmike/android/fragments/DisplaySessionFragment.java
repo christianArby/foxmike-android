@@ -6,7 +6,6 @@ import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -14,10 +13,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,23 +23,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.OnStudioChangedListener;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.Studio;
 import com.foxmike.android.models.User;
-import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -63,21 +56,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
-import android.widget.Toolbar;
-
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
@@ -261,7 +247,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             session.setSessionType(studio.getSessionType());
             session.setWhat(studio.getWhat());
             session.setWho(studio.getWho());
-            session.setWhere(studio.getWhere());
+            session.setWhereAt(studio.getWhere());
             session.setPrice(studio.getPrice());
             Calendar myCalendar = Calendar.getInstance();
             session.setSessionTimestamp(myCalendar.getTimeInMillis());
@@ -636,7 +622,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         Else (button will show join session) add the user id to the session participant list and
                         the user sessions attending list when button is clicked.
                         */
-                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), currentUser.getStripeCustomer().get("id").toString(), session.getPrice(), session.getCurrency());
+                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), defaultSourceMap.get("customer").toString(), session.getPrice(), session.getCurrency());
                     }
                 }
             });
@@ -732,7 +718,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mAddressAndSessionType.setText(address);
             mWhatTW.setText(session.getWhat());
             mWhoTW.setText(session.getWho());
-            mWhereTW.setText(session.getWhere());
+            mWhereTW.setText(session.getWhereAt());
             mSessionType.setText(session.getSessionType());
             mDuration.setText(session.getDuration());
 
