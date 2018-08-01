@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.foxmike.android.activities.BookingActivity"
+    tools:context="com.foxmike.android.activities.CancelBookingActivity"
     android:id="@+id/mainView">
 
     <TextView
@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-        android:text="@string/booking_session"/>
+        android:text="Cancelling session"/>
 
     <ProgressBar
         android:id="@+id/progressBarHorizontal"

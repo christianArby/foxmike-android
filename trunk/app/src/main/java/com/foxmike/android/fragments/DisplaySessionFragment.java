@@ -219,7 +219,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
 
         // GET CURRENT USER FROM DATABASE
-        mUserDbRef.child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        ValueEventListener currentUserListener = mUserDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUserAndViewUsed = false;
@@ -232,6 +233,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+        listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
+
         if (studio!=null) {
             session = new Session();
             sessionID = "preview";
@@ -607,7 +610,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 remove the current user from that session participant list and go back to main activity.
                 */
                     else if (session.getParticipants().containsKey(currentFirebaseUser.getUid())) {
-                        onCancelBookedSessionListener.OnCancelBookedSession(sessionID);
+                        onCancelBookedSessionListener.OnCancelBookedSession(currentUser.getSessionsAttending().get(sessionID),session.getSessionTimestamp(),sessionID,currentFirebaseUser.getUid(),session.getParticipants().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                     }
 
                     else {
@@ -1064,6 +1067,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency);
     }
     public interface OnCancelBookedSessionListener {
-        void OnCancelBookedSession(String sessionID);
+        void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId);
     }
 }

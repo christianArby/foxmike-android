@@ -144,6 +144,7 @@ public class BookingActivity extends AppCompatActivity {
                                                     chargeMap.put("account", stripeAccountId);
                                                     chargeMap.put("userID", mAuth.getCurrentUser().getUid());
                                                     chargeMap.put("sessionId", sessionId);
+                                                    chargeMap.put("applicationFee", amount*0.1*100);
 
 
                                                     createCharge(chargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {

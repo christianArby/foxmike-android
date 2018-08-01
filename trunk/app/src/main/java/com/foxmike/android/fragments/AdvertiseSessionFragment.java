@@ -76,6 +76,7 @@ public class AdvertiseSessionFragment extends Fragment {
 
     private Studio studio;
     private String studioId;
+    private String stripeAccountId;
 
     private OnStudioChangedListener onStudioChangedListener;
 
@@ -112,6 +113,8 @@ public class AdvertiseSessionFragment extends Fragment {
                     payoutMethodChecked = true;
                     onAsyncTaskFinished();
                 } else {
+
+                    stripeAccountId = dataSnapshot.getValue().toString();
 
                     retrieveStripeAccount(dataSnapshot.getValue().toString()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                         @Override
@@ -269,6 +272,7 @@ public class AdvertiseSessionFragment extends Fragment {
                     session.setWhat(studio.getWhat());
                     session.setWho(studio.getWho());
                     session.setWhereAt(studio.getWhere());
+                    session.setStripeAccountId(stripeAccountId);
 
                     session.setSessionTimestamp(myCalendar.getTimeInMillis());
 

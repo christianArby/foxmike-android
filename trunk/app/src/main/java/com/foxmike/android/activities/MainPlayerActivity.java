@@ -715,22 +715,6 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("amount",amount);
         bookIntent.putExtra("currency",currency);
         startActivityForResult(bookIntent, 1);
-        
-        /*Map requestMap = new HashMap<>();
-        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), true);
-        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, true);
-        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                    ps.loadPages(true);
-                }
-            }
-        });*/
-
-
-
     }
 
     @Override
@@ -743,21 +727,17 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCancelBookedSession(String sessionID) {
-        Map requestMap = new HashMap<>();
-        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), null);
-        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, null);
-        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                    ps.loadPages(true);
-                }
-            }
-        });
-        //rootDbRef.child("sessions").child(sessionID).child("participants").child(mAuth.getCurrentUser().getUid()).removeValue();
-        //rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("sessionsAttending").child(sessionID).removeValue();
+    public void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId) {
+
+        Intent cancelIntent = new Intent(MainPlayerActivity.this,CancelBookingActivity.class);
+        cancelIntent.putExtra("bookingTimestamp", bookingTimestamp);
+        cancelIntent.putExtra("sessionTimestamp", sessionTimestamp);
+        cancelIntent.putExtra("sessionID", sessionID);
+        cancelIntent.putExtra("participantId",participantId);
+        cancelIntent.putExtra("chargeId",chargeId);
+        cancelIntent.putExtra("accountId",accountId);
+        startActivityForResult(cancelIntent, 1);
+
     }
 
     @Override
