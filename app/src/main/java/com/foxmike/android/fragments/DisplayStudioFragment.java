@@ -126,8 +126,8 @@ public class DisplayStudioFragment extends Fragment {
                     sessionsNotAdvBranches.clear();
                     sessionsNotAdvLoaded = false;
                     sessionsNotAdvAndViewUsed = false;
-                    final HashMap<String, Boolean> sessionsAdvHashMap = new HashMap<>();
-                    final HashMap<String, Boolean> sessionsNotAdvHashMap = new HashMap<>();
+                    final HashMap<String, Long> sessionsAdvHashMap = new HashMap<>();
+                    final HashMap<String, Long> sessionsNotAdvHashMap = new HashMap<>();
                     studio = dataSnapshot.getValue(Studio.class);
                     studioID = dataSnapshot.getRef().getKey();
                     studioLoaded = true;
@@ -136,9 +136,9 @@ public class DisplayStudioFragment extends Fragment {
                         Long currentTimestamp = System.currentTimeMillis();
                         for (String sessionId: studio.getSessions().keySet()) {
                             if (studio.getSessions().get(sessionId)>currentTimestamp) {
-                                sessionsAdvHashMap.put(sessionId, true);
+                                sessionsAdvHashMap.put(sessionId, null);
                             } else {
-                                sessionsNotAdvHashMap.put(sessionId, true);
+                                sessionsNotAdvHashMap.put(sessionId, null);
                             }
                         }
 

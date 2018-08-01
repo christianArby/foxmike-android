@@ -29,7 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.TimePicker;
 
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnStudioChangedListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.Studio;
@@ -269,7 +268,7 @@ public class AdvertiseSessionFragment extends Fragment {
                     session.setSessionType(studio.getSessionType());
                     session.setWhat(studio.getWhat());
                     session.setWho(studio.getWho());
-                    session.setWhere(studio.getWhere());
+                    session.setWhereAt(studio.getWhere());
 
                     session.setSessionTimestamp(myCalendar.getTimeInMillis());
 

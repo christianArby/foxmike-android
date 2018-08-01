@@ -43,7 +43,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
@@ -471,7 +470,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mDuration.setText(existingSession.getDuration());
         mWhat.setText(existingSession.getWhat());
         mWho.setText(existingSession.getWho());
-        mWhere.setText(existingSession.getWhere());
+        mWhere.setText(existingSession.getWhereAt());
 
         mCreateSessionBtn.setText(R.string.update_session);
 
@@ -564,7 +563,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         session.setSessionType(mSessionType.getText().toString());
         session.setWhat(mWhat.getText().toString());
         session.setWho(mWho.getText().toString());
-        session.setWhere(mWhere.getText().toString());
+        session.setWhereAt(mWhere.getText().toString());
         session.setSessionTimestamp(mSessionTimestamp);
         session.setMaxParticipants(mMaxParticipants.getText().toString());
         session.setDuration(mDuration.getText().toString());
@@ -596,7 +595,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getWhere())) {
+        if (TextUtils.isEmpty(session.getWhereAt())) {
             infoIsValid = false;
         }
 

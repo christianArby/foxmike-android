@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.foxmike.android.utils.TextTimestamp;
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -19,17 +18,17 @@ public class Session implements Comparable<Session>, Serializable {
     private double latitude;
     private double longitude;
     private long sessionTimestamp;
-    private HashMap<String,Boolean> participants  = new HashMap<String, Boolean>();
+    private HashMap<String,String> participants  = new HashMap<String, String>();
     private HashMap<String,Boolean> posts;
     private String imageUrl;
     private String what;
     private String who;
-    private String where;
+    private String whereAt;
     private String duration;
     private String currency;
     private int price;
 
-    public Session(String studioId, String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, Boolean> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String where, String duration, String currency, int price) {
+    public Session(String studioId, String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, int price) {
         this.studioId = studioId;
         this.host = host;
         this.sessionName = sessionName;
@@ -43,7 +42,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
-        this.where = where;
+        this.whereAt = whereAt;
         this.duration = duration;
         this.currency = currency;
         this.price = price;
@@ -140,12 +139,12 @@ public class Session implements Comparable<Session>, Serializable {
         this.who = who;
     }
 
-    public String getWhere() {
-        return where;
+    public String getWhereAt() {
+        return whereAt;
     }
 
-    public void setWhere(String where) {
-        this.where = where;
+    public void setWhereAt(String whereAt) {
+        this.whereAt = whereAt;
     }
 
     public String getDuration() {
@@ -156,14 +155,14 @@ public class Session implements Comparable<Session>, Serializable {
         this.duration = duration;
     }
 
-    public HashMap<String, Boolean> getParticipants() {
+    public HashMap<String, String> getParticipants() {
         if (this.participants==null) {
-            participants = new HashMap<String, Boolean>();
+            participants = new HashMap<String, String>();
         }
         return participants;
     }
 
-    public void setParticipants(HashMap<String, Boolean> participants) {
+    public void setParticipants(HashMap<String, String> participants) {
         this.participants = participants;
     }
 

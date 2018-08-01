@@ -37,7 +37,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
     private OnSessionBranchClickedListener onSessionBranchClickedListener;
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
-    private HashMap<String,Boolean> sessionIds = new HashMap<>();
+    private HashMap<String,Long> sessionIds = new HashMap<>();
     private ArrayList<SessionBranch> sessionsAdv = new ArrayList<>();
     private int studioCounter = 0;
     private boolean sessionsLoaded;
@@ -108,7 +108,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
                                     Long currentTimestamp = System.currentTimeMillis();
                                     for (String sessionId: sessionsMap.keySet()) {
                                         if (sessionsMap.get(sessionId)>currentTimestamp) {
-                                            sessionIds.put(sessionId, true);
+                                            sessionIds.put(sessionId, null);
                                         }
                                     }
                                     if (studioCounter==studios.size()) {

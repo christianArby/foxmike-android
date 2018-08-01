@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class User implements Comparable<User>{
 
-    public HashMap<String,Boolean> sessionsAttending;
+    public HashMap<String,Long> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
     public HashMap<String,Boolean> studios;
     public HashMap<String,Boolean> chats;
@@ -26,7 +26,7 @@ public class User implements Comparable<User>{
     private String stripeAccountId;
     private HashMap<String,Object> stripeCustomer;
 
-    public User(HashMap<String, Boolean> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer) {
+    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.studios = studios;
@@ -44,17 +44,17 @@ public class User implements Comparable<User>{
     }
 
     public User() {
-        this.sessionsAttending = new HashMap<String,Boolean>();
+        this.sessionsAttending = new HashMap<String,Long>();
         this.sessionsHosting = new HashMap<String,Boolean>();
         this.studios = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
     }
 
-    public HashMap<String, Boolean> getSessionsAttending() {
+    public HashMap<String, Long> getSessionsAttending() {
         return sessionsAttending;
     }
 
-    public void setSessionsAttending(HashMap<String, Boolean> sessionsAttending) {
+    public void setSessionsAttending(HashMap<String, Long> sessionsAttending) {
         this.sessionsAttending = sessionsAttending;
     }
 

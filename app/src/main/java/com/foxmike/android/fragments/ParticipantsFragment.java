@@ -29,7 +29,7 @@ import java.util.HashMap;
  */
 public class ParticipantsFragment extends DialogFragment {
 
-    private HashMap<String,Boolean> participants;
+    private HashMap<String,String> participants;
     private RecyclerView participantsList;
     private DatabaseReference usersDatabase;
     private FirebaseAuth mAuth;
@@ -42,7 +42,7 @@ public class ParticipantsFragment extends DialogFragment {
         // Required empty public constructor
     }
     // Get hashmap of userIDs (participants) from previous activity/fragment
-    public static ParticipantsFragment newInstance(HashMap<String,Boolean> participants) {
+    public static ParticipantsFragment newInstance(HashMap<String,String> participants) {
         ParticipantsFragment fragment = new ParticipantsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("hashmap",participants);
@@ -54,10 +54,10 @@ public class ParticipantsFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.participants = new HashMap<String,Boolean>();
+        this.participants = new HashMap<String,String>();
         Bundle b = this.getArguments();
         if(b.getSerializable("hashmap") != null) {
-            this.participants = (HashMap<String,Boolean>)b.getSerializable("hashmap");
+            this.participants = (HashMap<String,String>)b.getSerializable("hashmap");
         }
     }
 
