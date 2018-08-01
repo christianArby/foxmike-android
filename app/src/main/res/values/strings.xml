@@ -384,5 +384,6 @@
     <string name="you_need_a_payment_method_in_order_to_book_this_session">You need a payment method in order to book this session.</string>
     <string name="booking_failed">Booking failed</string>
     <string name="choose_location">Choose location</string>
+    <string name="booking_session">Booking session...</string>
 
 </resources>

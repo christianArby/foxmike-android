@@ -473,7 +473,7 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnCancelBookedSession(String sessionID) {
+    public void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId) {
         // Not applicable in Host environment
     }
 

@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class Session implements Comparable<Session>, Serializable {
     private String studioId;
     private String host;
+    private String stripeAccountId;
     private String sessionName;
     private String sessionType;
     private String maxParticipants;
@@ -28,9 +29,10 @@ public class Session implements Comparable<Session>, Serializable {
     private String currency;
     private int price;
 
-    public Session(String studioId, String host, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, int price) {
+    public Session(String studioId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, int price) {
         this.studioId = studioId;
         this.host = host;
+        this.stripeAccountId = stripeAccountId;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.maxParticipants = maxParticipants;
@@ -65,6 +67,14 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getStripeAccountId() {
+        return stripeAccountId;
+    }
+
+    public void setStripeAccountId(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
     }
 
     public String getSessionName() {

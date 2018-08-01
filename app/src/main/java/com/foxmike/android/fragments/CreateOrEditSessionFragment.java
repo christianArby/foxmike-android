@@ -140,6 +140,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private boolean infoIsValid;
     private Session mUpdatedSession;
     private String accountCurrency;
+    private String stripeAccountId;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -483,7 +484,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                retrieveStripeAccount(dataSnapshot.getValue().toString()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                stripeAccountId = dataSnapshot.getValue().toString();
+
+                retrieveStripeAccount(stripeAccountId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                     @Override
                     public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
                         // If not succesful, show error and return from function, will trigger if account ID does not exist
@@ -570,6 +573,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         session.setLongitude(clickedLatLng.longitude);
         session.setLatitude(clickedLatLng.latitude);
         session.setHost(currentFirebaseUser.getUid());
+        session.setStripeAccountId(stripeAccountId);
 
         if (TextUtils.isEmpty(session.getSessionName())) {
             infoIsValid = false;
