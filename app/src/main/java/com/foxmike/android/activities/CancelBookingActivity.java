@@ -1,7 +1,10 @@
 package com.foxmike.android.activities;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -93,16 +96,12 @@ public class CancelBookingActivity extends AppCompatActivity {
         Duration durationBookedToCurrent = new Duration(bookedTime, currentTime);
 
         if (currentTimestamp>sessionTimestamp) {
-            Toast.makeText(CancelBookingActivity.this,"Session has passed, refund is not possible", Toast.LENGTH_LONG).show();
-            setResult(RESULT_OK, null);
-            finish();
+            alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed));
             return;
         }
 
         if (durationCurrentToSession.getStandardHours()<6 && durationBookedToCurrent.getStandardMinutes()>30) {
-            Toast.makeText(CancelBookingActivity.this,"Session is closer to 6 hours and booking was made more than 30 minutes ago, refund is not possible", Toast.LENGTH_LONG).show();
-            setResult(RESULT_OK, null);
-            finish();
+            alertDialogCancelWithoutRefund(getString(R.string.refund_not_possible), getString(R.string.session_is_too_close_to_refund));
             return;
         }
 
@@ -135,15 +134,70 @@ public class CancelBookingActivity extends AppCompatActivity {
                 if (result.get("operationResult").toString().equals("success")) {
                     progressBarHorizontal.setProgress(100);
                     Map<String,Object> refund = (Map) result.get("refund");
-                    Toast.makeText(CancelBookingActivity.this, "Refund successful, status:" + refund.get("status").toString(), Toast.LENGTH_LONG).show();
-                    setResult(RESULT_OK, null);
-                    finish();
+                    Integer amount = (Integer) refund.get("amount");
+                    alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + amount/100 + " " + refund.get("currency"));
                 } else {
                     HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
                     Toast.makeText(CancelBookingActivity.this, error.get("message").toString(), Toast.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+    private void alertDialogCancelWithoutRefund(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(CancelBookingActivity.this);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+
+        // Add the buttons
+        builder.setPositiveButton(R.string.cancel_booking_anyway, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                Intent intent = getIntent();
+                intent.putExtra("cancel",true);
+                intent.putExtra("sessionID", sessionId);
+                setResult(RESULT_OK, intent);
+                finish();
+
+                // User clicked OK button
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+
+    }
+
+    private void alertDialogOk(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(CancelBookingActivity.this);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 
 

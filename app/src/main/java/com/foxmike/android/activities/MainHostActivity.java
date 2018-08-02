@@ -468,7 +468,7 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency) {
+    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
         // Not applicable in Host environment
     }
 

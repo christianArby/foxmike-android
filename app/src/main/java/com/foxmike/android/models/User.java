@@ -25,8 +25,9 @@ public class User implements Comparable<User>{
     public String aboutMe;
     private String stripeAccountId;
     private HashMap<String,Object> stripeCustomer;
+    private boolean dontShowBookingText;
 
-    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer) {
+    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.studios = studios;
@@ -41,6 +42,7 @@ public class User implements Comparable<User>{
         this.aboutMe = aboutMe;
         this.stripeAccountId = stripeAccountId;
         this.stripeCustomer = stripeCustomer;
+        this.dontShowBookingText = dontShowBookingText;
     }
 
     public User() {
@@ -166,5 +168,13 @@ public class User implements Comparable<User>{
 
     public void setStripeCustomer(HashMap<String, Object> stripeCustomer) {
         this.stripeCustomer = stripeCustomer;
+    }
+
+    public boolean isDontShowBookingText() {
+        return dontShowBookingText;
+    }
+
+    public void setDontShowBookingText(boolean dontShowBookingText) {
+        this.dontShowBookingText = dontShowBookingText;
     }
 }

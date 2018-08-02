@@ -145,6 +145,7 @@ public class BookingActivity extends AppCompatActivity {
                                                     chargeMap.put("userID", mAuth.getCurrentUser().getUid());
                                                     chargeMap.put("sessionId", sessionId);
                                                     chargeMap.put("applicationFee", amount*0.1*100);
+                                                    chargeMap.put("email", mAuth.getCurrentUser().getEmail());
 
 
                                                     createCharge(chargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
@@ -165,7 +166,6 @@ public class BookingActivity extends AppCompatActivity {
                                                             HashMap<String, Object> result = task.getResult();
 
                                                             if (result.get("operationResult").toString().equals("success")) {
-                                                                Toast.makeText(BookingActivity.this, "Booking successful", Toast.LENGTH_LONG).show();
                                                                 setResult(RESULT_OK, null);
                                                                 finish();
                                                             } else {

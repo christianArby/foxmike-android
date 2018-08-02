@@ -272,6 +272,8 @@ public class ChatsFragment extends Fragment {
             public int getItemCount() {
                 if (chats.size()>0) {
                     noContent.setVisibility(View.GONE);
+                } else {
+                    noContent.setVisibility(View.VISIBLE);
                 }
                 return chats.size();
             }

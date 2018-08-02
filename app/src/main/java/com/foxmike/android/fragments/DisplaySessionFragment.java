@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.location.Address;
@@ -14,6 +15,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -617,15 +619,29 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         if (!hasPaymentSystem) {
                             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            NeedPaymentMethodFragment needPaymentMethodFragment = NeedPaymentMethodFragment.newInstance();
-                            needPaymentMethodFragment.show(transaction,"needPaymentMethodFragment");
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
+                            builder.setPositiveButton(R.string.add_payment_method, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
+                                    startActivity(paymentPreferencesIntent);
+                                }
+                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                             return;
                         }
                         /*
                         Else (button will show join session) add the user id to the session participant list and
                         the user sessions attending list when button is clicked.
                         */
-                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), defaultSourceMap.get("customer").toString(), session.getPrice(), session.getCurrency());
+                        onBookSessionListener.OnBookSession(sessionID, session.getHost(), defaultSourceMap.get("customer").toString(), session.getPrice(), session.getCurrency(), currentUser.isDontShowBookingText());
                     }
                 }
             });
@@ -1064,7 +1080,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         void OnEditSession(String sessionID , Session session);
     }
     public interface OnBookSessionListener {
-        void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency);
+        void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText);
     }
     public interface OnCancelBookedSessionListener {
         void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId);

@@ -23,14 +23,15 @@
         android:layout_height="0px"/>
 
     <ProgressBar
+        android:elevation="@dimen/elevation_fullscreen"
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/height_progressBar"
         android:minWidth="@dimen/width_progressBar"
         android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/paymentCardView"
+        app:layout_constraintBottom_toBottomOf="@id/paymentCardView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />

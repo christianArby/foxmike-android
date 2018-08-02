@@ -102,13 +102,6 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                             customerData.put("updateWithCustomerId", stripeCustomerId);
                             createIntent.putExtra("customerData",customerData);
                             startActivityForResult(createIntent, 1);
-                            /*HashMap<String, Object> accountData = new HashMap<>();
-                            accountData.put("stripeCustomerId", stripeCustomerId);
-                            Intent updateIntent = new Intent(PayoutPreferencesActivity.this,UpdateStripeAccountWithPayoutActivity.class);
-
-                            updateIntent.putExtra("accountData",accountData);
-                            startActivityForResult(updateIntent, 1);*/
-
                         }
                     });
                 } else {
