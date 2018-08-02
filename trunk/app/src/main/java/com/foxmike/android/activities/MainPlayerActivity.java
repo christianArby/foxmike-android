@@ -2,19 +2,24 @@ package com.foxmike.android.activities;
 //Checked
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -78,13 +83,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-
 import static android.content.ContentValues.TAG;
 
 public class MainPlayerActivity extends AppCompatActivity
@@ -145,6 +144,8 @@ public class MainPlayerActivity extends AppCompatActivity
     private boolean resumed = false;
     private FirebaseFunctions mFunctions;
     private View mainView;
+    static final int BOOK_SESSION_REQUEST = 8;
+    static final int CANCEL_SESSION_REQUEST = 16;
 
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
@@ -489,7 +490,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
             @Override
             public void OnLocationNotFound() {
-                Toast.makeText(MainPlayerActivity.this,"Your location was not found, please try again later.", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainPlayerActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.emptyListView();
                 listSessionsFragment.stopSwipeRefreshingSymbol();
@@ -522,21 +523,6 @@ public class MainPlayerActivity extends AppCompatActivity
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-        /*List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null && frag.getTag().length()>5) {
-                if (frag.getTag().substring(0,5).equals("xMain")) {
-                    if (frag.isVisible()) {
-                        //transaction.hide(frag);
-                    }
-                }
-            }
-        }*/
-        /*weekdayFilterContainer.setVisibility(View.GONE);
-        mapOrListBtn.setVisibility(View.GONE);
-        sortAndFilterFAB.setVisibility(View.GONE);
-        myLocationBtn.setVisibility(View.GONE);
-        bottomNavigation.setVisibility(View.GONE);*/
         if (addToBackStack) {
             transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(null).commit();
         } else {
@@ -706,7 +692,42 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency) {
+    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
+
+        if (!dontShowBookingText) {
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+            // Get the layout inflater
+            LayoutInflater inflater = MainPlayerActivity.this.getLayoutInflater();
+            View view = inflater.inflate(R.layout.fragment_booking_dialog,null);
+            AppCompatCheckBox showAgainCheckbox = view.findViewById(R.id.doNotShowAgainCheckbox);
+            builder.setView(view)
+                    // Add action buttons
+                    .setPositiveButton(R.string.book_session, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            if (showAgainCheckbox.isChecked()) {
+                                rootDbRef.child("users").child(userId).child("dontShowBookingText").setValue(true);
+                            }
+
+                            Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
+                            bookIntent.putExtra("sessionId", sessionId);
+                            bookIntent.putExtra("hostId", hostId);
+                            bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
+                            bookIntent.putExtra("amount",amount);
+                            bookIntent.putExtra("currency",currency);
+                            startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
+                        }
+                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            }).setMessage(R.string.booking_text_policy).setTitle(R.string.confirm_booking);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            return;
+        }
 
         Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
         bookIntent.putExtra("sessionId", sessionId);
@@ -714,15 +735,63 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
         bookIntent.putExtra("amount",amount);
         bookIntent.putExtra("currency",currency);
-        startActivityForResult(bookIntent, 1);
+        startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-            PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-            ps.loadPages(true);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CANCEL_SESSION_REQUEST) {
+                if (data!=null) {
+                    if (data.getBooleanExtra("cancel", false)) {
+                        String sessionID = data.getStringExtra("sessionID");
+                        Map requestMap = new HashMap<>();
+                        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), null);
+                        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, null);
+                        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                                    ps.loadPages(true);
+                                }
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+                                builder.setMessage(R.string.your_booking_has_been_cancelled);
+                                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+                        });
+
+                    }
+                } else {
+                    if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                        PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                        ps.loadPages(true);
+                    }
+                }
+            }
+            if (requestCode == BOOK_SESSION_REQUEST) {
+                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+                    builder.setMessage(R.string.booking_confirmed);
+                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                    ps.loadPages(true);
+                }
+            }
         }
     }
 
@@ -736,7 +805,7 @@ public class MainPlayerActivity extends AppCompatActivity
         cancelIntent.putExtra("participantId",participantId);
         cancelIntent.putExtra("chargeId",chargeId);
         cancelIntent.putExtra("accountId",accountId);
-        startActivityForResult(cancelIntent, 1);
+        startActivityForResult(cancelIntent, CANCEL_SESSION_REQUEST);
 
     }
 

@@ -385,5 +385,18 @@
     <string name="booking_failed">Booking failed</string>
     <string name="choose_location">Choose location</string>
     <string name="booking_session">Booking session...</string>
+    <string name="booking_text_policy">Bookings older than 30 minutes and within 6 hours before the starting time of the session are not refundable. For more information read our cancellation policy in our terms of agreement.</string>
+    <string name="cancellation_not_possible">Cancellation not possible</string>
+    <string name="session_has_passed">Session has passed, cancellation is not possible.</string>
+    <string name="refund_not_possible">Refund not possible</string>
+    <string name="session_is_too_close_to_refund">Session is closer to 6 hours and booking was made more than 30 minutes ago, refund is not possible.</string>
+    <string name="cancellation_confirmation">Cancellation confirmation</string>
+    <string name="your_cancellation_has_been_confirmed">Your cancellation has been confirmed. You will receive a refund of the session price of:</string>
+    <string name="cancel_booking_anyway">Cancel booking anyway</string>
+    <string name="confirm_booking">Confirm booking</string>
+    <string name="your_booking_has_been_cancelled">Your booking has been cancelled.</string>
+    <string name="booking_confirmed">Booking confirmed!</string>
+    <string name="ok">Ok</string>
+    <string name="dont_show_booking_text">I get it, don\'t show this message at my next booking.</string>
 
 </resources>

@@ -263,7 +263,7 @@
     <string name="update_profile_button_text">Uppdatera profil</string>
     <string name="post_text">Posta</string>
     <string name="send_post_text">SKICKA</string>
-    <string name="friend_requests_text">Vänförfrågan</string>
+    <string name="friend_requests_text">Vänförfrågningar</string>
     <string name="your_friends_text">Dina vänner</string>
     <string name="sessionLeader">Passledare:</string>
     <string name="hosted_by_text">Anordnas av</string>
@@ -385,5 +385,19 @@
     <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver ha en betalningsmetod för att kunna boka passet.</string>
     <string name="booking_failed">Bokningen misslyckades</string>
     <string name="choose_location">Välj plats</string>
+    <string name="booking_session">Bokar pass…</string>
+    <string name="booking_text_policy">Bokningar äldre än 30 min och inom 6 timmar från passets startid är inte återbetalningsbara. För mer information läs våra användarvillkor.</string>
+    <string name="cancellation_not_possible">Passet går ej att avboka</string>
+    <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
+    <string name="refund_not_possible">Återbetalning ej möjlig</string>
+    <string name="session_is_too_close_to_refund">Passets starttid är inom 6 timmar och bokningen gjordes för mer än 30 minuter sedan vilket innebär att återbetalning ej är möjlig.</string>
+    <string name="cancellation_confirmation">Avbokning bekräftad</string>
+    <string name="your_cancellation_has_been_confirmed">Passet är nu avbokat. En återbetalning kommer göras till ditt konto på passets pris på\u0020</string>
+    <string name="cancel_booking_anyway">Avboka passet ändå</string>
+    <string name="confirm_booking">Bekräfta bokning</string>
+    <string name="your_booking_has_been_cancelled">Passet är nu avbokat.</string>
+    <string name="booking_confirmed">Passet är bokat!</string>
+    <string name="ok">Ok</string>
+    <string name="dont_show_booking_text">Jag fattar, visa inte den här texten nästa gång jag bokar ett pass.</string>
 
 </resources>
