@@ -53,7 +53,7 @@
                         android:paddingEnd="@dimen/margin_right"
                         android:paddingTop="@dimen/margin_minimum"
                         android:paddingBottom="@dimen/margin_minimum"
-                        android:text="ADVERTISED"/>
+                        android:text="@string/advertised_cap"/>
 
                     <ImageView
                         android:contentDescription="@string/session_image"

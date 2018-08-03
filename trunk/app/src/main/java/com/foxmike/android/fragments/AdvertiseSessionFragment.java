@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.TimePicker;
 
 import com.foxmike.android.R;
+import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.interfaces.OnStudioChangedListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.Studio;
@@ -104,6 +106,10 @@ public class AdvertiseSessionFragment extends Fragment {
             studioId = getArguments().getString("studioId");
         }
 
+        checkPaymentMethod();
+    }
+
+    private void checkPaymentMethod() {
         rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -160,8 +166,6 @@ public class AdvertiseSessionFragment extends Fragment {
 
             }
         });
-
-
     }
 
     @Override
@@ -178,6 +182,7 @@ public class AdvertiseSessionFragment extends Fragment {
         noAccountContainer = view.findViewById(R.id.noAccountContainer);
         advInputContainer = view.findViewById(R.id.advInputContainer);
         advertiseBtn = view.findViewById(R.id.advertiseBtn);
+        addPayoutMethod = view.findViewById(R.id.addPayoutMethodBtn);
 
         progressBar.setVisibility(View.VISIBLE);
         noAccountContainer.setVisibility(View.GONE);
@@ -197,6 +202,15 @@ public class AdvertiseSessionFragment extends Fragment {
 
             }
         };
+
+        addPayoutMethod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent payoutPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                startActivity(payoutPreferencesIntent);
+            }
+        });
+
         /**If date field is clicked start Android datepicker and retrive data */
         dateTIL.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -289,6 +303,17 @@ public class AdvertiseSessionFragment extends Fragment {
         onAsyncTaskFinished();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        progressBar.setVisibility(View.VISIBLE);
+        noAccountContainer.setVisibility(View.GONE);
+        advInputContainer.setVisibility(View.GONE);
+        payoutMethodAndViewUsed = false;
+        payoutMethodChecked = false;
+        checkPaymentMethod();
+    }
+
     private void onAsyncTaskFinished() {
 
         if (payoutMethodChecked && !payoutMethodAndViewUsed && getView()!=null) {
@@ -378,19 +403,16 @@ public class AdvertiseSessionFragment extends Fragment {
     }
 
     private void pickTime() {
-        Calendar mcurrentTime = Calendar.getInstance();
-        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-        int minute = mcurrentTime.get(Calendar.MINUTE);
         TimePickerDialog mTimePicker;
         mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                timeET.setText( selectedHour + ":" + selectedMinute);
+                timeET.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
                 myCalendar.set(Calendar.MINUTE, selectedMinute);
 
             }
-        }, hour, minute, true);//Yes 24 hour time
+        }, 12, 0, true);//Yes 24 hour time
         mTimePicker.setTitle(getString(R.string.select_time));
         mTimePicker.show();
     }

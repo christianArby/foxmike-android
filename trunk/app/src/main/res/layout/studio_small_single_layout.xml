@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/leadSub2Body"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:text="ADVERTISED"
+                    android:text="@string/advertised_cap"
                     android:layout_below="@id/text2"/>
 
                 <TextView
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/leadSub2Body"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:text="NOT ADVERTISED"
+                    android:text="@string/not_advertised_cap"
                     android:layout_below="@id/text2"/>
 
 
