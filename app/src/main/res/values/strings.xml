@@ -400,5 +400,8 @@
     <string name="dont_show_booking_text">I get it, don\'t show this message at my next booking.</string>
     <string name="switching_to_participant_mode">Switching to participant mode</string>
     <string name="switching_to_trainer_mode">Switching to trainer mode</string>
+    <string name="not_advertised_cap">NOT ADVERTISED</string>
+    <string name="advertised_cap">ADVERTISED</string>
+    <string name="price_per_person_in_sek">Price per person in SEK</string>
 
 </resources>

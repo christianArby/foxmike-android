@@ -137,7 +137,7 @@
             android:paddingStart="@dimen/margin_left"
             android:paddingEnd="@dimen/margin_right"
             android:hint="@string/time"
-            android:inputType="textPersonName"
+            android:inputType="time"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:background="@android:color/transparent"
             android:focusable="false"

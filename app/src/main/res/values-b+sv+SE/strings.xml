@@ -401,5 +401,8 @@
     <string name="dont_show_booking_text">Jag fattar, visa inte den här texten nästa gång jag bokar ett pass.</string>
     <string name="switching_to_participant_mode">Byter till deltagarläge</string>
     <string name="switching_to_trainer_mode">Byter till tränarläge</string>
+    <string name="not_advertised_cap">AVANNONSERAD</string>
+    <string name="advertised_cap">ANNONSERAD</string>
+    <string name="price_per_person_in_sek">Pris per person i SEK</string>
 
 </resources>

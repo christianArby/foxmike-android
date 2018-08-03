@@ -520,7 +520,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                                 mPrice.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        createDialog("Price per person in SEK", R.array.price_array_SE,mPrice);
+                                        createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
                                     }
                                 });
 
@@ -686,19 +686,16 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     }
 
     private void pickTime() {
-        Calendar mcurrentTime = Calendar.getInstance();
-        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-        int minute = mcurrentTime.get(Calendar.MINUTE);
         TimePickerDialog mTimePicker;
         mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                mTime.setText( selectedHour + ":" + selectedMinute);
+                mTime.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
                 myCalendar.set(Calendar.MINUTE, selectedMinute);
 
             }
-        }, hour, minute, true);//Yes 24 hour time
+        }, 12, 0, true);//Yes 24 hour time
         mTimePicker.setTitle(getString(R.string.select_time));
         mTimePicker.show();
     }
