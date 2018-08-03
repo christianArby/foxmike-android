@@ -7,8 +7,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.Fade;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -21,6 +23,7 @@ import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.CreateOrEditStudioFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.DisplayStudioFragment;
+import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
@@ -58,7 +61,7 @@ import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
-        UserAccountFragment.OnUserAccountFragmentInteractionListener,
+        UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         HostSessionsFragment.OnCreateStudioClickedListener,
@@ -78,7 +81,7 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplayStudioFragment.OnStudioInteractionListener, OnStudioChangedListener{
 
     private FragmentManager fragmentManager;
-    private UserAccountFragment hostUserAccountFragment;
+    private UserAccountHostFragment hostUserAccountFragment;
     private MapsFragment hostMapsFragment;
     private DisplaySessionFragment hostDisplaySessionFragment;
     private InboxFragment hostInboxFragment;
@@ -101,6 +104,11 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // inside your activity (if you did not enable transitions in your theme)
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Fade());
+        getWindow().setExitTransition(new Fade());
+
         setContentView(R.layout.activity_main_host);
 
         bottomNavigation = findViewById(R.id.bottom_navigation_host);
@@ -124,7 +132,7 @@ public class MainHostActivity extends AppCompatActivity implements
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
         // Create instances of fragments
-        hostUserAccountFragment = UserAccountFragment.newInstance();
+        hostUserAccountFragment = UserAccountHostFragment.newInstance();
         hostSessionsFragment = HostSessionsFragment.newInstance();
         hostInboxFragment = InboxFragment.newInstance();
 
@@ -512,7 +520,7 @@ public class MainHostActivity extends AppCompatActivity implements
         // Add fragments to container and hide them
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
-            hostUserAccountFragment = UserAccountFragment.newInstance();
+            hostUserAccountFragment = UserAccountHostFragment.newInstance();
             transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
             transaction.hide(hostUserAccountFragment);
         }
