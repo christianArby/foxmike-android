@@ -843,8 +843,8 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCommentClicked(String postID) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID);
+    public void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image) {
+        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
         cleanMainFullscreenActivityAndSwitch(commentFragment,true);
     }
 

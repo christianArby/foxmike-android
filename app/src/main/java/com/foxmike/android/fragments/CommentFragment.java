@@ -17,7 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
@@ -35,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class CommentFragment extends Fragment {
 
     private FirebaseAuth mAuth;
@@ -51,6 +57,10 @@ public class CommentFragment extends Fragment {
     private DatabaseReference userDbRef;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private String postID;
+    private String heading;
+    private String time;
+    private String message;
+    private String thumb_image;
     private Toolbar commentToolbar;
     private boolean refreshTriggeredByScroll;
 
@@ -58,10 +68,14 @@ public class CommentFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CommentFragment newInstance(String postID) {
+    public static CommentFragment newInstance(String postID, String heading, String time, String message, String thumb_image) {
         CommentFragment fragment = new CommentFragment();
         Bundle args = new Bundle();
         args.putString("postID", postID);
+        args.putString("heading", heading);
+        args.putString("time", time);
+        args.putString("message", message);
+        args.putString("thumb_image", thumb_image);
         fragment.setArguments(args);
         return fragment;
     }
@@ -71,6 +85,10 @@ public class CommentFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             postID = getArguments().getString("postID");
+            heading = getArguments().getString("heading");
+            time = getArguments().getString("time");
+            message = getArguments().getString("message");
+            thumb_image = getArguments().getString("thumb_image");
         }
     }
 
@@ -84,6 +102,24 @@ public class CommentFragment extends Fragment {
         postSendBtn = (ImageButton) view.findViewById(R.id.post_message_send_btn);
         messagesListRV = (RecyclerView) view.findViewById(R.id.post_messages_list);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.post_message_swipe_layout);
+
+        view.findViewById(R.id.post_nr_comments_container).setVisibility(View.GONE);
+
+        view.findViewById(R.id.session_post_comment_text).setVisibility(View.GONE);
+
+
+
+        TextView headingTV = (TextView) view.findViewById(R.id.session_post_name);
+        headingTV.setText(heading);
+
+        TextView timeView = (TextView) view.findViewById(R.id.session_post_time);
+        timeView.setText(time);
+
+        TextView messageView = (TextView) view.findViewById(R.id.session_post_message);
+        messageView.setText(message);
+
+        CircleImageView userProfileImageIV = (CircleImageView) view.findViewById(R.id.session_post_image);
+        Glide.with(getContext()).load(thumb_image).into(userProfileImageIV);
 
         linearLayoutManager = new LinearLayoutManager(getActivity());
         // Make sure keyboard is not hiding recyclerview
