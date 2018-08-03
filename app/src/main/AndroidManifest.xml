@@ -122,8 +122,9 @@
         <activity android:name=".activities.PaymentPreferencesActivity" />
         <activity android:name=".activities.CreateStripeCustomerActivity" />
         <activity android:name=".activities.BookingActivity" />
-        <activity android:name=".activities.AboutActivity"></activity>
-        <activity android:name=".activities.CancelBookingActivity"></activity>
+        <activity android:name=".activities.AboutActivity" />
+        <activity android:name=".activities.CancelBookingActivity" />
+        <activity android:name=".activities.SwitchModeActivity"></activity>
     </application>
 
 </manifest>

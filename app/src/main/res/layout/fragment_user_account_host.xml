@@ -1,0 +1,41 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_user"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false">
+
+    <FrameLayout
+        android:elevation="8dp"
+        android:visibility="gone"
+        android:id="@+id/progressBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_background_light">
+    </FrameLayout>
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/list1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"/>
+    </ScrollView>
+
+    <ProgressBar
+        android:elevation="10dp"
+        android:id="@+id/progressBar_cyclic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/height_progressBar"
+        android:minWidth="@dimen/width_progressBar"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="invisible" />
+
+</FrameLayout>

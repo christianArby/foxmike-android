@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.foxmike.android.activities.SwitchModeActivity"
+    android:background="@color/color_background_light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+            android:visibility="visible"
+            android:id="@+id/dotProgressBar"
+            android:layout_width="80dp"
+            android:layout_height="19dp"
+            android:layout_margin="@dimen/margin_minimum"
+            app:amount="3"
+            app:duration="@android:integer/config_shortAnimTime"
+            app:endColor="@color/foxmikePrimaryColor"
+            app:startColor="@color/foxmikePrimaryDarkColor"
+            app:animationDirection="left"
+            android:layout_marginTop="2dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/switchText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/margin_minimum"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+            android:text="Switching mode"
+            android:textColor="@color/primaryTextColor"/>
+
+    </LinearLayout>
+
+
+
+</android.support.constraint.ConstraintLayout>

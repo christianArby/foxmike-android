@@ -1,6 +1,9 @@
 package com.foxmike.android.activities;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -22,6 +25,8 @@ import com.foxmike.android.fragments.AboutUserFragment;
 import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -294,6 +299,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     @Override
     public boolean onSupportNavigateUp() {
         if (stripeAccountCreated) {
+            setResult(RESULT_OK, null);
             finish();
         } else {
             onBackPressed();
@@ -305,6 +311,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     public void onBackPressed() {
         super.onBackPressed();
         if (stripeAccountCreated) {
+            setResult(RESULT_OK, null);
             finish();
         }
     }

@@ -54,7 +54,7 @@ import static android.app.Activity.RESULT_OK;
  * The data (used to generate the views) is retrieved by using an object of the class PlayerSessionsContent in order to generate the fill the views with content in the correct order.
  */
 
-public class UserAccountFragment extends Fragment {
+public class UserAccountHostFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
@@ -62,8 +62,10 @@ public class UserAccountFragment extends Fragment {
     private String currentUserID;
     private DatabaseReference rootDbRef;
     private LinearLayout list;
+    private LinearLayout payoutMethodContainer;
     private View profile;
     private TextView addPaymentMethod;
+    private TextView addPayoutMethod;
     private FrameLayout progressBackground;
     private View view;
     private TextView aboutTV;
@@ -77,12 +79,12 @@ public class UserAccountFragment extends Fragment {
     private TextView userNameTV;
     private TextView switchModeTV;
 
-    public UserAccountFragment() {
+    public UserAccountHostFragment() {
         // Required empty public constructor
     }
 
-    public static UserAccountFragment newInstance() {
-        UserAccountFragment fragment = new UserAccountFragment();
+    public static UserAccountHostFragment newInstance() {
+        UserAccountHostFragment fragment = new UserAccountHostFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -122,7 +124,6 @@ public class UserAccountFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
     }
 
     @Override
@@ -130,12 +131,12 @@ public class UserAccountFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         /* Get the view fragment_user_account */
-        view = inflater.inflate(R.layout.fragment_user_account, container, false);
+        view = inflater.inflate(R.layout.fragment_user_account_host, container, false);
         currentUserID = mAuth.getCurrentUser().getUid();
 
         /* Inflate the LinearLayout list (in fragment_user_account) with the layout user_profile_info */
         list = view.findViewById(R.id.list1);
-        profile = inflater.inflate(R.layout.user_account_player_layout,list,false);
+        profile = inflater.inflate(R.layout.user_account_host_layout,list,false);
         list.addView(profile);
         final ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
@@ -149,6 +150,8 @@ public class UserAccountFragment extends Fragment {
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         switchModeTV = view.findViewById(R.id.switchModeTV);
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
+        addPayoutMethod = profile.findViewById(R.id.addPayoutMethodTV);
+        payoutMethodContainer = profile.findViewById(R.id.payoutMethodContainer);
 
         aboutTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,6 +187,14 @@ public class UserAccountFragment extends Fragment {
             }
         });
 
+        addPayoutMethod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent payoutPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                startActivity(payoutPreferencesIntent);
+            }
+        });
+
 
         TextView logOutView = view.findViewById(R.id.logOutTV);
         logOutView.setOnClickListener(new View.OnClickListener() {
@@ -211,11 +222,6 @@ public class UserAccountFragment extends Fragment {
             fullNameTV.setText(currentUser.getFullName());
             userNameTV.setText(currentUser.getUserName());
             setCircleImage(currentUser.image,(CircleImageView) profile.findViewById(R.id.profileIV));
-            if (currentUser.getStripeAccountId()!=null) {
-                switchModeTV.setText(R.string.switch_to_host_mode_text);
-            } else {
-                switchModeTV.setText(R.string.become_trainer);
-            }
 
             switchModeTV.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -226,34 +232,13 @@ public class UserAccountFragment extends Fragment {
                         return;
                     }
 
-                    if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
-                        Intent createIntent = new Intent(getActivity(),CreateStripeAccountActivity.class);
-                        startActivityForResult(createIntent, 1);
-                        return;
-                    }
-
                     Intent fadeIntent = new Intent(getContext(),SwitchModeActivity.class);
-                    fadeIntent.putExtra("trainerMode", false);
+                    fadeIntent.putExtra("trainerMode", true);
                     startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
                 }
             });
-
-
-
         }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK){
-            Intent fadeIntent = new Intent(getContext(),SwitchModeActivity.class);
-            fadeIntent.putExtra("trainerMode", false);
-            startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
-        }
-    }
-
-
 
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
@@ -269,8 +254,8 @@ public class UserAccountFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (currentUserListener!=null) {
             rootDbRef.child("users").child(currentUserID).removeEventListener(currentUserListener);
         }

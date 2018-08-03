@@ -398,5 +398,7 @@
     <string name="booking_confirmed">Booking confirmed!</string>
     <string name="ok">Ok</string>
     <string name="dont_show_booking_text">I get it, don\'t show this message at my next booking.</string>
+    <string name="switching_to_participant_mode">Switching to participant mode</string>
+    <string name="switching_to_trainer_mode">Switching to trainer mode</string>
 
 </resources>
