@@ -65,7 +65,7 @@
         android:id="@+id/addPaymentMethodTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_payout_method_text"
+        android:text="@string/add_payment_method"
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="@color/foxmikePrimaryColor"
