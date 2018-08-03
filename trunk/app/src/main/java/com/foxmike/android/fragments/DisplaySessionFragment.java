@@ -554,7 +554,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
                     holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
-                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID());
+                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID(),postBranchArrayList.get(position).getPost().getSenderName(),timeText, postBranchArrayList.get(position).getPost().getMessage(),postBranchArrayList.get(position).getPost().getSenderThumbImage());
                     holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
                 }
             }
@@ -869,19 +869,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             CircleImageView userProfileImageIV = (CircleImageView) mView.findViewById(R.id.session_post_image);
             Glide.with(context).load(thumb_image).into(userProfileImageIV);
         }
-        public void setCommentClickListener(final String postID) {
+        public void setCommentClickListener(String postID, String heading, String time, String message, String thumb_image) {
             TextView commentLayout = mView.findViewById(R.id.session_post_comment_text);
             TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onCommentClickedListener.OnCommentClicked(postID);
+                    startCommentFragment(postID, heading, time, message, thumb_image);
                 }
             });
             NrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onCommentClickedListener.OnCommentClicked(postID);
+                    startCommentFragment(postID, heading, time, message, thumb_image);
                 }
             });
 
@@ -899,6 +899,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         }
     }
+
+    private void startCommentFragment(String postID, String heading, String time, String message, String thumb_image) {
+        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (null == fragmentManager.findFragmentByTag("commentFragment")) {
+            transaction.add(R.id.container_fullscreen_display_session, commentFragment,"commentFragment").addToBackStack(null);
+            transaction.commit();
+        }
+    }
+
     private void setImage(String image, ImageView imageView) {
         Glide.with(this).load(image).into(imageView);
     }

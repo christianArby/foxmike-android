@@ -298,9 +298,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:hint="Skriv något"
+            android:hint="@string/Write_something_hint_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/marginHorizontal"/>
+            android:padding="@dimen/margin_left"/>
 
 
     </LinearLayout>
