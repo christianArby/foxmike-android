@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -69,6 +71,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 /**
@@ -684,12 +687,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         @Override
                         public void onClick(View view) {
                             WritePostFragment writePostFragment = WritePostFragment.newInstance(sessionID);
-                            FragmentManager fragmentManager = getChildFragmentManager();
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            if (writePostFragment!=null) {
-                                transaction.remove(writePostFragment);
+                            if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
+                                transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
+                                transaction.commit();
                             }
-                            writePostFragment.show(transaction,"writePostFragment");
                         }
                     });
 

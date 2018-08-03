@@ -105,7 +105,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                         }
                     });
                 } else {
-                    addPaymentMethodTV.setText("Add payment method");
+                    addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
                     // If no stripe account exist, show add payout method text
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override

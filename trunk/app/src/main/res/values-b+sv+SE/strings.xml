@@ -256,7 +256,7 @@
     <string name="filter_on_distance_text">Filtrera på avstånd:</string>
     <string name="send_friend_request_text">Skicka vänförfrågan</string>
     <string name="decline_friend_request_text">Avvisa vänförfrågan</string>
-    <string name="Write_something_hint_text">Skriva något…</string>
+    <string name="Write_something_hint_text">Skriv något…</string>
     <string name="make_comment_text">Kommentera</string>
     <string name="log_out_text">Logga ut</string>
     <string name="show_and_edit_profile_text">Visa och redigera profil</string>

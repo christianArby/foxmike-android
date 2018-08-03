@@ -78,7 +78,8 @@ public class MainHostActivity extends AppCompatActivity implements
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         OnStudioBranchClickedListener,
-        DisplayStudioFragment.OnStudioInteractionListener, OnStudioChangedListener{
+        DisplayStudioFragment.OnStudioInteractionListener, OnStudioChangedListener,
+        UserAccountFragment.OnUserAccountFragmentInteractionListener{
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;

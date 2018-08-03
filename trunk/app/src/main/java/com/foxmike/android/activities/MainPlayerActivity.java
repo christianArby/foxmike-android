@@ -41,6 +41,7 @@ import com.foxmike.android.fragments.DisplayStudioFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
@@ -95,6 +96,7 @@ public class MainPlayerActivity extends AppCompatActivity
         OnWeekdayButtonClickedListener,
         OnSessionClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
+        UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         OnNewMessageListener,
