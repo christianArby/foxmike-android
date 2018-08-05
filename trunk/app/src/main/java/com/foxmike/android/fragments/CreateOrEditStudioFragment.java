@@ -15,6 +15,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -116,9 +117,7 @@ public class CreateOrEditStudioFragment extends Fragment {
     private FirebaseAuth mAuth;
     private MapsFragment mapsFragment;
     private FragmentManager fragmentManager;
-    private FrameLayout mapsFragmentContainer;
     private OnStudioChangedListener onStudioChangedListener;
-    private CreateOrEditSessionFragment.OnEditLocationListener onEditLocationListener;
     static CreateOrEditStudioFragment fragment;
     private ProgressBar progressBar;
     private String accountCountry;
@@ -186,7 +185,6 @@ public class CreateOrEditStudioFragment extends Fragment {
         mCreateStudioBtn = createStudio.findViewById(R.id.createSessionBtn);
         mPrice = createStudio.findViewById(R.id.priceET);
         mSessionImageButton = createStudio.findViewById(R.id.sessionImageBtn);
-        mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
         progressBar = createStudio.findViewById(R.id.progressBar_cyclic);
 
         // Add view to create session container
@@ -201,9 +199,6 @@ public class CreateOrEditStudioFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
-        // Set inital state of map fragment container
-        mapsFragmentContainer.setVisibility(View.GONE);
 
         /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
         geoFire = new GeoFire(mGeofireDbRef);
@@ -237,16 +232,17 @@ public class CreateOrEditStudioFragment extends Fragment {
         mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // TODO no, change smarter, so that mapsfragment is opened in this fragment
-
-                /*updateSessionObjectFromUI(new CreateOrEditSessionFragment.OnSessionUpdatedListener() {
-                    @Override
-                    public void OnSessionUpdated(Session updatedSession) {
-
-                        //onEditLocationListener.OnEditLocation(mSessionId, updatedSession);
-                    }
-                });*/
+                Bundle bundle = new Bundle();
+                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+                bundle.putBoolean("changeLocation", true);
+                mapsFragment = MapsFragment.newInstance();
+                mapsFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (null == fragmentManager.findFragmentByTag("studioMapsFragment")) {
+                    transaction.add(R.id.container_studio_maps_fragment, mapsFragment,"studioMapsFragment").addToBackStack(null);
+                    transaction.commit();
+                }
             }
         });
 
@@ -340,7 +336,6 @@ public class CreateOrEditStudioFragment extends Fragment {
                     @Override
                     public void OnStudioUpdated(final Studio updatedStudio) {
                         mUpdatedStudio = updatedStudio;
-
                         sendStudio(updatedStudio);
                     }
                 });
@@ -596,6 +591,14 @@ public class CreateOrEditStudioFragment extends Fragment {
             returnAddress = "failed";
         }
         return returnAddress;
+    }
+
+    public void updateLocation(LatLng latLng) {
+        if (getView()!=null) {
+            clickedLatLng = new LatLng(latLng.latitude, latLng.longitude);
+            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            mLocation.setText(address);
+        }
     }
 
     public interface OnStudioUpdatedListener {

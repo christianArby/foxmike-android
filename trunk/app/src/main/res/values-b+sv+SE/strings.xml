@@ -190,7 +190,7 @@
     <string name="mlevel">Nivå</string>
     <string name="maximum_participants">Maximalt antal deltagare</string>
     <string name="mDescription">Beskrivning</string>
-    <string name="create_session">Skapa pass</string>
+    <string name="create_session">Skapar pass</string>
     <string name="set">Bestäm</string>
     <string name="join_session">Gå med i passet</string>
     <string name="session_name_goes_here">Passnamn</string>
@@ -233,7 +233,7 @@
     <string name="placeholder_last_seen">Sågs senast</string>
     <string name="CD_choose_session_image_button">Välj sessionsbildsknapp</string>
     <string name="CD_location_icon">Location_icon</string>
-    <string name="advertised_word">Annonserade</string>
+    <string name="advertised_word">Annonser</string>
     <string name="CD_date_icon">Datum ikon</string>
     <string name="CD_duration_icon">Varaktighetsikonen</string>
     <string name="duration_hint">Varaktighet</string>
@@ -404,5 +404,11 @@
     <string name="not_advertised_cap">AVANNONSERAD</string>
     <string name="advertised_cap">ANNONSERAD</string>
     <string name="price_per_person_in_sek">Pris per person i SEK</string>
-
+    <string name="location_cannot_change">Platsen går inte att ändra eftersom ditt pass har delatagare.</string>
+    <string name="session_type_cannot_change">Passtyp går inte att ändra eftersom ditt pass har deltagare.</string>
+    <string name="date_cannot_change">Datumet går inte att ändra eftersom ditt pass har deltagare.</string>
+    <string name="time_cannot_change">Tiden går inte att ändra eftersom ditt pass har deltagare.</string>
+    <string name="participants_cannot_change">Max antal deltagare kan inte vara färre än antal anmälda deltagare.</string>
+    <string name="price_cannot_change">Priset går inte att ändra eftersom ditt pass har deltagare.</string>
+    <string name="session_name_cannot_change">Namnet går inte att ändra eftersom ditt pass har deltagare.</string>
 </resources>

@@ -15,6 +15,7 @@
     </android.support.v7.widget.Toolbar>
 
     <FrameLayout
+        android:elevation="12dp"
         android:id="@+id/container_maps_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

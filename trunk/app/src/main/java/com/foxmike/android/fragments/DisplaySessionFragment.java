@@ -620,8 +620,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     else {
                         if (!hasPaymentSystem) {
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                            FragmentTransaction transaction = fragmentManager.beginTransaction();
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);

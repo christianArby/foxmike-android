@@ -271,10 +271,16 @@ public class UserProfilePublicEditFragment extends Fragment {
         profileImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent galleryIntent = new Intent();
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setCropShape(CropImageView.CropShape.OVAL)
+                        .setAspectRatio(1,1)
+                        .start(fragment.getContext(), fragment);
+
+                /*Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
+                galleryIntent.setType("image*//*");
+                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);*/
             }
         });
 
