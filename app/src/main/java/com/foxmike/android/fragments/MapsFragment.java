@@ -74,7 +74,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private OnCreateStudioListener onCreateStudioListener;
     private OnSessionLocationChangedListener onSessionLocationChangedListener;
     private TextView createSessionMapTextTV;
-    private int changeLocation;
+    private boolean changeLocation;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private Button chooseLocation;
@@ -95,8 +95,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = this.getArguments();
+        changeLocation = false;
         if (bundle != null) {
-            changeLocation = bundle.getInt("CHANGELOCATION", 0);
+            if (bundle.getBoolean("changeLocation")) {
+                changeLocation = true;
+            }
         }
         setRetainInstance(true);
         moveCamera=true;
@@ -198,9 +201,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void onClick(View view) {
                 if (chosenPoint!=null) {
-                    if (changeLocation==1) {
+                    if (changeLocation) {
                         onSessionLocationChangedListener.OnSessionLocationChanged(chosenPoint);
-                        //onSessionClickedListener.OnSessionClicked(point.latitude, point.longitude);
+                        getActivity().onBackPressed();
                     } else {
                         addSession(chosenPoint);
                     }

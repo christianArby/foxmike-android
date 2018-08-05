@@ -71,15 +71,14 @@ public class MainHostActivity extends AppCompatActivity implements
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener, MapsFragment.OnCreateStudioListener,
-        CreateOrEditSessionFragment.OnEditLocationListener,
-        MapsFragment.OnSessionLocationChangedListener,
         OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         OnStudioBranchClickedListener,
         DisplayStudioFragment.OnStudioInteractionListener, OnStudioChangedListener,
-        UserAccountFragment.OnUserAccountFragmentInteractionListener{
+        UserAccountFragment.OnUserAccountFragmentInteractionListener,
+        MapsFragment.OnSessionLocationChangedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;
@@ -365,31 +364,6 @@ public class MainHostActivity extends AppCompatActivity implements
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
 
-    // Starts Mapsfragment when location on session should be changed.
-    @Override
-    public void OnEditLocation(String sessionID ,Session session) {
-        editedSessionID = sessionID;
-        editedSession = session;
-        MapsFragment mapsFragment;
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        bundle.putInt("CHANGELOCATION", 1);
-        mapsFragment = MapsFragment.newInstance();
-        mapsFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(mapsFragment, true,"");
-    }
-    // Starts CreateOrEditSession again after location on session has been changed.
-    @Override
-    public void OnSessionLocationChanged(LatLng latLng) {
-        editedSession.setLatitude(latLng.latitude);
-        editedSession.setLongitude(latLng.longitude);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("session", editedSession);
-        bundle.putString("sessionID", editedSessionID);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"");
-    }
     @Override
     public void OnEditStudio(String studioID, Studio studio) {
         Bundle bundle = new Bundle();
@@ -538,5 +512,15 @@ public class MainHostActivity extends AppCompatActivity implements
         transaction.commit();
         resumed = true;
         bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
+    }
+
+    @Override
+    public void OnSessionLocationChanged(LatLng latLng) {
+        if (createOrEditSessionFragment!=null) {
+            createOrEditSessionFragment.updateLocation(latLng);
+        }
+        if (createOrEditStudioFragment!=null) {
+            createOrEditStudioFragment.updateLocation(latLng);
+        }
     }
 }

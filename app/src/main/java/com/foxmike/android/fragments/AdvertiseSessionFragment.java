@@ -13,7 +13,10 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -187,6 +190,13 @@ public class AdvertiseSessionFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         noAccountContainer.setVisibility(View.GONE);
         advInputContainer.setVisibility(View.GONE);
+
+        // Setup toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
 
         /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
          * Update date label with function updateLabel() in order to set it to correct format */

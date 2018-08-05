@@ -403,5 +403,12 @@
     <string name="not_advertised_cap">NOT ADVERTISED</string>
     <string name="advertised_cap">ADVERTISED</string>
     <string name="price_per_person_in_sek">Price per person in SEK</string>
+    <string name="location_cannot_change">Your session has participants so you cannot change the location of the session.</string>
+    <string name="session_type_cannot_change">Your session has participants so you cannot change the type of the session.</string>
+    <string name="date_cannot_change">Your session has participants so you cannot change the date of the session.</string>
+    <string name="time_cannot_change">Your session has participants so you cannot change the time of the session.</string>
+    <string name="participants_cannot_change">Maximum particpants cannot be less than current number of participants.</string>
+    <string name="price_cannot_change">Your session has participants so the session price cannot be changed.</string>
+    <string name="session_name_cannot_change">You cannot change the name of the session since you have participants which have already booked this session.</string>
 
 </resources>

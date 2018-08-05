@@ -59,26 +59,14 @@
         android:hint="@string/location_loading"
         android:longClickable="false"/>
 
-    <CheckedTextView
-        android:id="@+id/advertised"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:paddingStart="@dimen/margin_left"
-        android:paddingEnd="@dimen/margin_right"
-        android:layout_marginTop="@dimen/margin_top_text"
-        android:checkMark="@mipmap/ic_check_box_outline_blank_black_24dp"
-        android:text="@string/advertised_word"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/locationTV" />
-
     <android.support.design.widget.TextInputLayout
         android:id="@+id/sessionTypeTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hintEnabled="false"
         app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/advertised">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationTV">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/sessionTypeET"

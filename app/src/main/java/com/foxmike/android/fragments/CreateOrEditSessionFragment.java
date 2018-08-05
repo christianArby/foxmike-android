@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -74,6 +75,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -82,7 +84,7 @@ import static android.content.ContentValues.TAG;
  * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
  * It also updates existing sessions.
  */
-public class CreateOrEditSessionFragment extends Fragment implements OnSessionClickedListener{
+public class CreateOrEditSessionFragment extends Fragment{
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
@@ -104,7 +106,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private EditText mWho;
     private EditText mWhere;
     private EditText mPrice;
-    private CheckedTextView mAdvertised;
     private Button mCreateSessionBtn;
     private final Calendar myCalendar = Calendar.getInstance();
     private ListView lv;
@@ -130,7 +131,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
     private OnHostSessionChangedListener onHostSessionChangedListener;
-    private OnEditLocationListener onEditLocationListener;
     private OnStudioChangedListener onStudioChangedListener;
     static CreateOrEditSessionFragment fragment;
     private ProgressBar progressBar;
@@ -141,6 +141,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     private Session mUpdatedSession;
     private String accountCurrency;
     private String stripeAccountId;
+    private boolean hasParticipants = false;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -193,7 +194,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mPrice = createSession.findViewById(R.id.priceET);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
-        mAdvertised = createSession.findViewById(R.id.advertised);
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         mPriceTIL = createSession.findViewById(R.id.priceTIL);
@@ -205,33 +205,12 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        // Set default state of advertised checkedTextview
-        mAdvertised.setChecked(true);
-        mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-
         progressBar.setVisibility(View.VISIBLE);
         mPriceTIL.setVisibility(View.GONE);
         mCreateSessionBtn.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
-        // Set inital state of map fragment container
-        mapsFragmentContainer.setVisibility(View.GONE);
-
-        // Setup advertised toggle button
-        mAdvertised.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mAdvertised.isChecked()) {
-                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_outline_blank_black_24dp);
-                    mAdvertised.setChecked(false);
-                } else {
-                    mAdvertised.setCheckMarkDrawable(R.mipmap.ic_check_box_black_24dp);
-                    mAdvertised.setChecked(true);
-                }
-            }
-        });
 
         // Add view to create session container
         createSessionContainer.addView(createSession);
@@ -256,121 +235,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             }
         });
 
-        /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
-        mSessionImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
-
-            }
-        });
-
-        // Setup location icon click listener
-        mLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                updateSessionObjectFromUI(new OnSessionUpdatedListener() {
-                    @Override
-                    public void OnSessionUpdated(Session updatedSession) {
-                        onEditLocationListener.OnEditLocation(mSessionId, updatedSession);
-                    }
-                });
-            }
-        });
-
-        /** When item is clicked create a dialog with the specified title and string array */
-        mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
-            }
-        });
-        mSessionType.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
-            }
-        });
-
-
-        /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
-         * Update date label with function updateLabel() in order to set it to correct format */
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                // TODO Auto-generated method stub
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel();
-
-            }
-        };
-        /**If date field is clicked start Android datepicker and retrive data */
-        mDateTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(getContext(), date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-        mDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(getContext(), date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-
-        /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
-        mTimeTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickTime();
-            }
-        });
-
-        mTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickTime();
-            }
-        });
-
-        mDurationTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
-            }
-        });
-        mDuration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
-            }
-        });
-
-        mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
-            }
-        });
-        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
-            }
-        });
-
         // FILL VIEW with the session in bundle or with the session with the sessionID
         sessionExist=0;
         if (existingSessionID != null | existingSession!=null) {
@@ -385,7 +249,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                         existingSession = dataSnapshot.getValue(Session.class);
                         fillUI();
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
@@ -420,8 +283,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                 mProgress.show();
                 updateSessionObjectFromUI(new OnSessionUpdatedListener() {
                     @Override
-                    public void OnSessionUpdated(final Session updatedSession) {
-                        mUpdatedSession = updatedSession;
+                    public void OnSessionUpdated(final Map sessionMap) {
 
                         if (!payoutsEnabled) {
 
@@ -441,7 +303,7 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                             okDialog.show();
 
                         } else {
-                            if (infoIsValid) {sendSession(updatedSession);} else {
+                            if (infoIsValid) {sendSession(sessionMap);} else {
                                 Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                             }
 
@@ -455,6 +317,171 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     }
 
     private void fillUI() {
+
+        if (existingSession.getParticipants().size()>0) {
+            hasParticipants = true;
+        }
+
+        // -------------- Set on button click listeners --------------------
+
+        /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
+        mSessionImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
+
+            }
+        });
+
+        mSessionName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.session_name_cannot_change));
+                    return;}
+            }
+        });
+
+        // Setup location icon click listener
+        mLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                notPossibleHasParticipants(getString(R.string.location_cannot_change));
+                return;}
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+                bundle.putBoolean("changeLocation", true);
+                mapsFragment = MapsFragment.newInstance();
+                mapsFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (null == fragmentManager.findFragmentByTag("sessionMapsFragment")) {
+                    transaction.add(R.id.container_maps_fragment, mapsFragment,"sessionMapsFragment").addToBackStack(null);
+                    transaction.commit();
+                }
+            }
+        });
+
+        /** When item is clicked create a dialog with the specified title and string array */
+        mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
+                    return;
+                }
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+            }
+        });
+        mSessionType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
+                    return;
+                }
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+            }
+        });
+
+        /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
+         * Update date label with function updateLabel() in order to set it to correct format */
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel();
+            }
+        };
+        /**If date field is clicked start Android datepicker and retrive data */
+        mDateTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.date_cannot_change));
+                    return;
+                }
+                new DatePickerDialog(getContext(), date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+        mDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.date_cannot_change));
+                    return;
+                }
+                new DatePickerDialog(getContext(), date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+        /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
+        mTimeTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.time_cannot_change));
+                    return;
+                }
+                pickTime();
+            }
+        });
+
+        mTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (hasParticipants) {
+                    notPossibleHasParticipants(getString(R.string.time_cannot_change));
+                    return;
+                }
+                pickTime();
+            }
+        });
+
+        mDurationTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
+            }
+        });
+        mDuration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
+            }
+        });
+
+        mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,existingSession.getParticipants().size());
+
+            }
+        });
+        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,existingSession.getParticipants().size());
+            }
+        });
+
+        // ------------------- Get info from UI -----------------------
+
         clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
         String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
         mLocation.setText(address);
@@ -476,6 +503,22 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mCreateSessionBtn.setText(R.string.update_session);
 
         setPrice(existingSession.getPrice());
+    }
+
+    private void notPossibleHasParticipants(String text) {
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(text);
+        // Add the buttons
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void setPrice(final int price) {
@@ -520,6 +563,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                                 mPrice.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
+                                        if (hasParticipants) {
+                                            notPossibleHasParticipants(getString(R.string.price_cannot_change));
+                                            return;
+                                        }
                                         createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
                                     }
                                 });
@@ -548,13 +595,14 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     public void updateSessionObjectFromUI(final OnSessionUpdatedListener onSessionUpdatedListener) {
 
         infoIsValid = true;
-        final Session session = new Session();
+        //final Session session = new Session();
+        Map sessionMap = new HashMap();
 
         /**If session exists get the existing session id */
         if (sessionExist==1) {
             mSessionId = existingSessionID;
-            session.setPosts(existingSession.getPosts());
-            session.setStudioId(existingSession.getStudioId());
+            sessionMap.put("posts", existingSession.getPosts());
+            sessionMap.put("studioId", existingSession.getStudioId());
         }
         /**If session not exists create a new random session key*/
         else {
@@ -562,44 +610,46 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         }
 
         mSessionTimestamp = myCalendar.getTimeInMillis();
-        session.setSessionName(mSessionName.getText().toString());
-        session.setSessionType(mSessionType.getText().toString());
-        session.setWhat(mWhat.getText().toString());
-        session.setWho(mWho.getText().toString());
-        session.setWhereAt(mWhere.getText().toString());
-        session.setSessionTimestamp(mSessionTimestamp);
-        session.setMaxParticipants(mMaxParticipants.getText().toString());
-        session.setDuration(mDuration.getText().toString());
-        session.setLongitude(clickedLatLng.longitude);
-        session.setLatitude(clickedLatLng.latitude);
-        session.setHost(currentFirebaseUser.getUid());
-        session.setStripeAccountId(stripeAccountId);
 
-        if (TextUtils.isEmpty(session.getSessionName())) {
+        sessionMap.put("sessionName", mSessionName.getText().toString());
+        sessionMap.put("sessionType", mSessionType.getText().toString());
+        sessionMap.put("what",mWhat.getText().toString());
+        sessionMap.put("who", mWho.getText().toString());
+        sessionMap.put("whereAt", mWhere.getText().toString());
+        sessionMap.put("sessionTimestamp", mSessionTimestamp);
+        sessionMap.put("maxParticipants", mMaxParticipants.getText().toString());
+        sessionMap.put("duration", mDuration.getText().toString());
+        sessionMap.put("longitude", clickedLatLng.longitude);
+        sessionMap.put("latitude", clickedLatLng.latitude);
+        sessionMap.put("host", currentFirebaseUser.getUid());
+        sessionMap.put("stripeAccountId", stripeAccountId);
+        sessionMap.put("participants", existingSession.getParticipants());
+
+        if (TextUtils.isEmpty(mSessionName.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getSessionType())) {
+        if (TextUtils.isEmpty(mSessionType.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getMaxParticipants())) {
+        if (TextUtils.isEmpty(mMaxParticipants.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getDuration())) {
+        if (TextUtils.isEmpty(mDuration.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getWhat())) {
+        if (TextUtils.isEmpty(mWhat.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getWho())) {
+        if (TextUtils.isEmpty(mWho.getText().toString())) {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(session.getWhereAt())) {
+        if (TextUtils.isEmpty(mWhere.getText().toString())) {
             infoIsValid = false;
         }
 
@@ -607,8 +657,8 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
             if (sPrice.length()>1) {
                 int intPrice = Integer.parseInt(sPrice);
-                session.setPrice(intPrice);
-                session.setCurrency(accountCurrency);
+                sessionMap.put("price", intPrice);
+                sessionMap.put("currency", accountCurrency);
             } else {
                 infoIsValid=false;
             }
@@ -624,10 +674,10 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
                     String downloadUri = taskSnapshot.getDownloadUrl().toString();
                     /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
                      * to the main activity*/
-                    session.setImageUrl(downloadUri);
+                    sessionMap.put("imageUrl", downloadUri);
 
                     if (infoIsValid){
-                        onSessionUpdatedListener.OnSessionUpdated(session);
+                        onSessionUpdatedListener.OnSessionUpdated(sessionMap);
                     }   else    {
                         Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                     }
@@ -640,11 +690,11 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
              * and send the user back to the main activity*/
             if (sessionExist==1) {
-                session.setImageUrl(existingSession.getImageUrl());
+                sessionMap.put("imageUrl", existingSession.getImageUrl());
                 mProgress.dismiss();
 
                 if (infoIsValid){
-                    onSessionUpdatedListener.OnSessionUpdated(session);
+                    onSessionUpdatedListener.OnSessionUpdated(sessionMap);
                 }   else    {
                     Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                 }
@@ -659,9 +709,9 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     }
 
     /**Send session object to database */
-    private void sendSession(final Session sendSession) {
-        rootDbRef.child("sessions").child(mSessionId).setValue(sendSession);
-        rootDbRef.child("studiosTEST").child(sendSession.getStudioId()).child("sessions").child(mSessionId).setValue(sendSession.getSessionTimestamp());
+    private void sendSession(Map sendSession) {
+        rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
+        rootDbRef.child("studiosTEST").child(sendSession.get("studioId").toString()).child("sessions").child(mSessionId).setValue(sendSession.get("sessionTimestamp"));
         onHostSessionChangedListener.OnHostSessionChanged();
         onStudioChangedListener.OnStudioChanged();
     }
@@ -700,23 +750,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
         mTimePicker.show();
     }
 
-    // If location has been changed through opening MapsFragment catch the clickedLatLng from OnSessionClickedListener
-    @Override
-    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-        clickedLatLng = new LatLng(sessionLatitude, sessionLongitude);
-        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-        mLocation.setText(address);
-        FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-        transaction2.remove(fragmentManager.findFragmentByTag("mapsFragmentChange"));
-        transaction2.commit();
-        mapsFragmentContainer.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void OnSessionClicked(String sessionId) {
-
-    }
-
     private void updateLabel() {
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
@@ -741,6 +774,33 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int itemPosition = position;
                 String itemValue = (String) lv.getItemAtPosition(position);
+                mEditText.setText(itemValue);
+                dlg.hide();
+            }
+        });
+    }
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
+    private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText, int currentNrOfParticipants) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getLayoutInflater();
+        View convertView = inflater.inflate(R.layout.dialog_listview, null);
+        alertDialogBuilder.setView(convertView);
+        alertDialogBuilder.setTitle(title);
+        lv = convertView.findViewById(R.id.listView1);
+        lv.getDivider().setAlpha(0);
+        String[] values = getResources().getStringArray(string_array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
+        lv.setAdapter(adapter);
+        final AlertDialog dlg = alertDialogBuilder.show();
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int itemPosition = position;
+                String itemValue = (String) lv.getItemAtPosition(position);
+                if (Integer.parseInt(itemValue)<currentNrOfParticipants) {
+                    notPossibleHasParticipants(getString(R.string.participants_cannot_change));
+                    return;
+                }
                 mEditText.setText(itemValue);
                 dlg.hide();
             }
@@ -834,12 +894,6 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
             throw new RuntimeException(context.toString()
                     + " must implement OnHostSessionChangedListener");
         }
-        if (context instanceof OnEditLocationListener) {
-            onEditLocationListener = (OnEditLocationListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnEditLocationListener");
-        }
         if (context instanceof OnStudioChangedListener) {
             onStudioChangedListener = (OnStudioChangedListener) context;
         } else {
@@ -852,16 +906,19 @@ public class CreateOrEditSessionFragment extends Fragment implements OnSessionCl
     public void onDetach() {
         super.onDetach();
         onHostSessionChangedListener = null;
-        onEditLocationListener = null;
         onStudioChangedListener = null;
     }
 
-    public interface OnEditLocationListener {
+    public void updateLocation(LatLng latLng) {
+        if (getView()!=null) {
+            clickedLatLng = new LatLng(latLng.latitude, latLng.longitude);
+            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            mLocation.setText(address);
+        }
+    }
 
-        void OnEditLocation(String sessionID, Session session);
-     }
 
-     public interface OnSessionUpdatedListener {
-        void OnSessionUpdated(Session updatedSession);
+    public interface OnSessionUpdatedListener {
+        void OnSessionUpdated(Map sessionMap);
      }
 }
