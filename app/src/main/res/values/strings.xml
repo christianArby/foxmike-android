@@ -365,9 +365,6 @@
     <string name="GEOFIRE_PATH">geofire</string>
     <string name="edit_session_details">Edit session details</string>
     <string name="preview_session">Preview session</string>
-    <string name="advertise_your_session">Advertise your session</string>
-    <string name="not_advertised_explanation">Your session is currently not adverised and will not show up in search results. Advertise you session so that people can book it.</string>
-    <string name="advertise_session">Advertise session</string>
     <string name="add_advertisement">Add advertisement</string>
     <string name="previous_sessions">Previous sessions</string>
     <string name="advertise">Advertise</string>
@@ -410,5 +407,27 @@
     <string name="participants_cannot_change">Maximum particpants cannot be less than current number of participants.</string>
     <string name="price_cannot_change">Your session has participants so the session price cannot be changed.</string>
     <string name="session_name_cannot_change">You cannot change the name of the session since you have participants which have already booked this session.</string>
-
+    <string name="updating_training_group">Updating training group...</string>
+    <string name="creating_training_group">Creating training group...</string>
+    <string name="update_training_group">Update training group</string>
+    <string name="edit_group_details">Edit group details</string>
+    <string name="no_sessions">No sessions</string>
+    <string name="no_sessions_explanation">You have no upcoming sessions. Create a session and it will show up in search results and people can book it.</string>
+    <string name="add_session">Add session</string>
+    <string name="past_sessions">Past sessions</string>
+    <string name="description">Description</string>
+    <string name="training_groups">Training groups</string>
+    <string name="location">Location</string>
+    <string name="please_choose_location">Please choose location.</string>
+    <string name="please_choose_name">Please choose a name for your group.</string>
+    <string name="please_choose_type">Please choose a type of training.</string>
+    <string name="please_describe_your_group">Please describe your group.</string>
+    <string name="please_choose_a_group_image">Please choose a group image.</string>
+    <string name="no_active_payout_method">You have no active payout method, please add payout method under your account settings.</string>
+    <string name="group_name">Group name</string>
+    <string name="type_of_training">Type of training</string>
+    <string name="create_training_group">Create training group</string>
+    <string name="upcoming_sessions">Upcoming sessions</string>
+    <string name="no_upcoming_sessions">No upcoming sessions</string>
+    <string name="please_write_a_longer_description">Please write a longer description</string>
 </resources>

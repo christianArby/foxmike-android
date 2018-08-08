@@ -2,7 +2,11 @@ package com.foxmike.android.fragments;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,8 +34,6 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
-import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.Studio;
 import com.foxmike.android.utils.MyFirebaseDatabase;
@@ -41,10 +43,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -52,13 +58,13 @@ public class DisplayStudioFragment extends Fragment {
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private ConstraintLayout sessionImageCardView;
-    private TextView mSessionType;
+    //private TextView mSessionType;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private ImageView sessionImage;
-    private TextView previewTV;
     private TextView editTV;
     private Button advertiseBtn;
-    private TextView advertisedText;
+    private TextView locationTV;
+    private TextView studioTypeTV;
 
     private static final String STUDIO_ID = "studioID";
     private Double sessionLatitude;
@@ -73,6 +79,7 @@ public class DisplayStudioFragment extends Fragment {
 
     private TextView advertisedHeading;
     private TextView notAdvertisedHeading;
+    private TextView description;
 
     private boolean studioLoaded;
     private boolean studioAndViewUsed;
@@ -93,6 +100,8 @@ public class DisplayStudioFragment extends Fragment {
 
     private OnStudioInteractionListener onStudioInteractionListener;
     private OnSessionBranchClickedListener onSessionBranchClickedListener;
+
+    private OnCreateSessionClickedListener onCreateSessionClickedListener;
 
     public DisplayStudioFragment() {
         // Required empty public constructor
@@ -130,8 +139,10 @@ public class DisplayStudioFragment extends Fragment {
                     final HashMap<String, Long> sessionsNotAdvHashMap = new HashMap<>();
                     studio = dataSnapshot.getValue(Studio.class);
                     studioID = dataSnapshot.getRef().getKey();
+
                     studioLoaded = true;
                     onAsyncTaskFinished();
+
                     if (studio.getSessions().size()>0) {
                         Long currentTimestamp = System.currentTimeMillis();
                         for (String sessionId: studio.getSessions().keySet()) {
@@ -196,6 +207,82 @@ public class DisplayStudioFragment extends Fragment {
 
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        view = inflater.inflate(R.layout.fragment_display_studio, container, false);
+
+        setRetainInstance(true);
+
+        sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
+        //mSessionType = view.findViewById(R.id.sessionType);
+        sessionImage = view.findViewById(R.id.displaySessionImage);
+        collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
+
+        LinearLayout displayStudioContainer = view.findViewById(R.id.display_studio_container);
+        View displayStudio = inflater.inflate(R.layout.display_studio,displayStudioContainer,false);
+        editTV = displayStudio.findViewById(R.id.edit_studio_question);
+        advertiseBtn = displayStudio.findViewById(R.id.createSessionBtn);
+        displayStudioContainer.addView(displayStudio);
+        nothingAdvContainer = displayStudio.findViewById(R.id.noSessionsContainer);
+        description = displayStudio.findViewById(R.id.descriptionTV);
+        locationTV = displayStudio.findViewById(R.id.locationTV);
+        studioTypeTV = displayStudio.findViewById(R.id.studioTypeTV);
+
+        smallAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallAdvertisedSessionsListRV);
+        smallAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        sessionsAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsAdvBranches, onSessionBranchClickedListener, getContext());
+        smallAdvertisedSessionsListRV.setAdapter(sessionsAdvertisedAdapter);
+        addAdditionalSessionBtn = displayStudio.findViewById(R.id.addAdditionalSessionBtn);
+        advertisedHeading = displayStudio.findViewById(R.id.upcomingHeading);
+        notAdvertisedHeading = displayStudio.findViewById(R.id.pastHeading);
+
+        smallNotAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallNotAdvertisedSessionsListRV);
+        smallNotAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        sessionsNotAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsNotAdvBranches, onSessionBranchClickedListener, getContext());
+        smallNotAdvertisedSessionsListRV.setAdapter(sessionsNotAdvertisedAdapter);
+
+        toolbar = view.findViewById(R.id.toolbar);
+        nothingAdvContainer.setVisibility(View.GONE);
+        smallAdvertisedSessionsListRV.setVisibility(View.GONE);
+        advertisedHeading.setVisibility(View.GONE);
+        notAdvertisedHeading.setVisibility(View.GONE);
+
+
+        // Setup toolbar
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
+        /*appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset!=0) {
+                    mSessionType.setVisibility(View.GONE);
+                } else {
+                    mSessionType.setVisibility(View.VISIBLE);
+                }
+            }
+        });*/
+
+        // Setup standard aspect ratio of session image
+        sessionImageCardView.post(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout.LayoutParams mParams;
+                mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
+                mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfStudioImageNumerator)/getResources().getInteger(R.integer.heightOfStudioImageDenominator);
+                sessionImageCardView.setLayoutParams(mParams);
+                sessionImageCardView.postInvalidate();
+            }
+        });
+
+
+
+        return view;
+    }
+
     private void onAsyncTaskFinished() {
 
         if (studioLoaded && getView()!=null && !studioAndViewUsed) {
@@ -203,10 +290,12 @@ public class DisplayStudioFragment extends Fragment {
 
             // set the image
             setImage(studio.getImageUrl(), sessionImage);
-            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+            sessionImage.setColorFilter(R.color.foxmikePrimaryDarkColor, PorterDuff.Mode.LIGHTEN);
 
-            collapsingToolbarLayout.setTitle(studio.getSessionName());
-            mSessionType.setText(studio.getSessionType());
+            collapsingToolbarLayout.setTitle(studio.getStudioName());
+            description.setText(studio.getDescription());
+            locationTV.setText(studio.getLocation());
+            studioTypeTV.setText(studio.getStudioType());
 
             // edit studio
             editTV.setOnClickListener(new View.OnClickListener() {
@@ -216,25 +305,17 @@ public class DisplayStudioFragment extends Fragment {
                 }
             });
 
-            // setup buttons
-            previewTV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onStudioInteractionListener.OnPreviewStudio(studioID, studio);
-                }
-            });
-
             // setup advertise buttons
             advertiseBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onStudioInteractionListener.OnAdvertiseStudio(studioID, studio);
+                    onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
                 }
             });
             addAdditionalSessionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onStudioInteractionListener.OnAdvertiseStudio(studioID, studio);
+                    onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
                 }
             });
 
@@ -244,16 +325,14 @@ public class DisplayStudioFragment extends Fragment {
             sessionsAdvAndViewUsed = true;
 
             if (sessionsAdvBranches.size()>0) {
+                nothingAdvContainer.setVisibility(View.GONE);
                 smallAdvertisedSessionsListRV.setVisibility(View.VISIBLE);
                 sessionsAdvertisedAdapter.updateData(sessionsAdvBranches);
-                advertisedText.setVisibility(View.VISIBLE);
                 advertisedHeading.setVisibility(View.VISIBLE);
             } else {
-                previewTV.setVisibility(View.VISIBLE);
                 nothingAdvContainer.setVisibility(View.VISIBLE);
                 advertisedHeading.setVisibility(View.GONE);
                 addAdditionalSessionBtn.setVisibility(View.GONE);
-                advertisedText.setVisibility(View.GONE);
             }
         }
 
@@ -266,83 +345,6 @@ public class DisplayStudioFragment extends Fragment {
                 notAdvertisedHeading.setVisibility(View.GONE);
             }
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_display_studio, container, false);
-
-        setRetainInstance(true);
-
-        sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
-        mSessionType = view.findViewById(R.id.sessionType);
-        sessionImage = view.findViewById(R.id.displaySessionImage);
-        collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
-
-        LinearLayout displayStudioContainer = view.findViewById(R.id.display_studio_container);
-        View displayStudio = inflater.inflate(R.layout.display_studio,displayStudioContainer,false);
-        previewTV = displayStudio.findViewById(R.id.preview_studio_question);
-        editTV = displayStudio.findViewById(R.id.edit_studio_question);
-        advertiseBtn = displayStudio.findViewById(R.id.advertiseBtn);
-        displayStudioContainer.addView(displayStudio);
-        nothingAdvContainer = displayStudio.findViewById(R.id.nothingAdvContainer);
-        advertisedText = view.findViewById(R.id.advertisedText);
-
-        smallAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallAdvertisedSessionsListRV);
-        smallAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        sessionsAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsAdvBranches, onSessionBranchClickedListener, getContext());
-        smallAdvertisedSessionsListRV.setAdapter(sessionsAdvertisedAdapter);
-        addAdditionalSessionBtn = displayStudio.findViewById(R.id.addAdditionalSessionBtn);
-        advertisedHeading = displayStudio.findViewById(R.id.advertisedHeading);
-        notAdvertisedHeading = displayStudio.findViewById(R.id.notAdvertisedHeading);
-
-        smallNotAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallNotAdvertisedSessionsListRV);
-        smallNotAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        sessionsNotAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsNotAdvBranches, onSessionBranchClickedListener, getContext());
-        smallNotAdvertisedSessionsListRV.setAdapter(sessionsNotAdvertisedAdapter);
-
-        toolbar = view.findViewById(R.id.toolbar);
-        advertisedText.setVisibility(View.GONE);
-        previewTV.setVisibility(View.GONE);
-        nothingAdvContainer.setVisibility(View.GONE);
-        smallAdvertisedSessionsListRV.setVisibility(View.GONE);
-        advertisedHeading.setVisibility(View.GONE);
-        notAdvertisedHeading.setVisibility(View.GONE);
-
-
-        // Setup toolbar
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (verticalOffset!=0) {
-                    mSessionType.setVisibility(View.GONE);
-                } else {
-                    mSessionType.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        // Setup standard aspect ratio of session image
-        sessionImageCardView.post(new Runnable() {
-            @Override
-            public void run() {
-                RelativeLayout.LayoutParams mParams;
-                mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
-                mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
-                sessionImageCardView.setLayoutParams(mParams);
-                sessionImageCardView.postInvalidate();
-            }
-        });
-
-
-
-        return view;
     }
 
     @Override
@@ -389,6 +391,13 @@ public class DisplayStudioFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionBranchClickedListener");
         }
+        super.onAttach(context);
+        if (context instanceof OnCreateSessionClickedListener) {
+            onCreateSessionClickedListener = (OnCreateSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement onCreateSessionClickedListener");
+        }
     }
 
     @Override
@@ -396,12 +405,17 @@ public class DisplayStudioFragment extends Fragment {
         super.onDetach();
         onStudioInteractionListener = null;
         onSessionBranchClickedListener = null;
+        onCreateSessionClickedListener = null;
     }
 
     public interface OnStudioInteractionListener {
         void OnEditStudio(String studioID , Studio studio);
         void OnPreviewStudio(String studioID , Studio studio);
         void OnAdvertiseStudio(String studioID , Studio studio);
+    }
+
+    public interface OnCreateSessionClickedListener {
+        void OnCreateSessionClicked(String studioId, Studio studio);
     }
 
 }

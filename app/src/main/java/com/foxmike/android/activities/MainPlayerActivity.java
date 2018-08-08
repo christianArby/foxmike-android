@@ -6,9 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.transition.TransitionInflater;
+import android.support.transition.TransitionSet;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -109,12 +112,10 @@ public class MainPlayerActivity extends AppCompatActivity
         DisplaySessionFragment.OnBookSessionListener,
         DisplaySessionFragment.OnCancelBookedSessionListener,
         OnHostSessionChangedListener,
-        MapsFragment.OnCreateStudioListener,
-        MapsFragment.OnSessionLocationChangedListener,
         OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
-        InboxFragment.OnSearchClickedListener, DisplayStudioFragment.OnStudioInteractionListener{
+        InboxFragment.OnSearchClickedListener, DisplayStudioFragment.OnStudioInteractionListener, MapsFragment.OnLocationPickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -320,7 +321,6 @@ public class MainPlayerActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if (dataSnapshot.getValue()==null) {
-                    Toast.makeText(MainPlayerActivity.this, "NO STRIPE CUSTOMER", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -478,7 +478,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private void setupListAndMapWithSessions() {
         myFirebaseDatabase= new MyFirebaseDatabase();
         // TODO if new filtersessions int is smaller than previous this function should only filter and not download
-        myFirebaseDatabase.getNearStudiosAndSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
+        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
             @Override
             public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
                 sessionListArrayList.clear();
@@ -495,6 +495,7 @@ public class MainPlayerActivity extends AppCompatActivity
                         listSessionsFragment.stopSwipeRefreshingSymbol();
                     }
                 });
+
             }
 
             @Override
@@ -503,6 +504,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.emptyListView();
                 listSessionsFragment.stopSwipeRefreshingSymbol();
+
             }
         });
     }
@@ -819,16 +821,6 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCreateStudio(LatLng latLng) {
-        // Not possible in player environment
-    }
-
-    @Override
-    public void OnSessionLocationChanged(LatLng latLng) {
-        // Not possible in player environment
-    }
-
-    @Override
     public void OnSessionBranchClicked(SessionBranch sessionBranch) {
 
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
@@ -866,6 +858,11 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnAdvertiseStudio(String studioID, Studio studio) {
+        // Not possible in player environment
+    }
+
+    @Override
+    public void OnLocationPicked(LatLng latLng, String requestType, String studioId, Studio studio) {
         // Not possible in player environment
     }
 

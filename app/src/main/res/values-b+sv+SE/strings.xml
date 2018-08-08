@@ -190,7 +190,7 @@
     <string name="mlevel">Nivå</string>
     <string name="maximum_participants">Maximalt antal deltagare</string>
     <string name="mDescription">Beskrivning</string>
-    <string name="create_session">Skapar pass</string>
+    <string name="create_session">Skapa pass</string>
     <string name="set">Bestäm</string>
     <string name="join_session">Gå med i passet</string>
     <string name="session_name_goes_here">Passnamn</string>
@@ -208,8 +208,8 @@
     <string name="sessions_attending">Bokade pass</string>
     <string name="sessions_hosting">Mina pass</string>
     <string name="display_session">Visningssession</string>
-    <string name="updating_session">Uppdaterar pass …</string>
-    <string name="creating_session">Skapa pass ...</string>
+    <string name="updating_session">Uppdaterar pass…</string>
+    <string name="creating_session">Skapar pass…</string>
     <string name="select_time">Välj tid</string>
     <string name="choose_session_type">Välj passtyp</string>
     <string name="session_duration">Passets varaktighet i minuter</string>
@@ -366,9 +366,6 @@
     <string name="GEOFIRE_PATH">geofire</string>
     <string name="edit_session_details">Ändra detaljer</string>
     <string name="preview_session">Förhandsgranska</string>
-    <string name="advertise_your_session">Annonsera ditt pass</string>
-    <string name="not_advertised_explanation">Ditt pass är för närvarande avannonserat, vilket innebär att det inte visas i sökningar. Annonsera ut det så att deltagare kan boka ditt pass.</string>
-    <string name="advertise_session">Annonsera ut passet</string>
     <string name="add_advertisement">Lägg till annons</string>
     <string name="previous_sessions">Tidigare annonser</string>
     <string name="advertise">Annonsera</string>
@@ -411,4 +408,26 @@
     <string name="participants_cannot_change">Max antal deltagare kan inte vara färre än antal anmälda deltagare.</string>
     <string name="price_cannot_change">Priset går inte att ändra eftersom ditt pass har deltagare.</string>
     <string name="session_name_cannot_change">Namnet går inte att ändra eftersom ditt pass har deltagare.</string>
+    <string name="updating_training_group">Uppdaterar träningsgruppen…</string>
+    <string name="creating_training_group">Skapar träningsgrupp…</string>
+    <string name="update_training_group">Uppdatera träningsgrupp</string>
+    <string name="edit_group_details">Ändra gruppdetaljer</string>
+    <string name="no_sessions">Inga pass</string>
+    <string name="no_sessions_explanation">Du har inga kommande pass. Skapa ett pass så kommer det dyka upp i sökresultat och deltagare kan boka det.</string>
+    <string name="add_session">Skapa pass</string>
+    <string name="past_sessions">Tidigare pass</string>
+    <string name="description">Beskrivning</string>
+    <string name="training_groups">Träningsgrupper</string>
+    <string name="location">Plats</string>
+    <string name="please_choose_location">Välj en plats.</string>
+    <string name="please_choose_name">Välj ett gruppnamn.</string>
+    <string name="please_choose_type">Välj en typ av träning.</string>
+    <string name="please_describe_your_group">Beskriv din grupp.</string>
+    <string name="please_choose_a_group_image">Lägg till en bild.</string>
+    <string name="no_active_payout_method">Du har inga aktiva utbetalningsmetoder, lägg till en utbetalningsmetod under dina kontoinställningar.</string>
+    <string name="group_name">Gruppnamn</string>
+    <string name="type_of_training">Typ av träning</string>
+    <string name="create_training_group">Skapa träningsgrupp</string>
+    <string name="upcoming_sessions">Kommande pass</string>
+    <string name="no_upcoming_sessions">Inga kommande pass</string>
 </resources>

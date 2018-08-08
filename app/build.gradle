@@ -80,6 +80,7 @@ dependencies {
     implementation 'com.stripe:stripe-android:6.1.2'
     implementation 'com.google.android.gms:play-services-maps:15.0.0'
     implementation 'com.google.android.gms:play-services-location:15.0.0'
+    implementation 'com.google.android.gms:play-services-places:15.0.0'
     implementation 'com.google.android.gms:play-services-auth:15.0.0'
     implementation 'com.google.firebase:firebase-database:15.0.0'
     implementation 'com.google.firebase:firebase-crash:15.0.2'

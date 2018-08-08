@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="@dimen/height_progressBar"
                 android:minWidth="@dimen/width_progressBar"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintTop_toTopOf="@id/ibanTIL"
                 app:layout_constraintBottom_toBottomOf="@id/ibanTIL"
                 app:layout_constraintStart_toStartOf="@id/ibanTIL"
