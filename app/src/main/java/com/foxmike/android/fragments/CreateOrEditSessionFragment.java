@@ -21,7 +21,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,11 +93,16 @@ public class CreateOrEditSessionFragment extends Fragment{
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
+    private TextInputLayout mSessionNameTIL;
+    private TextInputLayout mLocationTIL;
+    private TextInputLayout mSessionTypeTIL;
     private TextInputLayout mDateTIL;
     private TextInputLayout mTimeTIL;
     private TextInputLayout mDurationTIL;
     private TextInputLayout mMaxParticipantsTIL;
-    private TextInputLayout mSessionTypeTIL;
+    private TextInputLayout mWhatTIL;
+    private TextInputLayout mWhoTIL;
+    private TextInputLayout mWhereTIL;
     private TextInputLayout mPriceTIL;
     private TextInputEditText mSessionName;
     private TextInputEditText mSessionType;
@@ -138,13 +145,14 @@ public class CreateOrEditSessionFragment extends Fragment{
     private View view;
     private String accountCountry;
     private boolean payoutsEnabled;
-    private boolean infoIsValid;
+    private boolean infoIsValid = true;
     private Session mUpdatedSession;
     private String accountCurrency;
     private String stripeAccountId;
     private boolean hasParticipants = false;
     private String studioId;
     private boolean template;
+    private TextView imageErrorText;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -187,6 +195,8 @@ public class CreateOrEditSessionFragment extends Fragment{
         mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
+        mSessionNameTIL = createSession.findViewById(R.id.sessionNameTIL);
+        mLocationTIL = createSession.findViewById(R.id.locationTIL);
         mSessionTypeTIL = createSession.findViewById(R.id.sessionTypeTIL);
         mTime = createSession.findViewById(R.id.timeET);
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
@@ -194,6 +204,9 @@ public class CreateOrEditSessionFragment extends Fragment{
         mDateTIL = createSession.findViewById(R.id.dateTIL);
         mTimeTIL = createSession.findViewById(R.id.timeTIL);
         mDurationTIL = createSession.findViewById(R.id.durationTIL);
+        mWhatTIL = createSession.findViewById(R.id.whatTIL);
+        mWhoTIL = createSession.findViewById(R.id.whoTIL);
+        mWhereTIL = createSession.findViewById(R.id.whereTIL);
         mMaxParticipantsTIL = createSession.findViewById(R.id.maxParticipantTIL);
         mWhat = createSession.findViewById(R.id.whatET);
         mWho = createSession.findViewById(R.id.whoET);
@@ -206,6 +219,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         mPriceTIL = createSession.findViewById(R.id.priceTIL);
+        imageErrorText = createSession.findViewById(R.id.imageErrorText);
 
         // Setup toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -323,7 +337,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                             if (infoIsValid) {sendSession(sessionMap);} else {
                                 Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                             }
-
                         }
                     }
                 });
@@ -374,12 +387,20 @@ public class CreateOrEditSessionFragment extends Fragment{
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageErrorText.setVisibility(View.GONE);
 
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
                 fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
 
+            }
+        });
+
+        mSessionName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                mSessionNameTIL.setError(null);
             }
         });
 
@@ -396,6 +417,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mLocationTIL.setError(null);
                 if (hasParticipants) {
                 notPossibleHasParticipants(getString(R.string.location_cannot_change));
                 return;}
@@ -418,6 +440,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mSessionTypeTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
                     return;
@@ -428,6 +451,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mSessionType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mSessionTypeTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
                     return;
@@ -453,6 +477,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mDateTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mDateTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.date_cannot_change));
                     return;
@@ -465,6 +490,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mDateTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.date_cannot_change));
                     return;
@@ -479,6 +505,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mTimeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mTimeTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.time_cannot_change));
                     return;
@@ -490,6 +517,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mTimeTIL.setError(null);
                 if (hasParticipants) {
                     notPossibleHasParticipants(getString(R.string.time_cannot_change));
                     return;
@@ -501,12 +529,14 @@ public class CreateOrEditSessionFragment extends Fragment{
         mDurationTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mDurationTIL.setError(null);
                 createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
             }
         });
         mDuration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mDurationTIL.setError(null);
                 createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
             }
         });
@@ -514,7 +544,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mMaxParticipantsTIL.setError(null);
                 int nrOfParticipants = 0;
                 if (existingSession!=null) {
                     nrOfParticipants = existingSession.getParticipants().size();
@@ -526,11 +556,50 @@ public class CreateOrEditSessionFragment extends Fragment{
         mMaxParticipants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mMaxParticipantsTIL.setError(null);
                 int nrOfParticipants = 0;
                 if (existingSession!=null) {
                     nrOfParticipants = existingSession.getParticipants().size();
                 }
                 changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,nrOfParticipants);
+            }
+        });
+
+        mWhat.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().length()<51) {
+                    mWhatTIL.setError(getString(R.string.please_write_longer_session_description));
+                    infoIsValid = false;
+                } else {
+                    infoIsValid = true;
+                    mWhatTIL.setError(null);
+                }
+
+            }
+        });
+
+        mWho.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                mWhoTIL.setError(null);
+            }
+        });
+
+        mWhere.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                mWhereTIL.setError(null);
             }
         });
 
@@ -594,6 +663,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                                 mPrice.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
+                                        mPriceTIL.setError(null);
                                         if (hasParticipants) {
                                             notPossibleHasParticipants(getString(R.string.price_cannot_change));
                                             return;
@@ -624,8 +694,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     @NonNull
     public void updateSessionObjectFromUI(final OnSessionUpdatedListener onSessionUpdatedListener) {
-
-        infoIsValid = true;
         //final Session session = new Session();
         Map sessionMap = new HashMap();
 
@@ -660,32 +728,53 @@ public class CreateOrEditSessionFragment extends Fragment{
         sessionMap.put("host", currentFirebaseUser.getUid());
         sessionMap.put("stripeAccountId", stripeAccountId);
 
-
         if (TextUtils.isEmpty(mSessionName.getText().toString())) {
+            mSessionNameTIL.setError(getString(R.string.please_choose_session_name));
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(mLocation.getText().toString())) {
+            mLocationTIL.setError(getString(R.string.please_choose_location_for_session));
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(mSessionType.getText().toString())) {
+            mSessionTypeTIL.setError(getString(R.string.please_choose_session_type));
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(mMaxParticipants.getText().toString())) {
+        if (TextUtils.isEmpty(mDate.getText().toString())) {
+            mDateTIL.setError(getString(R.string.please_choose_session_date));
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(mTime.getText().toString())) {
+            mTimeTIL.setError(getString(R.string.please_choose_session_time));
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(mDuration.getText().toString())) {
+            mDurationTIL.setError(getString(R.string.please_choose_session_duration));
+            infoIsValid = false;
+        }
+
+        if (TextUtils.isEmpty(mMaxParticipants.getText().toString())) {
+            mMaxParticipantsTIL.setError(getString(R.string.please_choose_maximum_nr_of_participants));
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(mWhat.getText().toString())) {
+            mWhatTIL.setError(getString(R.string.please_write_longer_session_description));
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(mWho.getText().toString())) {
+            mWhoTIL.setError(getString(R.string.please_write_session_who));
             infoIsValid = false;
         }
 
         if (TextUtils.isEmpty(mWhere.getText().toString())) {
+            mWhereTIL.setError(getString(R.string.please_explain_session_where));
             infoIsValid = false;
         }
 
@@ -696,6 +785,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 sessionMap.put("price", intPrice);
                 sessionMap.put("currency", accountCurrency);
             } else {
+                mPriceTIL.setError(getString(R.string.please_set_session_price));
                 infoIsValid=false;
             }
         }
@@ -714,8 +804,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                     if (infoIsValid){
                         onSessionUpdatedListener.OnSessionUpdated(sessionMap);
-                    }   else    {
-                        Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                     }
                     mProgress.dismiss();
                 }
@@ -731,15 +819,13 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                 if (infoIsValid){
                     onSessionUpdatedListener.OnSessionUpdated(sessionMap);
-                }   else    {
-                    Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                 }
 
             }
             /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
+                imageErrorText.setVisibility(View.VISIBLE);
                 mProgress.dismiss();
-                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
             }
         }
     }

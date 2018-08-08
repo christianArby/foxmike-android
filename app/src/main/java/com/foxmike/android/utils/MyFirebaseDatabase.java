@@ -49,7 +49,7 @@ public class MyFirebaseDatabase extends Service {
 
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private TreeMap<Integer, String> nearSessionsIDs = new TreeMap<Integer, String>();
+    private HashMap<String,Integer> sessionDistances = new HashMap<>();
     private ArrayList<String> nearSessionIdsArray = new ArrayList<>();
     private TreeMap<Integer, String> nearStudioIDs = new TreeMap<Integer, String>();
     private Location currentLocation;
@@ -211,6 +211,7 @@ public class MyFirebaseDatabase extends Service {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+
         /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -237,7 +238,8 @@ public class MyFirebaseDatabase extends Service {
                                     //You can fetch the actual data for this location by creating another firebase query here
                                     String distString = getDistance(location.latitude, location.longitude, currentLocation);
                                     Integer dist = Integer.parseInt(distString);
-                                    nearSessionsIDs.put(dist, key);
+
+                                    sessionDistances.put(key, dist);
                                 }
 
                                 @Override
@@ -251,23 +253,29 @@ public class MyFirebaseDatabase extends Service {
                                 @Override
                                 public void onGeoQueryReady() {
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
-                                    for (final Integer str : nearSessionsIDs.keySet()) {
+                                    final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                    for (String sessionId : sessionDistances.keySet()) {
 
-                                        dbRef.child("sessions").child(nearSessionsIDs.get(str)).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Session session;
                                                 Long currentTimestamp = System.currentTimeMillis();
                                                 session = dataSnapshot.getValue(Session.class);
-                                                if (session.getSessionTimestamp()>currentTimestamp) {
-                                                    sessions.add(session);
-                                                } else {
-                                                    nearSessionsIDs.remove(str);
-                                                }
 
-                                                if (sessions.size() == nearSessionsIDs.size()) {///////TODO //KOLLA DETTA
+                                                SessionMap sessionMap = new SessionMap(session, sessionDistances.get(dataSnapshot.getKey()));
+                                                sessionMapArrayList.add(sessionMap);
+                                                if (sessionMapArrayList.size() == sessionDistances.size()) {
+                                                    Collections.sort(sessionMapArrayList);
+                                                    for (SessionMap sessionMapSorted: sessionMapArrayList) {
+                                                        if (sessionMapSorted.getSession().getSessionTimestamp()>currentTimestamp) {
+                                                            sessions.add(sessionMapSorted.getSession());
+                                                        }
+                                                    }
                                                     onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                                 }
+
+
                                             }
 
                                             @Override
@@ -275,7 +283,7 @@ public class MyFirebaseDatabase extends Service {
                                             }
                                         });
                                     }
-                                    if (nearSessionsIDs.size() < 1) {
+                                    if (sessionDistances.size() < 1) {
                                         onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                     }
                                 }

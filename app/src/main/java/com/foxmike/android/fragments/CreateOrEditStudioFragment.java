@@ -257,6 +257,7 @@ public class CreateOrEditStudioFragment extends Fragment {
         mLocationTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mLocationTIL.setError(null);
                 try {
                     Intent intent =
                             new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -286,16 +287,10 @@ public class CreateOrEditStudioFragment extends Fragment {
             }
         });
 
-        mStudioNameTIL.setOnClickListener(new View.OnClickListener() {
+        mStudioName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View view) {
+            public void onFocusChange(View view, boolean b) {
                 mStudioNameTIL.setError(null);
-            }
-        });
-        mStudioName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mStudioName.setError(null);
             }
         });
 
@@ -320,6 +315,13 @@ public class CreateOrEditStudioFragment extends Fragment {
                     mDescriptionTIL.setError(null);
                 }
 
+            }
+        });
+
+        mDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                mDescriptionTIL.setError(null);
             }
         });
 

@@ -18,13 +18,24 @@
             android:background="@color/color_background_light"
             android:contentDescription="@string/CD_choose_session_image_button"
             android:scaleType="centerCrop"
-            android:tint="@color/primaryTextColor"
-            app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
+            app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+        <TextView
+            android:id="@+id/imageErrorText"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_left"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:layout_below="@id/sessionImageBtn"
+            android:text="@string/please_choose_a_group_image"
+            android:textColor="@color/red"/>
 
     </RelativeLayout>
 
     <android.support.design.widget.TextInputLayout
         app:errorEnabled="true"
+        android:layout_marginTop="@dimen/marginVertical"
         android:focusedByDefault="false"
         android:id="@+id/sessionNameTIL"
         android:layout_width="match_parent"
@@ -205,6 +216,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toBottomOf="@id/maxParticipantTIL">
 
         <android.support.design.widget.TextInputLayout
