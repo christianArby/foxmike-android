@@ -71,7 +71,7 @@ public class HostListSmallSessionsAdvFragment extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_host_list_small_sessions_adv, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsAdv, onSessionBranchClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsAdv, onSessionBranchClickedListener, "displaySession", getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
         noContent = view.findViewById(R.id.noContent);
         return view;

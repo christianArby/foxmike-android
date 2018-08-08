@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -14,7 +15,11 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -232,7 +237,7 @@ public class DisplayStudioFragment extends Fragment {
 
         smallAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallAdvertisedSessionsListRV);
         smallAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        sessionsAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsAdvBranches, onSessionBranchClickedListener, getContext());
+        sessionsAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsAdvBranches, onSessionBranchClickedListener, "displaySession", getContext());
         smallAdvertisedSessionsListRV.setAdapter(sessionsAdvertisedAdapter);
         addAdditionalSessionBtn = displayStudio.findViewById(R.id.addAdditionalSessionBtn);
         advertisedHeading = displayStudio.findViewById(R.id.upcomingHeading);
@@ -240,7 +245,7 @@ public class DisplayStudioFragment extends Fragment {
 
         smallNotAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallNotAdvertisedSessionsListRV);
         smallNotAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        sessionsNotAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsNotAdvBranches, onSessionBranchClickedListener, getContext());
+        sessionsNotAdvertisedAdapter = new ListSmallSessionsAdapter(sessionsNotAdvBranches, onSessionBranchClickedListener,"displaySession", getContext());
         smallNotAdvertisedSessionsListRV.setAdapter(sessionsNotAdvertisedAdapter);
 
         toolbar = view.findViewById(R.id.toolbar);
@@ -309,13 +314,13 @@ public class DisplayStudioFragment extends Fragment {
             advertiseBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
+                    createSession();
                 }
             });
             addAdditionalSessionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
+                    createSession();
                 }
             });
 
@@ -344,6 +349,47 @@ public class DisplayStudioFragment extends Fragment {
             } else {
                 notAdvertisedHeading.setVisibility(View.GONE);
             }
+        }
+    }
+
+    private void createSession() {
+        if (studio.getSessions().size()>0) {
+            // 1. Instantiate an AlertDialog.Builder with its constructor
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // 2. Chain together various setter methods to set the dialog characteristics
+            builder.setMessage("Do you want to use a previous session as a template for the new session?")
+                    .setTitle("New session");
+
+            // Add the buttons
+            builder.setPositiveButton("Select template", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                    MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+                    myFirebaseDatabase.getSessionBranches(studio.getSessions(), new OnSessionBranchesFoundListener() {
+                        @Override
+                        public void OnSessionBranchesFound(ArrayList<SessionBranch> sessionBranches) {
+                            ListSmallSessionsFragment listSmallSessionsFragment = ListSmallSessionsFragment.newInstance(sessionBranches, "createSession");
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            if (null == fragmentManager.findFragmentByTag("listSmallSessionsFragment")) {
+                                transaction.add(R.id.container_fullscreen_display_studio, listSmallSessionsFragment,"listSmallSessionsFragment").addToBackStack("changeStudio");
+                                transaction.commit();
+                            }
+
+                        }
+                    });
+
+                }
+            });
+            builder.setNegativeButton("Start from scratch", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
+                }
+            });
+            // 3. Get the AlertDialog from create()
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            return;
         }
     }
 

@@ -31,18 +31,20 @@ public class ListSmallSessionsFragment extends Fragment {
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsAdapter listSmallSessionsAdapter;
     private ArrayList<SessionBranch> sessionBranchArrayList = new ArrayList<>();
+    private String request;
 
 
     public ListSmallSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static ListSmallSessionsFragment newInstance(ArrayList<SessionBranch> sessionBranchArrayList) {
+    public static ListSmallSessionsFragment newInstance(ArrayList<SessionBranch> sessionBranchArrayList, String request) {
 
         ListSmallSessionsFragment fragment = new ListSmallSessionsFragment();
         Bundle args = new Bundle();
         String strSessionBranchArrayList = new Gson().toJson(sessionBranchArrayList);
         args.putString("sessionBranchArrayList",strSessionBranchArrayList);
+        args.putString("request",request);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,6 +55,7 @@ public class ListSmallSessionsFragment extends Fragment {
         if (getArguments() != null) {
             String strSessionBranchArrayList = getArguments().getString("sessionBranchArrayList");
             sessionBranchArrayList = new Gson().fromJson(strSessionBranchArrayList, new TypeToken<ArrayList<SessionBranch>>(){}.getType());
+            request = getArguments().getString("request");
         }
     }
 
@@ -64,7 +67,7 @@ public class ListSmallSessionsFragment extends Fragment {
 
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionBranchArrayList, onSessionBranchClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionBranchArrayList, onSessionBranchClickedListener, request, getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
         return view;
     }

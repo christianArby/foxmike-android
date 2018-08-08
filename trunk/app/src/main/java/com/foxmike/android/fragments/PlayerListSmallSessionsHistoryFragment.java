@@ -59,7 +59,7 @@ public class PlayerListSmallSessionsHistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_player_list_small_sessions_history, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsHistory, onSessionBranchClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsHistory, onSessionBranchClickedListener, "displaySession",getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
         noContent = view.findViewById(R.id.noContent);
         return view;

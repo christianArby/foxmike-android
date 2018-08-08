@@ -284,9 +284,21 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnSessionBranchClicked(SessionBranch sessionBranch) {
-        hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
-        cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+    public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
+
+        if (request.equals("displaySession")) {
+            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
+            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+        }
+
+        if (request.equals("createSession")) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("template", true);
+            bundle.putSerializable("session", sessionBranch.getSession());
+            createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+            createOrEditSessionFragment.setArguments(bundle);
+            cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "");
+        }
     }
 
     @Override

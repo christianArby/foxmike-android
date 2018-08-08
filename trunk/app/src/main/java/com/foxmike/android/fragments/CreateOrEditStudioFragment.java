@@ -323,7 +323,7 @@ public class CreateOrEditStudioFragment extends Fragment {
             }
         });
 
-        // --------------------------- FIND THE STUDIO OBJECT OR STUDIO ID AND DOWNLOAD OBJECT, THEN CALL FUNTION fillUI() -----------------------------------------------
+        // --------------------------- FIND THE STUDIO OBJECT OR STUDIO ID AND DOWNLOAD OBJECT, THEN CALL FUNCTION fillUI() -----------------------------------------------
         studioExist=0;
         if (existingStudioId != null | existingStudio!=null) {
             /**If this activity was started from clicking on an edit studio or returning from mapsfragment the previous activity should have sent a bundle with the studio key or studio object, if so
