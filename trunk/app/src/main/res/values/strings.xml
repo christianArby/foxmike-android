@@ -430,4 +430,15 @@
     <string name="upcoming_sessions">Upcoming sessions</string>
     <string name="no_upcoming_sessions">No upcoming sessions</string>
     <string name="please_write_a_longer_description">Please write a longer description</string>
+    <string name="please_choose_session_name">Please choose a session name</string>
+    <string name="please_choose_location_for_session">Please choose a location for your session</string>
+    <string name="please_choose_session_type">Please choose session type</string>
+    <string name="please_choose_session_date">Please choose a date for your session</string>
+    <string name="please_choose_session_time">Please choose at what time your session will start</string>
+    <string name="please_choose_session_duration">Please choose how long your session will be</string>
+    <string name="please_choose_maximum_nr_of_participants">Please choose maximum number of participants for your sesssion</string>
+    <string name="please_write_longer_session_description">Please write a longer description of what you will be dooing.</string>
+    <string name="please_write_session_who">Please write who can attend your session</string>
+    <string name="please_explain_session_where">Please explain where your session will take place</string>
+    <string name="please_set_session_price">Please set a price for your session</string>
 </resources>
