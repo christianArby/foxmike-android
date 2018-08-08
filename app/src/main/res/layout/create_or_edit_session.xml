@@ -18,166 +18,186 @@
             android:background="@color/color_background_light"
             android:contentDescription="@string/CD_choose_session_image_button"
             android:scaleType="centerCrop"
+            android:tint="@color/primaryTextColor"
             app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
     </RelativeLayout>
 
     <android.support.design.widget.TextInputLayout
+        app:errorEnabled="true"
         android:focusedByDefault="false"
         android:id="@+id/sessionNameTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/primaryTextColor"
-        android:layout_marginTop="@dimen/marginVertical"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer">
 
         <android.support.design.widget.TextInputEditText
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/primaryTextColor"
-            android:layout_margin="@dimen/margin_left"
             android:id="@+id/sessionNameET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/session_name_goes_here"
-            android:inputType="textCapSentences"/>
+            android:inputType="textCapSentences"
+            app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
+            app:layout_constraintStart_toStartOf="parent"/>
     </android.support.design.widget.TextInputLayout>
 
-    <TextView
-        android:id="@+id/locationTV"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/locationTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/margin_left"
-        android:padding="@dimen/marginVertical"
-        android:drawableStart="@drawable/ic_edit_location_black_24dp"
-        android:background="@android:color/transparent"
-        android:focusable="false"
-        android:layout_gravity="center_vertical"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameTIL"
-        android:text="Fjällsvik 5"
-        android:hint="@string/location_loading"
-        android:longClickable="false"/>
+        android:layout_margin="@dimen/margin_left"
+        app:hintEnabled="false"
+        app:errorEnabled="true"
+        app:layout_constraintTop_toBottomOf="@id/sessionNameTIL">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/locationTV"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/margin_left"
+            android:drawableStart="@drawable/ic_edit_location_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:hint="@string/location" />
+    </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/sessionTypeTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/locationTV">
+        app:layout_constraintTop_toBottomOf="@id/locationTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/sessionTypeET"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_filter_list_black_24dp"
             android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/session_type"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableStart="@drawable/ic_filter_list_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
             android:background="@android:color/transparent"
-            android:focusable="false"
             android:layout_gravity="center_vertical"
-            android:inputType="textCapSentences"/>
+            android:hint="@string/session_type" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/dateTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/dateET"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_date_range_black_24dp"
             android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/date"
-            android:inputType="date"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableStart="@mipmap/ic_date_range_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
             android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:hint="@string/date"
+            android:inputType="date" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/timeTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/dateTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/timeET"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_access_time_black_24dp"
             android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/time"
-            android:inputType="time"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableStart="@mipmap/ic_access_time_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
             android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:hint="@string/time"
+            android:inputType="time" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/durationTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/timeTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/durationET"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_timelapse_black_24dp"
             android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/duration_hint"
-            android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableStart="@mipmap/ic_timelapse_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
             android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:hint="@string/duration_hint"
+            android:inputType="number" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/maxParticipantTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/durationTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/maxParticipantsET"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_people_black_24dp"
             android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/maximum_participants"
-            android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableStart="@mipmap/ic_people_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
             android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:hint="@string/maximum_participants"
+            android:inputType="number" />
     </android.support.design.widget.TextInputLayout>
 
 
@@ -188,19 +208,18 @@
         app:layout_constraintTop_toBottomOf="@id/maxParticipantTIL">
 
         <android.support.design.widget.TextInputLayout
+            app:errorEnabled="true"
             android:focusedByDefault="false"
             android:id="@+id/whatTIL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right">
 
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            <android.support.design.widget.TextInputEditText
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
                 android:id="@+id/whatET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -209,19 +228,18 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            app:errorEnabled="true"
             android:focusedByDefault="false"
             android:id="@+id/whoTIL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right">
 
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            <android.support.design.widget.TextInputEditText
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
                 android:id="@+id/whoET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -230,19 +248,18 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            app:errorEnabled="true"
             android:focusedByDefault="false"
             android:id="@+id/whereTIL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right">
 
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            <android.support.design.widget.TextInputEditText
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
                 android:id="@+id/whereET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -252,8 +269,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/marginVertical">
+            android:layout_height="wrap_content">
 
             <ProgressBar
                 android:id="@+id/progressBar_cyclic"
@@ -266,27 +282,25 @@
                 android:layout_marginTop="20dp"/>
 
             <android.support.design.widget.TextInputLayout
+                app:errorEnabled="true"
+                android:focusedByDefault="false"
                 android:id="@+id/priceTIL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:errorEnabled="true"
+                android:textColor="@color/primaryTextColor"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_right"
                 app:layout_constraintTop_toBottomOf="@id/durationTIL">
 
-                <EditText
+                <android.support.design.widget.TextInputEditText
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/primaryTextColor"
-                    android:backgroundTint="@color/primaryTextColor"
                     android:id="@+id/priceET"
+                    android:inputType="phone"
+                    android:focusable="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/margin_left"
-                    android:layout_marginStart="@dimen/margin_left"
-                    android:layout_marginEnd="@dimen/margin_right"
-                    android:hint="Price per person"
-                    android:inputType="phone"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:focusable="false"
-                    android:layout_gravity="center_vertical"/>
-
+                    android:hint="@string/price_per_person"/>
             </android.support.design.widget.TextInputLayout>
 
         </FrameLayout>
