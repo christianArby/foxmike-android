@@ -108,6 +108,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
+        app:errorEnabled="true"
         android:focusedByDefault="false"
         android:id="@+id/descriptionTIL"
         android:layout_width="match_parent"
