@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.fragments;
 
 
@@ -198,8 +199,10 @@ public class AdvertiseSessionFragment extends Fragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
-         * Update date label with function updateLabel() in order to set it to correct format */
+        */
+/** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
+         * Update date label with function updateLabel() in order to set it to correct format *//*
+
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -221,7 +224,9 @@ public class AdvertiseSessionFragment extends Fragment {
             }
         });
 
-        /**If date field is clicked start Android datepicker and retrive data */
+        */
+/**If date field is clicked start Android datepicker and retrive data *//*
+
         dateTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -239,7 +244,9 @@ public class AdvertiseSessionFragment extends Fragment {
             }
         });
 
-        /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
+        */
+/** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field *//*
+
         timeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -370,7 +377,9 @@ public class AdvertiseSessionFragment extends Fragment {
                 });
     }
 
-    /**Send session object to database */
+    */
+/**Send session object to database *//*
+
     private void sendSession(final Session sendSession) {
         String sessionId = rootDbRef.child("sessions").push().getKey();
         rootDbRef.child("sessions").child(sessionId).setValue(sendSession);
@@ -382,7 +391,9 @@ public class AdvertiseSessionFragment extends Fragment {
         Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
     }
 
-    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
+    */
+/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
+
     private void createDialog(String title, int string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
@@ -445,3 +456,4 @@ public class AdvertiseSessionFragment extends Fragment {
     }
 
 }
+*/

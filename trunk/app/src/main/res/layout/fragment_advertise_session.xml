@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.foxmike.android.fragments.AdvertiseSessionFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.Toolbar
         android:layout_width="wrap_content"
@@ -173,13 +172,13 @@
         </android.support.design.widget.TextInputLayout>
 
         <Button
-            android:id="@+id/advertiseBtn"
+            android:id="@+id/createSessionBtn"
             android:background="@drawable/square_button_primary"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/secondaryTextColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="@string/advertise_session"/>
+            android:text="@string/create_session"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

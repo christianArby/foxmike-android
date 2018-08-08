@@ -85,7 +85,7 @@ public class HostSessionsFragment extends Fragment {
 
 
 
-        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.advertised_text));
+        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.training_groups), getString(R.string.sessions));
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
         tabLayout.setupWithViewPager(hostSessionsPager);
 
@@ -97,7 +97,7 @@ public class HostSessionsFragment extends Fragment {
     public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
         if (!update) {
-            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.advertised_text));
+            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.training_groups), getString(R.string.sessions));
             hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
             tabLayout.setupWithViewPager(hostSessionsPager);
         } else {

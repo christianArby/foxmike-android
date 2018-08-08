@@ -9,10 +9,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/sessionImageContainer">
+        android:id="@+id/stuidoImageContainer">
 
         <ImageButton
-            android:id="@+id/sessionImageBtn"
+            android:id="@+id/studioImageBtn"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/color_background_light"
@@ -20,198 +20,126 @@
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/ic_add_a_photo_black_48dp" />
 
+        <TextView
+            android:id="@+id/imageErrorText"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_left"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:layout_below="@id/studioImageBtn"
+            android:text="@string/please_choose_a_group_image"
+            android:textColor="@color/red"/>
+
     </RelativeLayout>
 
     <android.support.design.widget.TextInputLayout
+        app:errorEnabled="true"
         android:focusedByDefault="false"
-        android:id="@+id/sessionNameTIL"
+        android:id="@+id/studioNameTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/primaryTextColor"
-        android:layout_marginTop="@dimen/marginVertical"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
+        android:layout_margin="@dimen/margin_left"
+        app:layout_constraintTop_toBottomOf="@id/stuidoImageContainer"
         app:layout_constraintStart_toStartOf="parent">
 
         <android.support.design.widget.TextInputEditText
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/primaryTextColor"
-            android:layout_margin="@dimen/margin_left"
-            android:id="@+id/sessionNameET"
+            android:id="@+id/studioNameET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/session_name_goes_here"
+            android:hint="@string/group_name"
             android:inputType="textCapSentences"/>
     </android.support.design.widget.TextInputLayout>
 
-    <TextView
-        android:id="@+id/locationTV"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/margin_left"
-        android:padding="@dimen/marginVertical"
-        android:drawableStart="@drawable/ic_edit_location_black_24dp"
-        android:background="@android:color/transparent"
-        android:focusable="false"
-        android:layout_gravity="center_vertical"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameTIL"
-        android:text="Fjällsvik 5"
-        android:hint="@string/location_loading"
-        android:longClickable="false"/>
-
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/sessionTypeTIL"
+        android:id="@+id/locationTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/locationTV">
+        app:layout_constraintTop_toBottomOf="@id/studioNameTIL">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/sessionTypeET"
+            android:id="@+id/locationTV"
+            android:clickable="true"
+            android:focusable="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/margin_left"
+            android:drawableStart="@drawable/ic_edit_location_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:hint="@string/location" />
+
+
+    </android.support.design.widget.TextInputLayout>
+
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/studioTypeTIL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
+        app:hintEnabled="false"
+        app:errorEnabled="true"
+        app:layout_constraintTop_toBottomOf="@id/locationTIL">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/studioTypeET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_filter_list_black_24dp"
-            android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/session_type"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:drawableTint="@color/primaryTextColor"
+            android:hint="@string/type_of_training"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:background="@android:color/transparent"
+            android:drawablePadding="@dimen/margin_left"
             android:focusable="false"
             android:layout_gravity="center_vertical"
             android:inputType="textCapSentences"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/durationTIL"
+        android:focusedByDefault="false"
+        android:id="@+id/descriptionTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
+        android:textColor="@color/primaryTextColor"
+        android:layout_margin="@dimen/margin_left"
+        app:layout_constraintTop_toBottomOf="@id/studioTypeTIL">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/durationET"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/primaryTextColor"
+            android:backgroundTint="@color/primaryTextColor"
+            android:id="@+id/descriptionET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_timelapse_black_24dp"
-            android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/duration_hint"
-            android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/maxParticipantTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/durationTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/maxParticipantsET"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@mipmap/ic_people_black_24dp"
-            android:drawablePadding="@dimen/margin_left"
-            android:paddingStart="@dimen/margin_left"
-            android:paddingEnd="@dimen/margin_right"
-            android:hint="@string/maximum_participants"
-            android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:background="@android:color/transparent"
-            android:focusable="false"
-            android:layout_gravity="center_vertical"/>
+            android:hint="@string/description"
+            android:inputType="textCapSentences|textMultiLine"/>
     </android.support.design.widget.TextInputLayout>
 
 
-    <LinearLayout
-        android:orientation="vertical"
+    <Button
+        android:id="@+id/createStudioBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/maxParticipantTIL">
-
-        <android.support.design.widget.TextInputLayout
-            android:focusedByDefault="false"
-            android:id="@+id/whatTIL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
-
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
-                android:id="@+id/whatET"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/what_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:focusedByDefault="false"
-            android:id="@+id/whoTIL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
-
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
-                android:id="@+id/whoET"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/who_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:focusedByDefault="false"
-            android:id="@+id/whereTIL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical">
-
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/primaryTextColor"
-                android:backgroundTint="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
-                android:id="@+id/whereET"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/where_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <Button
-            android:id="@+id/createSessionBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:background="@drawable/rounded_button_primary"
-            android:text="@string/create_session"
-            android:textColor="@color/secondaryTextColor" />
-    </LinearLayout>
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:background="@drawable/rounded_button_primary"
+        android:text="@string/create_training_group"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintTop_toBottomOf="@id/descriptionTIL"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

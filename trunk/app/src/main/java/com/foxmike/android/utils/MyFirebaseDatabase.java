@@ -58,7 +58,7 @@ public class MyFirebaseDatabase extends Service {
     private int studioDownloadedCounter = 0;
     private HashMap<String,Integer> studioDistances = new HashMap<>();
 
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
     public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Long> sessionsHashMap) {
 
@@ -207,11 +207,11 @@ public class MyFirebaseDatabase extends Service {
         onSessionsFilteredListener.OnSessionsFiltered(sessions);
     }
 
-    /*public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        *//*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -220,7 +220,7 @@ public class MyFirebaseDatabase extends Service {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }*//*
+        }*/
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -257,8 +257,9 @@ public class MyFirebaseDatabase extends Service {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Session session;
+                                                Long currentTimestamp = System.currentTimeMillis();
                                                 session = dataSnapshot.getValue(Session.class);
-                                                if (session.isAdvertised()) {
+                                                if (session.getSessionTimestamp()>currentTimestamp) {
                                                     sessions.add(session);
                                                 } else {
                                                     nearSessionsIDs.remove(str);
@@ -288,7 +289,7 @@ public class MyFirebaseDatabase extends Service {
                         }
                     }
                 });
-    }*/
+    }
 
     public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;

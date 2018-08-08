@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.MainHostActivity;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -62,7 +60,6 @@ import com.google.firebase.database.ValueEventListener;
 import android.support.v4.app.Fragment;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +68,6 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 /**
@@ -143,11 +139,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView addPaymentMethodTV;
     private LinearLayout paymentFrame;
     private HashMap defaultSourceMap;
+    private boolean mapReady;
 
 
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
-    private boolean currentUserAndSessionAndViewUsed;
+    private boolean currentUserAndSessionAndViewAndMapUsed;
     private boolean hostAndViewUsed;
     private boolean postsUsed;
     private boolean postCommentsUsed;
@@ -229,7 +226,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUserAndViewUsed = false;
-                currentUserAndSessionAndViewUsed = false;
+                currentUserAndSessionAndViewAndMapUsed = false;
                 currentUser = dataSnapshot.getValue(User.class);
                 currentUserLoaded =true;
                 onTaskFinished();
@@ -240,92 +237,20 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         });
         listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
 
-        if (studio!=null) {
-            session = new Session();
-            sessionID = "preview";
-            session.setStudioId(studioId);
-            session.setCurrency(studio.getCurrency());
-            session.setImageUrl(studio.getImageUrl());
-            session.setLongitude(studio.getLongitude());
-            session.setLatitude(studio.getLatitude());
-            session.setDuration(studio.getDuration());
-            session.setHost(studio.getHostId());
-            session.setMaxParticipants(studio.getMaxParticipants());
-            session.setSessionName(studio.getSessionName());
-            session.setSessionType(studio.getSessionType());
-            session.setWhat(studio.getWhat());
-            session.setWho(studio.getWho());
-            session.setWhereAt(studio.getWhere());
-            session.setPrice(studio.getPrice());
-            Calendar myCalendar = Calendar.getInstance();
-            session.setSessionTimestamp(myCalendar.getTimeInMillis());
-
-            currentUserAndSessionAndViewUsed = false;
-            sessionAndPaymentAndViewUsed = false;
-            sessionUsed = false;
-            sessionLoaded = true;
-            onTaskFinished();
-            getPosts();
-            getSessionHost();
-        } else {
-            // GET SESSION FROM DATABASE
-            if (sessionLatitude!=null | !sessionID.equals("")) {
-                // FINDS SESSION AND FILLS UI
-                // Get the session information
-                if (sessionID.equals("")) {
-                    if (!childEventListenerMap.containsKey(mSessionDbRef.orderByChild("latitude"))) {
-                        sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude).addChildEventListener(new ChildEventListener() {
-                            @Override
-                            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                Session thisSession = dataSnapshot.getValue(Session.class);
-                                if (sessionLongitude==thisSession.getLongitude()) {
-                                    session = thisSession;
-                                    sessionID = dataSnapshot.getRef().getKey();
-                                    currentUserAndSessionAndViewUsed = false;
-                                    sessionAndPaymentAndViewUsed = false;
-                                    sessionUsed = false;
-                                    sessionLoaded = true;
-                                    onTaskFinished();
-                                    getPosts();
-                                    getSessionHost();
-                                }
-                            }
-                            @Override
-                            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                                Session thisSession = dataSnapshot.getValue(Session.class);
-                                if (sessionLongitude==thisSession.getLongitude()) {
-                                    session = thisSession;
-                                    sessionID = dataSnapshot.getRef().getKey();
-                                    currentUserAndSessionAndViewUsed = false;
-                                    sessionAndPaymentAndViewUsed = false;
-                                    sessionUsed = false;
-                                    sessionLoaded = true;
-                                    onTaskFinished();
-                                    getPosts();
-                                    getSessionHost();
-                                }
-                            }
-
-                            @Override
-                            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                            }
-                            @Override
-                            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                            }
-                        });
-                        childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude), sessionChildEventListener);
-                    }
-                } else {
-                    if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
-                        sessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                session = dataSnapshot.getValue(Session.class);
+        // GET SESSION FROM DATABASE
+        if (sessionLatitude!=null | !sessionID.equals("")) {
+            // FINDS SESSION AND FILLS UI
+            // Get the session information
+            if (sessionID.equals("")) {
+                if (!childEventListenerMap.containsKey(mSessionDbRef.orderByChild("latitude"))) {
+                    sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                            Session thisSession = dataSnapshot.getValue(Session.class);
+                            if (sessionLongitude==thisSession.getLongitude()) {
+                                session = thisSession;
                                 sessionID = dataSnapshot.getRef().getKey();
-                                currentUserAndSessionAndViewUsed = false;
+                                currentUserAndSessionAndViewAndMapUsed = false;
                                 sessionAndPaymentAndViewUsed = false;
                                 sessionUsed = false;
                                 sessionLoaded = true;
@@ -333,18 +258,63 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 getPosts();
                                 getSessionHost();
                             }
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
+                        }
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            Session thisSession = dataSnapshot.getValue(Session.class);
+                            if (sessionLongitude==thisSession.getLongitude()) {
+                                session = thisSession;
+                                sessionID = dataSnapshot.getRef().getKey();
+                                currentUserAndSessionAndViewAndMapUsed = false;
+                                sessionAndPaymentAndViewUsed = false;
+                                sessionUsed = false;
+                                sessionLoaded = true;
+                                onTaskFinished();
+                                getPosts();
+                                getSessionHost();
                             }
-                        });
-                        listenerMap.put(mSessionDbRef.child(sessionID),sessionListener);
-                    }
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        }
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                    childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude), sessionChildEventListener);
                 }
             } else {
-                Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
-                toast.show();
+                if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
+                    sessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            session = dataSnapshot.getValue(Session.class);
+                            sessionLongitude = session.getLongitude();
+                            sessionLatitude = session.getLatitude();
+                            sessionID = dataSnapshot.getRef().getKey();
+                            currentUserAndSessionAndViewAndMapUsed = false;
+                            sessionAndPaymentAndViewUsed = false;
+                            sessionUsed = false;
+                            sessionLoaded = true;
+                            onTaskFinished();
+                            getPosts();
+                            getSessionHost();
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                    listenerMap.put(mSessionDbRef.child(sessionID),sessionListener);
+                }
             }
+        } else {
+            Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
@@ -587,9 +557,15 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
         }
 
-        // ---------------- CURRENTUSER && SESSION && VIEW-----------------
-        if (currentUserLoaded && sessionLoaded && getView()!=null && !currentUserAndSessionAndViewUsed) {
-            currentUserAndSessionAndViewUsed=true;
+        // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
+        if (currentUserLoaded && sessionLoaded && mapReady && getView()!=null && !currentUserAndSessionAndViewAndMapUsed) {
+            currentUserAndSessionAndViewAndMapUsed =true;
+            // SETUP MAP
+            LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
+            TextTimestamp textTimestamp = new TextTimestamp(session.getSessionTimestamp());
+            mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).
+                    snippet(textTimestamp.textTime()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
             // Setup Booking, Cancelling and Editing Button
             mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -837,11 +813,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
-        TextTimestamp textTimestamp = new TextTimestamp(session.getSessionTimestamp());
-        mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).
-                snippet(textTimestamp.textTime()));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
+        currentUserAndSessionAndViewAndMapUsed = false;
+        mapReady = true;
+        onTaskFinished();
     }
 
     // ------------   Posts viewholder for the post recyclerview ----------------------
@@ -978,7 +952,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public void onDestroyView() {
         super.onDestroyView();
         currentUserAndViewUsed = false;
-        currentUserAndSessionAndViewUsed = false;
+        currentUserAndSessionAndViewAndMapUsed = false;
         hostAndViewUsed = false;
         sessionUsed = false;
         sessionAndPaymentAndViewUsed = false;

@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
+import com.foxmike.android.models.Studio;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
@@ -70,15 +71,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private DatabaseReference mDatabaseUsers;
     private boolean moveCamera;
     private View myView;
+    private OnLocationPickedListener onLocationPickedListener;
     private OnSessionClickedListener onSessionClickedListener;
-    private OnCreateStudioListener onCreateStudioListener;
-    private OnSessionLocationChangedListener onSessionLocationChangedListener;
     private TextView createSessionMapTextTV;
     private boolean changeLocation;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private Button chooseLocation;
     private LatLng chosenPoint;
+    private String requestType;
+    private String studioId;
+    private Studio studio;
 
     private Marker tempMarker;
 
@@ -97,8 +100,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         Bundle bundle = this.getArguments();
         changeLocation = false;
         if (bundle != null) {
-            if (bundle.getBoolean("changeLocation")) {
-                changeLocation = true;
+            requestType = bundle.getString("requestType", "nothing");
+            if (requestType.equals("createSession")) {
+                studioId = bundle.getString("studioId");
+                studio = (Studio) bundle.getSerializable("studio");
             }
         }
         setRetainInstance(true);
@@ -174,6 +179,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 if (user.trainerMode) {
                     createSessionMapTextTV.setVisibility(View.VISIBLE);
                     //when map is clicked, open CreateOrEditSessionActivity
+
+                    mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                        @Override
+                        public void onMapLongClick(LatLng point) {
+
+                            chosenPoint = point;
+
+                            if(tempMarker!=null) {
+                                tempMarker.remove();
+                            }
+
+                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
+
+                            createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
+
+                            chooseLocation.setVisibility(View.VISIBLE);
+
+                        }
+                    });
+
                     mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override
                         public void onMapClick(LatLng point) {
@@ -201,12 +226,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void onClick(View view) {
                 if (chosenPoint!=null) {
-                    if (changeLocation) {
-                        onSessionLocationChangedListener.OnSessionLocationChanged(chosenPoint);
-                        getActivity().onBackPressed();
-                    } else {
-                        addSession(chosenPoint);
-                    }
+                    onLocationPickedListener.OnLocationPicked(chosenPoint, requestType, studioId, studio);
                 }
             }
         });
@@ -241,11 +261,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         float[] hsv = new float[3];
         Color.colorToHSV(Color.parseColor(color), hsv);
         return BitmapDescriptorFactory.defaultMarker(hsv[0]);
-    }
-
-    // Method to start CreateOrEditSessionActivity
-    private void addSession(LatLng clickedPosition) {
-        onCreateStudioListener.OnCreateStudio(clickedPosition);
     }
 
     // Method that adds a marker to the map when map is clicked and CreateOrEditSessionActivity
@@ -329,40 +344,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (context instanceof OnLocationPickedListener) {
+            onLocationPickedListener = (OnLocationPickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnLocationPickedListener");
+        }
         if (context instanceof OnSessionClickedListener) {
             onSessionClickedListener = (OnSessionClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
-        if (context instanceof OnCreateStudioListener) {
-            onCreateStudioListener = (OnCreateStudioListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnCreateStudioListener");
-        }
-        if (context instanceof OnSessionLocationChangedListener) {
-            onSessionLocationChangedListener = (OnSessionLocationChangedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSessionLocationChangedListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        onLocationPickedListener = null;
         onSessionClickedListener = null;
-        onCreateStudioListener = null;
-        onSessionLocationChangedListener = null;
     }
 
-    public interface OnCreateStudioListener {
-        void OnCreateStudio(LatLng latLng);
-    }
 
-    public interface OnSessionLocationChangedListener {
-        void OnSessionLocationChanged(LatLng latLng);
+    public interface OnLocationPickedListener {
+        void OnLocationPicked(LatLng latLng, String requestType, String studioId, Studio studio);
     }
 
     private String getAddress(double latitude, double longitude) {

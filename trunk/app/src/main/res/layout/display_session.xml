@@ -26,7 +26,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            
             app:layout_constraintStart_toEndOf="@id/locationIcon"
             app:layout_constraintTop_toTopOf="@id/locationIcon"
             app:layout_constraintBottom_toBottomOf="@id/locationIcon"

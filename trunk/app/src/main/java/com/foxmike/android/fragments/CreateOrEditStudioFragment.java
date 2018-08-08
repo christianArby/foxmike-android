@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 
 
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +21,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +49,14 @@ import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnStudioChangedListener;
 import com.foxmike.android.models.Studio;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,6 +83,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
@@ -81,27 +93,20 @@ public class CreateOrEditStudioFragment extends Fragment {
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private TextView mLocation;
-    private TextInputLayout mDurationTIL;
-    private TextInputLayout mMaxParticipantsTIL;
-    private TextInputLayout mSessionTypeTIL;
-    private TextInputEditText mSessionName;
-    private TextInputEditText mSessionType;
-    private TextInputEditText mDate;
-    private TextInputEditText mTime;
-    private TextInputEditText mMaxParticipants;
-    private TextInputEditText mDuration;
-    private EditText mWhat;
-    private EditText mWho;
-    private EditText mWhere;
-    private EditText mPrice;
+    private TextInputLayout mStudioTypeTIL;
+    private TextInputLayout mLocationTIL;
+    private TextInputLayout mDescriptionTIL;
+    private TextInputLayout mStudioNameTIL;
+    private TextInputEditText mStudioName;
+    private TextInputEditText mStudioType;
+    private EditText mDescription;
     private Button mCreateStudioBtn;
-    private final Calendar myCalendar = Calendar.getInstance();
     private ListView lv;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mStorageSessionImage;
     private int studioExist;
     private long mSessionTimestamp;
-    private ImageButton mSessionImageButton;
+    private ImageButton mStudioImageButton;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
     private ProgressDialog mProgress;
@@ -122,12 +127,17 @@ public class CreateOrEditStudioFragment extends Fragment {
     private ProgressBar progressBar;
     private String accountCountry;
     private boolean payoutsEnabled;
-    private boolean infoIsValid;
+    private boolean infoIsValid = true;
     private Studio mUpdatedStudio;
     private String accountCurrency;
     private static final String STUDIOS = "studiosTEST";
     private static final String SESSIONS = "sessionsTEST";
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
+    protected GeoDataClient mGeoDataClient;
+    protected PlaceDetectionClient mPlaceDetectionClient;
+    private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 123;
+    private Place place;
+    private TextView chooseImageError;
 
 
 
@@ -149,9 +159,13 @@ public class CreateOrEditStudioFragment extends Fragment {
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             existingStudioId = bundle.getString("StudioId");
-            clickedLatLng = bundle.getParcelable("LatLng");
             existingStudio = (Studio) bundle.getSerializable("studio");
-            }
+        }
+        // Construct a GeoDataClient.
+        mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
+
+        // Construct a PlaceDetectionClient.
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(getActivity(), null);
     }
 
     @Override
@@ -160,32 +174,25 @@ public class CreateOrEditStudioFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_create_or_edit_studio, container, false);
 
-        String test = getResources().getString(R.string.geofire_pathname);
-
         /* Set and inflate "create session" layout*/
         View createStudio;
         LinearLayout createStudioContainer = view.findViewById(R.id.create_studio_container);
         createStudio = inflater.inflate(R.layout.create_or_edit_studio, createStudioContainer,false);
         // Setup views
         mLocation = createStudio.findViewById(R.id.locationTV);
-        mDate = createStudio.findViewById(R.id.dateET);
-        mSessionName = createStudio.findViewById(R.id.sessionNameET);
-        mSessionType = createStudio.findViewById(R.id.sessionTypeET);
-        mSessionTypeTIL = createStudio.findViewById(R.id.sessionTypeTIL);
-        mTime = createStudio.findViewById(R.id.timeET);
-        mMaxParticipants = createStudio.findViewById(R.id.maxParticipantsET);
-        mDuration = createStudio.findViewById(R.id.durationET);
-        mDurationTIL = createStudio.findViewById(R.id.durationTIL);
-        mMaxParticipantsTIL = createStudio.findViewById(R.id.maxParticipantTIL);
-        mWhat = createStudio.findViewById(R.id.whatET);
-        mWho = createStudio.findViewById(R.id.whoET);
-        mWhere = createStudio.findViewById(R.id.whereET);
-        mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
+        mStudioName = createStudio.findViewById(R.id.studioNameET);
+        mStudioType = createStudio.findViewById(R.id.studioTypeET);
+        mStudioTypeTIL = createStudio.findViewById(R.id.studioTypeTIL);
+        mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("studio_images");
         mProgress = new ProgressDialog(getActivity());
-        mCreateStudioBtn = createStudio.findViewById(R.id.createSessionBtn);
-        mPrice = createStudio.findViewById(R.id.priceET);
-        mSessionImageButton = createStudio.findViewById(R.id.sessionImageBtn);
+        mCreateStudioBtn = createStudio.findViewById(R.id.createStudioBtn);
+        mStudioImageButton = createStudio.findViewById(R.id.studioImageBtn);
         progressBar = createStudio.findViewById(R.id.progressBar_cyclic);
+        mDescription = createStudio.findViewById(R.id.descriptionET);
+        mLocationTIL = createStudio.findViewById(R.id.locationTIL);
+        mDescriptionTIL = createStudio.findViewById(R.id.descriptionTIL);
+        mStudioNameTIL = createStudio.findViewById(R.id.studioNameTIL);
+        chooseImageError = createStudio.findViewById(R.id.imageErrorText);
 
         // Add view to create session container
         createStudioContainer.addView(createStudio);
@@ -204,21 +211,22 @@ public class CreateOrEditStudioFragment extends Fragment {
         geoFire = new GeoFire(mGeofireDbRef);
 
         // Setup standard aspect ratio of session image
-        mSessionImageButton.post(new Runnable() {
+        mStudioImageButton.post(new Runnable() {
             @Override
             public void run() {
                 RelativeLayout.LayoutParams mParams;
-                mParams = (RelativeLayout.LayoutParams) mSessionImageButton.getLayoutParams();
-                mParams.height = mSessionImageButton.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
-                mSessionImageButton.setLayoutParams(mParams);
-                mSessionImageButton.postInvalidate();
+                mParams = (RelativeLayout.LayoutParams) mStudioImageButton.getLayoutParams();
+                mParams.height = mStudioImageButton.getWidth()*getResources().getInteger(R.integer.heightOfStudioImageNumerator)/getResources().getInteger(R.integer.heightOfStudioImageDenominator);
+                mStudioImageButton.setLayoutParams(mParams);
+                mStudioImageButton.postInvalidate();
             }
         });
 
         /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
-        mSessionImageButton.setOnClickListener(new View.OnClickListener() {
+        mStudioImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                chooseImageError.setVisibility(View.GONE);
 
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
@@ -232,57 +240,86 @@ public class CreateOrEditStudioFragment extends Fragment {
         mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-                bundle.putBoolean("changeLocation", true);
-                mapsFragment = MapsFragment.newInstance();
-                mapsFragment.setArguments(bundle);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                if (null == fragmentManager.findFragmentByTag("studioMapsFragment")) {
-                    transaction.add(R.id.container_studio_maps_fragment, mapsFragment,"studioMapsFragment").addToBackStack(null);
-                    transaction.commit();
+                mLocationTIL.setError(null);
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                    .build(getActivity());
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
+                }
+            }
+        });
+
+        mLocationTIL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                    .build(getActivity());
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
                 }
             }
         });
 
         /** When item is clicked create a dialog with the specified title and string array */
-        mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
+        mStudioTypeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+                mStudioTypeTIL.setError(null);
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mStudioType);
             }
         });
-        mSessionType.setOnClickListener(new View.OnClickListener() {
+        mStudioType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
-            }
-        });
-
-        mDurationTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
-            }
-        });
-        mDuration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
+                mStudioTypeTIL.setError(null);
+                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mStudioType);
             }
         });
 
-        mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
+        mStudioNameTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
+                mStudioNameTIL.setError(null);
             }
         });
-        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
+        mStudioName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
+                mStudioName.setError(null);
+            }
+        });
+
+        mDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().length()<51) {
+                    mDescriptionTIL.setError(getString(R.string.please_write_a_longer_description));
+                    infoIsValid = false;
+                } else {
+                    infoIsValid = true;
+                    mDescriptionTIL.setError(null);
+                }
+
             }
         });
 
@@ -316,19 +353,19 @@ public class CreateOrEditStudioFragment extends Fragment {
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
 
-            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-            mLocation.setText(address);
-            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
+
+            mStudioImageButton.setScaleType(ImageView.ScaleType.CENTER);
         }
 
         // ----------------OnCreateOrEditStudioBtnClicked: Get the info from UI and create or update studio-----------------------------------------------
         mCreateStudioBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (studioExist==1) {
-                    mProgress.setMessage(getString(R.string.updating_session));
+                    mProgress.setMessage(getString(R.string.updating_training_group));
                 } else {
-                    mProgress.setMessage(getString(R.string.creating_session));
+                    mProgress.setMessage(getString(R.string.creating_training_group));
                 }
 
                 mProgress.show();
@@ -342,10 +379,9 @@ public class CreateOrEditStudioFragment extends Fragment {
             }
         });
 
-
-
         return view;
     }
+
 
     /**Send session object to database */
     private void sendStudio(Studio sendStudio) {
@@ -356,18 +392,14 @@ public class CreateOrEditStudioFragment extends Fragment {
     }
 
     private void fillUI() {
-        clickedLatLng = new LatLng(existingStudio.getLatitude(), existingStudio.getLongitude());
-        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-        mLocation.setText(address);
-        setImage(existingStudio.getImageUrl(),mSessionImageButton);
-        mSessionName.setText(existingStudio.getSessionName());
-        mSessionType.setText(existingStudio.getSessionType());
-        mMaxParticipants.setText(existingStudio.getMaxParticipants());
-        mDuration.setText(existingStudio.getDuration());
-        mWhat.setText(existingStudio.getWhat());
-        mWho.setText(existingStudio.getWho());
-        mWhere.setText(existingStudio.getWhere());
-        mCreateStudioBtn.setText(R.string.update_session);
+
+        mLocation.setText(existingStudio.getLocation());
+        setImage(existingStudio.getImageUrl(),mStudioImageButton);
+        mStudioName.setText(existingStudio.getStudioName());
+        mStudioType.setText(existingStudio.getStudioType());
+        mCreateStudioBtn.setText(R.string.update_training_group);
+        mDescription.setText(existingStudio.getDescription());
+        mLocation.setText(existingStudio.getLocation());
     }
 
     // Function retrieveStripeAccount
@@ -393,56 +425,43 @@ public class CreateOrEditStudioFragment extends Fragment {
     @NonNull
     public void updateStudioObjectFromUI(final OnStudioUpdatedListener onStudioUpdatedListener) {
 
-        infoIsValid = true;
         final Studio studio = new Studio();
 
         /**If studio exists get the existing session id */
         if (studioExist==1) {
             mStudioId = existingStudioId;
             studio.setSessions(existingStudio.getSessions());
-            studio.setPrice(existingStudio.getPrice());
+            studio.setLatitude(existingStudio.getLatitude());
+            studio.setLongitude(existingStudio.getLongitude());
         }
         /**If session not exists create a new random session key*/
         else {
             mStudioId = rootDbRef.child(STUDIOS).push().getKey();
+            if (place==null) {
+                mLocationTIL.setError(getString(R.string.please_choose_location));
+                infoIsValid = false;
+            } else {
+                studio.setLatitude(place.getLatLng().latitude);
+                studio.setLongitude(place.getLatLng().longitude);
+            }
+
         }
 
-        studio.setSessionName(mSessionName.getText().toString());
-        studio.setSessionType(mSessionType.getText().toString());
-        studio.setWhat(mWhat.getText().toString());
-        studio.setWho(mWho.getText().toString());
-        studio.setWhere(mWhere.getText().toString());
-        studio.setMaxParticipants(mMaxParticipants.getText().toString());
-        studio.setDuration(mDuration.getText().toString());
-        studio.setLongitude(clickedLatLng.longitude);
-        studio.setLatitude(clickedLatLng.latitude);
+        studio.setStudioName(mStudioName.getText().toString());
+        studio.setStudioType(mStudioType.getText().toString());
+        studio.setDescription(mDescription.getText().toString());
+        studio.setLongitude(0);
+        studio.setLatitude(0);
         studio.setHostId(currentFirebaseUser.getUid());
+        studio.setLocation(mLocation.getText().toString());
 
-        if (TextUtils.isEmpty(studio.getSessionName())) {
+        if (TextUtils.isEmpty(studio.getStudioName())) {
+            mStudioNameTIL.setError(getString(R.string.please_choose_name));
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(studio.getSessionType())) {
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(studio.getMaxParticipants())) {
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(studio.getDuration())) {
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(studio.getWhat())) {
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(studio.getWho())) {
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(studio.getWhere())) {
+        if (TextUtils.isEmpty(studio.getStudioType())) {
+            mStudioTypeTIL.setError(getString(R.string.please_choose_type));
             infoIsValid = false;
         }
 
@@ -460,8 +479,6 @@ public class CreateOrEditStudioFragment extends Fragment {
 
                     if (infoIsValid){
                         onStudioUpdatedListener.OnStudioUpdated(studio);
-                    }   else    {
-                        Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                     }
                     mProgress.dismiss();
                 }
@@ -484,8 +501,8 @@ public class CreateOrEditStudioFragment extends Fragment {
             }
             /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
+                chooseImageError.setVisibility(View.VISIBLE);
                 mProgress.dismiss();
-                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -518,13 +535,28 @@ public class CreateOrEditStudioFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                place = PlaceAutocomplete.getPlace(getActivity(), data);
+                mLocation.setText(place.getName());
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(getActivity(), data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+
         if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
 
             Uri imageUri = data.getData();
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageDenominator), getResources().getInteger(R.integer.heightOfSessionImageNumerator))
+                    .setAspectRatio(getResources().getInteger(R.integer.heightOfStudioImageDenominator), getResources().getInteger(R.integer.heightOfStudioImageNumerator))
                     .start(fragment.getContext(), fragment);
         }
 
@@ -534,8 +566,8 @@ public class CreateOrEditStudioFragment extends Fragment {
             if (resultCode == RESULT_OK) {
 
                 mImageUri = result.getUri();
-                mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mSessionImageButton.setImageURI(mImageUri);
+                mStudioImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mStudioImageButton.setImageURI(mImageUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -545,7 +577,7 @@ public class CreateOrEditStudioFragment extends Fragment {
 
     /**Method setImage scales the chosen image*/
     private void setImage(String image, ImageView imageView) {
-        mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mStudioImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
     }
 

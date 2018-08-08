@@ -109,6 +109,7 @@
     <orderEntry type="library" name="com.google.firebase:firebase-analytics-15.0.2" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-storage-15.0.2" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-iid-15.1.0" level="project" />
+    <orderEntry type="library" name="com.google.android.gms:play-services-places-15.0.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-iid-interop-15.0.0" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.core:jackson-annotations:2.2.2@jar" level="project" />
     <orderEntry type="library" name="com.android.support:transition-27.1.1" level="project" />

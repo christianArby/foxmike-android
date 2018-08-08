@@ -9,38 +9,47 @@ import java.util.HashMap;
 
 public class Studio implements Serializable {
     private String hostId;
-    private String sessionName;
-    private String sessionType;
-    private String maxParticipants;
+    private String studioName;
+    private String studioType;
+    private String description;
     private double latitude;
     private double longitude;
     private HashMap<String, Long> sessions;
     private String imageUrl;
-    private String what;
-    private String who;
-    private String where;
-    private String duration;
-    private String currency;
-    private int price;
+    private String location;
 
-    public Studio(String hostId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> sessions, String imageUrl, String what, String who, String where, String duration, String currency, int price) {
+    public Studio(String hostId, String studioName, String studioType, String description, double latitude, double longitude, HashMap<String, Long> sessions, String imageUrl, String location) {
         this.hostId = hostId;
-        this.sessionName = sessionName;
-        this.sessionType = sessionType;
-        this.maxParticipants = maxParticipants;
+        this.studioName = studioName;
+        this.studioType = studioType;
+        this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.sessions = sessions;
         this.imageUrl = imageUrl;
-        this.what = what;
-        this.who = who;
-        this.where = where;
-        this.duration = duration;
-        this.currency = currency;
-        this.price = price;
+        this.location = location;
     }
 
     public Studio() {
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public HashMap<String, Long> getSessions() {
+        if (this.sessions==null) {
+            sessions = new HashMap<String, Long>();
+        }
+        return sessions;
+    }
+
+    public void setSessions(HashMap<String, Long> sessions) {
+        this.sessions = sessions;
     }
 
     public String getHostId() {
@@ -51,28 +60,20 @@ public class Studio implements Serializable {
         this.hostId = hostId;
     }
 
-    public String getSessionName() {
-        return sessionName;
+    public String getStudioName() {
+        return studioName;
     }
 
-    public void setSessionName(String sessionName) {
-        this.sessionName = sessionName;
+    public void setStudioName(String studioName) {
+        this.studioName = studioName;
     }
 
-    public String getSessionType() {
-        return sessionType;
+    public String getStudioType() {
+        return studioType;
     }
 
-    public void setSessionType(String sessionType) {
-        this.sessionType = sessionType;
-    }
-
-    public String getMaxParticipants() {
-        return maxParticipants;
-    }
-
-    public void setMaxParticipants(String maxParticipants) {
-        this.maxParticipants = maxParticipants;
+    public void setStudioType(String studioType) {
+        this.studioType = studioType;
     }
 
     public double getLatitude() {
@@ -91,17 +92,6 @@ public class Studio implements Serializable {
         this.longitude = longitude;
     }
 
-    public HashMap<String, Long> getSessions() {
-        if (this.sessions==null) {
-            sessions = new HashMap<String, Long>();
-        }
-        return sessions;
-    }
-
-    public void setSessions(HashMap<String, Long> sessions) {
-        this.sessions = sessions;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -110,51 +100,11 @@ public class Studio implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public String getWhat() {
-        return what;
+    public String getLocation() {
+        return location;
     }
 
-    public void setWhat(String what) {
-        this.what = what;
-    }
-
-    public String getWho() {
-        return who;
-    }
-
-    public void setWho(String who) {
-        this.who = who;
-    }
-
-    public String getWhere() {
-        return where;
-    }
-
-    public void setWhere(String where) {
-        this.where = where;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

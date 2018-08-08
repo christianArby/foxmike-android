@@ -1,6 +1,7 @@
 package com.foxmike.android.adapters;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,8 @@ import com.foxmike.android.interfaces.OnStudioBranchClickedListener;
 import com.foxmike.android.models.StudioBranch;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by chris on 2018-07-08.
@@ -51,14 +54,14 @@ public class ListStudiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (studioBranchArrayList.get(position).getStudio().getImageUrl().equals("sectionHeader")) {
 
-            ((ListStudiosSectionHeaderViewHolder) holder).setHeader(studioBranchArrayList.get(position).getStudio().getSessionName());
+            ((ListStudiosSectionHeaderViewHolder) holder).setHeader(studioBranchArrayList.get(position).getStudio().getStudioName());
 
         } else {
             if (studioBranchArrayList.size()>0) {
                 ((ListStudiosViewHolder) holder).setSessionImage(studioBranchArrayList.get(position).getStudio().getImageUrl());
-                ((ListStudiosViewHolder) holder).setText1(studioBranchArrayList.get(position).getStudio().getSessionName());
+                ((ListStudiosViewHolder) holder).setText1(studioBranchArrayList.get(position).getStudio().getStudioName());
                 StudioBranch studioBranch = studioBranchArrayList.get(position);
-                ((ListStudiosViewHolder) holder).setText2(studioBranch.getStudio().getSessionType());
+                ((ListStudiosViewHolder) holder).setText2(studioBranch.getStudio().getStudioType());
                 ((ListStudiosViewHolder) holder).setStudioClickedListener(studioBranchArrayList.get(position));
                 Long currentTimestamp = System.currentTimeMillis();
                 boolean isAdvertised = false;
@@ -123,6 +126,7 @@ public class ListStudiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public void setSessionImage(String sessionImage) {
             ImageView sessionIV = (ImageView) mView.findViewById(R.id.icon);
             Glide.with(context).load(sessionImage).into(sessionIV);
+            sessionIV.setColorFilter(R.color.foxmikePrimaryDarkColor, PorterDuff.Mode.LIGHTEN);
         }
 
         public void setText1(String text1) {

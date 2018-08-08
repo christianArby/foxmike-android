@@ -5,59 +5,119 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/edit_studio_question"
+    <LinearLayout
+        android:elevation="0dp"
+        android:id="@+id/groupInfoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|center"
-        android:paddingStart="@dimen/margin_left"
-        android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/marginVertical"
-        android:paddingBottom="@dimen/marginVertical"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-        android:textColor="@color/primaryTextColor"
-        android:text="@string/edit_session_details"
-        android:clickable="true"
-        android:focusable="true"
-        android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
+        android:orientation="vertical"
+        android:background="@color/color_background_dark"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent">
 
-    <View
-        android:id="@+id/spaceView1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/color_divider"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        app:layout_constraintTop_toBottomOf="@id/edit_studio_question"
-        app:layout_constraintStart_toStartOf="parent"/>
+        <TextView
+            android:drawableStart="@mipmap/ic_location_on_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
+            android:drawablePadding="@dimen/margin_left"
+            android:layout_width="180dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:id="@+id/locationTV"
+            app:layout_constraintHorizontal_bias="0"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/primaryTextColor"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginStart="@dimen/margin_left"
+            android:text="@string/loading"/>
 
-    <TextView
-        android:id="@+id/preview_studio_question"
+        <TextView
+            android:drawableStart="@drawable/ic_filter_list_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
+            android:drawablePadding="@dimen/margin_left"
+            android:layout_width="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:id="@+id/studioTypeTV"
+            app:layout_constraintHorizontal_bias="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:textColor="@color/primaryTextColor"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginBottom="@dimen/marginVertical"
+            android:text="@string/loading"/>
+
+        <View
+            android:id="@+id/spaceView0"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"/>
+
+
+
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/groupInfoContainer2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|center"
-        android:paddingStart="@dimen/margin_left"
-        android:paddingEnd="@dimen/margin_left"
-        android:paddingTop="@dimen/marginVertical"
-        android:paddingBottom="@dimen/marginVertical"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-        android:textColor="@color/primaryTextColor"
-        android:text="@string/preview_session"
-        android:clickable="true"
-        android:focusable="true"
-        android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceView1"/>
+        app:layout_constraintTop_toBottomOf="@id/groupInfoContainer">
+
+        <TextView
+            android:textColor="@color/primaryTextColor"
+            android:id="@+id/descriptionTV"
+            android:layout_width="match_parent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginStart="@dimen/margin_left"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <View
+            android:id="@+id/spaceView01"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginTop="@dimen/marginVertical"
+            app:layout_constraintTop_toBottomOf="@id/descriptionTV"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/edit_studio_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:paddingStart="@dimen/margin_left"
+            android:paddingEnd="@dimen/margin_left"
+            android:paddingTop="@dimen/marginVertical"
+            android:paddingBottom="@dimen/marginVertical"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/foxmikePrimaryColor"
+            android:text="@string/edit_group_details"
+            android:clickable="true"
+            android:focusable="true"
+            android:drawableEnd="@mipmap/ic_mode_edit_black_24dp"
+            android:drawableTint="@color/foxmikePrimaryColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spaceView01"/>
+
+
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
         android:visibility="gone"
-        android:id="@+id/nothingAdvContainer"
+        android:id="@+id/noSessionsContainer"
         android:background="@color/color_background_dark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/preview_studio_question">
+        app:layout_constraintTop_toBottomOf="@id/groupInfoContainer2">
 
         <android.support.v7.widget.CardView
             android:background="@color/color_background_light"
@@ -79,16 +139,16 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textStyle="bold"
-                    android:text="@string/advertise_your_session"/>
+                    android:text="@string/no_sessions"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:text="@string/not_advertised_explanation"/>
+                    android:text="@string/no_sessions_explanation"/>
 
                 <Button
-                    android:id="@+id/advertiseBtn"
+                    android:id="@+id/createSessionBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/marginVertical"
@@ -96,7 +156,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/secondaryTextColor"
                     android:background="@drawable/square_button_primary"
-                    android:text="@string/advertise_session"
+                    android:text="@string/create_session"
                     />
 
             </LinearLayout>
@@ -109,13 +169,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nothingAdvContainer">
+        app:layout_constraintTop_toBottomOf="@id/noSessionsContainer">
         <TextView
-            android:id="@+id/advertisedHeading"
+            android:id="@+id/upcomingHeading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="@string/advertised_text"
+            android:text="@string/upcoming_sessions"
             android:textColor="@color/primaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
@@ -137,7 +197,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
-                android:text="@string/add_advertisement"
+                android:text="@string/add_session"
                 android:drawableStart="@mipmap/ic_add_black_24dp"
                 android:drawableTint="@color/foxmikePrimaryColor"
                 android:drawablePadding="@dimen/margin_left"
@@ -150,11 +210,11 @@
         </android.support.v7.widget.CardView>
 
         <TextView
-            android:id="@+id/notAdvertisedHeading"
+            android:id="@+id/pastHeading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            android:text="@string/previous_sessions"
+            android:text="@string/past_sessions"
             android:textColor="@color/primaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 

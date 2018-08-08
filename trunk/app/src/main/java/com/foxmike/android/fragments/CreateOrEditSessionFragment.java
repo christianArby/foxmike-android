@@ -44,6 +44,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
@@ -87,7 +88,7 @@ import static android.content.ContentValues.TAG;
 public class CreateOrEditSessionFragment extends Fragment{
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireTEST");
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
     private TextInputLayout mDateTIL;
@@ -142,6 +143,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private String accountCurrency;
     private String stripeAccountId;
     private boolean hasParticipants = false;
+    private String studioId;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -160,6 +162,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             existingSessionID = bundle.getString("sessionID");
             clickedLatLng = bundle.getParcelable("LatLng");
             existingSession = (Session) bundle.getSerializable("session");
+            studioId = bundle.getString("studioId");
 ;        }
     }
 
@@ -168,6 +171,9 @@ public class CreateOrEditSessionFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_create_or_edit_session, container, false);
+
+        /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
+        geoFire = new GeoFire(mGeofireDbRef);
 
         /* Set and inflate "create session" layout*/
         View createSession;
@@ -247,7 +253,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         existingSession = dataSnapshot.getValue(Session.class);
-                        fillUI();
+                        setupUI();
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -256,7 +262,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 });
 
             } else {
-                fillUI();
+                setupUI();
             }
 
 
@@ -268,6 +274,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             mLocation.setText(address);
             setPrice(0);
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
+            setupUI();
         }
 
         /**When button is clicked set the values in the edittext fields to a session object */
@@ -292,7 +299,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                             final AlertDialog okDialog = new AlertDialog.Builder(getContext()).create();
                             okDialog.setView(okDialogView);
                             TextView tv = okDialogView.findViewById(R.id.textTV);
-                            tv.setText("You have no active payout method, please add payout method under your account settings.");
+                            tv.setText(R.string.no_active_payout_method);
                             okDialogView.findViewById(R.id.okBtn).setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -316,11 +323,36 @@ public class CreateOrEditSessionFragment extends Fragment{
         return view;
     }
 
-    private void fillUI() {
+    private void setupUI() {
 
-        if (existingSession.getParticipants().size()>0) {
-            hasParticipants = true;
+        if (existingSession!=null) {
+            if (existingSession.getParticipants().size()>0) {
+                hasParticipants = true;
+            }
+
+            clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
+            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            mLocation.setText(address);
+            setImage(existingSession.getImageUrl(),mSessionImageButton);
+            mSessionName.setText(existingSession.getSessionName());
+            mSessionType.setText(existingSession.getSessionType());
+            // Date
+            myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
+            updateLabel();
+            // Time
+            TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
+            mTime.setText(textTimestamp.textTime());
+            mMaxParticipants.setText(existingSession.getMaxParticipants());
+            mDuration.setText(existingSession.getDuration());
+            mWhat.setText(existingSession.getWhat());
+            mWho.setText(existingSession.getWho());
+            mWhere.setText(existingSession.getWhereAt());
+            setPrice(existingSession.getPrice());
+
+            mCreateSessionBtn.setText(R.string.update_session);
+
         }
+
 
         // -------------- Set on button click listeners --------------------
 
@@ -356,7 +388,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                 Bundle bundle = new Bundle();
                 bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-                bundle.putBoolean("changeLocation", true);
+                bundle.putString("requestType", "updateSession");
                 mapsFragment = MapsFragment.newInstance();
                 mapsFragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -403,7 +435,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 updateLabel();
             }
         };
-        /**If date field is clicked start Android datepicker and retrive data */
+        /*If date field is clicked start Android datepicker and retrive data */
         mDateTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -429,7 +461,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
 
-        /** When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
+        /* When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
         mTimeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -469,40 +501,25 @@ public class CreateOrEditSessionFragment extends Fragment{
             @Override
             public void onClick(View view) {
 
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,existingSession.getParticipants().size());
+                int nrOfParticipants = 0;
+                if (existingSession!=null) {
+                    nrOfParticipants = existingSession.getParticipants().size();
+                }
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,nrOfParticipants);
 
             }
         });
         mMaxParticipants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,existingSession.getParticipants().size());
+                int nrOfParticipants = 0;
+                if (existingSession!=null) {
+                    nrOfParticipants = existingSession.getParticipants().size();
+                }
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,nrOfParticipants);
             }
         });
 
-        // ------------------- Get info from UI -----------------------
-
-        clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-        mLocation.setText(address);
-        setImage(existingSession.getImageUrl(),mSessionImageButton);
-        mSessionName.setText(existingSession.getSessionName());
-        mSessionType.setText(existingSession.getSessionType());
-        // Date
-        myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
-        updateLabel();
-        // Time
-        TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
-        mTime.setText(textTimestamp.textTime());
-        mMaxParticipants.setText(existingSession.getMaxParticipants());
-        mDuration.setText(existingSession.getDuration());
-        mWhat.setText(existingSession.getWhat());
-        mWho.setText(existingSession.getWho());
-        mWhere.setText(existingSession.getWhereAt());
-
-        mCreateSessionBtn.setText(R.string.update_session);
-
-        setPrice(existingSession.getPrice());
     }
 
     private void notPossibleHasParticipants(String text) {
@@ -603,14 +620,15 @@ public class CreateOrEditSessionFragment extends Fragment{
             mSessionId = existingSessionID;
             sessionMap.put("posts", existingSession.getPosts());
             sessionMap.put("studioId", existingSession.getStudioId());
+            sessionMap.put("participants", existingSession.getParticipants());
         }
         /**If session not exists create a new random session key*/
         else {
             mSessionId = mMarkerDbRef.push().getKey();
+            sessionMap.put("studioId", studioId);
         }
 
         mSessionTimestamp = myCalendar.getTimeInMillis();
-
         sessionMap.put("sessionName", mSessionName.getText().toString());
         sessionMap.put("sessionType", mSessionType.getText().toString());
         sessionMap.put("what",mWhat.getText().toString());
@@ -623,7 +641,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         sessionMap.put("latitude", clickedLatLng.latitude);
         sessionMap.put("host", currentFirebaseUser.getUid());
         sessionMap.put("stripeAccountId", stripeAccountId);
-        sessionMap.put("participants", existingSession.getParticipants());
+
 
         if (TextUtils.isEmpty(mSessionName.getText().toString())) {
             infoIsValid = false;
@@ -711,6 +729,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     /**Send session object to database */
     private void sendSession(Map sendSession) {
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
+        geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
         rootDbRef.child("studiosTEST").child(sendSession.get("studioId").toString()).child("sessions").child(mSessionId).setValue(sendSession.get("sessionTimestamp"));
         onHostSessionChangedListener.OnHostSessionChanged();
         onStudioChangedListener.OnStudioChanged();

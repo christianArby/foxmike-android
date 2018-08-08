@@ -179,7 +179,13 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                     infoIsValid = false;
                 }
 
-                if (TOSCheckBox.isChecked() && infoIsValid) {
+                if (!TOSCheckBox.isChecked()) {
+                    TOSTIL.setError("You must agree to the above in order to register your account.");
+                    infoIsValid = false;
+                    return;
+                }
+
+                if (infoIsValid) {
 
                     int dobYear = Integer.parseInt(dob.substring(0,4));
                     int dobMonth = Integer.parseInt(dob.substring(5,7));
@@ -230,8 +236,6 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                         }
                     });
 
-                } else {
-                    TOSTIL.setError("You must agree to the above in order to register your account.");
                 }
 
             }
