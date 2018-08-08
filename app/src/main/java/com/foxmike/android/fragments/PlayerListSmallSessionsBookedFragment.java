@@ -59,7 +59,7 @@ public class PlayerListSmallSessionsBookedFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_player_list_small_sessions_booked, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
         smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
-        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsBooked, onSessionBranchClickedListener, getContext());
+        listSmallSessionsAdapter = new ListSmallSessionsAdapter(sessionsBooked, onSessionBranchClickedListener, "displaySession", getContext());
         smallSessionsListRV.setAdapter(listSmallSessionsAdapter);
         noContent = view.findViewById(R.id.noContent);
         return view;

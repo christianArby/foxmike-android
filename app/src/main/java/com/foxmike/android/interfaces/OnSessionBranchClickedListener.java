@@ -7,5 +7,5 @@ import com.foxmike.android.models.SessionBranch;
  */
 
 public interface OnSessionBranchClickedListener {
-    void OnSessionBranchClicked(SessionBranch sessionBranch);
+    void OnSessionBranchClicked(SessionBranch sessionBranch, String request);
 }

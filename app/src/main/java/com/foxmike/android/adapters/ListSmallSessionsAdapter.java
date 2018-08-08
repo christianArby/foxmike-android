@@ -29,10 +29,12 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
     private ArrayList<SessionBranch> sessionBranchArrayList;
     private OnSessionBranchClickedListener onSessionBranchClickedListener;
     private Context context;
+    private String request;
 
-    public ListSmallSessionsAdapter(ArrayList<SessionBranch> sessionBranchArrayList, OnSessionBranchClickedListener onSessionBranchClickedListener, Context context) {
+    public ListSmallSessionsAdapter(ArrayList<SessionBranch> sessionBranchArrayList, OnSessionBranchClickedListener onSessionBranchClickedListener, String request, Context context) {
         this.sessionBranchArrayList = sessionBranchArrayList;
         this.onSessionBranchClickedListener = onSessionBranchClickedListener;
+        this.request = request;
         this.context = context;
     }
 
@@ -113,7 +115,7 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
             frame.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onSessionBranchClickedListener.OnSessionBranchClicked(sessionBranch);
+                    onSessionBranchClickedListener.OnSessionBranchClicked(sessionBranch, request);
                 }
             });
 

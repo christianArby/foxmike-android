@@ -821,11 +821,11 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnSessionBranchClicked(SessionBranch sessionBranch) {
-
-        displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
-
+    public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
+        if (request.equals("displaySession")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+        }
     }
 
     @Override

@@ -112,7 +112,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private ListView lv;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mStorageSessionImage;
-    private int sessionExist;
+    private boolean updateSession;
     private long mSessionTimestamp;
     private ImageButton mSessionImageButton;
     private static final int GALLERY_REQUEST = 1;
@@ -144,6 +144,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private String stripeAccountId;
     private boolean hasParticipants = false;
     private String studioId;
+    private boolean template;
 
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
@@ -163,7 +164,9 @@ public class CreateOrEditSessionFragment extends Fragment{
             clickedLatLng = bundle.getParcelable("LatLng");
             existingSession = (Session) bundle.getSerializable("session");
             studioId = bundle.getString("studioId");
-;        }
+            template = bundle.getBoolean("template", false);
+        }
+
     }
 
     @Override
@@ -242,11 +245,18 @@ public class CreateOrEditSessionFragment extends Fragment{
         });
 
         // FILL VIEW with the session in bundle or with the session with the sessionID
-        sessionExist=0;
+
         if (existingSessionID != null | existingSession!=null) {
+
+            if (template) {
+                updateSession = false;
+            } else {
+                updateSession = true;
+            }
+
+
             /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
              * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
-            sessionExist=1;
             if (existingSession==null) {
                 final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
                 sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -281,7 +291,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sessionExist==1) {
+                if (updateSession) {
                     mProgress.setMessage(getString(R.string.updating_session));
                 } else {
                     mProgress.setMessage(getString(R.string.creating_session));
@@ -325,6 +335,10 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     private void setupUI() {
 
+        if (template) {
+            existingSession.setParticipants(new HashMap<>());
+        }
+
         if (existingSession!=null) {
             if (existingSession.getParticipants().size()>0) {
                 hasParticipants = true;
@@ -336,9 +350,11 @@ public class CreateOrEditSessionFragment extends Fragment{
             setImage(existingSession.getImageUrl(),mSessionImageButton);
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(existingSession.getSessionType());
-            // Date
-            myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
-            updateLabel();
+            if (!template) {
+                // Date
+                myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
+                updateLabel();
+            }
             // Time
             TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
             mTime.setText(textTimestamp.textTime());
@@ -348,8 +364,6 @@ public class CreateOrEditSessionFragment extends Fragment{
             mWho.setText(existingSession.getWho());
             mWhere.setText(existingSession.getWhereAt());
             setPrice(existingSession.getPrice());
-
-            mCreateSessionBtn.setText(R.string.update_session);
 
         }
 
@@ -615,17 +629,21 @@ public class CreateOrEditSessionFragment extends Fragment{
         //final Session session = new Session();
         Map sessionMap = new HashMap();
 
-        /**If session exists get the existing session id */
-        if (sessionExist==1) {
+        if (!updateSession && !template) {
+            mSessionId = mMarkerDbRef.push().getKey();
+            sessionMap.put("studioId", studioId);
+        }
+
+        if (template) {
+            mSessionId = mMarkerDbRef.push().getKey();
+            sessionMap.put("studioId", existingSession.getStudioId());
+        }
+
+        if (updateSession) {
             mSessionId = existingSessionID;
             sessionMap.put("posts", existingSession.getPosts());
             sessionMap.put("studioId", existingSession.getStudioId());
             sessionMap.put("participants", existingSession.getParticipants());
-        }
-        /**If session not exists create a new random session key*/
-        else {
-            mSessionId = mMarkerDbRef.push().getKey();
-            sessionMap.put("studioId", studioId);
         }
 
         mSessionTimestamp = myCalendar.getTimeInMillis();
@@ -707,7 +725,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         else {
             /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
              * and send the user back to the main activity*/
-            if (sessionExist==1) {
+            if (updateSession | template) {
                 sessionMap.put("imageUrl", existingSession.getImageUrl());
                 mProgress.dismiss();
 
