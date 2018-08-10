@@ -390,6 +390,8 @@ public class DisplayStudioFragment extends Fragment {
             AlertDialog dialog = builder.create();
             dialog.show();
             return;
+        } else {
+            onCreateSessionClickedListener.OnCreateSessionClicked(studioID, studio);
         }
     }
 

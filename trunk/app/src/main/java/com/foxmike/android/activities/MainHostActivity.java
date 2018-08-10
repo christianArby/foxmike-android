@@ -272,11 +272,6 @@ public class MainHostActivity extends AppCompatActivity implements
         }
     }
 
-    /* Listener, when session is clicked display session*/
-    @Override
-    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-    }
-
     @Override
     public void OnSessionClicked(String sessionId) {
         DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
@@ -346,7 +341,7 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnCreateStudioClicked() {
         createOrEditStudioFragment = CreateOrEditStudioFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"");
+        cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"changeStudio");
     }
 
     @Override
@@ -536,12 +531,14 @@ public class MainHostActivity extends AppCompatActivity implements
         if (requestType.equals("updateSession")) {
             if (createOrEditSessionFragment!=null) {
                 createOrEditSessionFragment.updateLocation(latLng);
+                getSupportFragmentManager().popBackStack();
             }
             return;
         }
         if (requestType.equals("updateStudio")) {
             if (createOrEditStudioFragment!=null) {
                 createOrEditStudioFragment.updateLocation(latLng);
+                getSupportFragmentManager().popBackStack();
             }
             return;
         }
@@ -562,6 +559,5 @@ public class MainHostActivity extends AppCompatActivity implements
             createOrEditStudioFragment.setArguments(bundle);
             cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"");*/
         }
-
     }
 }

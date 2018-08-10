@@ -1,23 +1,41 @@
 package com.foxmike.android.fragments;
 // Checked
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
+import com.foxmike.android.adapters.ListSmallRecyclerViewsAdapter;
+import com.foxmike.android.adapters.ListSmallSessionsHorizontalAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.models.Studio;
@@ -45,6 +63,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -82,6 +101,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private String requestType;
     private String studioId;
     private Studio studio;
+    private RecyclerView mSessionList;
+    private ListSmallRecyclerViewsAdapter listSmallRecyclerViewsAdapter;
+    private HashMap<Marker, Integer> sessionMarkersMap = new HashMap<>();
+    private ArrayList<Marker> markerArray = new ArrayList<>();
+    private LinearLayoutManager linearLayoutManager;
+    private Marker selectedMarker;
+    private Bitmap defaultMarkerBitmap;
+    private Bitmap selectedMarkerBitmap;
+    private int horizontalSessionWidth =0;
+    int horizontalSessionHeight = 0;
+    private int currentSessionInt = 0;
+    private ArrayList<ArrayList<Session>> thisNearSessionsArrays;
 
     private Marker tempMarker;
 
@@ -97,8 +128,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         Bundle bundle = this.getArguments();
         changeLocation = false;
+
+        // Get request type
         if (bundle != null) {
             requestType = bundle.getString("requestType", "nothing");
             if (requestType.equals("createSession")) {
@@ -106,11 +140,28 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 studio = (Studio) bundle.getSerializable("studio");
             }
         }
-        setRetainInstance(true);
+
         moveCamera=true;
+
         mAuth = FirebaseAuth.getInstance();
         mMarkerDbRef.keepSynced(true);
+
+        // Get horizontal height of small sessions in order to set recycler view height
+        horizontalSessionHeight = getResources().getDimensionPixelSize(R.dimen.horizontal_session_height);
+
+        // Set default and selected marker
+        defaultMarkerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.map_marker);
+        defaultMarkerBitmap = scaleBitmap(defaultMarkerBitmap, 90, 90);
+        selectedMarkerBitmap = scaleBitmap(defaultMarkerBitmap, 100, 100);
+        selectedMarkerBitmap = Bitmap.createBitmap(selectedMarkerBitmap, 0, 0,
+                defaultMarkerBitmap.getWidth() - 1, defaultMarkerBitmap.getHeight() - 1);
+        Paint p = new Paint();
+        ColorFilter filter = new PorterDuffColorFilter(ContextCompat.getColor(getActivity(), R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_IN);
+        p.setColorFilter(filter);
+        Canvas canvas = new Canvas(selectedMarkerBitmap);
+        canvas.drawBitmap(selectedMarkerBitmap, 0, 0, p);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -121,17 +172,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             myView = inflater.inflate(R.layout.fragment_maps, container, false);
             mapView = myView.findViewById(R.id.map);
             mapView.onCreate(savedInstanceState);
-            mapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
+            chooseLocation = myView.findViewById(R.id.chooseLocation);
+            createSessionMapTextTV = myView.findViewById(R.id.create_session_map_text);
+            // OnMapReadyCallback will be triggered when map is ready
+            mapView.getMapAsync(this);
+
+            // Setup horizontal recyclerView
+            mSessionList = myView.findViewById(R.id.session_list);
+            linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+            mSessionList.setLayoutManager(linearLayoutManager);
+            PagerSnapHelper snapHelper = new PagerSnapHelper();
+            snapHelper.attachToRecyclerView(mSessionList);
         }
 
-        chooseLocation = myView.findViewById(R.id.chooseLocation);
+        // If chosenPoint is null it means that the user has not chosen a location so set the view to gone (applies only when user is in trainer mode)
         if (chosenPoint==null) {
             chooseLocation.setVisibility(View.GONE);
         } else {
             chooseLocation.setVisibility(View.VISIBLE);
         }
 
-        createSessionMapTextTV = myView.findViewById(R.id.create_session_map_text);
         return myView;
     }
 
@@ -176,24 +236,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
             @Override
             public void OnUserFound(User user) {
+                // ------------------ TRAINER MODE -------------------------------------------------------
                 if (user.trainerMode) {
                     createSessionMapTextTV.setVisibility(View.VISIBLE);
-                    //when map is clicked, open CreateOrEditSessionActivity
-
+                    // Set on Map clickedListeners
                     mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
                         public void onMapLongClick(LatLng point) {
-
                             chosenPoint = point;
-
                             if(tempMarker!=null) {
                                 tempMarker.remove();
                             }
-
                             tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
-
                             createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
-
                             chooseLocation.setVisibility(View.VISIBLE);
 
                         }
@@ -202,26 +257,96 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override
                         public void onMapClick(LatLng point) {
-
                             chosenPoint = point;
-
                             if(tempMarker!=null) {
                                 tempMarker.remove();
                             }
-
                             tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
-
                             createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
-
                             chooseLocation.setVisibility(View.VISIBLE);
                         }
                     });
+                    // ------------------ PLAYER MODE -------------------------------------------------------
                 } else {
+                    // Listen to scroll events
+                    mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                            super.onScrollStateChanged(recyclerView, newState);
+                            switch (newState) {
+                                case RecyclerView.SCROLL_STATE_IDLE:
+                                    // Set which session currently is in focus after scroll
+                                    currentSessionInt = (linearLayoutManager.findLastCompletelyVisibleItemPosition() - linearLayoutManager.findFirstCompletelyVisibleItemPosition())  / 2 + linearLayoutManager.findFirstVisibleItemPosition();
+
+                                    // Set height of recyclerView based on how many sessions currently is in this position
+                                    ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
+                                    params.height= thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                                    mSessionList.setLayoutParams(params);
+                                    listSmallRecyclerViewsAdapter.notifyDataSetChanged();
+
+                                    // If selectedMarker is not null it means that a previous marker was clicked, turn it into the default marker
+                                    if (selectedMarker!=null) {
+                                        selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                                    }
+
+                                    // Set the selected marker to the marker stored in markerArray at this position
+                                    selectedMarker = markerArray.get(currentSessionInt);
+                                    // Change the marker at this position to selected since the user has scrolled to this position
+                                    selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                                    markerArray.get(currentSessionInt).showInfoWindow();
+
+                                    // If the currently selected session and marker is not shown on the map after scroll, move camera to that position
+                                    boolean contains = mMap.getProjection()
+                                            .getVisibleRegion()
+                                            .latLngBounds
+                                            .contains(markerArray.get(currentSessionInt).getPosition());
+                                    if(!contains){
+                                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerArray.get(currentSessionInt).getPosition(), 15));
+                                    }
+
+                                    break;
+                            }
+                        }
+                    });
+
+                    // Setup on marker clicked listener
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            // Find out which session is in focus in recyclerView
+                            //currentSessionInt = (linearLayoutManager.findLastCompletelyVisibleItemPosition() - linearLayoutManager.findFirstCompletelyVisibleItemPosition())  / 2 + linearLayoutManager.findFirstVisibleItemPosition();
+
+                            // If the corresponding session to the clicked marker is not in focus in recyclerView, scroll to that position
+                            mSessionList.smoothScrollToPosition(markerArray.indexOf(marker));
+                            // When clicked on marker, show recyclerView
+                            if (thisNearSessionsArrays!=null) {
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
+                                animation.setDuration(2000);
+                                animation.start();
+                            }
+
+                            return false;
+                        }
+                    });
+                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng latLng) {
+                            // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
+                            if (thisNearSessionsArrays!=null) {
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
+                                animation.setDuration(2000);
+                                animation.start();
+                            }
+
+
+                        }
+                    });
                     createSessionMapTextTV.setVisibility(View.GONE);
                 }
             }
         });
 
+        // When in trainerMode, chooseLocation will be visible
         chooseLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,52 +359,53 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(ArrayList<Session> sessions) {
-
+    public void addMarkersToMap(ArrayList<ArrayList<Session>> nearSessionsArrays) {
+        thisNearSessionsArrays = nearSessionsArrays;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        // Clear the map of markers and clear set the array of the new array
         mMap.clear();
-        for (Session session: sessions) {
+        selectedMarker = null;
+        currentSessionInt = 0;
+        markerArray.clear();
+
+        // Add markers the map
+        for (ArrayList<Session> sessionArrayList : nearSessionsArrays) {
+            Session session = sessionArrayList.get(0);
             LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(getMarkerIcon("#00897b")).snippet(session.supplyTextTimeStamp().textTime()));
+            //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
+            Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            markerArray.add(marker);
         }
 
-        // mMap.addMarker(new MarkerOptions().position(loc).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)).snippet(session.supplyTextTimeStamp().textTime()));
+        // Update or create the recyclerView
+        if (listSmallRecyclerViewsAdapter!=null) {
+            listSmallRecyclerViewsAdapter.refreshData(thisNearSessionsArrays);
+            mSessionList.smoothScrollToPosition(0);
+            markerArray.get(0).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            selectedMarker = markerArray.get(0);
+            ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
+            params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+            mSessionList.setLayoutParams(params);
 
-        // when marker is clicked find latitude value in child in realtime database
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                markerLatLng = marker.getPosition();
-                displaySession(markerLatLng);
-                return false;
+        } else {
+            listSmallRecyclerViewsAdapter = new ListSmallRecyclerViewsAdapter(thisNearSessionsArrays, getActivity(), onSessionClickedListener);
+            if (mSessionList!=null) {
+                mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
+                markerArray.get(0).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                selectedMarker = markerArray.get(0);
+                ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
+                params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                mSessionList.setLayoutParams(params);
             }
-        });
+            listSmallRecyclerViewsAdapter.notifyDataSetChanged();
+        }
     }
 
-    // method definition
+    // Method to set marker color by string
     public BitmapDescriptor getMarkerIcon(String color) {
         float[] hsv = new float[3];
         Color.colorToHSV(Color.parseColor(color), hsv);
         return BitmapDescriptorFactory.defaultMarker(hsv[0]);
-    }
-
-    // Method that adds a marker to the map when map is clicked and CreateOrEditSessionActivity
-    // has been started.
-    /*@Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == PICK_SESSION_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                mMap.addMarker(new MarkerOptions().position(clickedPosition));
-            }
-        }
-    }*/
-
-    // Method to call the interface OnSessionClickedListener so that MainPlayerActivity knows that
-    // a session has been clicked and display session fragment should be created and switched to.
-    private void displaySession(LatLng markerLatLng) {
-        onSessionClickedListener.OnSessionClicked(markerLatLng.latitude, markerLatLng.longitude);
     }
 
     //google  ONLY LONG AND LAT SET BELOW THIS
@@ -318,10 +444,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
-
         Double latitudeDouble = mLastLocation.getLatitude();
         Double longitudeDouble = mLastLocation.getLongitude();
-
         if(moveCamera){
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
             mLocationRequest.setInterval(10 * 1000);
@@ -412,5 +536,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             returnAddress = "failed";
         }
         return returnAddress;
+    }
+
+    public static Bitmap scaleBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+        Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
+
+        float scaleX = newWidth / (float) bitmap.getWidth();
+        float scaleY = newHeight / (float) bitmap.getHeight();
+        float pivotX = 0;
+        float pivotY = 0;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(scaleX, scaleY, pivotX, pivotY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bitmap, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+        return scaledBitmap;
     }
 }

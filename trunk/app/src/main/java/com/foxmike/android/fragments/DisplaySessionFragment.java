@@ -98,8 +98,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private View view;
     private LinearLayout writePostLsyout;
     private LinearLayout commentLayout;
-    private static final String SESSION_LATITUDE = "sessionLatitude";
-    private static final String SESSION_LONGITUDE = "sessionLongitude";
     private static final String SESSION_ID = "sessionID";
     private Double sessionLatitude;
     private Double sessionLongitude;
@@ -161,16 +159,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // Required empty public constructor
     }
 
-    public static DisplaySessionFragment newInstance(double sessionLatitude, double sessionLongitude, String sessionID) {
-        DisplaySessionFragment fragment = new DisplaySessionFragment();
-        Bundle args = new Bundle();
-        args.putDouble(SESSION_LATITUDE, sessionLatitude);
-        args.putDouble(SESSION_LONGITUDE, sessionLongitude);
-        args.putString(SESSION_ID, sessionID);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     public static DisplaySessionFragment newInstance(String studioId, Studio studio) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
@@ -209,8 +197,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
          Use latitiude and longitude in method findSessionAndFillInUI to fill view
          with session details.
          */
-            sessionLatitude = getArguments().getDouble(SESSION_LATITUDE);
-            sessionLongitude = getArguments().getDouble(SESSION_LONGITUDE);
             sessionID = getArguments().getString(SESSION_ID);
             studioId = getArguments().getString("studioId");
             studio = (Studio) getArguments().getSerializable("studio");
@@ -238,79 +224,31 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
 
         // GET SESSION FROM DATABASE
-        if (sessionLatitude!=null | !sessionID.equals("")) {
+        if (!sessionID.equals("")) {
             // FINDS SESSION AND FILLS UI
             // Get the session information
-            if (sessionID.equals("")) {
-                if (!childEventListenerMap.containsKey(mSessionDbRef.orderByChild("latitude"))) {
-                    sessionChildEventListener = mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude).addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            Session thisSession = dataSnapshot.getValue(Session.class);
-                            if (sessionLongitude==thisSession.getLongitude()) {
-                                session = thisSession;
-                                sessionID = dataSnapshot.getRef().getKey();
-                                currentUserAndSessionAndViewAndMapUsed = false;
-                                sessionAndPaymentAndViewUsed = false;
-                                sessionUsed = false;
-                                sessionLoaded = true;
-                                onTaskFinished();
-                                getPosts();
-                                getSessionHost();
-                            }
-                        }
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                            Session thisSession = dataSnapshot.getValue(Session.class);
-                            if (sessionLongitude==thisSession.getLongitude()) {
-                                session = thisSession;
-                                sessionID = dataSnapshot.getRef().getKey();
-                                currentUserAndSessionAndViewAndMapUsed = false;
-                                sessionAndPaymentAndViewUsed = false;
-                                sessionUsed = false;
-                                sessionLoaded = true;
-                                onTaskFinished();
-                                getPosts();
-                                getSessionHost();
-                            }
-                        }
+            if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
+                sessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        session = dataSnapshot.getValue(Session.class);
+                        sessionLongitude = session.getLongitude();
+                        sessionLatitude = session.getLatitude();
+                        sessionID = dataSnapshot.getRef().getKey();
+                        currentUserAndSessionAndViewAndMapUsed = false;
+                        sessionAndPaymentAndViewUsed = false;
+                        sessionUsed = false;
+                        sessionLoaded = true;
+                        onTaskFinished();
+                        getPosts();
+                        getSessionHost();
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        }
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                        }
-                    });
-                    childEventListenerMap.put(mSessionDbRef.orderByChild("latitude").equalTo(sessionLatitude), sessionChildEventListener);
-                }
-            } else {
-                if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
-                    sessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            session = dataSnapshot.getValue(Session.class);
-                            sessionLongitude = session.getLongitude();
-                            sessionLatitude = session.getLatitude();
-                            sessionID = dataSnapshot.getRef().getKey();
-                            currentUserAndSessionAndViewAndMapUsed = false;
-                            sessionAndPaymentAndViewUsed = false;
-                            sessionUsed = false;
-                            sessionLoaded = true;
-                            onTaskFinished();
-                            getPosts();
-                            getSessionHost();
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                    listenerMap.put(mSessionDbRef.child(sessionID),sessionListener);
-                }
+                    }
+                });
+                listenerMap.put(mSessionDbRef.child(sessionID),sessionListener);
             }
         } else {
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);

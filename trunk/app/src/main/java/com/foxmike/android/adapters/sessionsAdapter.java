@@ -121,7 +121,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onSessionClickedListener.OnSessionClicked(session.getLatitude(),session.getLongitude());
+                    onSessionClickedListener.OnSessionClicked(session.getSessionId());
                     //displaySession(sessionLatLng);
                 }
             });

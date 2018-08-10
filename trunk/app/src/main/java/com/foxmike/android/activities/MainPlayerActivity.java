@@ -151,6 +151,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private View mainView;
     static final int BOOK_SESSION_REQUEST = 8;
     static final int CANCEL_SESSION_REQUEST = 16;
+    private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
 
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
@@ -479,21 +480,28 @@ public class MainPlayerActivity extends AppCompatActivity
         myFirebaseDatabase= new MyFirebaseDatabase();
         // TODO if new filtersessions int is smaller than previous this function should only filter and not download
         myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
+
             @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
+            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location, ArrayList<ArrayList<Session>> nearSessionsArrays) {
                 sessionListArrayList.clear();
+                mainNearSessionsArrays.clear();
+                mainNearSessionsArrays = nearSessionsArrays;
                 sessionListArrayList = nearSessions;
                 locationClosetoSessions = location;
-                myFirebaseDatabase.filterSessions(nearSessions, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-                    @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions) {
-                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions);
 
+                myFirebaseDatabase.filterSessions(nearSessions, nearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+                    @Override
+                    public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                         listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
                         listSessionsFragment.stopSwipeRefreshingSymbol();
+
+                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                        mapsFragment.addMarkersToMap(nearSessionsArrays);
+
                     }
+
+
                 });
 
             }
@@ -574,23 +582,17 @@ public class MainPlayerActivity extends AppCompatActivity
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList, mainNearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
             @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions) {
+            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions);
+                mapsFragment.addMarkersToMap(nearSessionsArrays);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
+
             }
         });
-    }
-
-    /* Listener, when session is clicked display session*/
-    @Override
-    public void OnSessionClicked(double sessionLatitude, double sessionLongitude) {
-        displaySessionFragment = DisplaySessionFragment.newInstance(sessionLatitude,sessionLongitude,"");
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
     }
 
     @Override
@@ -667,11 +669,11 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnListSessionsSort(String sortType) {
         this.sortType = sortType;
-        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList, mainNearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
             @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions) {
+            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions);
+                mapsFragment.addMarkersToMap(nearSessionsArrays);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
                 listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
@@ -823,7 +825,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
         if (request.equals("displaySession")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSession().getLatitude(),sessionBranch.getSession().getLongitude(), sessionBranch.getSessionID());
+            displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
         }
     }

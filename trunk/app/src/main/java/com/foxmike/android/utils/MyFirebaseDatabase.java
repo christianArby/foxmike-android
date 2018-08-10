@@ -164,11 +164,12 @@ public class MyFirebaseDatabase extends Service {
         }
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessions(ArrayList<Session> nearSessions, ArrayList<ArrayList<Session>> nearSessionsArrays,final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
         ArrayList<Session> sessions = new ArrayList<>();
         Long currentTimestamp = System.currentTimeMillis();
 
+        // filter listArray
         for (Session nearSession : nearSessions) {
             if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
                 if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
@@ -186,7 +187,29 @@ public class MyFirebaseDatabase extends Service {
                 }
             }
         }
+        // filter mapsArray
+        for (ArrayList<Session> nearSessionArray : nearSessionsArrays) {
+            for (Session nearSession: nearSessionArray) {
+                if (!firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                    if (!firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                        if (nearSession.getSessionTimestamp() < currentTimestamp) {
+                            nearSessionsArrays.get(nearSessionsArrays.indexOf(nearSessionArray)).remove(nearSession);
+                        }
+                    }
+                }
 
+                if (!secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                    if (!secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                        if (nearSession.getSessionTimestamp() < currentTimestamp) {
+                            nearSessionsArrays.get(nearSessionsArrays.indexOf(nearSessionArray)).remove(nearSession);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // filter listArray
         if (sortType.equals("date")) {
             Collections.sort(sessions);
             TextTimestamp prevTextTimestamp = new TextTimestamp();
@@ -204,7 +227,8 @@ public class MyFirebaseDatabase extends Service {
                 i++;
             }
         }
-        onSessionsFilteredListener.OnSessionsFiltered(sessions);
+
+        onSessionsFilteredListener.OnSessionsFiltered(sessions, nearSessionsArrays);
     }
 
     public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
@@ -254,6 +278,7 @@ public class MyFirebaseDatabase extends Service {
                                 public void onGeoQueryReady() {
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
                                     final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                    ArrayList<ArrayList<Session>> sessionArrayArraylist = new ArrayList<>();
                                     for (String sessionId : sessionDistances.keySet()) {
 
                                         dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -267,12 +292,35 @@ public class MyFirebaseDatabase extends Service {
                                                 sessionMapArrayList.add(sessionMap);
                                                 if (sessionMapArrayList.size() == sessionDistances.size()) {
                                                     Collections.sort(sessionMapArrayList);
+                                                    int previousDistance = 0;
+
+                                                    ArrayList<Session> prevSession = new ArrayList<>();
+
                                                     for (SessionMap sessionMapSorted: sessionMapArrayList) {
+                                                        // If the session is in the future
                                                         if (sessionMapSorted.getSession().getSessionTimestamp()>currentTimestamp) {
+                                                            // Add it to the sessionArray
                                                             sessions.add(sessionMapSorted.getSession());
+                                                            // If the distance is the same as the previous session save it in the same array
+                                                            if (sessionMapSorted.getDistance()==previousDistance) {
+                                                                prevSession.add(sessionMapSorted.getSession());
+                                                            } else {
+                                                                // If not save the previous array
+                                                                if (prevSession.size()>0) {
+                                                                    sessionArrayArraylist.add(prevSession);
+                                                                    prevSession = new ArrayList<>();
+                                                                }
+                                                                // Clear the sessionArray and put this session in it
+                                                                prevSession.add(sessionMapSorted.getSession());
+                                                            }
+                                                            // Remember this distance to the next one
+                                                            previousDistance = sessionMapSorted.getDistance();
                                                         }
                                                     }
-                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                                    if (prevSession.size()>0) {
+                                                        sessionArrayArraylist.add(prevSession);
+                                                    }
+                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location, sessionArrayArraylist);
                                                 }
 
 
@@ -284,7 +332,7 @@ public class MyFirebaseDatabase extends Service {
                                         });
                                     }
                                     if (sessionDistances.size() < 1) {
-                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location, sessionArrayArraylist);
                                     }
                                 }
 
@@ -299,11 +347,11 @@ public class MyFirebaseDatabase extends Service {
                 });
     }
 
-    public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    /*public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        *//*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -312,7 +360,7 @@ public class MyFirebaseDatabase extends Service {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }*/
+        }*//*
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -407,7 +455,7 @@ public class MyFirebaseDatabase extends Service {
                         }
                     }
                 });
-    }
+    }*/
 
     private String getDistance(double latitude, double longitude, Location currentLocation){
 

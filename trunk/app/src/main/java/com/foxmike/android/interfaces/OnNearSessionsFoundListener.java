@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public interface OnNearSessionsFoundListener {
 
-    void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location);
+    void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location, ArrayList<ArrayList<Session>> nearSessionsArrays);
 
     void OnLocationNotFound();
 
