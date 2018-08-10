@@ -118,26 +118,6 @@ public class ListSmallSessionsAdapter extends RecyclerView.Adapter<RecyclerView.
                     onSessionBranchClickedListener.OnSessionBranchClicked(sessionBranch, request);
                 }
             });
-
-            /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            final Calendar cal = Calendar.getInstance();
-            Date todaysDate = cal.getTime();
-            cal.add(Calendar.DATE,14);
-            Date twoWeeksDate = cal.getTime();*/
-
-            /*if (sessionBranch.getSession().getSessionTimestamp().getDateOfSession().after(todaysDate) && sessionBranch.getSession().getSessionTimestamp().getDateOfSession().before(twoWeeksDate)) {
-                // // Remove the hardware layer
-                //v.setLayerType(LAYER_TYPE_NONE, null);
-            } else {
-                // Create a paint object with 0 saturation (black and white)
-                ColorMatrix cm = new ColorMatrix();
-                cm.setSaturation(0);
-                Paint greyscalePaint = new Paint();
-                greyscalePaint.setColorFilter(new ColorMatrixColorFilter(cm));
-                // Create a hardware layer with the greyscale paint
-                frame.setLayerType(LAYER_TYPE_HARDWARE, greyscalePaint);
-            }*/
-
         }
 
         public void setSessionImage(String sessionImage) {

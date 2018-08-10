@@ -715,6 +715,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         }
 
         mSessionTimestamp = myCalendar.getTimeInMillis();
+        sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         sessionMap.put("sessionType", mSessionType.getText().toString());
         sessionMap.put("what",mWhat.getText().toString());

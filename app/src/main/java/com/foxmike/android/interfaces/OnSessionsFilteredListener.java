@@ -5,5 +5,5 @@ import java.util.ArrayList;
 
 public interface OnSessionsFilteredListener {
 
-    void OnSessionsFiltered(ArrayList<Session> sessions);
+    void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays);
 }
