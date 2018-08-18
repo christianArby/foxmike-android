@@ -1,6 +1,7 @@
 package com.foxmike.android.adapters;
 
 import android.content.Context;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,12 +25,14 @@ public class ListSmallRecyclerViewsAdapter extends RecyclerView.Adapter<ListSmal
     private Context context;
     private OnSessionClickedListener onSessionClickedListener;
     private ArrayList<ArrayList<Session>> sessionArrayArrayList;
+    private Location lastLocation;
 
 
-    public ListSmallRecyclerViewsAdapter(ArrayList<ArrayList<Session>> sessionArrayArrayList, Context context, OnSessionClickedListener onSessionClickedListener) {
+    public ListSmallRecyclerViewsAdapter(ArrayList<ArrayList<Session>> sessionArrayArrayList, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation) {
         this.sessionArrayArrayList = sessionArrayArrayList;
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
+        this.lastLocation = lastLocation;
     }
 
 
@@ -101,15 +104,16 @@ public class ListSmallRecyclerViewsAdapter extends RecyclerView.Adapter<ListSmal
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
             mSessionList.setLayoutManager(linearLayoutManager);
 
-            ListSmallSessionsHorizontalAdapter listSmallSessionsHorizontalAdapter = new ListSmallSessionsHorizontalAdapter(sessionArrayList, context, onSessionClickedListener);
+            ListSmallSessionsHorizontalAdapter listSmallSessionsHorizontalAdapter = new ListSmallSessionsHorizontalAdapter(sessionArrayList, context, onSessionClickedListener, lastLocation);
             mSessionList.setAdapter(listSmallSessionsHorizontalAdapter);
 
         }
 
     }
 
-    public void refreshData(ArrayList<ArrayList<Session>> sessionArrayArrayList) {
+    public void refreshData(ArrayList<ArrayList<Session>> sessionArrayArrayList, Location lastLocation) {
         this.sessionArrayArrayList = sessionArrayArrayList;
+        this.lastLocation = lastLocation;
         this.notifyDataSetChanged();
     }
 

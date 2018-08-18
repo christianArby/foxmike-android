@@ -75,9 +75,9 @@
     <dimen name="leadDisplay1ToSub">15dp</dimen>
     <dimen name="dividerDistance">32dp</dimen>
     <dimen name="dividerBottom">12dp</dimen>
-    <dimen name="horizontal_session_height">92dp</dimen>
-    <dimen name="horizontal_session_height_2x">184dp</dimen>
-    <dimen name="horizontal_session_height_3x">276dp</dimen>
+    <dimen name="horizontal_session_height">96dp</dimen>
+    <dimen name="horizontal_session_height_2x">192dp</dimen>
+    <dimen name="horizontal_session_height_3x">288dp</dimen>
 
 
 </resources>

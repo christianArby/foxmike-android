@@ -118,10 +118,8 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     addPaymentMethodTV.setVisibility(View.VISIBLE);
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
@@ -153,41 +151,29 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                         // usually a Map<String, Object>.
                         Object details = ffe.getDetails();
                     }
-
                     progressBar.setVisibility(View.GONE);
                     addPaymentMethodTV.setVisibility(View.VISIBLE);
-
                     // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
                     showSnackbar("An error occurred." + e.getMessage());
                     return;
                     // [END_EXCLUDE]
                 }
-
-
                 // If successful, extract
                 HashMap<String, Object> result = task.getResult();
-
                 if (result.get("resultType").toString().equals("customer")) {
-
                     HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
                     ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
-
                     String defaultSource;
-
                     if (result.get("default_source")!= null) {
                         defaultSource = result.get("default_source").toString();
                     } else {
                         defaultSource = null;
                     }
-
-
-
                     listPaymentMethodsRV.setLayoutManager(new LinearLayoutManager(PaymentPreferencesActivity.this));
                     listPaymentMethodsAdapter = new ListPaymentMethodsAdapter(sourcesDataList, PaymentPreferencesActivity.this, defaultSource, new OnPaymentMethodClickedListener() {
                         @Override
                         public void OnPaymentMethodClicked(String sourceId, String cardBrand, String last4, Boolean isDefault) {
-
                             UpdateStripeSourceFragment updateStripeSourceFragment = UpdateStripeSourceFragment.newInstance(stripeCustomerId, sourceId, cardBrand, last4, isDefault);
                             FragmentManager fragmentManager = getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -208,11 +194,6 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                             listPaymentMethodsRV.setVisibility(View.VISIBLE);
                         }
                     });
-
-
-
-
-
                 } else {
                     HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
                     showSnackbar(error.get("message").toString());
@@ -224,7 +205,6 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
 
     // Function retrieveStripeCustomer
     private Task<HashMap<String, Object>> retrieveStripeCustomer(String customerID) {
-
         // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable("retrieveCustomer")

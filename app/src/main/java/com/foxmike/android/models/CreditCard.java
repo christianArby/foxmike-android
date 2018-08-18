@@ -11,7 +11,6 @@ import java.util.Map;
  */
 
 public class CreditCard {
-
     public static final Map<String , Integer> BRAND_CARD_RESOURCE_MAP =
             new HashMap<String , Integer>() {{
                 put(Card.AMERICAN_EXPRESS, R.drawable.ic_amex_card);
@@ -23,6 +22,4 @@ public class CreditCard {
                 put(Card.UNIONPAY, R.drawable.ic_unknown_card);
                 put(Card.UNKNOWN, R.drawable.ic_unknown_card);
             }};
-
-
 }
