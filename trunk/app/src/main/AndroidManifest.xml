@@ -108,8 +108,8 @@
             android:label="@string/app_name" />
         <activity
             android:name="com.facebook.CustomTabActivity"
-            android:screenOrientation="portrait"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -121,14 +121,29 @@
         </activity>
         <activity
             android:name=".activities.CreateStripeAccountActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".activities.PayoutPreferencesActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.PaymentPreferencesActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.CreateStripeCustomerActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.BookingActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.AboutActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.CancelBookingActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activities.SwitchModeActivity" android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.PayoutPreferencesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.PaymentPreferencesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.CreateStripeCustomerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.BookingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AboutActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.CancelBookingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.SwitchModeActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.TestActivity"></activity>
     </application>
 
 </manifest>

@@ -35,7 +35,6 @@
         android:text="@string/choose_location"/>
 
     <android.support.v7.widget.RecyclerView
-        android:background="@color/foxmikePrimaryColor"
         android:id="@+id/session_list"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"

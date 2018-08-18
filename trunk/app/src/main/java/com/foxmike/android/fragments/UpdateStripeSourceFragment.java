@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
-import com.foxmike.android.activities.CreateStripeCustomerActivity;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
+import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,15 +97,13 @@ public class UpdateStripeSourceFragment extends Fragment {
         mFunctions = FirebaseFunctions.getInstance();
 
         customerData = new HashMap<>();
-
         customerData.put("customerId", customerId);
         customerData.put("sourceId", sourceId);
         customerData.put("userID", userId);
 
-
-        // TODO set cardBrand icon
-
         cardTV.setText(cardBrand + " " + last4);
+
+        cardTV.setCompoundDrawablesWithIntrinsicBounds(BRAND_CARD_RESOURCE_MAP.get(cardBrand), 0, 0, 0);
 
         if (isDefault) {
             isDefaultTV.setText("STANDARD");
@@ -134,7 +132,7 @@ public class UpdateStripeSourceFragment extends Fragment {
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
         myProgressBar.startProgressBar();
 
-        deleteStripeCustomerSource(customerData, type).addOnCompleteListener(new OnCompleteListener<String>() {
+        updateStripeCustomerSource(customerData, type).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 // If not succesful, show error
@@ -174,8 +172,7 @@ public class UpdateStripeSourceFragment extends Fragment {
     }
 
     // Function createStripeAccount
-    private Task<String> deleteStripeCustomerSource(Map<String, Object> customerData, String function) {
-
+    private Task<String> updateStripeCustomerSource(Map<String, Object> customerData, String function) {
         // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable(function)
@@ -183,9 +180,6 @@ public class UpdateStripeSourceFragment extends Fragment {
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        // This continuation runs on either success or failure, but if the task
-                        // has failed then getResult() will throw an Exception which will be
-                        // propagated down.
                         Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
                         return (String) result.get("operationResult");
                     }

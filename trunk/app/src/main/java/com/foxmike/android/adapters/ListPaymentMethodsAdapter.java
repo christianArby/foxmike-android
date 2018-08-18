@@ -58,9 +58,7 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
             String cardBrand = sourcesDataList.get(position).get("brand").toString();
             String last4 = sourcesDataList.get(position).get("last4").toString();
             boolean isDefault;
-
             holder.setCard(BRAND_CARD_RESOURCE_MAP.get(cardBrand), cardBrand, last4);
-
             if (sourceId.equals(defaultSource)) {
                 isDefault = true;
                 holder.setPaymentMethodStandard(true);
@@ -68,7 +66,6 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
                 isDefault = false;
                 holder.setPaymentMethodStandard(false);
             }
-
             holder.setPaymentMethodClickedListener(sourceId,cardBrand,last4,isDefault);
         }
     }

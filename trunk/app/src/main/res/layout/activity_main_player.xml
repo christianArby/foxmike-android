@@ -58,8 +58,8 @@
         android:layout_marginTop="20dp" />
 
     <android.support.design.widget.FloatingActionButton
-        app:backgroundTint="@color/foxmikePrimaryColor"
-        android:tint="@color/secondaryTextColor"
+        app:backgroundTint="@color/secondaryTextColor"
+        android:tint="@color/primaryTextColor"
         android:src="@drawable/ic_my_location_black_24dp"
         android:id="@+id/my_location_button"
         android:layout_width="wrap_content"

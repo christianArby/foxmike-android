@@ -1,22 +1,24 @@
 package com.foxmike.android.activities;
 //Checked
+import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.location.Location;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.transition.TransitionInflater;
-import android.support.transition.TransitionSet;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,8 +29,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Interpolator;
+import android.view.animation.PathInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -89,6 +92,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.subjects.BehaviorSubject;
 import static android.content.ContentValues.TAG;
 
@@ -152,6 +158,8 @@ public class MainPlayerActivity extends AppCompatActivity
     static final int BOOK_SESSION_REQUEST = 8;
     static final int CANCEL_SESSION_REQUEST = 16;
     private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
+    private float mapOrListBtnStartX;
+    private float mapOrListBtnStartY;
 
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
@@ -166,8 +174,8 @@ public class MainPlayerActivity extends AppCompatActivity
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setEnterTransition(new Fade());
         getWindow().setExitTransition(new Fade());
-
         setContentView(R.layout.activity_main_player);
+        ButterKnife.bind(this);
 
         setStripeDefaultSource(new HashMap());
         mainView = findViewById(R.id.activity_main_player);
@@ -187,6 +195,16 @@ public class MainPlayerActivity extends AppCompatActivity
         myLocationBtn = findViewById(R.id.my_location_button);
         WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
         PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
+
+        /*mapOrListBtn.post(new Runnable() {
+            @Override
+            public void run() {
+                mapOrListBtnStartX = mapOrListBtn.getX();
+                mapOrListBtnStartY = mapOrListBtn.getY();
+            }
+        });*/
+
+
 
         // get Firebase instances and references
         mAuth = FirebaseAuth.getInstance();
@@ -409,27 +427,26 @@ public class MainPlayerActivity extends AppCompatActivity
         mapOrListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (fragmentManager.findFragmentByTag("xMainMapsFragment").isVisible()) {
+                mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
+                listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
+                if (mapsFragment.isVisible()) {
                     FragmentTransaction transaction1 = fragmentManager.beginTransaction();
                     transaction1.hide(mapsFragment);
                     transaction1.show(listSessionsFragment);
                     transaction1.commit();
-                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-                    myLocationBtn.setVisibility(View.GONE);
-                } else if (fragmentManager.findFragmentByTag("xMainListSessionsFragment").isVisible()) {
+                    switchMapOrListUI(false);
+                } else if (listSessionsFragment.isVisible()) {
                     FragmentTransaction transaction2 = fragmentManager.beginTransaction();
                     transaction2.hide(listSessionsFragment);
                     transaction2.show(mapsFragment);
                     transaction2.commit();
-                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
-                    myLocationBtn.setVisibility(View.VISIBLE);
+                    switchMapOrListUI(true);
                 } else {
                     FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                    transaction3.hide(fragmentManager.findFragmentByTag("xMainMapsFragment"));
-                    transaction3.show(fragmentManager.findFragmentByTag("xMainListSessionsFragment"));
+                    transaction3.hide(mapsFragment);
+                    transaction3.show(listSessionsFragment);
                     transaction3.commit();
-                    mapOrListBtn.setVisibility(View.VISIBLE);
-                    mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
+                    switchMapOrListUI(false);
                 }
             }
         });
@@ -476,6 +493,45 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
+    private void switchMapOrListUI(boolean mapIsVisible) {
+
+        int width = mainView.getRight();
+        int height = mainView.getBottom();
+        float fabDiameter = convertDpToPx(MainPlayerActivity.this, 56);
+
+        mapOrListBtnStartX = width/2 - fabDiameter/2;
+        mapOrListBtnStartY = height -  convertDpToPx(MainPlayerActivity.this, 80) - fabDiameter;
+        float Xcontrol2 = width - convertDpToPx(MainPlayerActivity.this,72);
+        float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(MainPlayerActivity.this, 144);
+
+
+        if (mapIsVisible) {
+            mapsFragment.showRecylerView(true);
+            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
+            myLocationBtn.show();
+
+            Path path = new Path();
+            path.moveTo(mapOrListBtnStartX, mapOrListBtnStartY);
+            path.quadTo(mapOrListBtnStartX, Ycontrol2, Xcontrol2, Ycontrol2);
+            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
+            objectAnimator1.setDuration(500);
+            objectAnimator1.setInterpolator(new LinearOutSlowInInterpolator());
+            objectAnimator1.start();
+        } else {
+            mapsFragment.showRecylerView(false);
+            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
+            myLocationBtn.hide();
+
+            Path path = new Path();
+            path.moveTo(Xcontrol2, Ycontrol2);
+            path.quadTo(Ycontrol2, mapOrListBtnStartY, mapOrListBtnStartX, mapOrListBtnStartY);
+            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
+            objectAnimator1.setDuration(500);
+            objectAnimator1.setInterpolator(new FastOutLinearInInterpolator());
+            objectAnimator1.start();
+        }
+    }
+
     private void setupListAndMapWithSessions() {
         myFirebaseDatabase= new MyFirebaseDatabase();
         // TODO if new filtersessions int is smaller than previous this function should only filter and not download
@@ -517,6 +573,10 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
+    public float convertDpToPx(Context context, float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
+    }
+
     /** FUNCTION to clean whole activity and switch fragment*/
     private void cleanMainActivityAndSwitch(Fragment fragment) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -534,9 +594,17 @@ public class MainPlayerActivity extends AppCompatActivity
         transaction.commit();
         weekdayFilterContainer.setVisibility(View.GONE);
         mapOrListBtn.setVisibility(View.GONE);
+        mapsFragment.showRecylerView(false);
         sortAndFilterFAB.setVisibility(View.GONE);
         myLocationBtn.setVisibility(View.GONE);
         bottomNavigation.setVisibility(View.VISIBLE);
+
+        if (mapOrListBtn.getX()!=0 && mapOrListBtnStartX!=0) {
+            if (mapOrListBtn.getX()!= mapOrListBtnStartX) {
+                switchMapOrListUI(false);
+            }
+
+        }
     }
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {

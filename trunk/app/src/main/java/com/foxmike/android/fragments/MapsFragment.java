@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,6 +27,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,11 +53,13 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -82,18 +87,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private MapView mapView;
     GoogleApiClient mGoogleApiClient;
     Marker mCurrLocationMarker;
-    static final int PICK_SESSION_REQUEST = 1;
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    private LatLng clickedPosition;
-    private LatLng markerLatLng;
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabaseUsers;
     private boolean moveCamera;
     private View myView;
     private OnLocationPickedListener onLocationPickedListener;
     private OnSessionClickedListener onSessionClickedListener;
     private TextView createSessionMapTextTV;
-    private boolean changeLocation;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private Button chooseLocation;
@@ -103,16 +102,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private Studio studio;
     private RecyclerView mSessionList;
     private ListSmallRecyclerViewsAdapter listSmallRecyclerViewsAdapter;
-    private HashMap<Marker, Integer> sessionMarkersMap = new HashMap<>();
     private ArrayList<Marker> markerArray = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private Marker selectedMarker;
-    private Bitmap defaultMarkerBitmap;
-    private Bitmap selectedMarkerBitmap;
-    private int horizontalSessionWidth =0;
     int horizontalSessionHeight = 0;
     private int currentSessionInt = 0;
-    private ArrayList<ArrayList<Session>> thisNearSessionsArrays;
+    private ArrayList<ArrayList<Session>> thisNearSessionsArrays = new ArrayList<>();
+    private int leftMargin;
+
+    BitmapDescriptor defaultIcon;
+    BitmapDescriptor selectedIcon;
+
 
     private Marker tempMarker;
 
@@ -130,7 +130,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         Bundle bundle = this.getArguments();
-        changeLocation = false;
 
         // Get request type
         if (bundle != null) {
@@ -143,23 +142,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         moveCamera=true;
 
-        mAuth = FirebaseAuth.getInstance();
         mMarkerDbRef.keepSynced(true);
+
+        leftMargin = (int) convertDpToPx(getActivity(), 16);
 
         // Get horizontal height of small sessions in order to set recycler view height
         horizontalSessionHeight = getResources().getDimensionPixelSize(R.dimen.horizontal_session_height);
 
-        // Set default and selected marker
-        defaultMarkerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.map_marker);
-        defaultMarkerBitmap = scaleBitmap(defaultMarkerBitmap, 90, 90);
-        selectedMarkerBitmap = scaleBitmap(defaultMarkerBitmap, 100, 100);
-        selectedMarkerBitmap = Bitmap.createBitmap(selectedMarkerBitmap, 0, 0,
-                defaultMarkerBitmap.getWidth() - 1, defaultMarkerBitmap.getHeight() - 1);
-        Paint p = new Paint();
-        ColorFilter filter = new PorterDuffColorFilter(ContextCompat.getColor(getActivity(), R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_IN);
-        p.setColorFilter(filter);
-        Canvas canvas = new Canvas(selectedMarkerBitmap);
-        canvas.drawBitmap(selectedMarkerBitmap, 0, 0, p);
+    }
+
+    private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
 
@@ -183,6 +181,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             mSessionList.setLayoutManager(linearLayoutManager);
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(mSessionList);
+
+            Drawable locationDrawable = getResources().getDrawable(R.mipmap.baseline_location_on_black_36);
+            defaultIcon = getMarkerIconFromDrawable(locationDrawable);
+            Drawable selectedLocationDrawable = locationDrawable.mutate();
+            selectedLocationDrawable.setColorFilter(getResources().getColor(R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_ATOP);
+            selectedIcon = getMarkerIconFromDrawable(selectedLocationDrawable);
         }
 
         // If chosenPoint is null it means that the user has not chosen a location so set the view to gone (applies only when user is in trainer mode)
@@ -247,7 +251,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             if(tempMarker!=null) {
                                 tempMarker.remove();
                             }
-                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
+                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
                             createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
                             chooseLocation.setVisibility(View.VISIBLE);
 
@@ -261,7 +265,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             if(tempMarker!=null) {
                                 tempMarker.remove();
                             }
-                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(getMarkerIcon("#00897b")));
+                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
                             createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
                             chooseLocation.setVisibility(View.VISIBLE);
                         }
@@ -280,19 +284,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
                                     // Set height of recyclerView based on how many sessions currently is in this position
                                     ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-                                    params.height= thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                                    if (thisNearSessionsArrays.get(currentSessionInt).size()<4) {
+                                        params.height= thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                                        mMap.setPadding(leftMargin,0,0,params.height);
+                                    } else {
+                                        params.height= 3*horizontalSessionHeight;
+                                        mMap.setPadding(leftMargin,0,0,params.height);
+                                    }
                                     mSessionList.setLayoutParams(params);
                                     listSmallRecyclerViewsAdapter.notifyDataSetChanged();
 
                                     // If selectedMarker is not null it means that a previous marker was clicked, turn it into the default marker
                                     if (selectedMarker!=null) {
-                                        selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                                        selectedMarker.setIcon(defaultIcon);
                                     }
 
                                     // Set the selected marker to the marker stored in markerArray at this position
                                     selectedMarker = markerArray.get(currentSessionInt);
                                     // Change the marker at this position to selected since the user has scrolled to this position
-                                    selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                                    selectedMarker.setIcon(selectedIcon);
                                     markerArray.get(currentSessionInt).showInfoWindow();
 
                                     // If the currently selected session and marker is not shown on the map after scroll, move camera to that position
@@ -319,9 +329,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             // If the corresponding session to the clicked marker is not in focus in recyclerView, scroll to that position
                             mSessionList.smoothScrollToPosition(markerArray.indexOf(marker));
                             // When clicked on marker, show recyclerView
-                            if (thisNearSessionsArrays!=null) {
+                            if (thisNearSessionsArrays.size()>0) {
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
-                                animation.setDuration(2000);
+                                animation.setDuration(500);
                                 animation.start();
                             }
 
@@ -332,9 +342,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                         @Override
                         public void onMapClick(LatLng latLng) {
                             // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
-                            if (thisNearSessionsArrays!=null) {
+                            if (thisNearSessionsArrays.size()>0) {
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
-                                animation.setDuration(2000);
+                                animation.setDuration(500);
                                 animation.start();
                             }
 
@@ -362,50 +372,77 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void addMarkersToMap(ArrayList<ArrayList<Session>> nearSessionsArrays) {
         thisNearSessionsArrays = nearSessionsArrays;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = mMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            getActivity(), R.raw.maps_style));
+
+            if (!success) {
+                Log.e("MAPS", "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e("MAPS", "Can't find style. Error: ", e);
+        }
         // Clear the map of markers and clear set the array of the new array
         mMap.clear();
         selectedMarker = null;
         currentSessionInt = 0;
         markerArray.clear();
 
-        // Add markers the map
-        for (ArrayList<Session> sessionArrayList : nearSessionsArrays) {
-            Session session = sessionArrayList.get(0);
-            LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-            //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
-            Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            markerArray.add(marker);
-        }
+        if (nearSessionsArrays.size()>0) {
+            // Add markers the map
+            for (ArrayList<Session> sessionArrayList : nearSessionsArrays) {
+                Session session = sessionArrayList.get(0);
+                LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
+                //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
+                Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));
+                markerArray.add(marker);
+            }
 
-        // Update or create the recyclerView
-        if (listSmallRecyclerViewsAdapter!=null) {
-            listSmallRecyclerViewsAdapter.refreshData(thisNearSessionsArrays);
-            mSessionList.smoothScrollToPosition(0);
-            markerArray.get(0).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            selectedMarker = markerArray.get(0);
-            ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-            params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
-            mSessionList.setLayoutParams(params);
-
-        } else {
-            listSmallRecyclerViewsAdapter = new ListSmallRecyclerViewsAdapter(thisNearSessionsArrays, getActivity(), onSessionClickedListener);
-            if (mSessionList!=null) {
-                mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
-                markerArray.get(0).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            // Update or create the recyclerView
+            if (listSmallRecyclerViewsAdapter!=null) {
+                listSmallRecyclerViewsAdapter.refreshData(thisNearSessionsArrays, mLastLocation);
+                mSessionList.smoothScrollToPosition(0);
+                markerArray.get(0).setIcon(selectedIcon);
                 selectedMarker = markerArray.get(0);
                 ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-                params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
-                mSessionList.setLayoutParams(params);
-            }
-            listSmallRecyclerViewsAdapter.notifyDataSetChanged();
-        }
-    }
+                if (nearSessionsArrays.get(currentSessionInt).size()<4) {
+                    params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                    mMap.setPadding(leftMargin,0,0,params.height);
+                } else {
+                    params.height= 3*horizontalSessionHeight;
+                    mMap.setPadding(leftMargin,0,0,params.height);
+                }
 
-    // Method to set marker color by string
-    public BitmapDescriptor getMarkerIcon(String color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(Color.parseColor(color), hsv);
-        return BitmapDescriptorFactory.defaultMarker(hsv[0]);
+                mSessionList.setLayoutParams(params);
+
+            } else {
+                listSmallRecyclerViewsAdapter = new ListSmallRecyclerViewsAdapter(thisNearSessionsArrays, getActivity(), onSessionClickedListener, mLastLocation);
+                if (mSessionList!=null) {
+                    mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
+                    markerArray.get(0).setIcon(selectedIcon);
+                    selectedMarker = markerArray.get(0);
+                    ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
+                    if (nearSessionsArrays.get(currentSessionInt).size()<4) {
+                        params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                        mMap.setPadding(leftMargin,0,0,params.height);
+                    } else {
+                        params.height= 3*horizontalSessionHeight;
+                        mMap.setPadding(leftMargin,0,0,params.height);
+                    }
+                    mSessionList.setLayoutParams(params);
+                }
+                listSmallRecyclerViewsAdapter.notifyDataSetChanged();
+            }
+            if (thisNearSessionsArrays.size()>0) {
+                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
+                animation.setDuration(500);
+                animation.start();
+            }
+        }
     }
 
     //google  ONLY LONG AND LAT SET BELOW THIS
@@ -441,6 +478,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+        if (listSmallRecyclerViewsAdapter!=null && thisNearSessionsArrays.size()>0)
+        listSmallRecyclerViewsAdapter.refreshData(thisNearSessionsArrays, mLastLocation);
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
@@ -488,7 +527,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         onLocationPickedListener = null;
         onSessionClickedListener = null;
     }
-
 
     public interface OnLocationPickedListener {
         void OnLocationPicked(LatLng latLng, String requestType, String studioId, Studio studio);
@@ -538,21 +576,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         return returnAddress;
     }
 
-    public static Bitmap scaleBitmap(Bitmap bitmap, int newWidth, int newHeight) {
-        Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
-
-        float scaleX = newWidth / (float) bitmap.getWidth();
-        float scaleY = newHeight / (float) bitmap.getHeight();
-        float pivotX = 0;
-        float pivotY = 0;
-
-        Matrix scaleMatrix = new Matrix();
-        scaleMatrix.setScale(scaleX, scaleY, pivotX, pivotY);
-
-        Canvas canvas = new Canvas(scaledBitmap);
-        canvas.setMatrix(scaleMatrix);
-        canvas.drawBitmap(bitmap, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
-
-        return scaledBitmap;
+    public void showRecylerView(boolean showRecyclerView) {
+        if (!showRecyclerView) {
+            if (thisNearSessionsArrays.size()>0) {
+                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
+                animation.setDuration(500);
+                animation.start();
+            }
+        } else {
+            ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
+            animation.setDuration(500);
+            animation.start();
+        }
     }
+
+    public float convertDpToPx(Context context, float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
+    }
+
+
 }

@@ -65,6 +65,8 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //To fix dependency
     //    implementation 'com.android.support:support-annotations:27.1.1'
     //    implementation 'com.google.android.gms:play-services-basement:15.0.0'

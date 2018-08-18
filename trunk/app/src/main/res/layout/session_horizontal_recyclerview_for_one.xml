@@ -4,12 +4,10 @@
     android:layout_gravity="bottom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/com_facebook_blue"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.RecyclerView
         android:layout_gravity="bottom"
-        android:background="@color/red"
         android:id="@+id/verticalRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/horizontal_session_height">
