@@ -528,7 +528,7 @@ public class CreateOrEditStudioFragment extends Fragment {
                 int itemPosition = position;
                 String itemValue = (String) lv.getItemAtPosition(position);
                 mEditText.setText(itemValue);
-                dlg.hide();
+                dlg.dismiss();
             }
         });
     }

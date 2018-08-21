@@ -21,9 +21,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
+        android:ellipsize="end"
         android:text="@string/loading"
         android:textColor="@color/primaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintEnd_toStartOf="@id/arrow"
         app:layout_constraintTop_toTopOf="@id/user_single_image"
         app:layout_constraintBottom_toTopOf="@id/user_single_status"
         app:layout_constraintStart_toEndOf="@id/user_single_image"/>
@@ -31,15 +35,17 @@
     <TextView
         android:textColor="@color/grayTextColor"
         android:id="@+id/user_single_status"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
-        app:layout_constraintHorizontal_bias="0"
         android:text="@string/loading"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintEnd_toStartOf="@id/arrow"
         app:layout_constraintStart_toEndOf="@id/user_single_image"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/user_single_name"
         app:layout_constraintBottom_toBottomOf="@id/user_single_image"/>
 
@@ -57,6 +63,7 @@
         app:layout_constraintStart_toEndOf="@id/user_single_name"/>
 
     <ImageView
+        android:id="@+id/arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_keyboard_arrow_right_black_24dp"

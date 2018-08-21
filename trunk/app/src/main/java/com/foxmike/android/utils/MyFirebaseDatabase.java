@@ -188,24 +188,24 @@ public class MyFirebaseDatabase extends Service {
             }
         }
         // filter mapsArray
+        ArrayList<ArrayList<Session>> nearSessionArrayArrayFiltered = new ArrayList<>();
         for (ArrayList<Session> nearSessionArray : nearSessionsArrays) {
+            ArrayList<Session> nearSessionArrayFiltered = new ArrayList<>();
             for (Session nearSession: nearSessionArray) {
-                if (!firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                    if (!firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                        if (nearSession.getSessionTimestamp() < currentTimestamp) {
-                            nearSessionsArrays.get(nearSessionsArrays.indexOf(nearSessionArray)).remove(nearSession);
+                if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                    if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF()) && nearSession.getSessionTimestamp() > currentTimestamp) {
+                       nearSessionArrayFiltered.add(nearSession);
+                    }
+                } else {
+                    if (secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
+                        if (secondWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF()) && nearSession.getSessionTimestamp() > currentTimestamp) {
+                            nearSessionArrayFiltered.add(nearSession);
                         }
                     }
                 }
-
-                if (!secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                    if (!secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                        if (nearSession.getSessionTimestamp() < currentTimestamp) {
-                            nearSessionsArrays.get(nearSessionsArrays.indexOf(nearSessionArray)).remove(nearSession);
-                        }
-                    }
-                }
-
+            }
+            if (nearSessionArrayFiltered.size()>0) {
+                nearSessionArrayArrayFiltered.add(nearSessionArrayFiltered);
             }
         }
 
@@ -228,7 +228,7 @@ public class MyFirebaseDatabase extends Service {
             }
         }
 
-        onSessionsFilteredListener.OnSessionsFiltered(sessions, nearSessionsArrays);
+        onSessionsFilteredListener.OnSessionsFiltered(sessions, nearSessionArrayArrayFiltered);
     }
 
     public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {

@@ -58,6 +58,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class DisplayStudioFragment extends Fragment {
 
@@ -65,7 +67,7 @@ public class DisplayStudioFragment extends Fragment {
     private ConstraintLayout sessionImageCardView;
     //private TextView mSessionType;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private ImageView sessionImage;
+    private CircleImageView sessionImage;
     private TextView editTV;
     private Button advertiseBtn;
     private TextView locationTV;
@@ -82,6 +84,7 @@ public class DisplayStudioFragment extends Fragment {
     private ConstraintLayout nothingAdvContainer;
     private CardView addAdditionalSessionBtn;
 
+    private TextView studioName;
     private TextView advertisedHeading;
     private TextView notAdvertisedHeading;
     private TextView description;
@@ -224,6 +227,9 @@ public class DisplayStudioFragment extends Fragment {
         //mSessionType = view.findViewById(R.id.sessionType);
         sessionImage = view.findViewById(R.id.displaySessionImage);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
+        locationTV = view.findViewById(R.id.locationTV);
+        studioTypeTV = view.findViewById(R.id.studioTypeTV);
+        studioName = view.findViewById(R.id.studioNameTV);
 
         LinearLayout displayStudioContainer = view.findViewById(R.id.display_studio_container);
         View displayStudio = inflater.inflate(R.layout.display_studio,displayStudioContainer,false);
@@ -232,8 +238,7 @@ public class DisplayStudioFragment extends Fragment {
         displayStudioContainer.addView(displayStudio);
         nothingAdvContainer = displayStudio.findViewById(R.id.noSessionsContainer);
         description = displayStudio.findViewById(R.id.descriptionTV);
-        locationTV = displayStudio.findViewById(R.id.locationTV);
-        studioTypeTV = displayStudio.findViewById(R.id.studioTypeTV);
+
 
         smallAdvertisedSessionsListRV = (RecyclerView) displayStudio.findViewById(R.id.smallAdvertisedSessionsListRV);
         smallAdvertisedSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -254,36 +259,33 @@ public class DisplayStudioFragment extends Fragment {
         advertisedHeading.setVisibility(View.GONE);
         notAdvertisedHeading.setVisibility(View.GONE);
 
-
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
-        /*appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = true;
+            int scrollRange = -1;
+
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (verticalOffset!=0) {
-                    mSessionType.setVisibility(View.GONE);
-                } else {
-                    mSessionType.setVisibility(View.VISIBLE);
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
                 }
-            }
-        });*/
+                if (studio!=null) {
+                    if (scrollRange + verticalOffset == 0) {
+                        collapsingToolbarLayout.setTitle(studio.getStudioName());
+                        isShow = true;
+                    } else if(isShow) {
+                        collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                        isShow = false;
+                    }
+                }
 
-        // Setup standard aspect ratio of session image
-        sessionImageCardView.post(new Runnable() {
-            @Override
-            public void run() {
-                RelativeLayout.LayoutParams mParams;
-                mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
-                mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfStudioImageNumerator)/getResources().getInteger(R.integer.heightOfStudioImageDenominator);
-                sessionImageCardView.setLayoutParams(mParams);
-                sessionImageCardView.postInvalidate();
             }
         });
-
-
 
         return view;
     }
@@ -295,12 +297,13 @@ public class DisplayStudioFragment extends Fragment {
 
             // set the image
             setImage(studio.getImageUrl(), sessionImage);
-            sessionImage.setColorFilter(R.color.foxmikePrimaryDarkColor, PorterDuff.Mode.LIGHTEN);
+            //sessionImage.setColorFilter(R.color.foxmikePrimaryDarkColor, PorterDuff.Mode.LIGHTEN);
 
             collapsingToolbarLayout.setTitle(studio.getStudioName());
             description.setText(studio.getDescription());
             locationTV.setText(studio.getLocation());
             studioTypeTV.setText(studio.getStudioType());
+            studioName.setText(studio.getStudioName());
 
             // edit studio
             editTV.setOnClickListener(new View.OnClickListener() {
@@ -401,7 +404,7 @@ public class DisplayStudioFragment extends Fragment {
         onAsyncTaskFinished();
     }
 
-    private void setImage(String image, ImageView imageView) {
+    private void setImage(String image, CircleImageView imageView) {
         Glide.with(this).load(image).into(imageView);
     }
 
@@ -465,5 +468,4 @@ public class DisplayStudioFragment extends Fragment {
     public interface OnCreateSessionClickedListener {
         void OnCreateSessionClicked(String studioId, Studio studio);
     }
-
 }
