@@ -7,33 +7,27 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:elevation="@dimen/elevation_fullscreen"
         android:id="@+id/container_fullscreen_display_studio"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true" />
 
     <android.support.design.widget.AppBarLayout
-        android:stateListAnimator="@animator/collapsing_app_bar_elevation"
         android:id="@+id/displaySessionAppBar"
+        android:background="@color/color_background_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:elevation="8dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
         android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            android:background="@color/color_background_light"
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
-            app:expandedTitleGravity="center_horizontal|center_vertical"
-            app:expandedTitleMarginEnd="@dimen/margin_right"
-            app:expandedTitleMarginStart="@dimen/margin_left"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:title="TEST">
+            app:contentScrim="@color/color_background_light"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <RelativeLayout
                 android:id="@+id/cardViewContainer"
@@ -42,21 +36,63 @@
                 app:layout_collapseMode="parallax"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/sessionImageCardView"
-                    android:layout_width="match_parent"
-                    android:layout_height="400dp"
-                    android:orientation="vertical">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:paddingTop="48dp"
+                    android:paddingBottom="36dp"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:transitionName="transitionName"
+                    android:id="@+id/displaySessionImage"
+                    android:layout_width="92dp"
+                    android:layout_height="188dp"/>
 
-                    <ImageView
-                        android:transitionName="transitionName"
-                        android:id="@+id/displaySessionImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:adjustViewBounds="true"
-                        android:scaleType="centerCrop"/>
+                <TextView
+                    android:id="@+id/studioNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="@color/primaryTextColor"
+                    android:layout_alignTop="@id/displaySessionImage"
+                    android:layout_toEndOf="@id/displaySessionImage"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginTop="48dp"
+                    android:text="Testgrupp"/>
 
-                </android.support.constraint.ConstraintLayout>
+                <TextView
+                    android:drawableStart="@mipmap/ic_location_on_black_24dp"
+                    android:drawableTint="@color/primaryTextColor"
+                    android:drawablePadding="@dimen/margin_left"
+                    android:layout_width="180dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:id="@+id/locationTV"
+                    app:layout_constraintHorizontal_bias="0"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/primaryTextColor"
+                    android:layout_toEndOf="@id/displaySessionImage"
+                    android:layout_below="@id/studioNameTV"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_minimum"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:text="@string/loading"/>
+
+                <TextView
+                    android:drawableStart="@drawable/ic_filter_list_black_24dp"
+                    android:drawableTint="@color/primaryTextColor"
+                    android:drawablePadding="@dimen/margin_left"
+                    android:layout_width="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:id="@+id/studioTypeTV"
+                    app:layout_constraintHorizontal_bias="1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_marginEnd="@dimen/margin_right"
+                    android:textColor="@color/primaryTextColor"
+                    android:layout_toEndOf="@id/displaySessionImage"
+                    android:layout_below="@id/locationTV"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_minimum"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:text="@string/loading"/>
 
             </RelativeLayout>
 

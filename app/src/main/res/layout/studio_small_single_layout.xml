@@ -6,89 +6,82 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:contentDescription="@string/session_image"
+        android:transitionName="transitionName"
+        android:id="@+id/icon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginBottom="@dimen/marginVertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:textStyle="bold"
+        android:text="Medium Text"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="@id/icon"
+        android:layout_marginStart="@dimen/margin_left"
+        />
 
-            <ImageView
-                android:contentDescription="@string/session_image"
-                android:transitionName="transitionName"
-                android:id="@+id/icon"
-                android:layout_width="match_parent"
-                android:layout_height="96dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/leadSub2Body"
+        android:layout_marginStart="@dimen/margin_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/primaryTextColor"
+        android:text="@string/session_text"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/text1"/>
 
-            <TextView
-                android:id="@+id/text1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:text="Medium Text"
-                android:textColor="@color/secondaryTextColor"
-                app:layout_constraintBottom_toBottomOf="@id/icon"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginBottom="@dimen/marginVertical"
-                android:layout_marginStart="@dimen/margin_left"
-                />
+    <TextView
+        android:id="@+id/advertisedStamp"
+        android:background="@color/foxmikePrimaryColor"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/leadSub2Body"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:padding="3dp"
+        android:text="@string/upcoming_sessions"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/text2"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginBottom="@dimen/marginVertical"/>
 
-            <TextView
-                android:id="@+id/text2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/marginVertical"
-                android:layout_marginStart="@dimen/margin_left"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/primaryTextColor"
-                android:text="@string/session_text"
-                android:paddingBottom="@dimen/leadSub2Body"
-                app:layout_constraintTop_toBottomOf="@id/icon"
-                app:layout_constraintStart_toStartOf="parent"/>
+    <TextView
+        android:id="@+id/notAdvertisedStamp"
+        android:background="@color/lightGreyBackgroundColor"
+        android:textColor="@color/primaryTextColor"
+        android:padding="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/leadSub2Body"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:text="@string/no_upcoming_sessions"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/text2"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginBottom="@dimen/marginVertical"/>
 
-            <TextView
-                android:id="@+id/advertisedStamp"
-                android:background="@color/foxmikePrimaryColor"
-                android:textColor="@color/secondaryTextColor"
-                android:padding="3dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/leadSub2Body"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:text="@string/upcoming_sessions"
-                app:layout_constraintTop_toBottomOf="@id/text2"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginBottom="@dimen/marginVertical"/>
-
-            <TextView
-                android:id="@+id/notAdvertisedStamp"
-                android:background="@color/lightGreyBackgroundColor"
-                android:textColor="@color/primaryTextColor"
-                android:padding="3dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/leadSub2Body"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:text="@string/no_upcoming_sessions"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text2"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginBottom="@dimen/marginVertical"/>
-
-        </android.support.constraint.ConstraintLayout>
-
-    </android.support.v7.widget.CardView>
+    <View
+        android:id="@+id/spaceView0"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 </android.support.constraint.ConstraintLayout>

@@ -196,16 +196,6 @@ public class MainPlayerActivity extends AppCompatActivity
         WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
         PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
 
-        /*mapOrListBtn.post(new Runnable() {
-            @Override
-            public void run() {
-                mapOrListBtnStartX = mapOrListBtn.getX();
-                mapOrListBtnStartY = mapOrListBtn.getY();
-            }
-        });*/
-
-
-
         // get Firebase instances and references
         mAuth = FirebaseAuth.getInstance();
         rootDbRef = FirebaseDatabase.getInstance().getReference();

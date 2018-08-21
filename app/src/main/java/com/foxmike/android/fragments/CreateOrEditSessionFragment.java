@@ -899,7 +899,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 int itemPosition = position;
                 String itemValue = (String) lv.getItemAtPosition(position);
                 mEditText.setText(itemValue);
-                dlg.hide();
+                dlg.dismiss();
             }
         });
     }
@@ -926,7 +926,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     return;
                 }
                 mEditText.setText(itemValue);
-                dlg.hide();
+                dlg.dismiss();
             }
         });
     }

@@ -124,9 +124,8 @@ public class ListStudiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         public void setSessionImage(String sessionImage) {
-            ImageView sessionIV = (ImageView) mView.findViewById(R.id.icon);
+            CircleImageView sessionIV = (CircleImageView) mView.findViewById(R.id.icon);
             Glide.with(context).load(sessionImage).into(sessionIV);
-            sessionIV.setColorFilter(R.color.foxmikePrimaryDarkColor, PorterDuff.Mode.LIGHTEN);
         }
 
         public void setText1(String text1) {

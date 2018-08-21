@@ -64,6 +64,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         String distance = getDistance(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude(), lastLocation);
         holder.setText4(" \u2022 " + distance);
         holder.setSessionImage(sessionArrayList.get(position).getImageUrl());
+        holder.setSessionClickedListener(sessionArrayList.get(position).getSessionId());
     }
 
     @Override

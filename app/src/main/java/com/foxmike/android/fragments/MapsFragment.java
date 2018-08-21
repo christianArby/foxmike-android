@@ -283,15 +283,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                                     currentSessionInt = (linearLayoutManager.findLastCompletelyVisibleItemPosition() - linearLayoutManager.findFirstCompletelyVisibleItemPosition())  / 2 + linearLayoutManager.findFirstVisibleItemPosition();
 
                                     // Set height of recyclerView based on how many sessions currently is in this position
-                                    ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-                                    if (thisNearSessionsArrays.get(currentSessionInt).size()<4) {
-                                        params.height= thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
-                                        mMap.setPadding(leftMargin,0,0,params.height);
-                                    } else {
-                                        params.height= 3*horizontalSessionHeight;
-                                        mMap.setPadding(leftMargin,0,0,params.height);
-                                    }
-                                    mSessionList.setLayoutParams(params);
+                                    setListHeight(thisNearSessionsArrays);
                                     listSmallRecyclerViewsAdapter.notifyDataSetChanged();
 
                                     // If selectedMarker is not null it means that a previous marker was clicked, turn it into the default marker
@@ -343,12 +335,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                         public void onMapClick(LatLng latLng) {
                             // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
                             if (thisNearSessionsArrays.size()>0) {
-                                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
-                                animation.setDuration(500);
-                                animation.start();
+                                animateList();
                             }
-
-
                         }
                     });
                     createSessionMapTextTV.setVisibility(View.GONE);
@@ -392,6 +380,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         currentSessionInt = 0;
         markerArray.clear();
 
+        if (nearSessionsArrays.size()==0) {
+            if (listSmallRecyclerViewsAdapter!=null) {
+                listSmallRecyclerViewsAdapter.refreshData(nearSessionsArrays, mLastLocation);
+                mSessionList.smoothScrollToPosition(0);
+                setListHeight(nearSessionsArrays);
+                animateList();
+            }
+        }
+
         if (nearSessionsArrays.size()>0) {
             // Add markers the map
             for (ArrayList<Session> sessionArrayList : nearSessionsArrays) {
@@ -404,20 +401,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
             // Update or create the recyclerView
             if (listSmallRecyclerViewsAdapter!=null) {
-                listSmallRecyclerViewsAdapter.refreshData(thisNearSessionsArrays, mLastLocation);
+                listSmallRecyclerViewsAdapter.refreshData(nearSessionsArrays, mLastLocation);
                 mSessionList.smoothScrollToPosition(0);
                 markerArray.get(0).setIcon(selectedIcon);
                 selectedMarker = markerArray.get(0);
-                ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-                if (nearSessionsArrays.get(currentSessionInt).size()<4) {
-                    params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
-                    mMap.setPadding(leftMargin,0,0,params.height);
-                } else {
-                    params.height= 3*horizontalSessionHeight;
-                    mMap.setPadding(leftMargin,0,0,params.height);
-                }
-
-                mSessionList.setLayoutParams(params);
+                setListHeight(nearSessionsArrays);
 
             } else {
                 listSmallRecyclerViewsAdapter = new ListSmallRecyclerViewsAdapter(thisNearSessionsArrays, getActivity(), onSessionClickedListener, mLastLocation);
@@ -425,23 +413,39 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
                     markerArray.get(0).setIcon(selectedIcon);
                     selectedMarker = markerArray.get(0);
-                    ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
-                    if (nearSessionsArrays.get(currentSessionInt).size()<4) {
-                        params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
-                        mMap.setPadding(leftMargin,0,0,params.height);
-                    } else {
-                        params.height= 3*horizontalSessionHeight;
-                        mMap.setPadding(leftMargin,0,0,params.height);
-                    }
-                    mSessionList.setLayoutParams(params);
+                    setListHeight(nearSessionsArrays);
                 }
                 listSmallRecyclerViewsAdapter.notifyDataSetChanged();
             }
-            if (thisNearSessionsArrays.size()>0) {
-                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
-                animation.setDuration(500);
-                animation.start();
+        }
+    }
+
+    private void setListHeight(ArrayList<ArrayList<Session>> nearSessionsArrays) {
+        ViewGroup.LayoutParams params =mSessionList.getLayoutParams();
+
+        if (nearSessionsArrays.size()== 0) {
+            mSessionList.smoothScrollToPosition(0);
+            params.height= 0;
+            mMap.setPadding(leftMargin,0,leftMargin,params.height);
+            mSessionList.setLayoutParams(params);
+        } else {
+            if (nearSessionsArrays.get(currentSessionInt).size()<4) {
+                params.height= nearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight;
+                mMap.setPadding(leftMargin,0,leftMargin,params.height);
+            } else {
+                params.height= 3*horizontalSessionHeight;
+                mMap.setPadding(leftMargin,0,leftMargin,params.height);
             }
+            mSessionList.setLayoutParams(params);
+        }
+    }
+
+    private void animateList() {
+        if (thisNearSessionsArrays.size()>0) {
+            ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
+            animation.setDuration(500);
+            animation.start();
+            mMap.setPadding(leftMargin,0,leftMargin,0);
         }
     }
 
@@ -579,9 +583,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void showRecylerView(boolean showRecyclerView) {
         if (!showRecyclerView) {
             if (thisNearSessionsArrays.size()>0) {
-                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", thisNearSessionsArrays.get(currentSessionInt).size()*horizontalSessionHeight);
-                animation.setDuration(500);
-                animation.start();
+                animateList();
             }
         } else {
             ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
