@@ -376,7 +376,6 @@
     <string name="you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below">Du har inte lagt till några vänner än, sök efter vänner genom att klicka på sökknappen nedanför!</string>
     <string name="you_have_no_booked_sessions">Du har inga bokade pass.</string>
     <string name="you_have_not_attended_any_sessions_yet">Du har inte varit med på några pass än.</string>
-    <string name="you_have_not_created_any_session_yet_start_by_clicking_on_the_plus_button_below">Du har inte skapat några pass än, börja skapa ett pass genom att klicka på plusknappen nedanför!</string>
     <string name="you_have_no_advertised_sessions">Du har inga annonserade pass.</string>
     <string name="cancel">Avbryt</string>
     <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver ha en betalningsmetod för att kunna boka passet.</string>
@@ -430,4 +429,5 @@
     <string name="create_training_group">Skapa träningsgrupp</string>
     <string name="upcoming_sessions">Kommande pass</string>
     <string name="no_upcoming_sessions">Inga kommande pass</string>
+    <string name="no_studios_text">Skapa en träningsgrupp där du kan annonsera ut pass, klicka på plusknappen nedan!.</string>
 </resources>

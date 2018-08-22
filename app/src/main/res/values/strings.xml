@@ -375,7 +375,6 @@
     <string name="you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below">You have not added any friends, search and add friends by clicking on search button below!</string>
     <string name="you_have_no_booked_sessions">You have no booked sessions.</string>
     <string name="you_have_not_attended_any_sessions_yet">You have not attended any sessions yet.</string>
-    <string name="you_have_not_created_any_session_yet_start_by_clicking_on_the_plus_button_below">You have not created any session yet. Start by clicking on the plus button below.</string>
     <string name="you_have_no_advertised_sessions">You have no advertised sessions.</string>
     <string name="cancel">Cancel</string>
     <string name="you_need_a_payment_method_in_order_to_book_this_session">You need a payment method in order to book this session.</string>
@@ -441,4 +440,5 @@
     <string name="please_write_session_who">Please write who can attend your session</string>
     <string name="please_explain_session_where">Please explain where your session will take place</string>
     <string name="please_set_session_price">Please set a price for your session</string>
+    <string name="no_studios_text">Add a training group so that you can advertise sessions, click on plus button below!</string>
 </resources>

@@ -136,25 +136,24 @@ public class MainHostActivity extends AppCompatActivity implements
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
         // Create instances of fragments
-        hostUserAccountFragment = UserAccountHostFragment.newInstance();
-        hostSessionsFragment = HostSessionsFragment.newInstance();
-        hostInboxFragment = InboxFragment.newInstance();
 
         // Add fragments to container and hide them
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
+            hostUserAccountFragment = UserAccountHostFragment.newInstance();
             transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
             transaction.hide(hostUserAccountFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainHostSessionsFragment")) {
+            hostSessionsFragment = HostSessionsFragment.newInstance();
             transaction.add(R.id.container_main_host, hostSessionsFragment,"xMainHostSessionsFragment");
             transaction.hide(hostSessionsFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
+            hostInboxFragment = InboxFragment.newInstance();
             transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
             transaction.hide(hostInboxFragment);
         }
-
         transaction.commit();
         fragmentManager.executePendingTransactions();
 
@@ -249,17 +248,6 @@ public class MainHostActivity extends AppCompatActivity implements
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-        /*List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null && frag.getTag().length()>5) {
-                if (frag.getTag().substring(0,5).equals("xMain")) {
-                    if (frag.isVisible()) {
-                        transaction.hide(frag);
-                    }
-                }
-            }
-        }
-        bottomNavigation.setVisibility(View.GONE);*/
         if (addToBackStack) {
             if (!tag.equals("")) {
                 transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(tag).commit();

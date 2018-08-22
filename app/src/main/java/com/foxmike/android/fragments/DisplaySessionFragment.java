@@ -181,12 +181,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
 
         // Setup static map with session location
-        GoogleMapOptions options = new GoogleMapOptions();
-        options.liteMode(true);
-        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
-        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, mapFragment).commit();
-        mapFragment.getMapAsync(this);
+        if (null == getChildFragmentManager().findFragmentByTag("xDisplaySessionMapsFragment")) {
+            GoogleMapOptions options = new GoogleMapOptions();
+            options.liteMode(true);
+            SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
+            FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+            transaction.replace(R.id.child_fragment_container, mapFragment,"xDisplaySessionMapsFragment").commit();
+            mapFragment.getMapAsync(this);
+        }
 
         postBranchArrayList = new ArrayList<>();
         childEventListenerMap = new HashMap<>();

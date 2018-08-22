@@ -230,33 +230,33 @@ public class MainPlayerActivity extends AppCompatActivity
         }
 
         /** Setup fragments */
-        userAccountFragment = new UserAccountFragment();
-        playerSessionsFragment = PlayerSessionsFragment.newInstance();
-        listSessionsFragment = ListSessionsFragment.newInstance();
-        inboxFragment = InboxFragment.newInstance();
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        mapsFragment = MapsFragment.newInstance();
-        mapsFragment.setArguments(bundle);
         fragmentManager = getSupportFragmentManager();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
+            userAccountFragment = new UserAccountFragment();
             transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
             transaction.hide(userAccountFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")) {
+            playerSessionsFragment = PlayerSessionsFragment.newInstance();
             transaction.add(R.id.container_main_player, playerSessionsFragment,"xMainPlayerSessionsFragment");
             transaction.hide(playerSessionsFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
+            mapsFragment = MapsFragment.newInstance();
+            Bundle bundle = new Bundle();
+            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
+            mapsFragment.setArguments(bundle);
             transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
             transaction.hide(mapsFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainListSessionsFragment")) {
+            listSessionsFragment = ListSessionsFragment.newInstance();
             transaction.add(R.id.container_main_player, listSessionsFragment,"xMainListSessionsFragment");
             transaction.hide(listSessionsFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
+            inboxFragment = InboxFragment.newInstance();
             transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
             transaction.hide(inboxFragment);
         }
@@ -271,7 +271,7 @@ public class MainPlayerActivity extends AppCompatActivity
         /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
         if (fromUserID!=null) {
             Bundle fromUserbundle = new Bundle();
-            bundle.putString("otherUserID", fromUserID);
+            fromUserbundle.putString("otherUserID", fromUserID);
             userProfilePublicFragment = UserProfilePublicFragment.newInstance();
             userProfilePublicFragment.setArguments(fromUserbundle);
             cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true);
@@ -1019,6 +1019,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        FoxmikeApplication.activityResumed();
         /** Setup fragments */
         fragmentManager = getSupportFragmentManager();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -1033,9 +1034,9 @@ public class MainPlayerActivity extends AppCompatActivity
             transaction.hide(playerSessionsFragment);
         }
         if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
+            mapsFragment = MapsFragment.newInstance();
             Bundle bundle = new Bundle();
             bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-            mapsFragment = MapsFragment.newInstance();
             mapsFragment.setArguments(bundle);
             transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
             transaction.hide(mapsFragment);
@@ -1087,5 +1088,11 @@ public class MainPlayerActivity extends AppCompatActivity
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        FoxmikeApplication.activityPaused();
     }
 }
