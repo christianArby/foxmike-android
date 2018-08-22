@@ -2,9 +2,12 @@ package com.foxmike.android.fragments;
 
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,6 +29,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.FoxmikeApplication;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
@@ -46,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class ChatFragment extends Fragment {
@@ -205,8 +211,10 @@ public class ChatFragment extends Fragment {
                                 super.onItemRangeInserted(positionStart, itemCount);
                                 messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
                                 // Set that current user has seen the chat
-                                rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                                rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                                if (FoxmikeApplication.isActivityVisible()) {
+                                    rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                                    rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                                }
                             }
                         });
                         messagesListRV.setAdapter(messageFirebaseAdapter);
@@ -288,8 +296,10 @@ public class ChatFragment extends Fragment {
                             refreshTriggeredByScroll = false;
                         }
                         // Set that current user has seen the chat
-                        rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                        rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                        if (FoxmikeApplication.isActivityVisible()) {
+                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                        }
                     }
                 });
 
