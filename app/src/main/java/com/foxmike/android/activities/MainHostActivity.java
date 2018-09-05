@@ -1,5 +1,7 @@
 package com.foxmike.android.activities;
 //Checked
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -15,6 +17,7 @@ import android.transition.Fade;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -546,6 +549,16 @@ public class MainHostActivity extends AppCompatActivity implements
             createOrEditStudioFragment = CreateOrEditStudioFragment.newInstance();
             createOrEditStudioFragment.setArguments(bundle);
             cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"");*/
+        }
+    }
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager inputManager = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = activity.getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 }

@@ -49,7 +49,7 @@ public class ChatsFragment extends Fragment {
     private HashMap<Integer, Chats> chats = new HashMap<Integer, Chats>();
     private HashMap<Integer, User> users = new HashMap<Integer, User>();
     private HashMap<Integer, String> userIDs = new HashMap<Integer, String>();
-    private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
+    //private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
     private RecyclerView.Adapter<UsersViewHolder> chatsViewHolderAdapter;
     private OnChatClickedListener onChatClickedListener;
     private boolean chatsViewHolderAdapterInitiated;
@@ -155,7 +155,7 @@ public class ChatsFragment extends Fragment {
 
                                                             }
                                                         }
-                                                        // Add listener the presence of the chatuser
+                                                        /*// Add listener the presence of the chatuser
                                                         if (!listenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
                                                             ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                                                 @Override
@@ -177,7 +177,7 @@ public class ChatsFragment extends Fragment {
                                                                 }
                                                             });
                                                             listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
-                                                        }
+                                                        }*/
                                                     }
                                                     @Override
                                                     public void onCancelled(DatabaseError databaseError) {
@@ -244,12 +244,12 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
-                if (presenceHashMap.get(position) == null) {
+                /*if (presenceHashMap.get(position) == null) {
                     Presence noPresence = new Presence();
                     presenceHashMap.put(position,noPresence);
                 }
+                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());*/
 
-                holder.setOnlineIcon(presenceHashMap.get(position).isOnline());
                 holder.setHeading(users.get(position).getFirstName());
                 holder.setUserImage(users.get(position).getThumb_image(), getContext());
 

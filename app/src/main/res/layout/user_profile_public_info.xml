@@ -52,4 +52,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/aboutMeProfilePublicTV"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:visibility="gone"
+            android:background="@drawable/rounded_button_primary"
+            android:layout_width="match_parent"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_margin="@dimen/marginHorizontal"
+            android:layout_height="wrap_content"
+            android:id="@+id/send_request_btn"
+            android:text="@string/send_friend_request_text"
+            android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:visibility="gone"
+            android:background="@drawable/rounded_button_primary"
+            android:layout_width="match_parent"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_margin="@dimen/marginHorizontal"
+            android:layout_height="wrap_content"
+            android:id="@+id/decline_request_btn"
+            android:text="@string/decline_friend_request_text"
+            android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:visibility="gone"
+            android:background="@drawable/rounded_button_primary"
+            android:layout_width="match_parent"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_margin="@dimen/marginHorizontal"
+            android:layout_height="wrap_content"
+            android:id="@+id/send_message_btn"
+            android:text="@string/send_message_text"
+            android:layout_gravity="center_horizontal"/>
+
+
+    </LinearLayout>
+
+
+
 </android.support.constraint.ConstraintLayout>

@@ -87,11 +87,11 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.child("id").getValue().toString();
+                    stripeCustomerId = dataSnapshot.getValue().toString();
                     retrieveStripeCustomerSources(stripeCustomerId);
                     addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {

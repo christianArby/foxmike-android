@@ -21,8 +21,8 @@ android {
         applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 151
-        versionName "1.5.1-alpha"
+        versionCode 152
+        versionName "1.5.2-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true //important

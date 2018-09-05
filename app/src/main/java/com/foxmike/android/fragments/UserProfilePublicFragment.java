@@ -89,9 +89,10 @@ public class UserProfilePublicFragment extends Fragment {
         final TextView fullNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
         final TextView userNameTV = profile.findViewById(R.id.userNameProfilePublicTV);
-        sendRequestBtn = view.findViewById(R.id.send_request_btn);
-        declineBtn = view.findViewById(R.id.decline_request_btn);
-        sendMessageBtn = view.findViewById(R.id.send_message_btn);
+        sendRequestBtn = profile.findViewById(R.id.send_request_btn);
+        sendRequestBtn.setVisibility(View.VISIBLE);
+        declineBtn = profile.findViewById(R.id.decline_request_btn);
+        sendMessageBtn = profile.findViewById(R.id.send_message_btn);
         sendMessageBtn.setVisibility(View.GONE);
 
         // Setup toolbar

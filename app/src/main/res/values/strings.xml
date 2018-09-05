@@ -270,7 +270,7 @@
     <string name="comments_text">\u0020comments</string>
     <string name="login_text">Login</string>
     <string name="register_text">Register</string>
-    <string name="welcome_to_foxmike_text">Welcome to Foxmike.</string>
+    <string name="welcome_to_foxmike_text">Welcome to Foxmike</string>
     <string name="continue_to_facebook_text">Continue with Facebook</string>
     <string name="create_account_text">Create account</string>
     <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med Facebook eller Skapa konto godkänner jag Foxmikes Användarvillkor.</string>
@@ -441,4 +441,5 @@
     <string name="please_explain_session_where">Please explain where your session will take place</string>
     <string name="please_set_session_price">Please set a price for your session</string>
     <string name="no_studios_text">Add a training group so that you can advertise sessions, click on plus button below!</string>
+    <string name="you_must_agree_to_above">You must agree to the above in order to register your account.</string>
 </resources>
