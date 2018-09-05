@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -180,7 +181,7 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                 }
 
                 if (!TOSCheckBox.isChecked()) {
-                    TOSTIL.setError("You must agree to the above in order to register your account.");
+                    TOSTIL.setError(getString(R.string.you_must_agree_to_above));
                     infoIsValid = false;
                     return;
                 }
@@ -206,26 +207,18 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                                 Exception e = task.getException();
                                 if (e instanceof FirebaseFunctionsException) {
                                     FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                                    // Function error code, will be INTERNAL if the failure
-                                    // was not handled properly in the function call.
                                     FirebaseFunctionsException.Code code = ffe.getCode();
-                                    // Arbitrary error details passed back from the function,
-                                    // usually a Map<String, Object>.
                                     Object details = ffe.getDetails();
                                 }
-
                                 // [START_EXCLUDE]
                                 Log.w(TAG, "create:onFailure", e);
                                 showSnackbar("An error occurred.");
                                 return;
                                 // [END_EXCLUDE]
                             }
-
                             // If successful, extract
                             HashMap<String, Object> result = task.getResult();
-
                             if (result.get("resultType").toString().equals("accountId")) {
-
                                 myProgressBar.stopProgressBar();
                                 onStripeAccountCreatedListener.OnStripeAccountCreated(result.get("accountId").toString());
 
@@ -235,9 +228,7 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                             }
                         }
                     });
-
                 }
-
             }
         });
 
@@ -246,7 +237,6 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
 
     // Function createStripeAccount
     private Task<HashMap<String, Object>> createStripeAccount(Map<String, Object> accountData) {
-
         // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable("create")
@@ -254,9 +244,6 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override
                     public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        // This continuation runs on either success or failure, but if the task
-                        // has failed then getResult() will throw an Exception which will be
-                        // propagated down.
                         HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
                         return result;
                     }
@@ -265,6 +252,12 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
 
     private void showSnackbar(String message) {
         Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        hideKeyboard(getActivity());
     }
 
     @Override

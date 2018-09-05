@@ -331,7 +331,7 @@
     <string name="credit_card">Kreditkort</string>
     <string name="delete">Radera</string>
     <string name="make_default">Använd som standard</string>
-    <string name="acc_label_card_number">Kort nummer</string>
+    <string name="acc_label_card_number">Kortnummer</string>
     <string name="acc_label_expiry_date">Giltigt till</string>
     <string name="expiry_date_hint">MM/ÅÅ</string>
     <string name="cvc_number_hint">CVC</string>
@@ -430,4 +430,5 @@
     <string name="upcoming_sessions">Kommande pass</string>
     <string name="no_upcoming_sessions">Inga kommande pass</string>
     <string name="no_studios_text">Skapa en träningsgrupp där du kan annonsera ut pass, klicka på plusknappen nedan!.</string>
+    <string name="you_must_agree_to_above">Du måste godkänna användarvillkoren för att registrera ett konto.</string>
 </resources>

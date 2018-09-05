@@ -1,78 +1,27 @@
 {
   "project_info": {
-    "project_number": "1001204278871",
-    "firebase_url": "https://knox-163821.firebaseio.com",
-    "project_id": "knox-163821",
-    "storage_bucket": "knox-163821.appspot.com"
+    "project_number": "775115408902",
+    "firebase_url": "https://foxmike-test.firebaseio.com",
+    "project_id": "foxmike-test",
+    "storage_bucket": "foxmike-test.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1001204278871:android:53c581123f478d00",
-        "android_client_info": {
-          "package_name": "com.example.chris.kungsbrostrand"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1001204278871-oout2tonl002rj7ombpqcapmfifi98l0.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.chris.kungsbrostrand",
-            "certificate_hash": "0eea2c75a6ebb22f1342a68f4ae395b5dd852ed2"
-          }
-        },
-        {
-          "client_id": "1001204278871-19j8f8k78gfbqa7j6143btrqvj5qpcfo.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDA44JgE18co5jFypclKDSaWBdaO4OnrjQ"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1001204278871-3q1rkmfjiracl1lhh9fk44r4mbb89ieu.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "Fredrik.sportsApp"
-              }
-            },
-            {
-              "client_id": "1001204278871-19j8f8k78gfbqa7j6143btrqvj5qpcfo.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1001204278871:android:006d87af9b1a8cd3",
+        "mobilesdk_app_id": "1:775115408902:android:006d87af9b1a8cd3",
         "android_client_info": {
           "package_name": "com.foxmike.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1001204278871-19j8f8k78gfbqa7j6143btrqvj5qpcfo.apps.googleusercontent.com",
+          "client_id": "775115408902-cahkagu6k2um6r8qtkraam5fhck1tfrf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDA44JgE18co5jFypclKDSaWBdaO4OnrjQ"
+          "current_key": "AIzaSyDmyWdk84_HXyYZB33o2GMbBaqgcE976AE"
         }
       ],
       "services": {

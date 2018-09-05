@@ -160,6 +160,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
+    private String stripeCustomerId;
 
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
@@ -324,56 +325,44 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
-        ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer").addValueEventListener(new ValueEventListener() {
+        // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
+        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.getValue()==null) {
-                    return;
+                if (dataSnapshot.getValue()!=null) {
+                    stripeCustomerId = dataSnapshot.getValue().toString();
                 }
 
-                String stripeCustomerId = dataSnapshot.child("id").getValue().toString();
-
-                // Retrieve Stripe Account
-                retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
+                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerLastChange").addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                        // If not succesful, show error and return from function, will trigger if account ID does not exist
-                        if (!task.isSuccessful()) {
-                            Exception e = task.getException();
-                            // [START_EXCLUDE]
-                            Log.w(TAG, "retrieve:onFailure", e);
-                            showSnackbar("An error occurred." + e.getMessage());
-                            return;
-                            // [END_EXCLUDE]
-                        }
-                        // If successful, extract
-                        HashMap<String, Object> result = task.getResult();
-                        if (result.get("resultType").toString().equals("customer")) {
-                            HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
-                            ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
-                            String defaultSource;
-                            if (result.get("default_source")!= null) {
-                                defaultSource = result.get("default_source").toString();
-                            } else {
-                                defaultSource = null;
-                                setStripeDefaultSource(new HashMap());
-                            }
-                            for(int i=0; i<sourcesDataList.size(); i++){
-                                if (sourcesDataList.get(i).get("id").toString().equals(defaultSource)) {
-                                    setStripeDefaultSource(sourcesDataList.get(i));
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (stripeCustomerId==null) {
+                            rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue()==null) {
+                                        return;
+                                    }
+                                    stripeCustomerId = dataSnapshot.getValue().toString();
+                                    updateStripeCustomerInfo();
+
                                 }
-                            }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                }
+                            });
                         } else {
-                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                            showSnackbar(error.get("message").toString());
+                            updateStripeCustomerInfo();
                         }
-                        // [END_EXCLUDE]
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-
-
+                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerLastChange"), stripeCustomerListener);
             }
 
             @Override
@@ -381,7 +370,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
         });
-        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomer"), stripeCustomerListener);
+
+
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set notifications to the bottom navigation bar
@@ -479,6 +469,46 @@ public class MainPlayerActivity extends AppCompatActivity
                 if(mapsFragment.isVisible()) {
                     myLocationBtn.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+    }
+
+    private void updateStripeCustomerInfo() {
+        // Retrieve Stripe Account
+        retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+            @Override
+            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                // If not succesful, show error and return from function, will trigger if account ID does not exist
+                if (!task.isSuccessful()) {
+                    Exception e = task.getException();
+                    // [START_EXCLUDE]
+                    Log.w(TAG, "retrieve:onFailure", e);
+                    showSnackbar("An error occurred." + e.getMessage());
+                    return;
+                    // [END_EXCLUDE]
+                }
+                // If successful, extract
+                HashMap<String, Object> result = task.getResult();
+                if (result.get("resultType").toString().equals("customer")) {
+                    HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
+                    ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
+                    String defaultSource;
+                    if (result.get("default_source")!= null) {
+                        defaultSource = result.get("default_source").toString();
+                    } else {
+                        defaultSource = null;
+                        setStripeDefaultSource(new HashMap());
+                    }
+                    for(int i=0; i<sourcesDataList.size(); i++){
+                        if (sourcesDataList.get(i).get("id").toString().equals(defaultSource)) {
+                            setStripeDefaultSource(sourcesDataList.get(i));
+                        }
+                    }
+                } else {
+                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                    showSnackbar(error.get("message").toString());
+                }
+                // [END_EXCLUDE]
             }
         });
     }
@@ -584,7 +614,9 @@ public class MainPlayerActivity extends AppCompatActivity
         transaction.commit();
         weekdayFilterContainer.setVisibility(View.GONE);
         mapOrListBtn.setVisibility(View.GONE);
-        mapsFragment.showRecylerView(false);
+        if (mapsFragment!=null) {
+            mapsFragment.showRecylerView(false);
+        }
         sortAndFilterFAB.setVisibility(View.GONE);
         myLocationBtn.setVisibility(View.GONE);
         bottomNavigation.setVisibility(View.VISIBLE);

@@ -11,13 +11,13 @@
         android:id="@+id/aboutMeTIL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <android.support.design.widget.TextInputEditText
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/aboutMeET"
             android:hint="@string/aboutMe_text"

@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ public class AboutUserFragment extends Fragment {
     private TextInputLayout aboutMeTIL;
     private TextInputEditText aboutMeET;
     private Button nextBtn;
+    private boolean infoIsValid = true;
     private OnAboutMeInteractionListener onAboutMeInteractionListener;
 
     public AboutUserFragment() {
@@ -55,6 +58,30 @@ public class AboutUserFragment extends Fragment {
         aboutMeET = view.findViewById(R.id.aboutMeET);
         nextBtn = view.findViewById(R.id.nextBtn);
 
+        aboutMeET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().length()<51) {
+                    aboutMeTIL.setError(getString(R.string.please_write_a_longer_description));
+                    infoIsValid = false;
+                } else {
+                    infoIsValid = true;
+                    aboutMeTIL.setError(null);
+                }
+
+            }
+        });
+
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,16 +89,16 @@ public class AboutUserFragment extends Fragment {
                 if (TextUtils.isEmpty(aboutMeET.getText().toString().trim())) {
                     aboutMeTIL.setError(getString(R.string.describe_yourself));
                 } else {
-                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                    FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid()).child("aboutMe").setValue(aboutMeET.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            onAboutMeInteractionListener.onAboutMeInteraction();
-                        }
-                    });
+                    if (infoIsValid) {
+                        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                        FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid()).child("aboutMe").setValue(aboutMeET.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                onAboutMeInteractionListener.onAboutMeInteraction();
+                            }
+                        });
+                    }
                 }
-
-
             }
         });
 

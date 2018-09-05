@@ -61,7 +61,7 @@ public class ChatFragment extends Fragment {
     private String chatThumbImage;
     private Toolbar chatToolbar;
     private TextView titleView;
-    private TextView lastSeenView;
+    //private TextView lastSeenView;
     private CircleImageView profileImage;
     private FirebaseAuth mAuth;
     private String currentUserID;
@@ -139,7 +139,7 @@ public class ChatFragment extends Fragment {
 
         titleView = (TextView) view.findViewById(R.id.custom_bar_name);
         profileImage = (CircleImageView) view.findViewById(R.id.custom_bar_image);
-        lastSeenView = (TextView) view.findViewById(R.id.custom_bar_lastSeen);
+        //lastSeenView = (TextView) view.findViewById(R.id.custom_bar_lastSeen);
 
         // Setup meessage recyclerview
         linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -238,7 +238,7 @@ public class ChatFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        // Listen to Online change of friend and change status in toolbar
+        /*// Listen to Online change of friend and change status in toolbar
         usersChatUserIDListener = rootDbRef.child("presence").child(chatUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -258,7 +258,7 @@ public class ChatFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);
+        valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);*/
         // Setup refresh event
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

@@ -53,6 +53,8 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
+
 /**
  * This Fragment shows the current user's profile and lets the user change the information
  */
@@ -346,6 +348,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         if (currentUserListener!=null) {
             usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
         }
+        hideKeyboard(getActivity());
     }
 
     public static boolean containsAny(String str, char[] searchChars) {

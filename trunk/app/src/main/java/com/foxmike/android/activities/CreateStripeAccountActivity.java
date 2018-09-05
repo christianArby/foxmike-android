@@ -149,20 +149,44 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
         });
         addressPostalCodeET.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence charSequence, int start, int count, int after) {
                 addressPostalCodeTIL.setError(null);
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
 
+                CharSequence charSequence = " ";
+                int spacePosition = 3;
+                // Loop through all characters
+                for (int i =0; i < editable.length(); i++) {
+                    boolean isSpacePosition = false;
+                    // Check if position is a space position
+                    if (i==spacePosition) {
+                        isSpacePosition = true;
+                    }
+                    // If it is a space position and does not contain a space position insert a space position
+                    if (isSpacePosition) {
+                        if (editable.charAt(i)!=' ') {
+                            editable.insert(i, charSequence);
+                        }
+                    } else {
+                        // If it is NOT a space position and contains a space position remove a character
+                        if (editable.charAt(i)==' ') {
+                            editable.replace(i,i+1, "");
+                        }
+                    }
+                }
             }
         });
+
+
+
         addressCityET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -187,7 +211,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
                 String firstName = firstNameET.getText().toString();
                 String lastName = lastNameET.getText().toString();
                 String addressStreet = addressStreetET.getText().toString();
-                String addressPostalCode = addressPostalCodeET.getText().toString();
+                String addressPostalCode = addressPostalCodeET.getText().toString().replaceAll(" ", "");
                 String addressCity = addressCityET.getText().toString();
 
                 boolean infoIsValid = true;

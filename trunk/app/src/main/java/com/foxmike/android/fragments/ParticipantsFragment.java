@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
-import com.foxmike.android.models.Presence;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;

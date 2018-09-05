@@ -45,14 +45,14 @@ public class FriendsFragment extends Fragment {
     private String currentUserID;
     private View mainView;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
-    private HashMap<DatabaseReference, ValueEventListener> presenceListenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    //private HashMap<DatabaseReference, ValueEventListener> presenceListenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private DatabaseReference rootDbRef;
     private ArrayList<String> friendUserIDs = new ArrayList<String>();
     private ArrayList<String> requestsUserIDs = new ArrayList<String>();
     private HashMap<String, String> requests = new HashMap<String, String>();
     private ArrayList<UserBranch> userBranches = new ArrayList<>();
     private SparseArray<String> userPosition = new SparseArray<String>();
-    private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
+    //private HashMap<Integer, Presence> presenceHashMap = new HashMap<Integer, Presence>();
     private OnUserClickedListener onUserClickedListener;
     private RecyclerView.Adapter<RecyclerView.ViewHolder> friendsViewHolderAdapter;
     private RecyclerView requestsList;
@@ -231,7 +231,7 @@ public class FriendsFragment extends Fragment {
                                 }
                                 friendsViewHolderAdapter.notifyDataSetChanged();
                             }
-                            // Set listeners to the friends presence in order to set their online status
+                            /*// Set listeners to the friends presence in order to set their online status
                             if (!presenceListenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
                                 ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                     @Override
@@ -249,7 +249,7 @@ public class FriendsFragment extends Fragment {
                                     }
                                 });
                                 presenceListenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
-                            }
+                            }*/
                         }
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
@@ -292,12 +292,16 @@ public class FriendsFragment extends Fragment {
                     ((UsersViewHolder) holder).setText(friend.getUserName(), true);
                     ((UsersViewHolder) holder).setHeading(friend.getFullName());
                     ((UsersViewHolder) holder).setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-                    if (presenceHashMap.get(position) == null) {
+
+
+                    /*if (presenceHashMap.get(position) == null) {
                         Presence noPresence = new Presence();
                         presenceHashMap.put(position,noPresence);
                     }
                     ((UsersViewHolder) holder).setOnlineIcon(presenceHashMap.get(position).isOnline());
-                    final long lastSeen = presenceHashMap.get(position).getLastOnline();
+                    final long lastSeen = presenceHashMap.get(position).getLastOnline();*/
+
+
                     // Vid klick på en user skicka dess user ID genom lyssnaren OnUserClickedListener
                     ((UsersViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -348,10 +352,10 @@ public class FriendsFragment extends Fragment {
     }
 
     public void cleanPresenceListeners () {
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : presenceListenerMap.entrySet()) {
+        /*for (Map.Entry<DatabaseReference, ValueEventListener> entry : presenceListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
-        }
+        }*/
     }
 }

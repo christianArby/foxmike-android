@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 public class CreateStripeExternalAccountFragment extends Fragment {
 
@@ -190,10 +191,8 @@ public class CreateStripeExternalAccountFragment extends Fragment {
 
                 // TODO REMOVE TEST IBAN
                 String iban = "DE89370400440532013000";
-
                 BankAccount bankAccount = new BankAccount(iban,"de","eur","");
                 Stripe stripe = new Stripe(getContext(), "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
-
                 // Create Bank Account token
                 stripe.createBankAccountToken(bankAccount, new TokenCallback() {
                     @Override
@@ -208,7 +207,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                     public void onSuccess(Token token) {
                         accountData.put("account_token", token.getId());
                         // If successfully created Bank Account create Stripe Account with all the collected info
-                        createStripeAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
+                        createExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
                             public void onComplete(@NonNull Task<String> task) {
                                 // If not succesful, show error
@@ -223,7 +222,6 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                                         // usually a Map<String, Object>.
                                         Object details = ffe.getDetails();
                                     }
-
                                     // [START_EXCLUDE]
                                     Log.w(TAG, "create:onFailure", e);
                                     showSnackbar("An error occurred.");
@@ -253,9 +251,8 @@ public class CreateStripeExternalAccountFragment extends Fragment {
         return view;
     }
 
-    // Function createStripeAccount
-    private Task<String> createStripeAccount(Map<String, Object> accountData) {
-
+    // Function createExternalAccount
+    private Task<String> createExternalAccount(Map<String, Object> accountData) {
         // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable("createExternalAccount")
@@ -263,9 +260,6 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        // This continuation runs on either success or failure, but if the task
-                        // has failed then getResult() will throw an Exception which will be
-                        // propagated down.
                         Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
                         return (String) result.get("operationResult");
                     }
@@ -274,6 +268,12 @@ public class CreateStripeExternalAccountFragment extends Fragment {
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        hideKeyboard(getActivity());
     }
 
     @Override

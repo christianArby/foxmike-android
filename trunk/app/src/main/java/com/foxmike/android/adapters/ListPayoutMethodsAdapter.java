@@ -48,7 +48,6 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
         String last4 = external_accountsDataList.get(position).get("last4").toString();
         String currency = external_accountsDataList.get(position).get("currency").toString();
         Boolean isDefault;
-
         if (external_accountsDataList.get(position).get("object").equals("bank_account")) {
             holder.setPayoutMethodType(context.getString(R.string.bank_account_text));
             holder.setPayoutMethodLast4("IBAN" + " *****" + last4 + " (" + currency.toUpperCase() + ")");
@@ -56,7 +55,6 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
             holder.setPayoutMethodType(external_accountsDataList.get(position).get("object").toString());
             holder.setPayoutMethodLast4("*****" + last4 + "(" + currency.toUpperCase() + ")");
         }
-
         if (external_accountsDataList.get(position).get("default_for_currency").toString().equals("true")) {
             holder.setPayoutMethodStandard(true);
             isDefault = true;
@@ -64,7 +62,6 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
             holder.setPayoutMethodStandard(false);
             isDefault = false;
         }
-
         holder.setPayoutMethodClickedListener(accountId, externalAccountId, last4, currency, isDefault);
     }
 
