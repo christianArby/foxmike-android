@@ -1,5 +1,6 @@
 package com.foxmike.android.adapters;
 //Checked
+
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.location.Address;
@@ -14,18 +15,18 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -87,7 +88,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (session.getImageUrl().equals("dateHeader")) {
             DateTime currentTime = DateTime.now();
             DateTime tomorrowTime = currentTime.plusDays(1);
-            DateTime sessionTime = new DateTime(session.getSessionTimestamp());
+            DateTime sessionTime = new DateTime(session.getRepresentingAdTimestamp());
             if (currentTime.getYear()==sessionTime.getYear() &&
                     currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
@@ -99,7 +100,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ) {
                 ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
             } else {
-                ((SessionListHeaderViewHolder) holder).setHeader(session.supplyTextTimeStamp().textSessionDate());
+                ((SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(sessions.get(position).getRepresentingAdTimestamp()));
             }
         } else {
 
@@ -108,7 +109,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
             ((SessionViewHolder) holder).setTitle(session.getSessionName());
             ((SessionViewHolder) holder).setDesc(session.getSessionType());
-            ((SessionViewHolder) holder).setDateAndTime(session.supplyTextTimeStamp().textSessionDateAndTime());
+            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDate(sessions.get(position).getRepresentingAdTimestamp()));
             ((SessionViewHolder) holder).setAddress(address);
             ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
@@ -121,7 +122,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onSessionClickedListener.OnSessionClicked(session.getSessionId());
+                    onSessionClickedListener.OnSessionClicked(session.getSessionId(), session.getRepresentingAdTimestamp());
                     //displaySession(sessionLatLng);
                 }
             });
@@ -189,7 +190,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
             DateTime currentTime = DateTime.now();
             DateTime tomorrowTime = currentTime.plusDays(1);
-            DateTime sessionTime = new DateTime(sessions.get(headerPosition).getSessionTimestamp());
+            DateTime sessionTime = new DateTime(sessions.get(headerPosition).getRepresentingAdTimestamp());
             if (currentTime.getYear()==sessionTime.getYear() &&
                     currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
@@ -201,7 +202,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ) {
                 headerTV.setText(context.getString(R.string.tomorrow_text));
             } else {
-                headerTV.setText(sessions.get(headerPosition).supplyTextTimeStamp().textSessionDate());
+                headerTV.setText(TextTimestamp.textSessionDate(sessions.get(headerPosition).getRepresentingAdTimestamp()));
             }
         }
     }

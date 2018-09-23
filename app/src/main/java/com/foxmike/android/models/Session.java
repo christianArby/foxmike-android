@@ -2,16 +2,12 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
-import com.foxmike.android.utils.TextTimestamp;
-
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 
 
 public class Session implements Comparable<Session>, Serializable {
     private String sessionId;
-    private String studioId;
     private String host;
     private String stripeAccountId;
     private String sessionName;
@@ -19,7 +15,7 @@ public class Session implements Comparable<Session>, Serializable {
     private String maxParticipants;
     private double latitude;
     private double longitude;
-    private long sessionTimestamp;
+    private HashMap<String, Long> advertisements;
     private HashMap<String,String> participants  = new HashMap<String, String>();
     private HashMap<String,Boolean> posts;
     private String imageUrl;
@@ -28,11 +24,11 @@ public class Session implements Comparable<Session>, Serializable {
     private String whereAt;
     private String duration;
     private String currency;
+    private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String studioId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, long sessionTimestamp, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, int price) {
+    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
-        this.studioId = studioId;
         this.host = host;
         this.stripeAccountId = stripeAccountId;
         this.sessionName = sessionName;
@@ -40,7 +36,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.sessionTimestamp = sessionTimestamp;
+        this.advertisements = advertisements;
         this.participants = participants;
         this.posts = posts;
         this.imageUrl = imageUrl;
@@ -49,10 +45,51 @@ public class Session implements Comparable<Session>, Serializable {
         this.whereAt = whereAt;
         this.duration = duration;
         this.currency = currency;
+        this.representingAdTimestamp = representingAdTimestamp;
         this.price = price;
     }
 
     public Session() {
+    }
+
+    public Session(Session sessionToCopy) {
+        this.sessionId = sessionToCopy.sessionId;
+        this.host = sessionToCopy.host;
+        this.stripeAccountId = sessionToCopy.stripeAccountId;
+        this.sessionName = sessionToCopy.sessionName;
+        this.sessionType = sessionToCopy.sessionType;
+        this.maxParticipants = sessionToCopy.maxParticipants;
+        this.latitude = sessionToCopy.latitude;
+        this.longitude = sessionToCopy.longitude;
+        this.advertisements = sessionToCopy.advertisements;
+        this.participants = sessionToCopy.participants;
+        this.posts = sessionToCopy.posts;
+        this.imageUrl = sessionToCopy.imageUrl;
+        this.what = sessionToCopy.what;
+        this.who = sessionToCopy.who;
+        this.whereAt = sessionToCopy.whereAt;
+        this.duration = sessionToCopy.duration;
+        this.currency = sessionToCopy.currency;
+        this.representingAdTimestamp = sessionToCopy.representingAdTimestamp;
+        this.price = sessionToCopy.price;
+    }
+
+
+
+    public long getRepresentingAdTimestamp() {
+        return representingAdTimestamp;
+    }
+
+    public void setRepresentingAdTimestamp(long representingAdTimestamp) {
+        this.representingAdTimestamp = representingAdTimestamp;
+    }
+
+    public HashMap<String, Long> getAdvertisements() {
+        return advertisements;
+    }
+
+    public void setAdvertisements(HashMap<String, Long> advertisements) {
+        this.advertisements = advertisements;
     }
 
     public String getSessionId() {
@@ -61,14 +98,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public String getStudioId() {
-        return studioId;
-    }
-
-    public void setStudioId(String studioId) {
-        this.studioId = studioId;
     }
 
     public String getHost() {
@@ -125,14 +154,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
-    }
-
-    public long getSessionTimestamp() {
-        return sessionTimestamp;
-    }
-
-    public void setSessionTimestamp(long sessionTimestamp) {
-        this.sessionTimestamp = sessionTimestamp;
     }
 
     public String getImageUrl() {
@@ -213,28 +234,20 @@ public class Session implements Comparable<Session>, Serializable {
         this.price = price;
     }
 
-    public Date supplyDate() {
-        return new Date(this.getSessionTimestamp());
-    }
-
-    public TextTimestamp supplyTextTimeStamp() {
-        return new TextTimestamp(this.sessionTimestamp);
-    }
-
     @Override
     public int compareTo(@NonNull Session session) {
 
         /*Calendar otherSessioncal = Calendar.getInstance();
-        otherSessioncal.setTimeInMillis(session.sessionTimestamp);
+        otherSessioncal.setTimeInMillis(session.representingAdTimestamp);
         Date dateOfOtherSession = otherSessioncal.getTime();
 
         Calendar sessionCal = Calendar.getInstance();
-        sessionCal.setTimeInMillis(this.sessionTimestamp);
+        sessionCal.setTimeInMillis(this.representingAdTimestamp);
         Date dateOfThisSession = sessionCal.getTime();*/
 
         //return (dateOfThisSession.compareTo(dateOfOtherSession));
 
-        long comp = this.getSessionTimestamp()-session.getSessionTimestamp();
+        long comp = this.getRepresentingAdTimestamp()-session.getRepresentingAdTimestamp();
         return (int) comp;
 
     }

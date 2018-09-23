@@ -17,10 +17,10 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.TextTimestamp;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,7 +58,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         holder.setText0(sessionArrayList.get(position).getSessionType());
         String sessionName = sessionArrayList.get(position).getSessionName();
         holder.setSessionName(sessionName);
-        holder.setText2(sessionArrayList.get(position).supplyTextTimeStamp().textSessionDateAndTime());
+        holder.setText2(TextTimestamp.textSDF(sessionArrayList.get(position).getRepresentingAdTimestamp()));
         String address = getAddress(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude());
         holder.setText3(address);
         String distance = getDistance(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude(), lastLocation);
@@ -129,25 +129,33 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
     /**Method get distance from current location to a certain point with latitude, longitude */
     private String getDistance(double latitude, double longitude, Location currentLocation){
 
-        Location locationA = new Location("point A");
+        String distanceString;
 
-        locationA.setLatitude(currentLocation.getLatitude());
-        locationA.setLongitude(currentLocation.getLongitude());
+        if (currentLocation!=null) {
+            Location locationA = new Location("point A");
 
-        Location locationB = new Location("point B");
+            locationA.setLatitude(currentLocation.getLatitude());
+            locationA.setLongitude(currentLocation.getLongitude());
 
-        locationB.setLatitude(latitude);
-        locationB.setLongitude(longitude);
+            Location locationB = new Location("point B");
 
-        float distance = locationA.distanceTo(locationB);
+            locationB.setLatitude(latitude);
+            locationB.setLongitude(longitude);
 
-        float b = (float)Math.round(distance);
-        String distanceString = Float.toString(b).replaceAll("\\.?0*$", "") + " m";
+            float distance = locationA.distanceTo(locationB);
 
-        if (b>1000) {
-            b=b/1000;
-            distanceString = String.format("%.1f", b) + " km";
+            float b = (float)Math.round(distance);
+            distanceString = Float.toString(b).replaceAll("\\.?0*$", "") + " m";
+
+            if (b>1000) {
+                b=b/1000;
+                distanceString = String.format("%.1f", b) + " km";
+            }
+        } else {
+            distanceString = "";
         }
+
+
         return  distanceString;
     }
 

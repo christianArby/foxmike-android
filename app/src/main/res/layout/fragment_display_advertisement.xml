@@ -56,6 +56,31 @@
 
             </RelativeLayout>
 
+            <LinearLayout
+                android:id="@+id/ratingBar"
+                app:layout_collapseMode="parallax"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:layout_marginEnd="@dimen/margin_right">
+
+                <android.support.v7.widget.AppCompatRatingBar
+                    android:rating="4"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    android:text="29 omdömen"/>
+
+            </LinearLayout>
+
             <TextView
                 android:textColor="@color/secondaryTextColor"
                 android:id="@+id/sessionType"
@@ -83,7 +108,6 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
-        android:descendantFocusability="blocksDescendants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="80dp"
@@ -92,9 +116,8 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:descendantFocusability="blocksDescendants"
             android:orientation="vertical"
-            android:id="@+id/display_session_container"
+            android:id="@+id/display_advertisement_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"/>
@@ -124,18 +147,16 @@
                 android:id="@+id/snackBarDateAndTimeTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:text="fre 21 sep kl 12:00"
-                android:textSize="10sp"
-                android:textAllCaps="true"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="fri 21 sep 12:00"
                 android:textStyle="bold"
-                android:textColor="@color/grayTextColor" />
+                android:textColor="@color/primaryTextColor" />
 
             <TextView
                 android:id="@+id/priceTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:text="40 kr per person"
                 android:textStyle="bold"
                 android:textColor="@color/primaryTextColor" />

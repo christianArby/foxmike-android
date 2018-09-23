@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -116,47 +115,34 @@
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
 
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/dateET"
-            android:clickable="true"
-            android:focusable="false"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/primaryTextColor"
+        <TextView
+            android:id="@+id/calendarHeadingTV"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@mipmap/ic_date_range_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/date"
-            android:inputType="date" />
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/timeTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/dateTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/timeET"
-            android:clickable="true"
-            android:focusable="false"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_margin="@dimen/margin_left"
             android:textColor="@color/primaryTextColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@mipmap/ic_access_time_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/time"
-            android:inputType="time" />
+            android:text="Aug"
+            app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
+
+        <com.github.sundeepk.compactcalendarview.CompactCalendarView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/compactcalendar_view"
+            android:layout_width="fill_parent"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="@dimen/marginVertical"
+            app:compactCalendarTargetHeight="250dp"
+            app:compactCalendarTextSize="12sp"
+            app:compactCalendarBackgroundColor="@color/color_background_light"
+            app:compactCalendarTextColor="@color/primaryTextColor"
+            app:compactCalendarCurrentSelectedDayBackgroundColor="@color/grayTextColor"
+            app:compactCalendarCurrentSelectedDayTextColor="@color/secondaryTextColor"
+            app:compactCalendarCurrentDayBackgroundColor="@color/lightGreyBackgroundColor"
+            app:compactCalendarEventIndicatorStyle="fill_large_indicator"
+            app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="false"
+            app:layout_constraintTop_toBottomOf="@id/calendarHeadingTV"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -166,7 +152,7 @@
         android:layout_margin="@dimen/margin_left"
         app:hintEnabled="false"
         app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/timeTIL">
+        app:layout_constraintTop_toBottomOf="@id/dateTIL">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/durationET"

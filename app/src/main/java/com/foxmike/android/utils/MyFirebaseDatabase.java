@@ -1,5 +1,6 @@
 package com.foxmike.android.utils;
 // Checked
+
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
@@ -11,19 +12,17 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
-import com.foxmike.android.interfaces.OnNearStudiosFoundListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
-import com.foxmike.android.interfaces.OnStudioBranchesFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.interfaces.OnUsersFoundListener;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.SessionMap;
-import com.foxmike.android.models.Studio;
-import com.foxmike.android.models.StudioBranch;
 import com.foxmike.android.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -82,7 +81,7 @@ public class MyFirebaseDatabase extends Service {
         }
     }
 
-    public void getSessionBranches(final HashMap<String, Long> sessionsHashMap, final OnSessionBranchesFoundListener onSessionBranchesFoundListener) {
+    public void getSessionBranches(final HashMap<String, Boolean> sessionsHashMap, final OnSessionBranchesFoundListener onSessionBranchesFoundListener) {
 
         final ArrayList<SessionBranch> sessionBranches = new ArrayList<SessionBranch>();
         for (String key : sessionsHashMap.keySet()) {
@@ -105,7 +104,33 @@ public class MyFirebaseDatabase extends Service {
         }
     }
 
-    public void getStudioBranches(final HashMap<String, Boolean> studioHashMap, final OnStudioBranchesFoundListener onStudioBranchesFoundListener) {
+    public void getAdvertisements(final HashMap<String, Long> adIdsHashMap, final OnAdvertisementsFoundListener onAdvertisementsFoundListener) {
+
+        final ArrayList<Advertisement> advertisements = new ArrayList<Advertisement>();
+        if (adIdsHashMap.size()==0) {
+            onAdvertisementsFoundListener.OnAdvertisementsFound(advertisements);
+        }
+
+
+        for (String key : adIdsHashMap.keySet()) {
+            dbRef.child("advertisements").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                    advertisements.add(advertisement);
+                    if (advertisements.size() == adIdsHashMap.size()) {
+                        onAdvertisementsFoundListener.OnAdvertisementsFound(advertisements);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+    }
+
+    /*public void getStudioBranches(final HashMap<String, Boolean> studioHashMap, final OnStudioBranchesFoundListener onStudioBranchesFoundListener) {
 
         final ArrayList<StudioBranch> studioBranches = new ArrayList<StudioBranch>();
         for (String key : studioHashMap.keySet()) {
@@ -126,7 +151,7 @@ public class MyFirebaseDatabase extends Service {
                 }
             });
         }
-    }
+    }*/
 
     public void getCurrentUser(final OnUserFoundListener onUserFoundListener) {
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -164,71 +189,68 @@ public class MyFirebaseDatabase extends Service {
         }
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, ArrayList<ArrayList<Session>> nearSessionsArrays,final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
 
-        ArrayList<Session> sessions = new ArrayList<>();
+        ArrayList<Session> sessionArray = new ArrayList<>();
+        ArrayList<Session> sessionDateArray = new ArrayList<>();
         Long currentTimestamp = System.currentTimeMillis();
 
-        // filter listArray
+        // Filter sessions not part of weekdays
         for (Session nearSession : nearSessions) {
-            if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
-                    if (nearSession.getSessionTimestamp() > currentTimestamp) {
-                        sessions.add(nearSession);
-                    }
-                }
-            }
+            boolean sessionAdded = false;
+            if (nearSession.getAdvertisements()!=null) {
+                for (long advertisementTimestamp: nearSession.getAdvertisements().values()) {
 
-            if (secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                if (secondWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF())) {
-                    if (nearSession.getSessionTimestamp() > currentTimestamp) {
-                        sessions.add(nearSession);
-                    }
-                }
-            }
-        }
-        // filter mapsArray
-        ArrayList<ArrayList<Session>> nearSessionArrayArrayFiltered = new ArrayList<>();
-        for (ArrayList<Session> nearSessionArray : nearSessionsArrays) {
-            ArrayList<Session> nearSessionArrayFiltered = new ArrayList<>();
-            for (Session nearSession: nearSessionArray) {
-                if (firstWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                    if (firstWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF()) && nearSession.getSessionTimestamp() > currentTimestamp) {
-                       nearSessionArrayFiltered.add(nearSession);
-                    }
-                } else {
-                    if (secondWeekdayHashMap.containsKey(nearSession.supplyTextTimeStamp().textSDF())) {
-                        if (secondWeekdayHashMap.get(nearSession.supplyTextTimeStamp().textSDF()) && nearSession.getSessionTimestamp() > currentTimestamp) {
-                            nearSessionArrayFiltered.add(nearSession);
+                    if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                        if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            if (advertisementTimestamp > currentTimestamp) {
+                                Session dateSession = new Session(nearSession);
+                                dateSession.setRepresentingAdTimestamp(advertisementTimestamp);
+                                sessionDateArray.add(dateSession);
+                                if (!sessionAdded) {
+                                    sessionArray.add(nearSession);
+                                    sessionAdded = true;
+                                }
+                            }
                         }
                     }
+
+                    if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                        if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            if (advertisementTimestamp > currentTimestamp) {
+                                nearSession.setRepresentingAdTimestamp(advertisementTimestamp);
+                                sessionDateArray.add(nearSession);
+                                if (!sessionAdded) {
+                                    sessionArray.add(nearSession);
+                                    sessionAdded = true;
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
-            if (nearSessionArrayFiltered.size()>0) {
-                nearSessionArrayArrayFiltered.add(nearSessionArrayFiltered);
-            }
+
         }
 
-        // filter listArray
         if (sortType.equals("date")) {
-            Collections.sort(sessions);
+            Collections.sort(sessionDateArray);
             TextTimestamp prevTextTimestamp = new TextTimestamp();
-            HashMap<Integer, Session> headerSessions = new HashMap<>();
 
             int i = 0;
-            while (i < sessions.size()) {
-                if (!prevTextTimestamp.textSDF().equals(sessions.get(i).supplyTextTimeStamp().textSDF())) {
+            while (i < sessionDateArray.size()) {
+                if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(sessionDateArray.get(i).getRepresentingAdTimestamp()))) {
                     Session dummySession = new Session();
                     dummySession.setImageUrl("dateHeader");
-                    dummySession.setSessionTimestamp(sessions.get(i).getSessionTimestamp());
-                    sessions.add(i, dummySession);
-                    prevTextTimestamp = sessions.get(i).supplyTextTimeStamp();
+                    dummySession.setRepresentingAdTimestamp(sessionDateArray.get(i).getRepresentingAdTimestamp());
+                    sessionDateArray.add(i, dummySession);
+                    prevTextTimestamp = new TextTimestamp(sessionDateArray.get(i).getRepresentingAdTimestamp());
                 }
                 i++;
             }
         }
 
-        onSessionsFilteredListener.OnSessionsFiltered(sessions, nearSessionArrayArrayFiltered);
+        onSessionsFilteredListener.OnSessionsFiltered(sessionArray, sessionDateArray);
     }
 
     public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
@@ -278,52 +300,24 @@ public class MyFirebaseDatabase extends Service {
                                 public void onGeoQueryReady() {
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
                                     final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
-                                    ArrayList<ArrayList<Session>> sessionArrayArraylist = new ArrayList<>();
+                                    // Download all the near sessions
                                     for (String sessionId : sessionDistances.keySet()) {
-
                                         dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Session session;
-                                                Long currentTimestamp = System.currentTimeMillis();
                                                 session = dataSnapshot.getValue(Session.class);
-
                                                 SessionMap sessionMap = new SessionMap(session, sessionDistances.get(dataSnapshot.getKey()));
                                                 sessionMapArrayList.add(sessionMap);
-                                                if (sessionMapArrayList.size() == sessionDistances.size()) {
+
+
+                                                if (sessionMapArrayList.size()==sessionDistances.size()) {
                                                     Collections.sort(sessionMapArrayList);
-                                                    int previousDistance = 0;
-
-                                                    ArrayList<Session> prevSession = new ArrayList<>();
-
                                                     for (SessionMap sessionMapSorted: sessionMapArrayList) {
-                                                        // If the session is in the future
-                                                        if (sessionMapSorted.getSession().getSessionTimestamp()>currentTimestamp) {
-                                                            // Add it to the sessionArray
-                                                            sessions.add(sessionMapSorted.getSession());
-                                                            // If the distance is the same as the previous session save it in the same array
-                                                            if (sessionMapSorted.getDistance()==previousDistance) {
-                                                                prevSession.add(sessionMapSorted.getSession());
-                                                            } else {
-                                                                // If not save the previous array
-                                                                if (prevSession.size()>0) {
-                                                                    sessionArrayArraylist.add(prevSession);
-                                                                    prevSession = new ArrayList<>();
-                                                                }
-                                                                // Clear the sessionArray and put this session in it
-                                                                prevSession.add(sessionMapSorted.getSession());
-                                                            }
-                                                            // Remember this distance to the next one
-                                                            previousDistance = sessionMapSorted.getDistance();
-                                                        }
+                                                        sessions.add(sessionMapSorted.getSession());
                                                     }
-                                                    if (prevSession.size()>0) {
-                                                        sessionArrayArraylist.add(prevSession);
-                                                    }
-                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location, sessionArrayArraylist);
+                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                                 }
-
-
                                             }
 
                                             @Override
@@ -332,7 +326,7 @@ public class MyFirebaseDatabase extends Service {
                                         });
                                     }
                                     if (sessionDistances.size() < 1) {
-                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location, sessionArrayArraylist);
+                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
                                     }
                                 }
 

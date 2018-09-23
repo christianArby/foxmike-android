@@ -26,10 +26,25 @@ public class TextTimestamp {
         return time;
     }
 
+    public static String textTime(long timeStamp) {
+        DateTime dateTime = new DateTime(timeStamp);
+        String time = String.format("%02d:%02d", dateTime.getHourOfDay(), dateTime.getMinuteOfHour());
+        return time;
+    }
+
     public String textMonth() {
         DateTime dateTime = new DateTime(this.timeStamp);
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(this.timeStamp);
+        SimpleDateFormat monthDate = new SimpleDateFormat("MMMM");
+        String monthName = monthDate.format(cal.getTime());
+        return monthName;
+    }
+
+    public static String textMonth(long timeStamp) {
+        DateTime dateTime = new DateTime(timeStamp);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timeStamp);
         SimpleDateFormat monthDate = new SimpleDateFormat("MMMM");
         String monthName = monthDate.format(cal.getTime());
         return monthName;
@@ -56,9 +71,24 @@ public class TextTimestamp {
         return dayName;
     }
 
+    public static String textFullDay(long timeStamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timeStamp);
+        SimpleDateFormat textDay = new SimpleDateFormat("EEEE");
+        String dayName = textDay.format(cal.getTime());
+        return dayName;
+    }
+
     public String textSDF() {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(this.timeStamp);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(cal.getTime());
+    }
+
+    public static String textSDF(long timeStamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timeStamp);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime());
     }
@@ -69,14 +99,30 @@ public class TextTimestamp {
         return dateAndTimeText;
     }
 
+    public static String textDateAndTime(long timeStamp) {
+        DateTime dateTime = new DateTime(timeStamp);
+        String dateAndTimeText = dateTime.getDayOfMonth() + " " + TextTimestamp.textMonth(timeStamp) + " " + "KL." + " " + TextTimestamp.textTime(timeStamp);
+        return dateAndTimeText;
+    }
+
     public String textSessionDateAndTime() {
         DateTime dateTime = new DateTime(this.timeStamp);
         return this.textFullDay() + " " + dateTime.getDayOfMonth() + " " + this.textMonth() + " " + this.textTime();
     }
 
+    public static String textSessionDateAndTime(long timeStamp) {
+        DateTime dateTime = new DateTime(timeStamp);
+        return TextTimestamp.textFullDay(timeStamp) + " " + dateTime.getDayOfMonth() + " " + TextTimestamp.textMonth(timeStamp) + " " + TextTimestamp.textTime(timeStamp);
+    }
+
     public String textSessionDate() {
         DateTime dateTime = new DateTime(this.timeStamp);
         return this.textFullDay() + " " + dateTime.getDayOfMonth() + " " + this.textMonth();
+    }
+
+    public static String textSessionDate(long timeStamp) {
+        DateTime dateTime = new DateTime(timeStamp);
+        return TextTimestamp.textFullDay(timeStamp) + " " + dateTime.getDayOfMonth() + " " + TextTimestamp.textMonth(timeStamp);
     }
 
 

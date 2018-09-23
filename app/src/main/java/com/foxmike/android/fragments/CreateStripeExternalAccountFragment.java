@@ -25,6 +25,7 @@ import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -206,6 +207,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                     @Override
                     public void onSuccess(Token token) {
                         accountData.put("account_token", token.getId());
+                        accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
                         // If successfully created Bank Account create Stripe Account with all the collected info
                         createExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
@@ -224,7 +226,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                                     }
                                     // [START_EXCLUDE]
                                     Log.w(TAG, "create:onFailure", e);
-                                    showSnackbar("An error occurred.");
+                                    showSnackbar(e.getMessage());
                                     return;
                                     // [END_EXCLUDE]
                                 }

@@ -1,12 +1,11 @@
 package com.foxmike.android.utils;
 // Checked
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import com.google.android.gms.tasks.OnCompleteListener;
+
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -60,39 +59,34 @@ public class SetOrUpdateUserImage {
 
         final DatabaseReference current_user_db = mDatabaseUsers.child(currentUserID);
         final StorageReference thumb_filepath = mStorageImage.child("thumbs").child(currentUserID + ".jpg");
-
         StorageReference filepath = mStorageImage.child(imageUri.getLastPathSegment());
 
         filepath.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
-
-                UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
-                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+                    public void onSuccess(Uri uri) {
+                        String downloadUrl = uri.toString();
+                        thumb_filepath.putBytes(thumb_byte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Map imageUrlHashMap = new HashMap();
+                                        imageUrlHashMap.put("image", downloadUrl);
+                                        imageUrlHashMap.put("thumb_image", uri.toString());
 
-                        String thumb_downloadUrl = thumb_task.getResult().getDownloadUrl().toString();
-
-                        if(thumb_task.isSuccessful()) {
-
-                            Map imageUrlHashMap = new HashMap();
-                            imageUrlHashMap.put("image", downloadUrl);
-                            imageUrlHashMap.put("thumb_image", thumb_downloadUrl);
-
-                            onUserImageSetListener.onUserImageSet(imageUrlHashMap);
-
-                        } else {
-                            //TODO Handle error
-                        }
+                                        onUserImageSetListener.onUserImageSet(imageUrlHashMap);
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
         });
-
-
     }
 
     public void setOnUserImageSetListener(OnUserImageSetListener onUserImageSetListener) {

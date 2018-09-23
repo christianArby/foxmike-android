@@ -1,15 +1,15 @@
 package com.foxmike.android.activities;
 //Checked
+
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,7 +21,6 @@ import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.transition.Fade;
 import android.util.Log;
@@ -29,8 +28,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Interpolator;
-import android.view.animation.PathInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -42,34 +39,37 @@ import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
+import com.foxmike.android.fragments.DisplayAdvertisementFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
-import com.foxmike.android.fragments.DisplayStudioFragment;
-import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
+import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.fragments.PlayerSessionsFragment;
+import com.foxmike.android.fragments.SortAndFilterFragment;
+import com.foxmike.android.fragments.UserAccountFragment;
 import com.foxmike.android.fragments.UserAccountHostFragment;
+import com.foxmike.android.fragments.UserProfileFragment;
+import com.foxmike.android.fragments.UserProfilePublicEditFragment;
+import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WeekdayFilterFragment;
+import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
+import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
-import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.models.Studio;
-import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayChangedListener;
-import com.foxmike.android.fragments.PlayerSessionsFragment;
+import com.foxmike.android.interfaces.SessionListener;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.fragments.SortAndFilterFragment;
-import com.foxmike.android.fragments.UserAccountFragment;
-import com.foxmike.android.fragments.UserProfileFragment;
-import com.foxmike.android.fragments.UserProfilePublicEditFragment;
-import com.foxmike.android.fragments.UserProfilePublicFragment;
-import com.foxmike.android.fragments.WeekdayFilterFragment;
+import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.WrapContentViewPager;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
@@ -93,9 +93,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.subjects.BehaviorSubject;
+
 import static android.content.ContentValues.TAG;
 
 public class MainPlayerActivity extends AppCompatActivity
@@ -114,14 +114,13 @@ public class MainPlayerActivity extends AppCompatActivity
         ListSessionsFragment.OnListSessionsScrollListener,
         SortAndFilterFragment.OnListSessionsFilterListener,
         SortAndFilterFragment.OnListSessionsSortListener,
-        DisplaySessionFragment.OnEditSessionListener,
-        DisplaySessionFragment.OnBookSessionListener,
-        DisplaySessionFragment.OnCancelBookedSessionListener,
+        SessionListener,
         OnHostSessionChangedListener,
         OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
-        InboxFragment.OnSearchClickedListener, DisplayStudioFragment.OnStudioInteractionListener, MapsFragment.OnLocationPickedListener{
+        InboxFragment.OnSearchClickedListener,
+        MapsFragment.OnLocationPickedListener, OnAdvertisementClickedListener,OnAdvertisementsFoundListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -130,6 +129,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private MapsFragment mapsFragment;
     private PlayerSessionsFragment playerSessionsFragment;
     private DisplaySessionFragment displaySessionFragment;
+    private DisplayAdvertisementFragment displayAdvertisementFragment;
     private InboxFragment inboxFragment;
     private UserProfilePublicFragment userProfilePublicFragment;
     private UserProfilePublicEditFragment userProfilePublicEditFragment;
@@ -162,6 +162,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private float mapOrListBtnStartY;
     private String stripeCustomerId;
 
+    // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
@@ -335,7 +336,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 }
 
                 // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
-                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerLastChange").addValueEventListener(new ValueEventListener() {
+                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -362,7 +363,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerLastChange"), stripeCustomerListener);
+                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange"), stripeCustomerListener);
             }
 
             @Override
@@ -558,22 +559,20 @@ public class MainPlayerActivity extends AppCompatActivity
         myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
 
             @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location, ArrayList<ArrayList<Session>> nearSessionsArrays) {
+            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
                 sessionListArrayList.clear();
-                mainNearSessionsArrays.clear();
-                mainNearSessionsArrays = nearSessionsArrays;
                 sessionListArrayList = nearSessions;
                 locationClosetoSessions = location;
 
-                myFirebaseDatabase.filterSessions(nearSessions, nearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+                myFirebaseDatabase.filterSessions(nearSessions,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
                     @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
+                    public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
+                        listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
                         listSessionsFragment.stopSwipeRefreshingSymbol();
 
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(nearSessionsArrays);
+                        mapsFragment.addMarkersToMap(sessions);
 
                     }
 
@@ -672,14 +671,14 @@ public class MainPlayerActivity extends AppCompatActivity
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessions(sessionListArrayList, mainNearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
             @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
+            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(nearSessionsArrays);
+                mapsFragment.addMarkersToMap(sessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
+                listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
 
             }
         });
@@ -688,6 +687,12 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnSessionClicked(String sessionId) {
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+    }
+
+    @Override
+    public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
+        displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
     }
 
@@ -759,14 +764,14 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnListSessionsSort(String sortType) {
         this.sortType = sortType;
-        myFirebaseDatabase.filterSessions(sessionListArrayList, mainNearSessionsArrays,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
+        myFirebaseDatabase.filterSessions(sessionListArrayList,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
             @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<ArrayList<Session>> nearSessionsArrays) {
+            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
                 MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(nearSessionsArrays);
+                mapsFragment.addMarkersToMap(sessions);
 
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.updateSessionListView(sessions,locationClosetoSessions);
+                listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
         });
@@ -795,7 +800,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp,String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
 
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -814,7 +819,8 @@ public class MainPlayerActivity extends AppCompatActivity
                             }
 
                             Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
-                            bookIntent.putExtra("sessionId", sessionId);
+                            bookIntent.putExtra("advertisementId", advertisementId);
+                            bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
                             bookIntent.putExtra("hostId", hostId);
                             bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
                             bookIntent.putExtra("amount",amount);
@@ -833,7 +839,8 @@ public class MainPlayerActivity extends AppCompatActivity
         }
 
         Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
-        bookIntent.putExtra("sessionId", sessionId);
+        bookIntent.putExtra("advertisementId", advertisementId);
+        bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
         bookIntent.putExtra("hostId", hostId);
         bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
         bookIntent.putExtra("amount",amount);
@@ -899,12 +906,12 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId) {
+    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, String chargeId, String accountId) {
 
         Intent cancelIntent = new Intent(MainPlayerActivity.this,CancelBookingActivity.class);
         cancelIntent.putExtra("bookingTimestamp", bookingTimestamp);
-        cancelIntent.putExtra("sessionTimestamp", sessionTimestamp);
-        cancelIntent.putExtra("sessionID", sessionID);
+        cancelIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
+        cancelIntent.putExtra("advertisementId", advertisementId);
         cancelIntent.putExtra("participantId",participantId);
         cancelIntent.putExtra("chargeId",chargeId);
         cancelIntent.putExtra("accountId",accountId);
@@ -939,23 +946,19 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnEditStudio(String studioID, Studio studio) {
-        // Not possible in player environment
+    public void OnLocationPicked(LatLng latLng, String requestType) {
+
     }
 
     @Override
-    public void OnPreviewStudio(String studioID, Studio studio) {
-        // Not possible in player environment
+    public void OnAdvertisementClicked(String advertisementId) {
+        displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(advertisementId);
+        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true);
     }
 
     @Override
-    public void OnAdvertiseStudio(String studioID, Studio studio) {
-        // Not possible in player environment
-    }
+    public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
 
-    @Override
-    public void OnLocationPicked(LatLng latLng, String requestType, String studioId, Studio studio) {
-        // Not possible in player environment
     }
 
     // Sets up weekday pager
@@ -1036,6 +1039,11 @@ public class MainPlayerActivity extends AppCompatActivity
         if (getSupportFragmentManager().findFragmentByTag("displaySessionFragment")!=null) {
             DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("displaySessionFragment");
             displaySessionFragment.cleanListeners();
+        }
+
+        if (getSupportFragmentManager().findFragmentByTag("displayAdvertisementFragment")!=null) {
+            DisplayAdvertisementFragment displayAdvertisementFragment = (DisplayAdvertisementFragment) getSupportFragmentManager().findFragmentByTag("displayAdvertisementFragment");
+            displayAdvertisementFragment.cleanListeners();
         }
     }
 
