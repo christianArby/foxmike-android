@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
+import com.foxmike.android.interfaces.OnCreateSessionClickedListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
  */
 public class HostSessionsFragment extends Fragment {
 
-    private OnCreateStudioClickedListener onCreateStudioClickedListener;
+    private OnCreateSessionClickedListener onCreateSessionClickedListener;
     private FloatingActionButton createSessionBtn;
     private ViewPager hostSessionsPager;
     private SmallSessionsPagerAdapter hostSessionsPagerAdapter;
@@ -69,7 +70,7 @@ public class HostSessionsFragment extends Fragment {
                         final boolean userHasStripeAccount;
                         userHasStripeAccount = dataSnapshot.getValue() != null;
                         if (userHasStripeAccount) {
-                            onCreateStudioClickedListener.OnCreateStudioClicked();
+                            onCreateSessionClickedListener.OnCreateSessionClicked();
                         } else {
                             Toast.makeText(getContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
                         }
@@ -85,7 +86,7 @@ public class HostSessionsFragment extends Fragment {
 
 
 
-        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.training_groups), getString(R.string.sessions));
+        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
         tabLayout.setupWithViewPager(hostSessionsPager);
 
@@ -97,7 +98,7 @@ public class HostSessionsFragment extends Fragment {
     public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
         if (!update) {
-            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.training_groups), getString(R.string.sessions));
+            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
             hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
             tabLayout.setupWithViewPager(hostSessionsPager);
         } else {
@@ -108,19 +109,16 @@ public class HostSessionsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnCreateStudioClickedListener) {
-            onCreateStudioClickedListener = (OnCreateStudioClickedListener) context;
+        if (context instanceof OnCreateSessionClickedListener) {
+            onCreateSessionClickedListener = (OnCreateSessionClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement onCreateStudioClickedListener");
+                    + " must implement onCreateSessionClickedListener");
         }
     }
     @Override
     public void onDetach() {
         super.onDetach();
-        onCreateStudioClickedListener = null;
-    }
-    public interface OnCreateStudioClickedListener {
-        void OnCreateStudioClicked();
+        onCreateSessionClickedListener = null;
     }
 }

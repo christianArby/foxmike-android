@@ -2,14 +2,13 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.google.android.gms.tasks.Continuation;
@@ -32,10 +31,11 @@ import static android.content.ContentValues.TAG;
 
 public class BookingActivity extends AppCompatActivity {
 
-    private String sessionId;
+    private String advertisementId;
     private String hostId;
     private String stripeCustomerId;
     private String stripeAccountId;
+    private Long advertisementTimestamp;
     private ProgressBar progressBarHorizontal;
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef;
@@ -60,7 +60,8 @@ public class BookingActivity extends AppCompatActivity {
         progressBarHorizontal.setProgress(20);
 
         // Get data from previous activity
-        sessionId = getIntent().getStringExtra("sessionId");
+        advertisementId = getIntent().getStringExtra("advertisementId");
+        advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp", 0L);
         hostId = getIntent().getStringExtra("hostId");
         stripeCustomerId = getIntent().getStringExtra("stripeCustomerId");
         amount = getIntent().getIntExtra("amount", 0);
@@ -143,7 +144,8 @@ public class BookingActivity extends AppCompatActivity {
                                                     chargeMap.put("tokenId", result.get("tokenId").toString());
                                                     chargeMap.put("account", stripeAccountId);
                                                     chargeMap.put("userID", mAuth.getCurrentUser().getUid());
-                                                    chargeMap.put("sessionId", sessionId);
+                                                    chargeMap.put("advertisementId", advertisementId);
+                                                    chargeMap.put("advertisementTimestamp", advertisementTimestamp);
                                                     chargeMap.put("applicationFee", amount*0.1*100);
                                                     chargeMap.put("email", mAuth.getCurrentUser().getEmail());
 
@@ -217,7 +219,8 @@ public class BookingActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Intent refresh = new Intent(BookingActivity.this, BookingActivity.class);
-                    refresh.putExtra("sessionId", sessionId);
+                    refresh.putExtra("advertisementId", advertisementId);
+                    refresh.putExtra("advertisementTimestamp", advertisementTimestamp);
                     refresh.putExtra("hostId", hostId);
                     refresh.putExtra("stripeCustomerId", dataSnapshot.getValue().toString());
                     refresh.putExtra("amount",amount);
@@ -241,8 +244,9 @@ public class BookingActivity extends AppCompatActivity {
     private void addCurrentUserToSessionParticipantList() {
         // write current user as participant in session to database
         Map requestMap = new HashMap<>();
-        requestMap.put("sessions/" + sessionId + "/participants/" + mAuth.getCurrentUser().getUid(), "FREE");
-        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionId, ServerValue.TIMESTAMP);
+        requestMap.put("advertisements/" + advertisementId + "/participants/" + mAuth.getCurrentUser().getUid(), "FREE");
+        requestMap.put("advertisements/" + advertisementId + "/participantsTimestamps/" + mAuth.getCurrentUser().getUid(), ServerValue.TIMESTAMP);
+        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + advertisementId, advertisementTimestamp);
         rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

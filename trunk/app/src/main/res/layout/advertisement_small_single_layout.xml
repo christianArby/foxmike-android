@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/small_advertisement_frame"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:contentDescription="@string/advertisement_image"
+        android:id="@+id/icon"
+        android:layout_width="@dimen/small_session_image_width"
+        android:layout_height="@dimen/small_session_image_width"
+        android:layout_marginStart="@dimen/margin_left"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="@dimen/margin_minimum"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
+        app:layout_constraintTop_toTopOf="@id/icon"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintBottom_toBottomOf="@id/icon">
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:text="Medium Text"
+            android:textColor="@color/primaryTextColor"
+            />
+
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/leadSub2Body"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="@string/session_text"
+            android:layout_below="@id/text1"/>
+
+
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

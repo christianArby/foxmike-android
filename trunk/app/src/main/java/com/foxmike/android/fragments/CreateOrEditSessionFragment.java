@@ -1,6 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
-import android.app.DatePickerDialog;
+
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -24,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +32,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -44,15 +43,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.interfaces.OnStudioChangedListener;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.TextTimestamp;
+import com.github.sundeepk.compactcalendarview.CompactCalendarView;
+import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,9 +73,11 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,6 +85,7 @@ import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
+import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
@@ -97,7 +101,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private TextInputLayout mLocationTIL;
     private TextInputLayout mSessionTypeTIL;
     private TextInputLayout mDateTIL;
-    private TextInputLayout mTimeTIL;
     private TextInputLayout mDurationTIL;
     private TextInputLayout mMaxParticipantsTIL;
     private TextInputLayout mWhatTIL;
@@ -106,8 +109,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private TextInputLayout mPriceTIL;
     private TextInputEditText mSessionName;
     private TextInputEditText mSessionType;
-    private TextInputEditText mDate;
-    private TextInputEditText mTime;
     private TextInputEditText mMaxParticipants;
     private TextInputEditText mDuration;
     private EditText mWhat;
@@ -139,7 +140,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
     private OnHostSessionChangedListener onHostSessionChangedListener;
-    private OnStudioChangedListener onStudioChangedListener;
     static CreateOrEditSessionFragment fragment;
     private ProgressBar progressBar;
     private View view;
@@ -150,10 +150,11 @@ public class CreateOrEditSessionFragment extends Fragment{
     private String accountCurrency;
     private String stripeAccountId;
     private boolean hasParticipants = false;
-    private String studioId;
-    private boolean template;
     private TextView imageErrorText;
-
+    private CompactCalendarView compactCalendarView;
+    private TextView calendarHeadingTV;
+    private HashMap<Long, Boolean> advertisementTimestamps = new HashMap<>();
+    private HashMap<String, Long> advertisements = new HashMap<>();
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
     }
@@ -171,8 +172,6 @@ public class CreateOrEditSessionFragment extends Fragment{
             existingSessionID = bundle.getString("sessionID");
             clickedLatLng = bundle.getParcelable("LatLng");
             existingSession = (Session) bundle.getSerializable("session");
-            studioId = bundle.getString("studioId");
-            template = bundle.getBoolean("template", false);
         }
 
     }
@@ -192,17 +191,14 @@ public class CreateOrEditSessionFragment extends Fragment{
         createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
         // Setup views
         mLocation = createSession.findViewById(R.id.locationTV);
-        mDate = createSession.findViewById(R.id.dateET);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
         mSessionType = createSession.findViewById(R.id.sessionTypeET);
         mSessionNameTIL = createSession.findViewById(R.id.sessionNameTIL);
         mLocationTIL = createSession.findViewById(R.id.locationTIL);
         mSessionTypeTIL = createSession.findViewById(R.id.sessionTypeTIL);
-        mTime = createSession.findViewById(R.id.timeET);
         mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
         mDuration = createSession.findViewById(R.id.durationET);
         mDateTIL = createSession.findViewById(R.id.dateTIL);
-        mTimeTIL = createSession.findViewById(R.id.timeTIL);
         mDurationTIL = createSession.findViewById(R.id.durationTIL);
         mWhatTIL = createSession.findViewById(R.id.whatTIL);
         mWhoTIL = createSession.findViewById(R.id.whoTIL);
@@ -220,6 +216,78 @@ public class CreateOrEditSessionFragment extends Fragment{
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         mPriceTIL = createSession.findViewById(R.id.priceTIL);
         imageErrorText = createSession.findViewById(R.id.imageErrorText);
+        compactCalendarView = (CompactCalendarView) createSession.findViewById(R.id.compactcalendar_view);
+        calendarHeadingTV = createSession.findViewById(R.id.calendarHeadingTV);
+
+        Formatter fmt = new Formatter();
+        fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
+        calendarHeadingTV.setText(fmt.toString());
+        // Listen to clicks
+        compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+            @Override
+            public void onDayClick(Date dateClicked) {
+
+                Date currentDate = new Date();
+
+                if (dateClicked.before(currentDate) && !DateUtils.isToday(dateClicked.getTime())) {
+                    cannotCreateSessionInPastPopUp();
+                    return;
+                }
+                // See if there already is an event at the date clicked, if so ask user if user wants to remove session
+                List<Event> events = compactCalendarView.getEvents(dateClicked);
+                if (events.size()!=0) {
+
+                    if (events.get(0).getData()!=null) {
+                        String adType = events.get(0).getData().toString();
+                        if (adType.equals("existingAd")) {
+                            Toast.makeText(getContext(),"existingAd", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+
+                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    TextTimestamp textTimestamp = new TextTimestamp(events.get(0).getTimeInMillis());
+                    builder.setMessage(textTimestamp.textTime()).setTitle(textTimestamp.textSessionDate());
+                    builder.setPositiveButton("Remove session", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            if (DateUtils.isToday(events.get(0).getTimeInMillis())) {
+                                compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.lightGreyBackgroundColor));
+                            }
+
+                            advertisementTimestamps.remove(events.get(0).getTimeInMillis());
+                            compactCalendarView.removeEvent(events.get(0));
+                            compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
+                        }
+                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+
+                    // Ask user to pick time
+                } else {
+                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
+                    // set the calendar to the clicked date
+                    myCalendar.setTime(dateClicked);
+                    pickTime();
+                    // Open timepicker in order for user to set time for the event
+                }
+                Toast.makeText(getContext(), "Day was clicked: " + dateClicked + " with events " + events,Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
+            }
+            @Override
+            public void onMonthScroll(Date firstDayOfNewMonth) {
+                Formatter fmt = new Formatter();
+                fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
+                calendarHeadingTV.setText(fmt.toString());
+            }
+        });
 
         // Setup toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -262,12 +330,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         if (existingSessionID != null | existingSession!=null) {
 
-            if (template) {
-                updateSession = false;
-            } else {
-                updateSession = true;
-            }
-
+            updateSession = true;
 
             /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
              * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
@@ -346,11 +409,19 @@ public class CreateOrEditSessionFragment extends Fragment{
         return view;
     }
 
-    private void setupUI() {
+    private void cannotCreateSessionInPastPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Cannot create a session in the past.");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
 
-        if (template) {
-            existingSession.setParticipants(new HashMap<>());
-        }
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void setupUI() {
 
         if (existingSession!=null) {
             if (existingSession.getParticipants().size()>0) {
@@ -363,14 +434,13 @@ public class CreateOrEditSessionFragment extends Fragment{
             setImage(existingSession.getImageUrl(),mSessionImageButton);
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(existingSession.getSessionType());
-            if (!template) {
-                // Date
-                myCalendar.setTimeInMillis(existingSession.getSessionTimestamp());
-                updateLabel();
+            // Existing advertisements
+            if (existingSession.getAdvertisements()!=null) {
+                for (Long advertisementTimestamp: existingSession.getAdvertisements().values()) {
+                    Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
+                    compactCalendarView.addEvent(sessionTime);
+                }
             }
-            // Time
-            TextTimestamp textTimestamp = new TextTimestamp(existingSession.getSessionTimestamp());
-            mTime.setText(textTimestamp.textTime());
             mMaxParticipants.setText(existingSession.getMaxParticipants());
             mDuration.setText(existingSession.getDuration());
             mWhat.setText(existingSession.getWhat());
@@ -380,6 +450,11 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         }
 
+        if (updateSession) {
+            mCreateSessionBtn.setText(getString(R.string.update_session));
+        } else {
+            mProgress.setMessage(getString(R.string.create_session));
+        }
 
         // -------------- Set on button click listeners --------------------
 
@@ -457,72 +532,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                     return;
                 }
                 createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
-            }
-        });
-
-        /** Set listener on DatePickerDialog to retrieve date when user picks date in Android datepicker
-         * Update date label with function updateLabel() in order to set it to correct format */
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                // TODO Auto-generated method stub
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel();
-            }
-        };
-        /*If date field is clicked start Android datepicker and retrive data */
-        mDateTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDateTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.date_cannot_change));
-                    return;
-                }
-                new DatePickerDialog(getContext(), date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-        mDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDateTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.date_cannot_change));
-                    return;
-                }
-                new DatePickerDialog(getContext(), date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-
-        /* When time edittext is clicked start android TimePickerDialog and once the user has picked a time set the time to the edittext field */
-        mTimeTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mTimeTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.time_cannot_change));
-                    return;
-                }
-                pickTime();
-            }
-        });
-
-        mTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mTimeTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.time_cannot_change));
-                    return;
-                }
-                pickTime();
             }
         });
 
@@ -697,31 +706,28 @@ public class CreateOrEditSessionFragment extends Fragment{
         //final Session session = new Session();
         Map sessionMap = new HashMap();
 
-        if (!updateSession && !template) {
-            mSessionId = mMarkerDbRef.push().getKey();
-            sessionMap.put("studioId", studioId);
-        }
-
-        if (template) {
-            mSessionId = mMarkerDbRef.push().getKey();
-            sessionMap.put("studioId", existingSession.getStudioId());
-        }
-
         if (updateSession) {
             mSessionId = existingSessionID;
             sessionMap.put("posts", existingSession.getPosts());
-            sessionMap.put("studioId", existingSession.getStudioId());
             sessionMap.put("participants", existingSession.getParticipants());
+            if (existingSession.getAdvertisements()!=null) {
+                for (String ad : existingSession.getAdvertisements().keySet()) {
+                    advertisements.put(ad, existingSession.getAdvertisements().get(ad));
+                }
+            }
+        } else {
+            mSessionId = mMarkerDbRef.push().getKey();
         }
 
-        mSessionTimestamp = myCalendar.getTimeInMillis();
+
+
+
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         sessionMap.put("sessionType", mSessionType.getText().toString());
         sessionMap.put("what",mWhat.getText().toString());
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
-        sessionMap.put("sessionTimestamp", mSessionTimestamp);
         sessionMap.put("maxParticipants", mMaxParticipants.getText().toString());
         sessionMap.put("duration", mDuration.getText().toString());
         sessionMap.put("longitude", clickedLatLng.longitude);
@@ -741,16 +747,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         if (TextUtils.isEmpty(mSessionType.getText().toString())) {
             mSessionTypeTIL.setError(getString(R.string.please_choose_session_type));
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(mDate.getText().toString())) {
-            mDateTIL.setError(getString(R.string.please_choose_session_date));
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(mTime.getText().toString())) {
-            mTimeTIL.setError(getString(R.string.please_choose_session_time));
             infoIsValid = false;
         }
 
@@ -798,15 +794,22 @@ public class CreateOrEditSessionFragment extends Fragment{
             filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String downloadUri = taskSnapshot.getDownloadUrl().toString();
-                    /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
-                     * to the main activity*/
-                    sessionMap.put("imageUrl", downloadUri);
 
-                    if (infoIsValid){
-                        onSessionUpdatedListener.OnSessionUpdated(sessionMap);
-                    }
-                    mProgress.dismiss();
+                    filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String downloadUri = uri.toString();
+                            /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
+                             * to the main activity*/
+                            sessionMap.put("imageUrl", downloadUri);
+
+                            if (infoIsValid){
+                                onSessionUpdatedListener.OnSessionUpdated(sessionMap);
+                            }
+                            mProgress.dismiss();
+
+                        }
+                    });
                 }
             });
         }
@@ -814,7 +817,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         else {
             /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
              * and send the user back to the main activity*/
-            if (updateSession | template) {
+            if (updateSession) {
                 sessionMap.put("imageUrl", existingSession.getImageUrl());
                 mProgress.dismiss();
 
@@ -833,11 +836,38 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     /**Send session object to database */
     private void sendSession(Map sendSession) {
+
+        boolean firstAd = true;
+
+        for (Long sessionTimestamp: advertisementTimestamps.keySet()) {
+            String advertisementKey = rootDbRef.child("advertisements").push().getKey();
+            advertisements.put(advertisementKey, sessionTimestamp);
+            Advertisement advertisement = new Advertisement();
+            advertisement.setAdvertisementId(advertisementKey);
+            advertisement.setAdvertisementName(sendSession.get("sessionName").toString());
+            advertisement.setAdvertisementTimestamp(sessionTimestamp);
+            advertisement.setCurrency(sendSession.get("currency").toString());
+            advertisement.setImageUrl(sendSession.get("imageUrl").toString());
+            advertisement.setPrice((int) sendSession.get("price"));
+            advertisement.setMaxParticipants((String) sendSession.get("maxParticipants"));
+            advertisement.setHost((String) sendSession.get("host"));
+            advertisement.setSessionId((String) sendSession.get("sessionId"));
+            //advertisement.setSessionType(sendSession.get("sessionType").toString());
+            rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement);
+            rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(sessionTimestamp);
+
+            if (firstAd) {
+                sendSession.put("sessionTimestamp", sessionTimestamp);
+                firstAd = false;
+            }
+        }
+
+        sendSession.put("advertisements", advertisements);
+
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
+        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
         geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
-        rootDbRef.child("studiosTEST").child(sendSession.get("studioId").toString()).child("sessions").child(mSessionId).setValue(sendSession.get("sessionTimestamp"));
         onHostSessionChangedListener.OnHostSessionChanged();
-        onStudioChangedListener.OnStudioChanged();
     }
 
     // Function retrieveStripeAccount
@@ -864,20 +894,27 @@ public class CreateOrEditSessionFragment extends Fragment{
         mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                mTime.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
                 myCalendar.set(Calendar.MINUTE, selectedMinute);
 
+                Date pickedDate = new Date(myCalendar.getTime().getTime());
+                Date currentDate = new Date();
+
+                if (pickedDate.before(currentDate)) {
+                    cannotCreateSessionInPastPopUp();
+                } else {
+                    Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
+                    compactCalendarView.addEvent(event);
+                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                    if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
+                        compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                    }
+                    advertisementTimestamps.put(myCalendar.getTimeInMillis(), true);
+                }
             }
         }, 12, 0, true);//Yes 24 hour time
         mTimePicker.setTitle(getString(R.string.select_time));
         mTimePicker.show();
-    }
-
-    private void updateLabel() {
-        String myFormat = "yyyy-MM-dd"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        mDate.setText(sdf.format(myCalendar.getTime()));
     }
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
@@ -1018,19 +1055,18 @@ public class CreateOrEditSessionFragment extends Fragment{
             throw new RuntimeException(context.toString()
                     + " must implement OnHostSessionChangedListener");
         }
-        if (context instanceof OnStudioChangedListener) {
-            onStudioChangedListener = (OnStudioChangedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnStudioChangedListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onHostSessionChangedListener = null;
-        onStudioChangedListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        hideKeyboard(getActivity());
     }
 
     public void updateLocation(LatLng latLng) {

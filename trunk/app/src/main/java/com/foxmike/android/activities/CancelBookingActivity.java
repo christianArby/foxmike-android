@@ -3,10 +3,10 @@ package com.foxmike.android.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -35,8 +35,8 @@ public class CancelBookingActivity extends AppCompatActivity {
 
     private FirebaseFunctions mFunctions;
     private Long bookingTimestamp;
-    private Long sessionTimestamp;
-    private String sessionId;
+    private Long advertisementTimestamp;
+    private String advertisementId;
     private String participantId;
     private String chargeId;
     private String accountId;
@@ -56,8 +56,8 @@ public class CancelBookingActivity extends AppCompatActivity {
         mFunctions = FirebaseFunctions.getInstance();
 
         bookingTimestamp = getIntent().getLongExtra("bookingTimestamp",0);
-        sessionTimestamp = getIntent().getLongExtra("sessionTimestamp",0);
-        sessionId = getIntent().getStringExtra("sessionID");
+        advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
+        advertisementId = getIntent().getStringExtra("advertisementId");
         participantId = getIntent().getStringExtra("participantId");
         chargeId = getIntent().getStringExtra("chargeId");
         accountId = getIntent().getStringExtra("accountId");
@@ -90,12 +90,12 @@ public class CancelBookingActivity extends AppCompatActivity {
 
 
         DateTime currentTime = new DateTime(currentTimestamp);
-        DateTime sessionTime = new DateTime(sessionTimestamp);
+        DateTime sessionTime = new DateTime(advertisementTimestamp);
         DateTime bookedTime = new DateTime(bookingTimestamp);
         Duration durationCurrentToSession = new Duration(currentTime, sessionTime);
         Duration durationBookedToCurrent = new Duration(bookedTime, currentTime);
 
-        if (currentTimestamp>sessionTimestamp) {
+        if (currentTimestamp> advertisementTimestamp) {
             alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed));
             return;
         }
@@ -109,7 +109,7 @@ public class CancelBookingActivity extends AppCompatActivity {
         refundMap.put("chargeId", chargeId);
         refundMap.put("accountId", accountId);
         refundMap.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        refundMap.put("sessionId", sessionId);
+        refundMap.put("advertisementId", advertisementId);
 
 
         refundCharge(refundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
@@ -157,7 +157,7 @@ public class CancelBookingActivity extends AppCompatActivity {
 
                 Intent intent = getIntent();
                 intent.putExtra("cancel",true);
-                intent.putExtra("sessionID", sessionId);
+                intent.putExtra("sessionID", advertisementId);
                 setResult(RESULT_OK, intent);
                 finish();
 

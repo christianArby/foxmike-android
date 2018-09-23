@@ -201,7 +201,7 @@
     <string name="session_text">Sessiontext</string>
     <string name="description_goes_here">Beskriv passet</string>
     <string name="date_goes_here">Datum</string>
-    <string name="sessions">Pass</string>
+    <string name="sessions">Träningspass</string>
     <string name="is_you_trainer">är din tränare</string>
     <string name="cancel_booking">Avboka pass</string>
     <string name="update_session">Uppdatera pass</string>
@@ -428,7 +428,16 @@
     <string name="type_of_training">Typ av träning</string>
     <string name="create_training_group">Skapa träningsgrupp</string>
     <string name="upcoming_sessions">Kommande pass</string>
-    <string name="no_upcoming_sessions">Inga kommande pass</string>
     <string name="no_studios_text">Skapa en träningsgrupp där du kan annonsera ut pass, klicka på plusknappen nedan!.</string>
     <string name="you_must_agree_to_above">Du måste godkänna användarvillkoren för att registrera ett konto.</string>
+    <string name="upcoming">Kommande</string>
+    <string name="avertisements">Annonser</string>
+    <string name="advertisement_image">Annons bild</string>
+    <string name="you_have_no_advertisements">Du har inga annonser.</string>
+    <string name="no_advertisements">Inga annonser</string>
+    <string name="next_session">Nästa pass:\u0020</string>
+    <string name="more_than_two_weeks_ahead">Längre fram än två veckor</string>
+    <string name="availability">Tillgänglighet</string>
+    <string name="no_upcoming_sessions">Inga kommande tillfällen</string>
+
 </resources>

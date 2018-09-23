@@ -4,10 +4,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.foxmike.android.fragments.HostListSmallSessionsAdvFragment;
-import com.foxmike.android.fragments.HostListStudiosFragment;
-import com.foxmike.android.fragments.PlayerListSmallSessionsBookedFragment;
-import com.foxmike.android.fragments.PlayerListSmallSessionsHistoryFragment;
+import com.foxmike.android.fragments.HostListSmallAdvertisementsFragment;
+import com.foxmike.android.fragments.HostListSmallSessionsFragment;
+import com.foxmike.android.fragments.PlayerListSmallAdvertisementsBookedFragment;
+import com.foxmike.android.fragments.PlayerListSmallAdvertisementsHistoryFragment;
 
 /**
  * This adapter takes two arraylists of sessions and creates two fragments of ListSmallSessionsFragment and populates a viewpager with these two fragments
@@ -31,17 +31,17 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
         Fragment fragment = null;
         if (trainerMode) {
             if (position == 0) {
-                fragment = HostListStudiosFragment.newInstance();
+                fragment = HostListSmallSessionsFragment.newInstance();
             }
             if (position == 1) {
-                fragment = HostListSmallSessionsAdvFragment.newInstance();
+                fragment = HostListSmallAdvertisementsFragment.newInstance();
             }
         } else {
             if (position == 0) {
-                fragment = PlayerListSmallSessionsBookedFragment.newInstance();
+                fragment = PlayerListSmallAdvertisementsBookedFragment.newInstance();
             }
             if (position == 1) {
-                fragment = PlayerListSmallSessionsHistoryFragment.newInstance();
+                fragment = PlayerListSmallAdvertisementsHistoryFragment.newInstance();
             }
 
         }

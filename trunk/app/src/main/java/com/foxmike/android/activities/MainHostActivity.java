@@ -1,24 +1,20 @@
 package com.foxmike.android.activities;
 //Checked
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
-import android.support.transition.TransitionInflater;
-import android.support.transition.TransitionSet;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.transition.Fade;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -27,30 +23,30 @@ import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
-import com.foxmike.android.fragments.CreateOrEditStudioFragment;
+import com.foxmike.android.fragments.DisplayAdvertisementFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
-import com.foxmike.android.fragments.DisplayStudioFragment;
-import com.foxmike.android.fragments.UserAccountHostFragment;
-import com.foxmike.android.interfaces.OnChatClickedListener;
-import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnNewMessageListener;
-import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
-import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.interfaces.OnStudioBranchClickedListener;
-import com.foxmike.android.interfaces.OnStudioChangedListener;
-import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
 import com.foxmike.android.fragments.UserAccountFragment;
+import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
+import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
+import com.foxmike.android.interfaces.OnChatClickedListener;
+import com.foxmike.android.interfaces.OnCommentClickedListener;
+import com.foxmike.android.interfaces.OnCreateSessionClickedListener;
+import com.foxmike.android.interfaces.OnHostSessionChangedListener;
+import com.foxmike.android.interfaces.OnNewMessageListener;
+import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
+import com.foxmike.android.interfaces.OnSessionClickedListener;
+import com.foxmike.android.interfaces.OnUserClickedListener;
+import com.foxmike.android.interfaces.SessionListener;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.models.Studio;
-import com.foxmike.android.models.StudioBranch;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -60,43 +56,37 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
         UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
-        HostSessionsFragment.OnCreateStudioClickedListener,
         OnUserClickedListener,
         OnNewMessageListener,
-        DisplaySessionFragment.OnEditSessionListener,
-        DisplaySessionFragment.OnBookSessionListener,
-        DisplaySessionFragment.OnCancelBookedSessionListener,
+        SessionListener,
         OnHostSessionChangedListener,
         OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
-        OnStudioBranchClickedListener,
-        DisplayStudioFragment.OnStudioInteractionListener, OnStudioChangedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
-        MapsFragment.OnLocationPickedListener, DisplayStudioFragment.OnCreateSessionClickedListener{
+        MapsFragment.OnLocationPickedListener, OnCreateSessionClickedListener, OnAdvertisementsFoundListener, OnAdvertisementClickedListener {
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;
     private MapsFragment hostMapsFragment;
     private DisplaySessionFragment hostDisplaySessionFragment;
+    private DisplayAdvertisementFragment displayAdvertisementFragment;
     private InboxFragment hostInboxFragment;
     private HostSessionsFragment hostSessionsFragment;
     private UserProfileFragment hostUserProfileFragment;
     private UserProfilePublicFragment hostUserProfilePublicFragment;
     private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
-    private CreateOrEditStudioFragment createOrEditStudioFragment;
     private CreateOrEditSessionFragment createOrEditSessionFragment;
     private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
@@ -270,6 +260,11 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
+        // Not applicable in host environment
+    }
+
+    @Override
     public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
 
         if (request.equals("displaySession")) {
@@ -285,13 +280,6 @@ public class MainHostActivity extends AppCompatActivity implements
             createOrEditSessionFragment.setArguments(bundle);
             cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "");
         }
-    }
-
-    @Override
-    public void OnStudioBranchClicked(StudioBranch studioBranch) {
-        DisplayStudioFragment hostDisplayStudioFragment = DisplayStudioFragment.newInstance(studioBranch.getStudioID());
-        cleanMainFullscreenActivityAndSwitch(hostDisplayStudioFragment, true, "");
-
     }
 
     /* Listener, when edit "button" in account is clicked show user profile */
@@ -328,23 +316,15 @@ public class MainHostActivity extends AppCompatActivity implements
     public void OnNewMessage() {
         // TODO should this be used?
     }
-    /* Listener, create session button FAB is clicked switch to maps fragment in order for user to pick location */
-    @Override
-    public void OnCreateStudioClicked() {
-        createOrEditStudioFragment = CreateOrEditStudioFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"changeStudio");
-    }
 
     @Override
-    public void OnCreateSessionClicked(String studioId, Studio studio) {
+    public void OnCreateSessionClicked() {
         Bundle bundle = new Bundle();
         bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
         bundle.putString("requestType", "createSession");
-        bundle.putString("studioId", studioId);
-        bundle.putSerializable("studio", studio);
         hostMapsFragment = MapsFragment.newInstance();
         hostMapsFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"changeStudio");
+        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"editSession");
     }
 
 
@@ -367,28 +347,6 @@ public class MainHostActivity extends AppCompatActivity implements
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
 
-    @Override
-    public void OnEditStudio(String studioID, Studio studio) {
-        Bundle bundle = new Bundle();
-        bundle.putString("StudioId", studioID);
-        bundle.putSerializable("studio", studio);
-        createOrEditStudioFragment = CreateOrEditStudioFragment.newInstance();
-        createOrEditStudioFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true, "changeStudio");
-    }
-
-    @Override
-    public void OnPreviewStudio(String studioID, Studio studio) {
-        hostDisplaySessionFragment = DisplaySessionFragment.newInstance(studioID, studio);
-        cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
-    }
-
-    @Override
-    public void OnAdvertiseStudio(String studioID, Studio studio) {
-        //AdvertiseSessionFragment advertiseSessionFragment= AdvertiseSessionFragment.newInstance(studioID, studio);
-        //cleanMainFullscreenActivityAndSwitch(advertiseSessionFragment, true, "changeStudio");
-    }
-
     // Pops backstack to displaysession again after session has been updated in CreateOrEditSession. Also reloads lists in hostSessions.
     @Override
     public void OnHostSessionChanged() {
@@ -397,15 +355,6 @@ public class MainHostActivity extends AppCompatActivity implements
             hs.loadPages(true);
         }
         getSupportFragmentManager().popBackStack("editSession", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-    }
-
-    @Override
-    public void OnStudioChanged() {
-        if (fragmentManager.findFragmentByTag("xMainHostSessionsFragment")!=null) {
-            HostSessionsFragment hs = (HostSessionsFragment) fragmentManager.findFragmentByTag("xMainHostSessionsFragment");
-            hs.loadPages(true);
-        }
-        getSupportFragmentManager().popBackStack("changeStudio", FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     /* When back button is pressed while in main host activity override function and replace with following */
@@ -454,14 +403,16 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnBookSession(String sessionId, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
+    public void OnBookSession(String sessionId, Long advertisementTimestamp, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
         // Not applicable in Host environment
     }
 
     @Override
-    public void OnCancelBookedSession(Long bookingTimestamp, Long sessionTimestamp, String sessionID, String participantId, String chargeId, String accountId) {
+    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, String chargeId, String accountId) {
         // Not applicable in Host environment
     }
+
+
 
     @Override
     public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
@@ -518,7 +469,7 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnLocationPicked(LatLng latLng, String requestType, String studioId, Studio studio) {
+    public void OnLocationPicked(LatLng latLng, String requestType) {
         if (requestType.equals("updateSession")) {
             if (createOrEditSessionFragment!=null) {
                 createOrEditSessionFragment.updateLocation(latLng);
@@ -526,29 +477,13 @@ public class MainHostActivity extends AppCompatActivity implements
             }
             return;
         }
-        if (requestType.equals("updateStudio")) {
-            if (createOrEditStudioFragment!=null) {
-                createOrEditStudioFragment.updateLocation(latLng);
-                getSupportFragmentManager().popBackStack();
-            }
-            return;
-        }
         if (requestType.equals("createSession")) {
             Bundle bundle = new Bundle();
             bundle.putParcelable("LatLng", latLng);
-            bundle.putString("studioId", studioId);
-            bundle.putSerializable("studio", studio);
             createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
             createOrEditSessionFragment.setArguments(bundle);
             cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"");
             return;
-        }
-        if (requestType.equals("createStudio")) {
-            /*Bundle bundle = new Bundle();
-            bundle.putParcelable("LatLng", latLng);
-            createOrEditStudioFragment = CreateOrEditStudioFragment.newInstance();
-            createOrEditStudioFragment.setArguments(bundle);
-            cleanMainFullscreenActivityAndSwitch(createOrEditStudioFragment, true,"");*/
         }
     }
     public static void hideKeyboard(Activity activity) {
@@ -560,5 +495,16 @@ public class MainHostActivity extends AppCompatActivity implements
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    @Override
+    public void OnAdvertisementClicked(String advertisementId) {
+        displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(advertisementId);
+        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "");
+    }
+
+    @Override
+    public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
+
     }
 }

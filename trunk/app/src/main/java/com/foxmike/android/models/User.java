@@ -2,7 +2,6 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
-import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -13,7 +12,7 @@ public class User implements Comparable<User>{
 
     public HashMap<String,Long> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
-    public HashMap<String,Boolean> studios;
+    public HashMap<String,Long> advertisementsHosting;
     public HashMap<String,Boolean> chats;
     public String firstName;
     public String lastName;
@@ -27,10 +26,10 @@ public class User implements Comparable<User>{
     private HashMap<String,Object> stripeCustomer;
     private boolean dontShowBookingText;
 
-    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Boolean> studios, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
+    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
-        this.studios = studios;
+        this.advertisementsHosting = advertisementsHosting;
         this.chats = chats;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -48,13 +47,25 @@ public class User implements Comparable<User>{
     public User() {
         this.sessionsAttending = new HashMap<String,Long>();
         this.sessionsHosting = new HashMap<String,Boolean>();
-        this.studios = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
+    }
+
+    public HashMap<String, Long> getAdvertisementsHosting() {
+        if (this.advertisementsHosting==null) {
+            advertisementsHosting = new HashMap<String, Long>();
+        }
+        return advertisementsHosting;
+    }
+
+    public void setAdvertisementsHosting(HashMap<String, Long> advertisementsHosting) {
+        this.advertisementsHosting = advertisementsHosting;
     }
 
     public HashMap<String, Long> getSessionsAttending() {
         return sessionsAttending;
     }
+
+
 
     public void setSessionsAttending(HashMap<String, Long> sessionsAttending) {
         this.sessionsAttending = sessionsAttending;
@@ -138,15 +149,6 @@ public class User implements Comparable<User>{
 
     public String getUserName() {
         return userName;
-    }
-
-
-    public HashMap<String, Boolean> getStudios() {
-        return studios;
-    }
-
-    public void setStudios(HashMap<String, Boolean> studios) {
-        this.studios = studios;
     }
 
     @Override

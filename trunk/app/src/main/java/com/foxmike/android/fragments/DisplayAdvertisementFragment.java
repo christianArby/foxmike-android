@@ -4,7 +4,6 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
@@ -22,12 +21,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,21 +32,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.SessionDateAndTimeClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
-import com.foxmike.android.utils.SessionDateAndTimeViewHolder;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -70,8 +62,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,13 +78,15 @@ import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 /**
  * This fragment takes a longitude and latitude and displays the corresponding session with that longitude and latitude.
  */
-public class DisplaySessionFragment extends Fragment implements OnMapReadyCallback {
+public class DisplayAdvertisementFragment extends Fragment implements OnMapReadyCallback {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
+    private TextView mDateAndTime;
+    private TextView mParticipants;
     private TextView mDuration;
     private Button mDisplaySessionBtn;
     private CircleImageView mHostImage;
@@ -109,13 +101,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mSendMessageToHost;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
-    private LinearLayout writePostLayout;
+    private LinearLayout writePostLsyout;
     private LinearLayout commentLayout;
-    private static final String SESSION_ID = "sessionID";
-    private static final String REPRESSENTING_AD_TIMESTAMP = "representingAdTimestamp";
+    private static final String ADVERTISEMENT_ID = "advertisementId";
     private Double sessionLatitude;
     private Double sessionLongitude;
-    private String sessionID="";
+    private String advertisementId ="";
     private ChildEventListener sessionChildEventListener;
     private ValueEventListener fbSessionListener;
     private Session session;
@@ -129,6 +120,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private RecyclerView postList;
     private RecyclerView.Adapter<PostsViewHolder> postsViewHolderAdapter;
     private User currentUser;
+    private SessionListener sessionListener;
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
@@ -147,8 +139,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private HashMap defaultSourceMap;
     private boolean mapReady;
 
-    private TextView snackBarDateAndTimeTV;
-
+    private boolean advertisementLoaded;
+    private boolean advertisementUsed;
+    private Advertisement advertisement;
 
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
@@ -159,57 +152,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean paymentMethodLoaded;
     private boolean sessionAndPaymentAndViewUsed;
 
-    private RecyclerView upcomingSessionsRV;
-    private List<SessionDateAndTime> sessionDateAndTimeList = new ArrayList<>();
-    private LinearLayoutManager sessionDateAndTimeLLManager;
-
-    private boolean adsLoaded;
-    private boolean sessionAndViewUsed;
-    private boolean sessionAndPaymentAndViewAndAdSelectedUsed;
-
-    private FrameLayout fbRVContainer;
-    private LinearLayout showMore;
-    private int currentHeightInNr;
-
-    private SessionListener sessionListener;
-
-    private FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder> fbAdDateAndTimeAdapter;
+    private boolean advertisementAndViewUsed;
 
 
-    private ImageView sessionImage;
+    private ImageView advertisementImage;
     private int asyncTasksFinished = 0;
-
-    private int rowIndex = -1;
-
-    private int itemHeight = 0;
-
-    private boolean adSelectedReady;
-
-    private Long representingAdTimestamp;
-
-    private Advertisement adSelected;
-
-    private LinearLayout noUpcomingAds;
 
     private OnChatClickedListener onChatClickedListener;
 
-    public DisplaySessionFragment() {
+    public DisplayAdvertisementFragment() {
         // Required empty public constructor
     }
 
-    public static DisplaySessionFragment newInstance(String sessionID) {
-        DisplaySessionFragment fragment = new DisplaySessionFragment();
+    public static DisplayAdvertisementFragment newInstance(String advertisementId) {
+        DisplayAdvertisementFragment fragment = new DisplayAdvertisementFragment();
         Bundle args = new Bundle();
-        args.putString(SESSION_ID, sessionID);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static DisplaySessionFragment newInstance(String sessionID, Long representingAdTimestamp) {
-        DisplaySessionFragment fragment = new DisplaySessionFragment();
-        Bundle args = new Bundle();
-        args.putString(SESSION_ID, sessionID);
-        args.putLong(REPRESSENTING_AD_TIMESTAMP, representingAdTimestamp);
+        args.putString(ADVERTISEMENT_ID, advertisementId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -219,12 +177,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
 
         // Setup static map with session location
-        if (null == getChildFragmentManager().findFragmentByTag("xDisplaySessionMapsFragment")) {
+        if (null == getChildFragmentManager().findFragmentByTag("xDisplayAdvertisementMapsFragment")) {
             GoogleMapOptions options = new GoogleMapOptions();
             options.liteMode(true);
             SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-            transaction.replace(R.id.child_fragment_container, mapFragment,"xDisplaySessionMapsFragment").commit();
+            transaction.replace(R.id.child_fragment_container, mapFragment,"xDisplayAdvertisementMapsFragment").commit();
             mapFragment.getMapAsync(this);
         }
 
@@ -232,8 +190,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         childEventListenerMap = new HashMap<>();
 
         if (getArguments() != null) {
-            sessionID = getArguments().getString(SESSION_ID);
-            representingAdTimestamp = getArguments().getLong(REPRESSENTING_AD_TIMESTAMP);
+            advertisementId = getArguments().getString(ADVERTISEMENT_ID);
         }
 
         // GET THE PAYMENT INFO FROM CURRENT USER
@@ -258,31 +215,25 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
 
         // GET SESSION FROM DATABASE
-        if (!sessionID.equals("")) {
+        if (!advertisementId.equals("")) {
             // FINDS SESSION AND FILLS UI
             // Get the session information
-            if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
-                fbSessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
+            if (!listenerMap.containsKey(rootDbRef.child("advertisements").child(advertisementId))) {
+                fbSessionListener = rootDbRef.child("advertisements").child(advertisementId).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        session = dataSnapshot.getValue(Session.class);
-                        sessionLongitude = session.getLongitude();
-                        sessionLatitude = session.getLatitude();
-                        sessionID = dataSnapshot.getRef().getKey();
-                        currentUserAndSessionAndViewAndMapUsed = false;
-                        sessionAndPaymentAndViewUsed = false;
-                        sessionUsed = false;
-                        sessionLoaded = true;
+                        advertisement = dataSnapshot.getValue(Advertisement.class);
+                        advertisementId = dataSnapshot.getRef().getKey();
+                        advertisementUsed = false;
+                        advertisementLoaded = true;
                         onTaskFinished();
-                        getPosts();
-                        getSessionHost();
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
-                listenerMap.put(mSessionDbRef.child(sessionID),fbSessionListener);
+                listenerMap.put(mSessionDbRef.child(advertisementId), fbSessionListener);
             }
         } else {
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
@@ -323,11 +274,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
     }
 
-    private void getSessionHost() {
+    private void getAdvertisementHost() {
         /*
             Get the host image from the database (found under users with the userID=session.host)
             */
-        mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
+        mUserDbRef.child(advertisement.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 host = dataSnapshot.getValue(User.class);
@@ -343,22 +294,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
     private void getPosts() {
 
-        if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
-            ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("advertisements").child(advertisementId).child("posts"))) {
+            ValueEventListener postsListener = rootDbRef.child("advertisements").child(advertisementId).child("posts").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    final Session session = new Session();
+                    final Advertisement tempAd = new Advertisement();
                     postBranchArrayList.clear();
-                    session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+                    tempAd.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
                     if (dataSnapshot.getChildrenCount()>0) {
-                        for (final String postID : session.getPosts().keySet()) {
+                        for (final String postID : tempAd.getPosts().keySet()) {
                             rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Post post = dataSnapshot.getValue(Post.class);
                                     PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
                                     postBranchArrayList.add(postBranch);
-                                    if (postBranchArrayList.size()==session.getPosts().size()) {
+                                    if (postBranchArrayList.size()==tempAd.getPosts().size()) {
                                         Collections.sort(postBranchArrayList);
                                         postsLoaded = true;
                                         onTaskFinished();
@@ -370,7 +321,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                                if (nrOfComments.size()==session.getPosts().size()) {
+                                                if (nrOfComments.size()==tempAd.getPosts().size()) {
                                                     postCommentsUsed = false;
                                                     postCommentsLoaded = true;
                                                     onTaskFinished();
@@ -395,62 +346,50 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 }
             });
-            listenerMap.put(mSessionDbRef.child(sessionID).child("posts"), postsListener);
+            listenerMap.put(rootDbRef.child("advertisements").child(advertisementId).child("posts"), postsListener);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_display_session, container, false);
+        view = inflater.inflate(R.layout.fragment_display_advertisement, container, false);
 
         setRetainInstance(true);
 
-        LinearLayout displaySessionContainer;
-        View displaySession;
-        displaySessionContainer = view.findViewById(R.id.display_session_container);
-        displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
+        LinearLayout displayAdvertisementContainer;
+        View displayAdvertisement;
+        displayAdvertisementContainer = view.findViewById(R.id.display_advertisement_container);
+        displayAdvertisement = inflater.inflate(R.layout.display_advertisement,displayAdvertisementContainer,false);
 
-        mDuration = displaySession.findViewById(R.id.durationTV);
-        mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
-        mHost = displaySession.findViewById(R.id.hostName);
-        mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
-        mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
-        writePostLayout = displaySession.findViewById(R.id.write_post_layout);
-        mWhatTW = displaySession.findViewById(R.id.whatTW);
-        mWhoTW = displaySession.findViewById(R.id.whoTW);
-        mWhereTW = displaySession.findViewById(R.id.whereTW);
-        mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
+        mDateAndTime = displayAdvertisement.findViewById(R.id.dateAndTimeTW);
+        mDuration = displayAdvertisement.findViewById(R.id.durationTV);
+        mParticipants = displayAdvertisement.findViewById(R.id.participantsTW);
+        mHostImage = displayAdvertisement.findViewById(R.id.displaySessionHostImage);
+        mHost = displayAdvertisement.findViewById(R.id.hostName);
+        mHostAboutTV = displayAdvertisement.findViewById(R.id.hostAbout);
+        mAddressAndSessionType = displayAdvertisement.findViewById(R.id.addressAndSessionTypeTW);
+        writePostLsyout = displayAdvertisement.findViewById(R.id.write_post_layout);
+        mWhatTW = displayAdvertisement.findViewById(R.id.whatTW);
+        mWhoTW = displayAdvertisement.findViewById(R.id.whoTW);
+        mWhereTW = displayAdvertisement.findViewById(R.id.whereTW);
+        mCurrentUserPostImage = displayAdvertisement.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
         mSessionType = view.findViewById(R.id.sessionType);
-        mSendMessageToHost = displaySession.findViewById(R.id.sendMessageToHost);
+        mSendMessageToHost = displayAdvertisement.findViewById(R.id.sendMessageToHost);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
         toolbar = view.findViewById(R.id.toolbar);
         priceTV = view.findViewById(R.id.priceTV);
         mDisplaySessionBtn = view.findViewById(R.id.displaySessionBtn);
-        displaySessionContainer.addView(displaySession);
+        displayAdvertisementContainer.addView(displayAdvertisement);
         // Set the session image
-        sessionImage = view.findViewById(R.id.displaySessionImage);
+        advertisementImage = view.findViewById(R.id.displaySessionImage);
         postList = (RecyclerView) view.findViewById(R.id.post_list);
         postList.setVisibility(View.GONE);
         paymentMethodProgressBar = view.findViewById(R.id.paymentMethodProgressBar);
         addPaymentMethodTV = view.findViewById(R.id.addPaymentMethodTV);
         paymentFrame = view.findViewById(R.id.framePayment);
         paymentMethodTV = view.findViewById(R.id.paymentMethod);
-        snackBarDateAndTimeTV = view.findViewById(R.id.snackBarDateAndTimeTV);
-
-        upcomingSessionsRV = displaySession.findViewById(R.id.upcomingSessionsList);
-
-        showMore = displaySession.findViewById(R.id.showMoreText);
-        noUpcomingAds = displaySession.findViewById(R.id.noUpcomingAdsText);
-
-        fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
-
-        sessionDateAndTimeLLManager = new LinearLayoutManager(getContext());
-        upcomingSessionsRV.setHasFixedSize(true);
-        upcomingSessionsRV.setLayoutManager(sessionDateAndTimeLLManager);
-        ((SimpleItemAnimator) upcomingSessionsRV.getItemAnimator()).setSupportsChangeAnimations(false);
-        upcomingSessionsRV.setNestedScrollingEnabled(false);
 
         paymentFrame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -523,6 +462,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         postList.setLayoutManager(linearLayoutManager);
         postList.setNestedScrollingEnabled(false);
 
+        writePostLsyout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WritePostFragment writePostFragment = WritePostFragment.newInstance(advertisementId);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
+                    transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
+                    transaction.commit();
+                }
+            }
+        });
+
         return view;
     }
 
@@ -534,391 +486,52 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
     private void onTaskFinished() {
 
-        // ---------------- CURRENTUSER && VIEW-----------------
-        if (currentUserLoaded && getView()!=null && !currentUserAndViewUsed) {
-            currentUserAndViewUsed=true;
-            // Set the users profile image to the "write post" layout
-            setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
+        // ---------------- ADVERTISEMENT-----------------
+        if (advertisementLoaded && !advertisementUsed) {
+            advertisementUsed =true;
+            getPosts();
+            getAdvertisementHost();
+            loadSession();
         }
 
-        // --------------- SESSION && VIEW -----------------------
-        if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
-            sessionAndViewUsed = true;
+        // ---------------- ADVERTISEMENT && VIEW-----------------
+        if (advertisementLoaded && getView()!=null && !advertisementAndViewUsed) {
+            advertisementAndViewUsed = true;
 
-            // SETUP UPCOMING SESSIONS
-            if (!adsLoaded) {
-                if (session.getAdvertisements()==null) {
-                    // no ads
-                    noUpcomingAds.setVisibility(View.VISIBLE);
-                    adSelectedReady = true;
-                    onTaskFinished();
-                } else {
-                    Long currentTimestamp = System.currentTimeMillis();
-                    Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
-                    Query keyQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
-
-                    keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue()==null) {
-                                // no ads
-                                noUpcomingAds.setVisibility(View.VISIBLE);
-                                adSelectedReady = true;
-                                onTaskFinished();
-                            } else {
-                                adsLoaded = true;
-                                HashMap<String,Long> adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
-
-                                Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
-
-                                int twoWeekssize = 0;
-
-                                // Fix initial selection if repAdtimestamp is null
-                                Long firstTimestamp = 0L;
-                                for (Long adTime: adTimes.values()) {
-                                    if (adTime<twoWeekTimestamp) {
-                                        twoWeekssize++;
-                                    }
-                                    if (firstTimestamp==0L) {
-                                        firstTimestamp = adTime;
-                                    } else {
-                                        if (adTime<firstTimestamp) {
-                                            firstTimestamp = adTime;
-                                        }
-                                    }
-                                }
-                                if (representingAdTimestamp==0) {
-                                    representingAdTimestamp = firstTimestamp;
-                                }
-
-                                currentHeightInNr = twoWeekssize;
-
-                                if (twoWeekssize<5) {
-                                    if (adTimes.size()<5) {
-                                        currentHeightInNr = adTimes.size();
-                                    } else {
-                                        currentHeightInNr = 4;
-                                    }
-                                }
-
-                                ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                                params.height= 167*currentHeightInNr;
-                                fbRVContainer.setLayoutParams(params);
-
-                                Query allKeysQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
-
-                                DatabaseReference adDbRef = rootDbRef.child("advertisements");
-                                FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
-                                        .setIndexedQuery(allKeysQuery, adDbRef, Advertisement.class)
-                                        .build();
-                                fbAdDateAndTimeAdapter = new FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder>(options) {
-                                    @Override
-                                    protected void onBindViewHolder(@NonNull SessionDateAndTimeViewHolder holder, int position, @NonNull Advertisement model) {
-                                        if (representingAdTimestamp==model.getAdvertisementTimestamp() && rowIndex == -1) {
-                                            rowIndex = position;
-                                            adSelected=model;
-                                            adSelectedReady = true;
-                                            onTaskFinished();
-                                            snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
-                                            holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-                                            holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                            holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                        }
-                                        holder.sessionDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
-                                        holder.setSessionDateAndTimeClickedListener(new SessionDateAndTimeClickedListener() {
-                                            @Override
-                                            public void OnSessionDateAndTimeClicked(View view, int position) {
-                                                adSelected = fbAdDateAndTimeAdapter.getItem(position);
-                                                adSelectedReady = true;
-                                                onTaskFinished();
-                                                snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
-                                                rowIndex = position; // set row index to selected position
-                                                notifyDataSetChanged(); // Made effect on Recycler Views adapter
-
-                                            }
-                                        });
-
-                                        if (model.getParticipantsIds()!=null) {
-                                            if (model.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                                                if (rowIndex == position) {
-                                                    holder.itemView.setBackgroundColor(getResources().getColor(R.color.foxmikePrimaryDarkColor));
-                                                    holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.secondaryTextColor));
-                                                    holder.participantsTV.setTextColor(getResources().getColor(R.color.secondaryTextColor));
-                                                } else {
-                                                    holder.itemView.setBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                                    holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.secondaryTextColor));
-                                                    holder.participantsTV.setTextColor(getResources().getColor(R.color.secondaryTextColor));
-                                                }
-
-                                            } else {
-                                                if (rowIndex == position) {
-                                                    holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-                                                    holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                                    holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                                } else {
-                                                    holder.itemView.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                                                    holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.primaryTextColor));
-                                                    holder.participantsTV.setTextColor(getResources().getColor(R.color.primaryTextColor));
-                                                }
-                                            }
-                                        } else {
-                                            if (rowIndex == position) {
-                                                holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-                                                holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                                holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                            } else {
-                                                holder.itemView.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                                                holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.primaryTextColor));
-                                                holder.participantsTV.setTextColor(getResources().getColor(R.color.primaryTextColor));
-                                            }
-                                        }
-
-                                        // -----------  set the number of participants ------------
-                                        long countParticipants;
-                                        if (model.getParticipantsIds()!=null) {
-                                            countParticipants = model.getParticipantsIds().size();
-                                        } else {
-                                            countParticipants = 0;
-                                        }
-                                        holder.setParticipantsTV(countParticipants +"/" + model.getMaxParticipants());
-
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public SessionDateAndTimeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                                        View view = LayoutInflater.from(parent.getContext())
-                                                .inflate(R.layout.session_date_time_single_layout, parent, false);
-                                        view.measure(
-                                                View.MeasureSpec.makeMeasureSpec(upcomingSessionsRV.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
-                                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                                        itemHeight = view.getMeasuredHeight();
-                                        return new SessionDateAndTimeViewHolder(view);
-                                    }
-                                };
-                                fbAdDateAndTimeAdapter.startListening();
-                                upcomingSessionsRV.setAdapter(fbAdDateAndTimeAdapter);
-
-                                fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                                    @Override
-                                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                                        super.onItemRangeInserted(positionStart, itemCount);
-                                        if (fbAdDateAndTimeAdapter.getItemCount()==0) {
-                                            showMore.setVisibility(View.GONE);
-                                            noUpcomingAds.setVisibility(View.VISIBLE);
-                                            fbRVContainer.setVisibility(View.GONE);
-                                        } else {
-                                            noUpcomingAds.setVisibility(View.GONE);
-                                            fbRVContainer.setVisibility(View.VISIBLE);
-                                        }
-                                        if (fbAdDateAndTimeAdapter.getItemCount() > currentHeightInNr) {
-                                            showMore.setVisibility(View.VISIBLE);
-                                        } else {
-                                            showMore.setVisibility(View.GONE);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onItemRangeRemoved(int positionStart, int itemCount) {
-                                        super.onItemRangeRemoved(positionStart, itemCount);
-                                        if (fbAdDateAndTimeAdapter.getItemCount()==0) {
-                                            showMore.setVisibility(View.GONE);
-                                            noUpcomingAds.setVisibility(View.VISIBLE);
-                                            fbRVContainer.setVisibility(View.GONE);
-                                        } else {
-                                            noUpcomingAds.setVisibility(View.GONE);
-                                            fbRVContainer.setVisibility(View.VISIBLE);
-                                        }
-                                        if (fbAdDateAndTimeAdapter.getItemCount() > currentHeightInNr) {
-                                            showMore.setVisibility(View.VISIBLE);
-                                        } else {
-                                            showMore.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-
-
-            showMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (fbAdDateAndTimeAdapter.getItemCount()>(currentHeightInNr+4)) {
-                        showMore.setVisibility(View.VISIBLE);
-                        ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                        params.height= 167*(currentHeightInNr+4);
-                        fbRVContainer.setLayoutParams(params);
-                        currentHeightInNr = currentHeightInNr +4;
-                    } else {
-                        showMore.setVisibility(View.GONE);
-                        ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                        params.height= 167*(fbAdDateAndTimeAdapter.getItemCount());
-                        fbRVContainer.setLayoutParams(params);
-                        currentHeightInNr = fbAdDateAndTimeAdapter.getItemCount();
-                    }
-                }
-            });
-
-        }
-
-        // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
-        if (currentUserLoaded && sessionLoaded && mapReady && getView()!=null && !currentUserAndSessionAndViewAndMapUsed) {
-            currentUserAndSessionAndViewAndMapUsed =true;
-
-            // SETUP MAP
-            LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
-            mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
-            // Setup Booking, Cancelling and Editing Button
-            mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                /*
-                If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
-                and send the session key to that activity as bundle.
-                */
-                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        //onEditSessionListener.OnEditSession(sessionID);
-                        if (!currentUser.isTrainerMode()) {
-                            Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
-                        } else {
-                            sessionListener.OnEditSession(sessionID,session);
-                        }
-                    }
-                /*
-                 Else if current user is a participant in the session (button will display cancel booking) and button is clicked
-                remove the current user from that session participant list and go back to main activity.
-                */
-
-                    else {
-
-                        if (adSelected==null) {
-                            // session will display no upcoming sessions.
-                            return;
-                        }
-
-                        if (adSelected.getParticipantsIds()!=null) {
-                            if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(),adSelected.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
-                                return;
-                            }
-                        }
-
-
-                        if (!hasPaymentSystem) {
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
-                            builder.setPositiveButton(R.string.add_payment_method, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
-                                    startActivity(paymentPreferencesIntent);
-                                }
-                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                            return;
-                        }
-                        /*
-                        Else (button will show join session) add the user id to the session participant list and
-                        the user sessions attending list when button is clicked.
-                        */
-                        sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), defaultSourceMap.get("customer").toString(), session.getPrice(), session.getCurrency(), currentUser.isDontShowBookingText());
-                    }
-                }
-            });
-        }
-
-        // ---------------- HOST && VIEW-----------------
-        if (hostLoaded && getView()!=null && !hostAndViewUsed) {
-            hostAndViewUsed=true;
-            setImage(host.getImage(), mHostImage);
-            String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
-            mHost.setText(hostText);
-            mHostAboutTV.setText(host.getAboutMe());
-        }
-
-        if (postsLoaded && getView()!=null && !postsUsed) {
-            postsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
-            postList.setAdapter(postsViewHolderAdapter);
-        }
-
-        if (postCommentsLoaded && getView()!=null && !postCommentsUsed) {
-            postCommentsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
-        }
-
-        // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
-            sessionAndPaymentAndViewUsed = true;
-
-            postList.setVisibility(View.VISIBLE);
-            writePostLayout.setVisibility(View.VISIBLE);
-            writePostLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    WritePostFragment writePostFragment = WritePostFragment.newInstance(sessionID);
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
-                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
-                        transaction.commit();
-                    }
-                }
-            });
-
-            // ---------- Set price text ---------------
-            String currencyString = "?";
-            if (session.getCurrency()==null) {
-                currencyString = "";
+            // -----------  set the number of participants ------------
+            long countParticipants;
+            if (advertisement.getParticipantsIds().size()>0) {
+                countParticipants = advertisement.getParticipantsIds().size();
             } else {
-                currencyString = "kr";
+                countParticipants = 0;
             }
-            String priceText;
-            if (session.getPrice()== 0) {
-                priceText = "Free";
-            } else {
-                priceText = session.getPrice() + " " + currencyString + " " + "per person";
-            }
-            priceTV.setText(priceText);
+            mParticipants.setText(countParticipants +"/" + advertisement.getMaxParticipants());
 
             // set the image
-            setImage(session.getImageUrl(), sessionImage);
-            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+            setImage(advertisement.getImageUrl(), advertisementImage);
+            advertisementImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+            collapsingToolbarLayout.setTitle(advertisement.getAdvertisementName());
 
-            // -----------  Set the session information in UI from session object --------------
-            collapsingToolbarLayout.setTitle(session.getSessionName());
-            String address = getAddress(session.getLatitude(),session.getLongitude());
-            mAddressAndSessionType.setText(address);
-            mWhatTW.setText(session.getWhat());
-            mWhoTW.setText(session.getWho());
-            mWhereTW.setText(session.getWhereAt());
-            mSessionType.setText(session.getSessionType());
-            mDuration.setText(session.getDuration());
-        }
-
-        // ------------------- SESSION
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && adSelectedReady) {
+            // Set an onclicklistener to number of participants and start dialog fragment listing participants if clicked
+            mParticipants.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(advertisement.getParticipantsIds());
+                    FragmentManager fragmentManager = getChildFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (participantsFragment!=null) {
+                        transaction.remove(participantsFragment);
+                    }
+                    participantsFragment.show(transaction,"participantsFragment");
+                }
+            });
 
             // ------------------ Set the text to the display session button ----------------------------------
 
             // ---------- BOOK SESSION ---------------------------
             // Set default text on button
-            if (!session.getHost().equals(currentFirebaseUser.getUid())) {
+
+            if (!advertisement.getHost().equals(currentFirebaseUser.getUid())) {
                 if (defaultSourceMap.get("brand")!=null) {
                     String last4 = defaultSourceMap.get("last4").toString();
                     paymentMethodTV.setText("**** " + last4);
@@ -945,23 +558,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
              If participants are more than zero, see if the current user is one of the participants and if so
              change the button text to "Cancel booking"
              */
-            if (adSelected!=null) {
-                if (adSelected.getParticipantsIds() != null) {
-                    if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+            if (advertisement.getParticipantsIds() != null) {
+                if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
 
-                        mDisplaySessionBtn.setEnabled(true);
-                        addPaymentMethodTV.setVisibility(View.GONE);
-                        paymentMethodTV.setVisibility(View.GONE);
-                        paymentMethodProgressBar.setVisibility(View.GONE);
-                        mDisplaySessionBtn.setText(R.string.cancel_booking);
-                    }
+                    mDisplaySessionBtn.setEnabled(true);
+                    addPaymentMethodTV.setVisibility(View.GONE);
+                    paymentMethodTV.setVisibility(View.GONE);
+                    paymentMethodProgressBar.setVisibility(View.GONE);
+                    writePostLsyout.setVisibility(View.VISIBLE);
+                    mDisplaySessionBtn.setText(R.string.cancel_booking);
                 }
             }
             // ----------- EDIT SESSION -----------------------------------------------------
             /**
              If the current user is the session host change the button text to "Edit session"
              */
-            if (session.getHost().equals(currentFirebaseUser.getUid())) {
+            if (advertisement.getHost().equals(currentFirebaseUser.getUid())) {
 
                 mDisplaySessionBtn.setEnabled(true);
                 addPaymentMethodTV.setVisibility(View.GONE);
@@ -969,7 +581,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 paymentMethodProgressBar.setVisibility(View.GONE);
 
                 mDisplaySessionBtn.setText(R.string.edit_session);
-                mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -981,12 +592,152 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
+                        onChatClickedListener.OnChatClicked(advertisement.getHost(),host.getFirstName(),host.getThumb_image(),null);
                     }
                 });
             }
 
             // -----------------------------------------------------------------------------------------------
+        }
+
+        // ---------------- CURRENTUSER && VIEW-----------------
+        if (currentUserLoaded && getView()!=null && !currentUserAndViewUsed) {
+            currentUserAndViewUsed=true;
+            // Set the users profile image to the "write post" layout
+            setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
+        }
+
+        // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
+        if (currentUserLoaded && sessionLoaded && mapReady && getView()!=null && !currentUserAndSessionAndViewAndMapUsed) {
+            currentUserAndSessionAndViewAndMapUsed =true;
+            // SETUP MAP
+            LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
+            mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
+            // Setup Booking, Cancelling and Editing Button
+            mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                /*
+                If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
+                and send the session key to that activity as bundle.
+                */
+                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                        //onEditSessionListener.OnEditSession(advertisementId);
+                        if (!currentUser.isTrainerMode()) {
+                            Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        } else {
+                            sessionListener.OnEditSession(advertisementId,session);
+                        }
+                    }
+                /*
+                 Else if current user is a participant in the session (button will display cancel booking) and button is clicked
+                remove the current user from that session participant list and go back to main activity.
+                */
+                    else if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                        //onCancelBookedSessionListener.OnCancelBookedSession(currentUser.getSessionsAttending().get(advertisementId),session.getRepresentingAdTimestamp(),advertisementId,currentFirebaseUser.getUid(),session.getParticipants().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
+                    }
+
+                    else {
+                        if (!hasPaymentSystem) {
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
+                            builder.setPositiveButton(R.string.add_payment_method, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
+                                    startActivity(paymentPreferencesIntent);
+                                }
+                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                            return;
+                        }
+                        /*
+                        Else (button will show join session) add the user id to the session participant list and
+                        the user sessions attending list when button is clicked.
+                        */
+                        sessionListener.OnBookSession(advertisementId, advertisement.getAdvertisementTimestamp(), advertisement.getHost(), defaultSourceMap.get("customer").toString(), advertisement.getPrice(), advertisement.getCurrency(), currentUser.isDontShowBookingText());
+                    }
+                }
+            });
+        }
+
+        // ---------------- HOST && VIEW-----------------
+        if (hostLoaded && getView()!=null && !hostAndViewUsed) {
+            hostAndViewUsed=true;
+            setImage(host.getImage(), mHostImage);
+            String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
+            mHost.setText(hostText);
+            mHostAboutTV.setText(host.getAboutMe());
+        }
+
+        if (postsLoaded && getView()!=null && !postsUsed) {
+            postsUsed = true;
+            postsViewHolderAdapter.notifyDataSetChanged();
+            postList.setAdapter(postsViewHolderAdapter);
+        }
+
+        if (postCommentsLoaded && getView()!=null && !postCommentsUsed) {
+            postCommentsUsed = true;
+            postsViewHolderAdapter.notifyDataSetChanged();
+        }
+
+        // ------------------------------ SESSION --- PAYMENT METHOD ----VIEW ------------------
+        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
+            sessionAndPaymentAndViewUsed = true;
+
+            // ---------- Set price text ---------------
+            String currencyString = "?";
+            if (session.getCurrency()==null) {
+                currencyString = "";
+            } else {
+                currencyString = "kr";
+            }
+            String priceText;
+            if (session.getPrice()== 0) {
+                priceText = "Free";
+            } else {
+                priceText = session.getPrice() + " " + currencyString + " " + "per person";
+            }
+            priceTV.setText(priceText);
+
+            // -----------  Set the session information in UI from session object --------------
+            String address = getAddress(session.getLatitude(),session.getLongitude());
+            mAddressAndSessionType.setText(address);
+            mWhatTW.setText(session.getWhat());
+            mWhoTW.setText(session.getWho());
+            mWhereTW.setText(session.getWhereAt());
+            mSessionType.setText(session.getSessionType());
+            mDuration.setText(session.getDuration());
+        }
+    }
+
+    private void loadSession() {
+        if (!listenerMap.containsKey(mSessionDbRef.child(advertisement.getSessionId()))) {
+            fbSessionListener = mSessionDbRef.child(advertisement.getSessionId()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    session = dataSnapshot.getValue(Session.class);
+                    sessionLongitude = session.getLongitude();
+                    sessionLatitude = session.getLatitude();
+                    currentUserAndSessionAndViewAndMapUsed = false;
+                    sessionAndPaymentAndViewUsed = false;
+                    sessionUsed = false;
+                    sessionLoaded = true;
+                    onTaskFinished();
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(mSessionDbRef.child(advertisement.getSessionId()),fbSessionListener);
         }
     }
 
@@ -1132,7 +883,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        sessionAndViewUsed = false;
         currentUserAndViewUsed = false;
         currentUserAndSessionAndViewAndMapUsed = false;
         hostAndViewUsed = false;
@@ -1140,7 +890,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionAndPaymentAndViewUsed = false;
         postsUsed = false;
         postCommentsUsed = false;
-        adsLoaded = false;
+        advertisementUsed = false;
+        advertisementAndViewUsed = false;
     }
 
     public void cleanListeners () {
@@ -1193,7 +944,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             sessionListener = (SessionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnEditSessionListener");
+                    + " must implement SessionListener");
         }
         if (context instanceof OnCommentClickedListener) {
             onCommentClickedListener = (OnCommentClickedListener) context;
@@ -1218,17 +969,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onDetach() {
         super.onDetach();
+        sessionListener = null;
         onCommentClickedListener = null;
         onChatClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
-        sessionListener = null;
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (fbAdDateAndTimeAdapter!=null) {
-            fbAdDateAndTimeAdapter.stopListening();
-        }
     }
 }

@@ -24,6 +24,12 @@
       </value>
     </option>
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_host_list_small_sessions_adv.xml" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_host_list_small_sessions_not_adv.xml" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_player_list_small_sessions_booked.xml" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_player_list_small_sessions_history.xml" />
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
