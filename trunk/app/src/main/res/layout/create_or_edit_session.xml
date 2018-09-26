@@ -116,12 +116,21 @@
         app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
 
         <TextView
+            android:id="@+id/calendarExplanationTV"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primaryTextColor"
+            android:text="@string/click_on_the_calendar_below_to_choose_dates_and_times_for_your_session"
+            app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
+
+        <TextView
             android:id="@+id/calendarHeadingTV"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_left"
             android:textColor="@color/primaryTextColor"
+            android:layout_marginTop="@dimen/marginVertical"
             android:text="Aug"
             app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
 

@@ -4,7 +4,6 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -37,13 +35,13 @@ import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
+import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.TextTimestamp;
-import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -73,22 +71,23 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
-import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
-
 /**
  * This fragment takes a longitude and latitude and displays the corresponding session with that longitude and latitude.
  */
 public class DisplayAdvertisementFragment extends Fragment implements OnMapReadyCallback {
 
-    private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
+    private TextView mSessionType;
+    private TextView mAdvertisementName;
+    private TextView gotToSession;
     private TextView mDateAndTime;
     private TextView mParticipants;
     private TextView mDuration;
-    private Button mDisplaySessionBtn;
+    private LinearLayout mManageBooking;
+    private TextView mManageBookingTV;
     private CircleImageView mHostImage;
     private CircleImageView mCurrentUserPostImage;
     private TextView mHostAboutTV;
@@ -96,7 +95,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private TextView mWhatTW;
     private TextView mWhoTW;
     private TextView mWhereTW;
-    private TextView mSessionType;
     private TextView mAddressAndSessionType;
     private TextView mSendMessageToHost;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -123,6 +121,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private SessionListener sessionListener;
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
+    private OnSessionClickedListener onSessionClickedListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
     private User host;
@@ -131,11 +130,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private boolean hostLoaded;
     private boolean postsLoaded;
     private boolean postCommentsLoaded;
-    private TextView paymentMethodTV;
-    private DotProgressBar paymentMethodProgressBar;
     private boolean hasPaymentSystem;
-    private TextView addPaymentMethodTV;
-    private LinearLayout paymentFrame;
     private HashMap defaultSourceMap;
     private boolean mapReady;
 
@@ -233,7 +228,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
                     }
                 });
-                listenerMap.put(mSessionDbRef.child(advertisementId), fbSessionListener);
+                listenerMap.put(rootDbRef.child("advertisements").child(advertisementId), fbSessionListener);
             }
         } else {
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
@@ -362,6 +357,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         displayAdvertisementContainer = view.findViewById(R.id.display_advertisement_container);
         displayAdvertisement = inflater.inflate(R.layout.display_advertisement,displayAdvertisementContainer,false);
 
+        mSessionType = displayAdvertisement.findViewById(R.id.sessionType);
+        mAdvertisementName = displayAdvertisement.findViewById(R.id.adName);
         mDateAndTime = displayAdvertisement.findViewById(R.id.dateAndTimeTW);
         mDuration = displayAdvertisement.findViewById(R.id.durationTV);
         mParticipants = displayAdvertisement.findViewById(R.id.participantsTW);
@@ -375,45 +372,23 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         mWhereTW = displayAdvertisement.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displayAdvertisement.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
-        mSessionType = view.findViewById(R.id.sessionType);
         mSendMessageToHost = displayAdvertisement.findViewById(R.id.sendMessageToHost);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
         toolbar = view.findViewById(R.id.toolbar);
-        priceTV = view.findViewById(R.id.priceTV);
-        mDisplaySessionBtn = view.findViewById(R.id.displaySessionBtn);
+        priceTV = displayAdvertisement.findViewById(R.id.priceTV);
+        mManageBooking = displayAdvertisement.findViewById(R.id.manageBooking);
+        mManageBookingTV = displayAdvertisement.findViewById(R.id.manageBookingTV);
         displayAdvertisementContainer.addView(displayAdvertisement);
+        gotToSession = displayAdvertisement.findViewById(R.id.go_to_session);
         // Set the session image
         advertisementImage = view.findViewById(R.id.displaySessionImage);
         postList = (RecyclerView) view.findViewById(R.id.post_list);
-        postList.setVisibility(View.GONE);
-        paymentMethodProgressBar = view.findViewById(R.id.paymentMethodProgressBar);
-        addPaymentMethodTV = view.findViewById(R.id.addPaymentMethodTV);
-        paymentFrame = view.findViewById(R.id.framePayment);
-        paymentMethodTV = view.findViewById(R.id.paymentMethod);
-
-        paymentFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
-                startActivity(paymentPreferencesIntent);
-            }
-        });
 
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (verticalOffset!=0) {
-                    mSessionType.setVisibility(View.GONE);
-                } else {
-                    mSessionType.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
         // Setup standard aspect ratio of session image
         sessionImageCardView.post(new Runnable() {
@@ -424,6 +399,31 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
                 sessionImageCardView.setLayoutParams(mParams);
                 sessionImageCardView.postInvalidate();
+
+                appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                    boolean isShow = true;
+                    int scrollRange = -1;
+
+                    @Override
+                    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
+                        if (scrollRange == -1) {
+                            scrollRange = appBarLayout.getTotalScrollRange();
+                        }
+                        if (scrollRange + verticalOffset == 0) {
+                            if (advertisement!=null) {
+                                collapsingToolbarLayout.setTitle(advertisement.getAdvertisementName());
+                            } else {
+                                collapsingToolbarLayout.setTitle(" ");
+                            }
+
+                            isShow = true;
+                        } else if(isShow) {
+                            collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                            isShow = false;
+                        }
+                    }
+                });
             }
         });
 
@@ -462,19 +462,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         postList.setLayoutManager(linearLayoutManager);
         postList.setNestedScrollingEnabled(false);
 
-        writePostLsyout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                WritePostFragment writePostFragment = WritePostFragment.newInstance(advertisementId);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
-                    transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
-                    transaction.commit();
-                }
-            }
-        });
-
         return view;
     }
 
@@ -498,6 +485,14 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         if (advertisementLoaded && getView()!=null && !advertisementAndViewUsed) {
             advertisementAndViewUsed = true;
 
+            // -----------  Set the session information in UI from session object --------------
+            String address = getAddress(advertisement.getLatitude(),advertisement.getLongitude());
+            mAddressAndSessionType.setText(address);
+            mWhatTW.setText(advertisement.getWhat());
+            mWhoTW.setText(advertisement.getWho());
+            mWhereTW.setText(advertisement.getWhereAt());
+            mDuration.setText(advertisement.getDuration());
+
             // -----------  set the number of participants ------------
             long countParticipants;
             if (advertisement.getParticipantsIds().size()>0) {
@@ -507,10 +502,22 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             }
             mParticipants.setText(countParticipants +"/" + advertisement.getMaxParticipants());
 
+            gotToSession.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onSessionClickedListener.OnSessionClicked(advertisement.getSessionId());
+                }
+            });
+
+            mSessionType.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+            mAdvertisementName.setText(advertisement.getAdvertisementName());
+
+            mDateAndTime.setText(advertisement.getSessionType());
+
             // set the image
             setImage(advertisement.getImageUrl(), advertisementImage);
-            advertisementImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
-            collapsingToolbarLayout.setTitle(advertisement.getAdvertisementName());
+            //advertisementImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+            //collapsingToolbarLayout.setTitle(advertisement.getAdvertisementName());
 
             // Set an onclicklistener to number of participants and start dialog fragment listing participants if clicked
             mParticipants.setOnClickListener(new View.OnClickListener() {
@@ -526,61 +533,35 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 }
             });
 
-            // ------------------ Set the text to the display session button ----------------------------------
+            // ----------------- Set price text ---------------------------------------------------------------
 
-            // ---------- BOOK SESSION ---------------------------
-            // Set default text on button
+            String currencyString = "?";
+            if (advertisement.getCurrency()==null) {
+                currencyString = "";
+            } else {
+                currencyString = getString(R.string.sek);
+            }
+            String priceText;
+            if (advertisement.getPrice()== 0) {
+                priceText = getString(R.string.free);
+            } else {
+                if (advertisement.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    priceText = getString(R.string.price_colon) + " " + advertisement.getPrice() + " " + currencyString + " " + getString(R.string.per_person);
 
-            if (!advertisement.getHost().equals(currentFirebaseUser.getUid())) {
-                if (defaultSourceMap.get("brand")!=null) {
-                    String last4 = defaultSourceMap.get("last4").toString();
-                    paymentMethodTV.setText("**** " + last4);
-                    String cardBrand = defaultSourceMap.get("brand").toString();
-                    int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
-                    paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
-                    paymentMethodTV.setVisibility(View.VISIBLE);
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setEnabled(true);
-                    addPaymentMethodTV.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
                 } else {
-                    hasPaymentSystem = false;
-                    mDisplaySessionBtn.setEnabled(true);
-                    addPaymentMethodTV.setVisibility(View.VISIBLE);
-                    paymentMethodTV.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                }
-            }
-            mDisplaySessionBtn.setText(getString(R.string.book_session));
-            // ---------- CANCEL BOOKING -----------------------------------------
-            /**
-             If participants are more than zero, see if the current user is one of the participants and if so
-             change the button text to "Cancel booking"
-             */
-            if (advertisement.getParticipantsIds() != null) {
-                if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                    priceText = getString(R.string.cost_colon) + " " + advertisement.getPrice() + " " + currencyString;
 
-                    mDisplaySessionBtn.setEnabled(true);
-                    addPaymentMethodTV.setVisibility(View.GONE);
-                    paymentMethodTV.setVisibility(View.GONE);
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                    writePostLsyout.setVisibility(View.VISIBLE);
-                    mDisplaySessionBtn.setText(R.string.cancel_booking);
+
                 }
             }
+            priceTV.setText(priceText);
+
             // ----------- EDIT SESSION -----------------------------------------------------
             /**
              If the current user is the session host change the button text to "Edit session"
              */
             if (advertisement.getHost().equals(currentFirebaseUser.getUid())) {
-
-                mDisplaySessionBtn.setEnabled(true);
-                addPaymentMethodTV.setVisibility(View.GONE);
-                paymentMethodTV.setVisibility(View.GONE);
-                paymentMethodProgressBar.setVisibility(View.GONE);
-
-                mDisplaySessionBtn.setText(R.string.edit_session);
+                mManageBookingTV.setVisibility(View.GONE);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -589,6 +570,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                     }
                 });
             } else {
+                mManageBooking.setVisibility(View.VISIBLE);
+                mManageBookingTV.setText(R.string.cancel_booking);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -597,7 +580,20 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 });
             }
 
-            // -----------------------------------------------------------------------------------------------
+            // -----------------------------SETUP WRITE POST------------------------------------------
+
+            writePostLsyout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    WritePostFragment writePostFragment = WritePostFragment.newInstance("advertisements", advertisementId, advertisement.getAdvertisementName());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
+                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
+                        transaction.commit();
+                    }
+                }
+            });
         }
 
         // ---------------- CURRENTUSER && VIEW-----------------
@@ -615,7 +611,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_24dp)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
             // Setup Booking, Cancelling and Editing Button
-            mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
+            mManageBooking.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                 /*
@@ -692,35 +688,13 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
             sessionAndPaymentAndViewUsed = true;
 
-            // ---------- Set price text ---------------
-            String currencyString = "?";
-            if (session.getCurrency()==null) {
-                currencyString = "";
-            } else {
-                currencyString = "kr";
-            }
-            String priceText;
-            if (session.getPrice()== 0) {
-                priceText = "Free";
-            } else {
-                priceText = session.getPrice() + " " + currencyString + " " + "per person";
-            }
-            priceTV.setText(priceText);
-
-            // -----------  Set the session information in UI from session object --------------
-            String address = getAddress(session.getLatitude(),session.getLongitude());
-            mAddressAndSessionType.setText(address);
-            mWhatTW.setText(session.getWhat());
-            mWhoTW.setText(session.getWho());
-            mWhereTW.setText(session.getWhereAt());
-            mSessionType.setText(session.getSessionType());
-            mDuration.setText(session.getDuration());
+            // NOT USED ANYMORE
         }
     }
 
     private void loadSession() {
-        if (!listenerMap.containsKey(mSessionDbRef.child(advertisement.getSessionId()))) {
-            fbSessionListener = mSessionDbRef.child(advertisement.getSessionId()).addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("sessions").child(advertisement.getSessionId()))) {
+            fbSessionListener = rootDbRef.child("sessions").child(advertisement.getSessionId()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     session = dataSnapshot.getValue(Session.class);
@@ -737,7 +711,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
                 }
             });
-            listenerMap.put(mSessionDbRef.child(advertisement.getSessionId()),fbSessionListener);
+            listenerMap.put(rootDbRef.child("sessions").child(advertisement.getSessionId()),fbSessionListener);
         }
     }
 
@@ -964,6 +938,12 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             throw new RuntimeException(context.toString()
                     + " must implement OnUserAccountFragmentInteractionListener");
         }
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSessionClickedListener");
+        }
     }
 
     @Override
@@ -973,5 +953,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         onCommentClickedListener = null;
         onChatClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
+        onSessionClickedListener = null;
     }
 }

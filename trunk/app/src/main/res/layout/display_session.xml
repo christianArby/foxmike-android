@@ -2,14 +2,25 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:descendantFocusability="blocksDescendants"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:layout_marginTop="-700dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/editSession"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_session"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textAllCaps="true"
+        android:textAlignment="center"
+        android:padding="@dimen/margin_left"
+        android:background="@color/foxmikePrimaryColor"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/infoBlock"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editSession"
         app:layout_constraintStart_toStartOf="parent"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -68,7 +79,7 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <LinearLayout
+    <!--<LinearLayout
         android:id="@+id/subscribersList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,44 +93,14 @@
             android:background="@color/foxmikePrimaryColor"
             app:srcCompat="@drawable/com_facebook_profile_picture_blank_portrait" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ratingBarContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/marginVertical"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subscribersList">
-
-        <android.support.v7.widget.AppCompatRatingBar
-            android:id="@+id/ratingBar"
-            style="@style/Base.Widget.AppCompat.RatingBar.Indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:rating="4" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/margin_left"
-            android:text="29 omdömen"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
-
-    </LinearLayout>
+    </LinearLayout>-->
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/hostInfoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ratingBarContainer">
+        app:layout_constraintTop_toBottomOf="@id/infoBlock">
 
         <TextView
             android:id="@+id/hostName"
@@ -353,7 +334,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/showMoreText"
-        app:layout_constraintBottom_toTopOf="@id/write_post_layout">
+        app:layout_constraintBottom_toTopOf="@id/spaceView05">
 
         <TextView
             android:id="@+id/noUpcomingAds"
@@ -361,7 +342,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:padding="@dimen/marginVertical"
-            android:background="@color/color_background_dark"
+            android:background="@color/color_background_light"
             android:text="@string/no_upcoming_sessions"
             />
 
@@ -373,13 +354,64 @@
 
     </LinearLayout>
 
+    <!--<android.support.constraint.ConstraintLayout
+        android:id="@+id/ratingsAndReviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/noUpcomingAdsText">
+
+        <android.support.v7.widget.AppCompatRatingBar
+            android:id="@+id/ratingBar"
+            style="@style/Base.Widget.AppCompat.RatingBar.Indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:numStars="5"
+            android:rating="4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ratingsAndReviewsText"
+            app:layout_constraintBottom_toBottomOf="@id/ratingsAndReviewsText"/>
+
+        <TextView
+            android:id="@+id/ratingsAndReviewsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/margin_left"
+            android:text="29 omdömen"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:padding="@dimen/marginVertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ratingBar"/>
+
+        <View
+            android:id="@+id/spaceView04"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            app:layout_constraintBottom_toBottomOf="@id/ratingsAndReviewsText"/>
+
+    </android.support.constraint.ConstraintLayout>-->
+
+    <View
+        android:id="@+id/spaceView05"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_view__big_height"
+        android:background="@color/color_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/noUpcomingAdsText"/>
+
     <LinearLayout
         android:id="@+id/write_post_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/noUpcomingAdsText">
+        app:layout_constraintTop_toBottomOf="@id/spaceView05">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/session_post_current_user_image"

@@ -14,38 +14,97 @@ import java.util.HashMap;
 public class Advertisement implements Comparable<Advertisement> {
     private String sessionId;
     private String advertisementId;
-    private String advertisementName;
-    private String imageUrl;
-    private String sessionType;
     private String host;
+    private String advertisementName;
+    private String sessionType;
+    private String maxParticipants;
+    private double latitude;
+    private double longitude;
     private HashMap<String,String> participantsIds;
     private HashMap<String,Long> participantsTimestamps;
     private HashMap<String,Boolean> posts;
-    private long advertisementTimestamp;
+    private String imageUrl;
+    private String what;
+    private String who;
+    private String whereAt;
+    private String duration;
     private String currency;
+    private long advertisementTimestamp;
     private int price;
-    private String maxParticipants;
+
 
     public Advertisement() {
     }
 
-    public Advertisement(String sessionId, String advertisementId, String advertisementName, String imageUrl, String sessionType, String host, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, long advertisementTimestamp, String currency, int price, String maxParticipants) {
+    public Advertisement(String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long advertisementTimestamp, int price) {
         this.sessionId = sessionId;
         this.advertisementId = advertisementId;
-        this.advertisementName = advertisementName;
-        this.imageUrl = imageUrl;
-        this.sessionType = sessionType;
         this.host = host;
+        this.advertisementName = advertisementName;
+        this.sessionType = sessionType;
+        this.maxParticipants = maxParticipants;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.participantsIds = participantsIds;
         this.participantsTimestamps = participantsTimestamps;
         this.posts = posts;
-        this.advertisementTimestamp = advertisementTimestamp;
+        this.imageUrl = imageUrl;
+        this.what = what;
+        this.who = who;
+        this.whereAt = whereAt;
+        this.duration = duration;
         this.currency = currency;
+        this.advertisementTimestamp = advertisementTimestamp;
         this.price = price;
-        this.maxParticipants = maxParticipants;
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
 
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getWhat() {
+        return what;
+    }
+
+    public void setWhat(String what) {
+        this.what = what;
+    }
+
+    public String getWho() {
+        return who;
+    }
+
+    public void setWho(String who) {
+        this.who = who;
+    }
+
+    public String getWhereAt() {
+        return whereAt;
+    }
+
+    public void setWhereAt(String whereAt) {
+        this.whereAt = whereAt;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
 
     public String getSessionId() {
         return sessionId;

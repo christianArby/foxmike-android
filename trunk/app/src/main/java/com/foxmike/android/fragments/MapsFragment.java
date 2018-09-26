@@ -121,7 +121,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         moveCamera=true;
 
-        mMarkerDbRef.keepSynced(true);
 
         leftMargin = (int) convertDpToPx(getActivity(), 16);
 

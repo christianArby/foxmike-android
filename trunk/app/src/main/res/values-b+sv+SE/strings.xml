@@ -358,7 +358,7 @@
     <string name="friend_request_sent">Vänförfrågan har skickats</string>
     <string name="friend_request_received">Mottagen vänförfrågan</string>
     <string name="book_session">Boka pass</string>
-    <string name="edit_session">Ändra pass</string>
+    <string name="edit_session">Redigera pass</string>
     <string name="next">Nästa</string>
     <string name="describe_yourself">Som Foxmike ledare så behöver du beskriva dig själv.</string>
     <string name="sessions_not_found">Hoppsan! Vi hittade inte din position just nu, försök igen senare. Tips: Du uppdaterar listan genom att scrolla.</string>
@@ -439,5 +439,11 @@
     <string name="more_than_two_weeks_ahead">Längre fram än två veckor</string>
     <string name="availability">Tillgänglighet</string>
     <string name="no_upcoming_sessions">Inga kommande tillfällen</string>
+    <string name="sek">kr</string>
+    <string name="free">Gratis</string>
+    <string name="price_colon">Pris:</string>
+    <string name="per_person">per person</string>
+    <string name="cost_colon">Kostnad:</string>
+    <string name="all">Alla</string>
 
 </resources>

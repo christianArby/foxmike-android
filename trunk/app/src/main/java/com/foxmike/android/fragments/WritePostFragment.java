@@ -1,11 +1,9 @@
 package com.foxmike.android.fragments;
 // Checked
-import android.app.Dialog;
+
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.Post;
@@ -43,8 +42,12 @@ public class WritePostFragment extends Fragment {
     TextView postName;
     TextView postTitle;
     Boolean sendable = false;
-    private static final String SESSION_ID = "sessionID";
-    private String sessionID;
+    private static final String SOURCE_ID = "sourceID";
+    private static final String DB_PARENT = "dbParent";
+    private static final String TITLE = "title";
+    private String sourceID;
+    private String dbParent;
+    private String title;
     private String postID;
     private Toolbar postToolbar;
     private User currentUser;
@@ -53,10 +56,12 @@ public class WritePostFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static WritePostFragment newInstance(String sessionID) {
+    public static WritePostFragment newInstance(String dbParent, String sourceID, String title) {
         WritePostFragment fragment = new WritePostFragment();
         Bundle args = new Bundle();
-        args.putString(SESSION_ID, sessionID);
+        args.putString(SOURCE_ID, sourceID);
+        args.putString(DB_PARENT, dbParent);
+        args.putString(TITLE, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -80,21 +85,10 @@ public class WritePostFragment extends Fragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        sessionID = getArguments().getString(SESSION_ID);
+        sourceID = getArguments().getString(SOURCE_ID);
+        dbParent = getArguments().getString(DB_PARENT);
+        title = getArguments().getString(TITLE);
         View action_bar_view = inflater.inflate(R.layout.write_post_custom_bar, null);
-
-        //
-        rootDbRef.child("sessions").child(sessionID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                postTitle.setText(dataSnapshot.child("sessionName").getValue().toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         // make sure the whole action bar is filled with the custom view
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
@@ -107,6 +101,7 @@ public class WritePostFragment extends Fragment {
         postName = view.findViewById(R.id.post_user_name);
         sendTW.setTextColor(Color.GRAY);
         postTitle = view.findViewById(R.id.post_custom_bar_name);
+        postTitle.setText(title);
 
         rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -149,7 +144,7 @@ public class WritePostFragment extends Fragment {
                     rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            rootDbRef.child("sessions").child(sessionID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     getActivity().onBackPressed();

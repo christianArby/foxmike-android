@@ -268,8 +268,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
-
-
                     // Ask user to pick time
                 } else {
                     compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
@@ -278,8 +276,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                     pickTime();
                     // Open timepicker in order for user to set time for the event
                 }
-                Toast.makeText(getContext(), "Day was clicked: " + dateClicked + " with events " + events,Toast.LENGTH_LONG).show();
-                Log.d(TAG, "Day was clicked: " + dateClicked + " with events " + events);
             }
             @Override
             public void onMonthScroll(Date firstDayOfNewMonth) {
@@ -311,8 +307,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         /*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
           This keeps the data on the disk even though listeners are detached*/
-        mUserDbRef.keepSynced(true);
-        mMarkerDbRef.keepSynced(true);
 
         // Setup standard aspect ratio of session image
         mSessionImageButton.post(new Runnable() {
@@ -840,8 +834,33 @@ public class CreateOrEditSessionFragment extends Fragment{
         boolean firstAd = true;
 
         for (Long sessionTimestamp: advertisementTimestamps.keySet()) {
+
             String advertisementKey = rootDbRef.child("advertisements").push().getKey();
+
+            Advertisement advertisement = new Advertisement(
+                    (String) sendSession.get("sessionId"),
+                    advertisementKey,
+                    (String) sendSession.get("host"),
+                    sendSession.get("sessionName").toString(),
+                    (String) sendSession.get("sessionType"),
+                    (String) sendSession.get("maxParticipants"),
+                    (double) sendSession.get("latitude"),
+                    (double) sendSession.get("longitude"),
+                    new HashMap<String, String>(),
+                    new HashMap<String, Long>(),
+                    new HashMap<String, Boolean>(),
+                    sendSession.get("imageUrl").toString(),
+                    (String) sendSession.get("what"),
+                    (String) sendSession.get("who"),
+                    (String) sendSession.get("whereAt"),
+                    (String) sendSession.get("duration"),
+                    (String) sendSession.get("currency"),
+                    sessionTimestamp,
+                    (int) sendSession.get("price")
+            );
+
             advertisements.put(advertisementKey, sessionTimestamp);
+            /*
             Advertisement advertisement = new Advertisement();
             advertisement.setAdvertisementId(advertisementKey);
             advertisement.setAdvertisementName(sendSession.get("sessionName").toString());
@@ -852,6 +871,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             advertisement.setMaxParticipants((String) sendSession.get("maxParticipants"));
             advertisement.setHost((String) sendSession.get("host"));
             advertisement.setSessionId((String) sendSession.get("sessionId"));
+            advertisement.setSessionType((String) sendSession.get("sessionType"));*/
             //advertisement.setSessionType(sendSession.get("sessionType").toString());
             rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement);
             rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(sessionTimestamp);
