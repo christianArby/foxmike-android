@@ -450,4 +450,13 @@
     <string name="more_than_two_weeks_ahead">More than two weeks ahead</string>
     <string name="availability">Availability</string>
     <string name="no_upcoming_sessions">No upcoming sessions</string>
+    <string name="sek">kr</string>
+    <string name="free">Free</string>
+    <string name="price_colon">Price:</string>
+    <string name="per_person">per person</string>
+    <string name="cost_colon">Cost:</string>
+    <string name="all">All</string>
+    <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Click on the calendar below to choose dates and times for your session.</string>
+    <string name="show_booking">Show booking</string>
+    <string name="show">Show</string>
 </resources>

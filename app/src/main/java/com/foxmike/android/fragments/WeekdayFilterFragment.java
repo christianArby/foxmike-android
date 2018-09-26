@@ -31,6 +31,7 @@ public class WeekdayFilterFragment extends Fragment{
     private HashMap<Integer,Boolean> toggleMap1 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,Boolean> toggleMap2 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,ToggleButton> toggleButtonHashMap;
+    private  ToggleButton toggleButton0;
     private ToggleButton toggleButton1;
     private ToggleButton toggleButton2;
     private ToggleButton toggleButton3;
@@ -70,6 +71,7 @@ public class WeekdayFilterFragment extends Fragment{
         View inflatedView = inflater.inflate(R.layout.fragment_weekday_filter, container, false);
 
         // Bind UI components
+        toggleButton0 = inflatedView.findViewById(R.id.toggleButton0);
         toggleButton1 = inflatedView.findViewById(R.id.toggleButton1);
         toggleButton2 = inflatedView.findViewById(R.id.toggleButton2);
         toggleButton3 = inflatedView.findViewById(R.id.toggleButton3);
@@ -107,6 +109,11 @@ public class WeekdayFilterFragment extends Fragment{
         TextTimestamp sessionDate5 = new TextTimestamp(calDate5.getTimeInMillis());
         TextTimestamp sessionDate6 = new TextTimestamp(calDate6.getTimeInMillis());
         TextTimestamp sessionDate7 = new TextTimestamp(calDate7.getTimeInMillis());
+
+        toggleButton0.setText(R.string.all);
+        toggleButton0.setTextOn(getResources().getString(R.string.all));
+        toggleButton0.setTextOff(getResources().getString(R.string.all));
+        toggleButton0.setChecked(true);
 
         // Set togglebuttons to date texts
         if (weekFilter==1) {
@@ -150,6 +157,13 @@ public class WeekdayFilterFragment extends Fragment{
         toggleMap2.put(5,toggleButton5.isChecked());
         toggleMap2.put(6,toggleButton6.isChecked());
         toggleMap2.put(7,toggleButton7.isChecked());
+
+        toggleButton0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onWeekdayButtonClickedListener.OnWeekdayButtonClicked(weekFilter,0,toggleMap1);
+            }
+        });
 
         // Set on click listeners to togglebuttons and call listener and send week, button pressed and Integer, Boolean hashmap
         toggleButton1.setOnClickListener(new View.OnClickListener() {
@@ -198,6 +212,13 @@ public class WeekdayFilterFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 onWeekdayButtonClickedListener.OnWeekdayButtonClicked(weekFilter,7,toggleMap1);
+            }
+        });
+
+        toggleButton0.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+               // hmm TODO
             }
         });
 
@@ -355,6 +376,7 @@ public class WeekdayFilterFragment extends Fragment{
 
 
         if (allChecked) {
+            toggleButton0.setChecked(false);
             toggleButton1.setChecked(false);
             toggleButton2.setChecked(false);
             toggleButton3.setChecked(false);
@@ -362,10 +384,10 @@ public class WeekdayFilterFragment extends Fragment{
             toggleButton5.setChecked(false);
             toggleButton6.setChecked(false);
             toggleButton7.setChecked(false);
-            if (week==1 && weekFilter==1) {
+            if (week==1 && weekFilter==1 && button!=0) {
                 toggleButtonHashMap.get(button).setChecked(true);
             }
-            if (week==2 && weekFilter==2) {
+            if (week==2 && weekFilter==2 && button!=0) {
                 toggleButtonHashMap.get(button).setChecked(true);
             }
         }
@@ -380,6 +402,18 @@ public class WeekdayFilterFragment extends Fragment{
 
 
         if (allUnChecked && buttonChecked==buttonClicked) {
+            toggleButton0.setChecked(true);
+            toggleButton1.setChecked(true);
+            toggleButton2.setChecked(true);
+            toggleButton3.setChecked(true);
+            toggleButton4.setChecked(true);
+            toggleButton5.setChecked(true);
+            toggleButton6.setChecked(true);
+            toggleButton7.setChecked(true);
+        }
+
+        if (button==0) {
+            toggleButton0.setChecked(true);
             toggleButton1.setChecked(true);
             toggleButton2.setChecked(true);
             toggleButton3.setChecked(true);

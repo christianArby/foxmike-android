@@ -1,10 +1,8 @@
 package com.foxmike.android.fragments;
 //Checked
+
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +15,6 @@ import android.widget.TextView;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.models.Chats;
-import com.foxmike.android.models.Presence;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,9 +68,7 @@ public class ChatsFragment extends Fragment {
         chatMembersDatabase = FirebaseDatabase.getInstance().getReference().child("chatMembers");
         rootDbRef = FirebaseDatabase.getInstance().getReference();
 
-        chatMembersDatabase.keepSynced(true);
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
-        mUsersDatabase.keepSynced(true);
 
         // Listener which triggers each time a chat which the current user is part of changes or is created
         if (!listenerMap.containsKey(mUsersDatabase.child(mCurrent_user_id).child("chats"))) {
