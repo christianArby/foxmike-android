@@ -1,4 +1,5 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,6 +29,7 @@
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginStart="@dimen/margin_left"
             app:expandedTitleMarginEnd="@dimen/margin_right"
+            app:expandedTitleGravity="center_vertical|center_horizontal"
             android:fitsSystemWindows="true">
 
             <RelativeLayout
@@ -58,17 +60,62 @@
 
             <TextView
                 android:textColor="@color/secondaryTextColor"
-                android:id="@+id/sessionType"
+                android:id="@+id/sessionDateHeading"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:elevation="4dp"
                 android:text="test2"
                 android:textAllCaps="true"
                 app:layout_collapseMode="pin"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_right"
                 android:layout_marginBottom="68dp"
-                android:layout_gravity="bottom"/>
+                android:textAlignment="center"
+                android:layout_gravity="center_horizontal|bottom"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/infoBlock"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:paddingBottom="@dimen/marginVertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_width="180dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:id="@+id/addressTV"
+                    app:layout_constraintHorizontal_bias="0"
+                    android:drawableStart="@mipmap/ic_location_on_black_24dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:drawablePadding="@dimen/margin_left"
+                    android:drawableTint="@color/secondaryTextColor"
+                    android:textColor="@color/secondaryTextColor"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    android:text="@string/address"/>
+
+                <TextView
+                    android:id="@+id/durationTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_right"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    android:gravity="center_vertical"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/secondaryTextColor"
+                    android:drawableTint="@color/secondaryTextColor"
+                    android:drawableStart="@mipmap/ic_timelapse_black_24dp"
+                    android:drawablePadding="@dimen/margin_left"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -83,6 +130,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/displaySessionSV"
         android:descendantFocusability="blocksDescendants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -105,7 +153,7 @@
         android:elevation="8dp"
         android:background="@color/color_background_light"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 
@@ -194,23 +242,39 @@
             android:text="@string/join_session"
             android:textColor="@color/secondaryTextColor"/>
 
-        <Button
-            android:visibility="gone"
-            android:enabled="false"
+        <LinearLayout
+            android:id="@+id/snackNoUpcomingAds"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginBottom="@dimen/marginVertical"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
-            android:id="@+id/noUpcomingAdsDummyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/color_background_light"
-            android:text="@string/no_upcoming_sessions"
-            android:textColor="@color/primaryTextColor"/>
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/noSnackAdTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_right"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textAllCaps="true"
+                android:textColor="@color/primaryTextColor"
+                android:text="@string/no_upcoming_sessions"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginTop="@dimen/leadSub2Body"
+                android:textColor="@color/foxmikePrimaryColor"
+                android:textAllCaps="true"
+                android:text="@string/show_availability"/>
+
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 

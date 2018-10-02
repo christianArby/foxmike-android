@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-        android:text="@string/cancelling_session"/>
+        android:text="@string/cancelling_session_host"/>
 
     <ProgressBar
         android:id="@+id/progressBarHorizontal"

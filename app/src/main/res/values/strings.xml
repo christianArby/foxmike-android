@@ -458,5 +458,16 @@
     <string name="all">All</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Click on the calendar below to choose dates and times for your session.</string>
     <string name="show_booking">Show booking</string>
-    <string name="show">Show</string>
+    <string name="show_occasion">Show occasion</string>
+    <string name="cancel_occasion">Cancel occasion</string>
+    <string name="cancelling_session">Cancelling session</string>
+    <string name="cancelling_session_host">Cancelling session</string>
+    <string name="cancelled_capital">CANCELLED</string>
+    <string name="occasion_cancelled_text">This occasion has been cancelled.</string>
+    <string name="occasion_cancelled">Occasion cancelled</string>
+    <string name="show_more">Show more</string>
+    <string name="end_of_list">\u2022 \u2022 \u2022</string>
+    <string name="representing_occasion_cancelled">This occasion has been cancelled, please choose another occasion.</string>
+    <string name="cancelled">CANCELLED</string>
+    <string name="show_availability">Show availability</string>
 </resources>

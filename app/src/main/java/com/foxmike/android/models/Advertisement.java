@@ -12,6 +12,7 @@ import java.util.HashMap;
  */
 
 public class Advertisement implements Comparable<Advertisement> {
+    private String status;
     private String sessionId;
     private String advertisementId;
     private String host;
@@ -36,7 +37,8 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long advertisementTimestamp, int price) {
+        this.status = status;
         this.sessionId = sessionId;
         this.advertisementId = advertisementId;
         this.host = host;
@@ -56,6 +58,14 @@ public class Advertisement implements Comparable<Advertisement> {
         this.currency = currency;
         this.advertisementTimestamp = advertisementTimestamp;
         this.price = price;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public double getLatitude() {

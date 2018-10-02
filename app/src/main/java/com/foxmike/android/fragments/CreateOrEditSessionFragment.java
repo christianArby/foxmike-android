@@ -431,8 +431,10 @@ public class CreateOrEditSessionFragment extends Fragment{
             // Existing advertisements
             if (existingSession.getAdvertisements()!=null) {
                 for (Long advertisementTimestamp: existingSession.getAdvertisements().values()) {
-                    Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
-                    compactCalendarView.addEvent(sessionTime);
+                    if (advertisementTimestamp!=0) {
+                        Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
+                        compactCalendarView.addEvent(sessionTime);
+                    }
                 }
             }
             mMaxParticipants.setText(existingSession.getMaxParticipants());
@@ -837,7 +839,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
             String advertisementKey = rootDbRef.child("advertisements").push().getKey();
 
-            Advertisement advertisement = new Advertisement(
+            Advertisement advertisement = new Advertisement("active",
                     (String) sendSession.get("sessionId"),
                     advertisementKey,
                     (String) sendSession.get("host"),

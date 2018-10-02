@@ -2,8 +2,6 @@ package com.foxmike.android.fragments;
 // Checked
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -32,7 +30,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
-import com.foxmike.android.activities.PaymentPreferencesActivity;
+import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
@@ -80,12 +78,10 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
-    private TextView mSessionType;
+    private TextView dateAndTimeHeadingTV;
     private TextView mAdvertisementName;
     private TextView gotToSession;
-    private TextView mDateAndTime;
     private TextView mParticipants;
-    private TextView mDuration;
     private LinearLayout mManageBooking;
     private TextView mManageBookingTV;
     private CircleImageView mHostImage;
@@ -95,7 +91,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private TextView mWhatTW;
     private TextView mWhoTW;
     private TextView mWhereTW;
-    private TextView mAddressAndSessionType;
+    private TextView mAddress;
     private TextView mSendMessageToHost;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
@@ -122,6 +118,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
     private OnSessionClickedListener onSessionClickedListener;
+    private AdvertisementListener advertisementListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
     private User host;
@@ -133,11 +130,9 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private boolean hasPaymentSystem;
     private HashMap defaultSourceMap;
     private boolean mapReady;
-
     private boolean advertisementLoaded;
     private boolean advertisementUsed;
     private Advertisement advertisement;
-
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
     private boolean currentUserAndSessionAndViewAndMapUsed;
@@ -146,15 +141,13 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private boolean postCommentsUsed;
     private boolean paymentMethodLoaded;
     private boolean sessionAndPaymentAndViewUsed;
-
     private boolean advertisementAndViewUsed;
-
-
+    private LinearLayout manageBooking;
+    private LinearLayout price;
     private ImageView advertisementImage;
     private int asyncTasksFinished = 0;
-
+    private TextView cancelledTV;
     private OnChatClickedListener onChatClickedListener;
-
     public DisplayAdvertisementFragment() {
         // Required empty public constructor
     }
@@ -191,7 +184,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         // GET THE PAYMENT INFO FROM CURRENT USER
         getDefaultSourceMap();
 
-
         // GET CURRENT USER FROM DATABASE
 
         ValueEventListener currentUserListener = mUserDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
@@ -219,6 +211,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         advertisement = dataSnapshot.getValue(Advertisement.class);
                         advertisementId = dataSnapshot.getRef().getKey();
+                        advertisementAndViewUsed = false;
                         advertisementUsed = false;
                         advertisementLoaded = true;
                         onTaskFinished();
@@ -242,7 +235,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             mainPlayerActivity.subject.subscribe(new Consumer<HashMap>() {
                 @Override
                 public void accept(HashMap hashMap) throws Exception {
-
                     if (hashMap.get("brand")!=null) {
                         defaultSourceMap = hashMap;
                         hasPaymentSystem = true;
@@ -256,7 +248,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                         sessionAndPaymentAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onTaskFinished();
-
                     }
                 }
             });
@@ -288,7 +279,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     }
 
     private void getPosts() {
-
         if (!listenerMap.containsKey(rootDbRef.child("advertisements").child(advertisementId).child("posts"))) {
             ValueEventListener postsListener = rootDbRef.child("advertisements").child(advertisementId).child("posts").addValueEventListener(new ValueEventListener() {
                 @Override
@@ -311,7 +301,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                                     }
                                     // Number of comments listener
                                     if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
-
                                         ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -357,15 +346,13 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         displayAdvertisementContainer = view.findViewById(R.id.display_advertisement_container);
         displayAdvertisement = inflater.inflate(R.layout.display_advertisement,displayAdvertisementContainer,false);
 
-        mSessionType = displayAdvertisement.findViewById(R.id.sessionType);
+        dateAndTimeHeadingTV = displayAdvertisement.findViewById(R.id.sessionDateHeading);
         mAdvertisementName = displayAdvertisement.findViewById(R.id.adName);
-        mDateAndTime = displayAdvertisement.findViewById(R.id.dateAndTimeTW);
-        mDuration = displayAdvertisement.findViewById(R.id.durationTV);
         mParticipants = displayAdvertisement.findViewById(R.id.participantsTW);
         mHostImage = displayAdvertisement.findViewById(R.id.displaySessionHostImage);
         mHost = displayAdvertisement.findViewById(R.id.hostName);
         mHostAboutTV = displayAdvertisement.findViewById(R.id.hostAbout);
-        mAddressAndSessionType = displayAdvertisement.findViewById(R.id.addressAndSessionTypeTW);
+        mAddress = displayAdvertisement.findViewById(R.id.addressTV);
         writePostLsyout = displayAdvertisement.findViewById(R.id.write_post_layout);
         mWhatTW = displayAdvertisement.findViewById(R.id.whatTW);
         mWhoTW = displayAdvertisement.findViewById(R.id.whoTW);
@@ -383,6 +370,9 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         // Set the session image
         advertisementImage = view.findViewById(R.id.displaySessionImage);
         postList = (RecyclerView) view.findViewById(R.id.post_list);
+        cancelledTV = displayAdvertisement.findViewById(R.id.cancelledText);
+
+        price = displayAdvertisement.findViewById(R.id.price);
 
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -487,11 +477,10 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
             // -----------  Set the session information in UI from session object --------------
             String address = getAddress(advertisement.getLatitude(),advertisement.getLongitude());
-            mAddressAndSessionType.setText(address);
+            mAddress.setText(address);
             mWhatTW.setText(advertisement.getWhat());
             mWhoTW.setText(advertisement.getWho());
             mWhereTW.setText(advertisement.getWhereAt());
-            mDuration.setText(advertisement.getDuration());
 
             // -----------  set the number of participants ------------
             long countParticipants;
@@ -509,11 +498,17 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 }
             });
 
-            mSessionType.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+            if (advertisement.getStatus().equals("cancelled")) {
+                cancelledTV.setVisibility(View.VISIBLE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.occasion_cancelled_text).setTitle(R.string.occasion_cancelled);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            } else {
+                cancelledTV.setVisibility(View.GONE);
+                dateAndTimeHeadingTV.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+            }
             mAdvertisementName.setText(advertisement.getAdvertisementName());
-
-            mDateAndTime.setText(advertisement.getSessionType());
-
             // set the image
             setImage(advertisement.getImageUrl(), advertisementImage);
             //advertisementImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
@@ -561,7 +556,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
              If the current user is the session host change the button text to "Edit session"
              */
             if (advertisement.getHost().equals(currentFirebaseUser.getUid())) {
-                mManageBookingTV.setVisibility(View.GONE);
+                mManageBookingTV.setText(R.string.cancel_occasion);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -570,7 +565,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                     }
                 });
             } else {
-                mManageBooking.setVisibility(View.VISIBLE);
                 mManageBookingTV.setText(R.string.cancel_booking);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -619,46 +613,14 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 and send the session key to that activity as bundle.
                 */
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        //onEditSessionListener.OnEditSession(advertisementId);
-                        if (!currentUser.isTrainerMode()) {
-                            Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
-                        } else {
-                            sessionListener.OnEditSession(advertisementId,session);
-                        }
+                        advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementId(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getParticipantsIds(), session.getStripeAccountId());
                     }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                 remove the current user from that session participant list and go back to main activity.
                 */
                     else if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                        //onCancelBookedSessionListener.OnCancelBookedSession(currentUser.getSessionsAttending().get(advertisementId),session.getRepresentingAdTimestamp(),advertisementId,currentFirebaseUser.getUid(),session.getParticipants().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
-                    }
-
-                    else {
-                        if (!hasPaymentSystem) {
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
-                            builder.setPositiveButton(R.string.add_payment_method, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
-                                    startActivity(paymentPreferencesIntent);
-                                }
-                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                            return;
-                        }
-                        /*
-                        Else (button will show join session) add the user id to the session participant list and
-                        the user sessions attending list when button is clicked.
-                        */
-                        sessionListener.OnBookSession(advertisementId, advertisement.getAdvertisementTimestamp(), advertisement.getHost(), defaultSourceMap.get("customer").toString(), advertisement.getPrice(), advertisement.getCurrency(), currentUser.isDontShowBookingText());
+                        sessionListener.OnCancelBookedSession(advertisement.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),advertisement.getAdvertisementTimestamp(),advertisementId,currentFirebaseUser.getUid(),advertisement.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                     }
                 }
             });
@@ -666,7 +628,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
         // ---------------- HOST && VIEW-----------------
         if (hostLoaded && getView()!=null && !hostAndViewUsed) {
-            hostAndViewUsed=true;
             setImage(host.getImage(), mHostImage);
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
@@ -944,6 +905,12 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
+        if (context instanceof AdvertisementListener) {
+            advertisementListener = (AdvertisementListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement AdvertisementListener");
+        }
     }
 
     @Override
@@ -954,5 +921,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         onChatClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
         onSessionClickedListener = null;
+        advertisementListener = null;
     }
 }

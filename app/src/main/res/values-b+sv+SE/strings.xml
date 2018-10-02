@@ -445,5 +445,19 @@
     <string name="per_person">per person</string>
     <string name="cost_colon">Kostnad:</string>
     <string name="all">Alla</string>
+    <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Klicka på kalendern för att välja datum och tider för ditt pass.</string>
+    <string name="show_booking">Visa bokning</string>
+    <string name="show_occasion">Visa tillfälle</string>
+    <string name="cancel_occasion">Ställ in passet</string>
+    <string name="cancelling_session">Avbokar passet</string>
+    <string name="cancelling_session_host">Ställer in passet</string>
+    <string name="cancelled_capital">INSTÄLLT</string>
+    <string name="occasion_cancelled_text">Det här tillfället är inställt.</string>
+    <string name="occasion_cancelled">Inställt</string>
+    <string name="show_more">Visa fler</string>
+    <string name="end_of_list">\u2022 \u2022 \u2022</string>
+    <string name="representing_occasion_cancelled">Det här tillfället är inställt, välj ett annat.</string>
+    <string name="cancelled">INSTÄLLT</string>
+    <string name="show_availability">Visa tillgänglighet</string>
 
 </resources>

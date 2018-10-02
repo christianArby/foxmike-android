@@ -5,8 +5,21 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:visibility="gone"
+        android:id="@+id/cancelledText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textAllCaps="true"
+        android:text="@string/cancelled"
+        android:textColor="@color/red"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
         android:textColor="@color/primaryTextColor"
-        android:id="@+id/sessionType"
+        android:id="@+id/sessionDateHeading"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp"
@@ -16,7 +29,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
         android:layout_marginBottom="68dp"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/cancelledText"/>
 
     <TextView
         android:id="@+id/adName"
@@ -25,7 +38,7 @@
         android:text="Yoga"
         android:layout_marginStart="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        app:layout_constraintTop_toBottomOf="@id/sessionType"/>
+        app:layout_constraintTop_toBottomOf="@id/sessionDateHeading"/>
 
     <TextView
         android:id="@+id/go_to_session"
@@ -39,116 +52,21 @@
         android:layout_marginStart="@dimen/margin_left"
         />
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/infoBlock"
-        app:layout_constraintTop_toBottomOf="@id/go_to_session"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="vertical"
+    <View
+        android:id="@+id/spaceView0"
+        android:layout_marginTop="@dimen/dividerDistance"
         android:layout_width="match_parent"
-        android:paddingBottom="@dimen/marginVertical"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:tint="@color/primaryTextColor"
-            android:id="@+id/locationIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:src="@drawable/ic_edit_location_black_24dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            app:layout_constraintStart_toEndOf="@id/locationIcon"
-            app:layout_constraintTop_toTopOf="@id/locationIcon"
-            app:layout_constraintBottom_toBottomOf="@id/locationIcon"
-            app:layout_constraintEnd_toStartOf="@id/maxParticipantsIcon"
-            android:layout_width="180dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:id="@+id/addressAndSessionTypeTW"
-            app:layout_constraintHorizontal_bias="0"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/primaryTextColor"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_left"
-            android:text="@string/address"/>
-
-        <ImageView
-            android:id="@+id/dateIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:src="@drawable/ic_filter_list_black_24dp"
-            android:tint="@color/primaryTextColor"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/locationIcon" />
-
-        <TextView
-            android:id="@+id/dateAndTimeTW"
-            app:layout_constraintTop_toTopOf="@id/dateIcon"
-            app:layout_constraintBottom_toBottomOf="@id/dateIcon"
-            app:layout_constraintStart_toEndOf="@id/dateIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginStart="@dimen/margin_left"
-            android:text="@string/loading" />
-
-        <ImageView
-            android:tint="@color/primaryTextColor"
-            android:id="@+id/maxParticipantsIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="90dp"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:src="@mipmap/ic_people_black_24dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <TextView
-            android:id="@+id/participantsTW"
-            app:layout_constraintTop_toTopOf="@id/maxParticipantsIcon"
-            app:layout_constraintBottom_toBottomOf="@+id/maxParticipantsIcon"
-            app:layout_constraintStart_toEndOf="@id/maxParticipantsIcon"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="0/0"
-            android:layout_marginStart="@dimen/margin_left"
-            android:textColor="@color/foxmikePrimaryColor"
-            android:clickable="true"/>
-
-        <ImageView
-            android:tint="@color/primaryTextColor"
-            android:id="@+id/durationIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:src="@mipmap/ic_timelapse_black_24dp"
-            app:layout_constraintStart_toStartOf="@id/maxParticipantsIcon"
-            app:layout_constraintTop_toBottomOf="@id/locationIcon" />
-
-        <TextView
-
-            app:layout_constraintBottom_toBottomOf="@id/durationIcon"
-            app:layout_constraintTop_toTopOf="@id/durationIcon"
-            app:layout_constraintStart_toStartOf="@id/participantsTW"
-            android:textColor="@color/primaryTextColor"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:id="@+id/durationTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"/>
-
-    </android.support.constraint.ConstraintLayout>
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_left"
+        android:layout_marginBottom="@dimen/dividerBottom"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        app:layout_constraintTop_toBottomOf="@id/go_to_session"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/hostInfoContainer"
-        app:layout_constraintTop_toBottomOf="@id/infoBlock"
+        app:layout_constraintTop_toBottomOf="@id/spaceView0"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -302,6 +220,23 @@
             android:layout_marginStart="@dimen/margin_left"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/addressTV"
+        app:layout_constraintTop_toTopOf="@id/child_fragment_container"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/primaryTextColor"
+        android:elevation="1dp"
+        android:alpha="0.9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/margin_left"
+        android:padding="@dimen/margin_minimum"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:background="@drawable/rounded_texview"/>
+
     <FrameLayout
         android:id="@+id/child_fragment_container"
         app:layout_constraintTop_toBottomOf="@id/novelInfo"
@@ -324,15 +259,20 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/primaryTextColor"
-            android:padding="@dimen/marginVertical"
+            android:textSize="18sp"
+            android:paddingStart="@dimen/margin_left"
+            android:paddingEnd="@dimen/margin_right"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
             android:text="Price: 80 kr"
-            android:drawableEnd="@mipmap/ic_keyboard_arrow_right_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
+            android:drawableTint="@color/color_divider"
             />
 
         <View
             android:id="@+id/spaceView00"
             android:layout_width="match_parent"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
     </LinearLayout>
@@ -351,15 +291,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textSize="18sp"
             android:textColor="@color/primaryTextColor"
-            android:padding="@dimen/marginVertical"
-            android:text="Manage booking"
+            android:paddingStart="@dimen/margin_left"
+            android:paddingEnd="@dimen/margin_right"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
             android:drawableEnd="@mipmap/ic_keyboard_arrow_right_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
+            android:drawableTint="@color/color_divider"
             />
-
         <View
-            android:id="@+id/spaceView01"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
@@ -369,9 +310,70 @@
         android:id="@+id/spaceView02"
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_view__big_height"
-        android:background="@color/color_divider"
+        android:background="@color/color_big_divider"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/manageBooking"/>
+
+    <LinearLayout
+        android:id="@+id/participants_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spaceView02">
+
+        <TextView
+            android:id="@+id/participantsTW"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="0/0"
+            android:drawableStart="@mipmap/ic_people_black_24dp"
+            android:drawableTint="@color/primaryTextColor"
+            android:drawablePadding="@dimen/margin_left"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/foxmikePrimaryColor"
+            android:clickable="true"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/participantsTest"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="@dimen/marginVertical"
+                android:layout_marginStart="@dimen/margin_left"
+                android:src="@mipmap/profile_picture"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/participantsTest2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="@dimen/marginVertical"
+                android:layout_marginStart="@dimen/margin_left"
+                android:src="@mipmap/profile_picture"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:text="bjud in"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/spaceView03"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_view__big_height"
+        android:background="@color/color_big_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/participants_layout"/>
 
     <LinearLayout
         android:id="@+id/write_post_layout"
@@ -379,7 +381,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceView02">
+        app:layout_constraintTop_toBottomOf="@id/spaceView03">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/session_post_current_user_image"
@@ -398,8 +400,6 @@
             android:hint="@string/Write_something_hint_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:padding="@dimen/margin_left"/>
-
-
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

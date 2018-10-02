@@ -143,7 +143,8 @@
         <activity
             android:name=".activities.SwitchModeActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.TestActivity"></activity>
+        <activity android:name=".activities.TestActivity" />
+        <activity android:name=".activities.CancelAdvertisementActivity"></activity>
     </application>
 
 </manifest>

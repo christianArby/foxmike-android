@@ -33,6 +33,7 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -61,6 +62,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
+
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
         UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
@@ -75,7 +78,7 @@ public class MainHostActivity extends AppCompatActivity implements
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
-        MapsFragment.OnLocationPickedListener, OnCreateSessionClickedListener, OnAdvertisementsFoundListener, OnAdvertisementClickedListener {
+        MapsFragment.OnLocationPickedListener, OnCreateSessionClickedListener, OnAdvertisementsFoundListener, OnAdvertisementClickedListener, AdvertisementListener {
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;
@@ -506,5 +509,16 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
 
+    }
+
+    @Override
+    public void OnCancelAdvertisement(String advertisementId, String sessionId, Long advertisementTimestamp, HashMap<String, String> participantsIds, String accountId) {
+        Intent cancelAdIntent = new Intent(MainHostActivity.this, CancelAdvertisementActivity.class);
+        cancelAdIntent.putExtra("advertisementId", advertisementId);
+        cancelAdIntent.putExtra("sessionId", sessionId);
+        cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
+        cancelAdIntent.putExtra("participantsIds",participantsIds);
+        cancelAdIntent.putExtra("accountId",accountId);
+        startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
     }
 }
