@@ -28,6 +28,7 @@
     <color name="primaryDarkColor">#c7c7c7</color>
     <color name="secondaryColor">#fff176</color>
 
+    <color name="color_big_divider">#F2F2F2</color>
     <color name="color_divider">#EBEBEB</color>
     <color name="color_accent">#00bfa5</color>
 

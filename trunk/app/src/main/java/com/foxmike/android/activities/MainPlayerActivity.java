@@ -52,6 +52,7 @@ import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WeekdayFilterFragment;
+import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -120,7 +121,8 @@ public class MainPlayerActivity extends AppCompatActivity
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
-        MapsFragment.OnLocationPickedListener, OnAdvertisementClickedListener,OnAdvertisementsFoundListener{
+        MapsFragment.OnLocationPickedListener, OnAdvertisementClickedListener,OnAdvertisementsFoundListener,
+        AdvertisementListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -157,6 +159,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private View mainView;
     static final int BOOK_SESSION_REQUEST = 8;
     static final int CANCEL_SESSION_REQUEST = 16;
+    static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
     private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
@@ -276,7 +279,7 @@ public class MainPlayerActivity extends AppCompatActivity
             fromUserbundle.putString("otherUserID", fromUserID);
             userProfilePublicFragment = UserProfilePublicFragment.newInstance();
             userProfilePublicFragment.setArguments(fromUserbundle);
-            cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true);
+            cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
         } else {
             cleanMainActivityAndSwitch(listSessionsFragment);
             weekdayFilterContainer.setVisibility(View.VISIBLE);
@@ -573,12 +576,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
                         MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
                         mapsFragment.addMarkersToMap(sessions);
-
                     }
-
-
                 });
-
             }
 
             @Override
@@ -628,11 +627,11 @@ public class MainPlayerActivity extends AppCompatActivity
         }
     }
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
-    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack) {
+    private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
         if (addToBackStack) {
-            transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(null).commit();
+            transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(tag).commit();
         } else {
             transaction.replace(R.id.container_fullscreen_main_player, fragment).commit();
         }
@@ -687,13 +686,13 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnSessionClicked(String sessionId) {
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
     @Override
     public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
     /* Listener, when edit "button" in account is clicked show user profile */
@@ -701,14 +700,14 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
             userProfileFragment = UserProfileFragment.newInstance();
-            cleanMainFullscreenActivityAndSwitch(userProfileFragment, true);
+            cleanMainFullscreenActivityAndSwitch(userProfileFragment, true,"");
         }
     }
     /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
         userProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(userProfilePublicEditFragment,true);
+        cleanMainFullscreenActivityAndSwitch(userProfilePublicEditFragment,true,"");
     }
     /* Listener, when finished editing restart this activity */
     @Override
@@ -723,7 +722,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bundle.putString("otherUserID", otherUserID);
         userProfilePublicFragment = UserProfilePublicFragment.newInstance();
         userProfilePublicFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true);
+        cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
     }
 
     @Override
@@ -854,6 +853,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CANCEL_SESSION_REQUEST) {
+                fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (data!=null) {
                     if (data.getBooleanExtra("cancel", false)) {
                         String sessionID = data.getStringExtra("sessionID");
@@ -923,26 +923,26 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
         if (request.equals("displaySession")) {
             displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true);
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
     }
 
     @Override
     public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
         ChatFragment chatFragment = ChatFragment.newInstance(userID,userName,userThumbImage,chatID);
-        cleanMainFullscreenActivityAndSwitch(chatFragment,true);
+        cleanMainFullscreenActivityAndSwitch(chatFragment,true,"");
     }
 
     @Override
     public void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image) {
         CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
-        cleanMainFullscreenActivityAndSwitch(commentFragment,true);
+        cleanMainFullscreenActivityAndSwitch(commentFragment,true,"");
     }
 
     @Override
     public void OnSearchClicked() {
         AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true);
+        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true,"");
     }
 
     @Override
@@ -953,12 +953,24 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnAdvertisementClicked(String advertisementId) {
         displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(advertisementId);
-        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true);
+        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
     }
 
     @Override
     public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
 
+    }
+
+    @Override
+    public void OnCancelAdvertisement(String advertisementId, String sessionId, Long advertisementTimestamp, HashMap<String, String> participantsIds, String accountId) {
+
+        Intent cancelAdIntent = new Intent(MainPlayerActivity.this,CancelAdvertisementActivity.class);
+        cancelAdIntent.putExtra("advertisementId", advertisementId);
+        cancelAdIntent.putExtra("sessionId", sessionId);
+        cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
+        cancelAdIntent.putExtra("participantsIds",participantsIds);
+        cancelAdIntent.putExtra("accountId",accountId);
+        startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
     }
 
     // Sets up weekday pager

@@ -17,9 +17,11 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -153,13 +155,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private HashMap defaultSourceMap;
     private boolean mapReady;
     BitmapDescriptor selectedIcon;
-
     private TextView editSession;
-
     private TextView snackBarDateAndTimeTV;
-    private TextView noUpcomingAdsDummyButton;
-
-
+    private LinearLayout snackNoUpcomingAds;
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
     private boolean currentUserAndSessionAndViewAndMapUsed;
@@ -168,40 +166,33 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean postCommentsUsed;
     private boolean paymentMethodLoaded;
     private boolean sessionAndPaymentAndViewUsed;
-
     private RecyclerView upcomingSessionsRV;
     private List<SessionDateAndTime> sessionDateAndTimeList = new ArrayList<>();
     private LinearLayoutManager sessionDateAndTimeLLManager;
-
-    private boolean adsLoaded;
+    private boolean adSetupLoaded;
     private boolean sessionAndViewUsed;
     private boolean sessionAndPaymentAndViewAndAdSelectedUsed;
-
     private FrameLayout fbRVContainer;
     private LinearLayout showMore;
+    private TextView showMoreTV;
     private int currentHeightInNr;
-
     private SessionListener sessionListener;
-
     private FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder> fbAdDateAndTimeAdapter;
-
-
     private ImageView sessionImage;
     private int asyncTasksFinished = 0;
-
     private int rowIndex = -1;
-
     private int itemHeight = 0;
-
     private boolean adSelectedReady;
-
     private Long representingAdTimestamp;
-
     private Advertisement adSelected;
-
     private LinearLayout noUpcomingAds;
-
+    private boolean repAdCancelled = false;
+    private boolean paymentMethodAdSelectedAndViewUsed;
     private OnChatClickedListener onChatClickedListener;
+    private NestedScrollView displaySessionSV;
+    private AppBarLayout appBarLayout;
+    private CoordinatorLayout rootLayout;
+    private TextView noSnackAdTV;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -249,9 +240,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // GET THE PAYMENT INFO FROM CURRENT USER
         getDefaultSourceMap();
 
-
         // GET CURRENT USER FROM DATABASE
-
         ValueEventListener currentUserListener = mUserDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -269,8 +258,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // GET SESSION FROM DATABASE
         if (!sessionID.equals("")) {
-            // FINDS SESSION AND FILLS UI
-            // Get the session information
             if (!listenerMap.containsKey(mSessionDbRef.child(sessionID))) {
                 fbSessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -313,14 +300,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         sessionAndPaymentAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onTaskFinished();
-
                     } else {
                         hasPaymentSystem = false;
                         defaultSourceMap = new HashMap();
                         sessionAndPaymentAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onTaskFinished();
-
                     }
                 }
             });
@@ -352,7 +337,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void getPosts() {
-
         if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
             ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
                 @Override
@@ -409,6 +393,164 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
     }
 
+    private void setupAds() {
+        Long currentTimestamp = System.currentTimeMillis();
+        Query keyQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+        keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    // no ads
+                    if (representingAdTimestamp!=0) {
+                        repAdCancelled = true;
+                    }
+                    noUpcomingAds.setVisibility(View.VISIBLE);
+                    showMoreTV.setText(getResources().getString(R.string.end_of_list));
+                    paymentMethodAdSelectedAndViewUsed = false;
+                    adSelectedReady = true;
+                    onTaskFinished();
+                } else {
+                    HashMap<String,Long> adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
+                    if (!adTimes.containsValue(representingAdTimestamp)) {
+                        repAdCancelled = true;
+                        adSelected = null;
+                        adSelectedReady = true;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        onTaskFinished();
+                    }
+                    Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
+                    int twoWeekssize = 0;
+                    // Ifall aktiviteten har öppnats från kartan så är repAd null och då sätter vi repAdTimestamp till den som kommer först
+                    // Vi tar dessutom reda på hur hög vår lista ska vara genom att räkna hur många som är med första två veckorna.
+                    Long firstTimestamp = 0L;
+                    for (Long adTime: adTimes.values()) {
+                        if (adTime<twoWeekTimestamp) {
+                            twoWeekssize++;
+                        }
+                    }
+                    if (representingAdTimestamp==0) {
+                        repAdCancelled = false;
+                        adSelected = null;
+                        adSelectedReady = true;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        onTaskFinished();
+                    }
+
+                    currentHeightInNr = twoWeekssize;
+                    if (twoWeekssize<5) {
+                        if (adTimes.size()<5) {
+                            currentHeightInNr = adTimes.size();
+                        } else {
+                            currentHeightInNr = 4;
+                        }
+                    }
+                    ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
+                    params.height= 167*currentHeightInNr;
+                    fbRVContainer.setLayoutParams(params);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        Query allKeysQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+        DatabaseReference adDbRef = rootDbRef.child("advertisements");
+        FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
+                .setIndexedQuery(allKeysQuery, adDbRef, Advertisement.class)
+                .build();
+        fbAdDateAndTimeAdapter = new FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull SessionDateAndTimeViewHolder holder, int position, @NonNull Advertisement model) {
+
+                // -----------  set the number of participants ------------
+                long countParticipants;
+                if (model.getParticipantsIds()!=null) {
+                    countParticipants = model.getParticipantsIds().size();
+                } else {
+                    countParticipants = 0;
+                }
+                holder.setParticipantsTV(countParticipants +"/" + model.getMaxParticipants());
+                holder.sessionDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
+                holder.setSessionDateAndTimeClickedListener(new SessionDateAndTimeClickedListener() {
+                    @Override
+                    public void OnSessionDateAndTimeClicked(View view, int position) {
+                        rowIndex = position; // set row index to selected position
+                        adSelected = fbAdDateAndTimeAdapter.getItem(position);
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        adSelectedReady = true;
+                        onTaskFinished();
+                        notifyDataSetChanged(); // Made effect on Recycler Views adapter
+                    }
+                });
+
+                setAdListItemDefault(holder);
+                if (rowIndex==-1) {
+                    if (representingAdTimestamp==model.getAdvertisementTimestamp()) {
+                        rowIndex = position;
+                    }
+                }
+                if (rowIndex == position) {
+                    adSelected=model;
+                    paymentMethodAdSelectedAndViewUsed = false;
+                    adSelectedReady = true;
+                    setAdListItemSelected(holder);
+                    onTaskFinished();
+                }
+                if (model.getParticipantsIds().size()!=0) {
+                    if (model.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                        setAdListItemBooked(holder);
+                    }
+                }
+            }
+            @NonNull
+            @Override
+            public SessionDateAndTimeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.session_date_time_single_layout, parent, false);
+                view.measure(
+                        View.MeasureSpec.makeMeasureSpec(upcomingSessionsRV.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                itemHeight = view.getMeasuredHeight();
+                return new SessionDateAndTimeViewHolder(view);
+            }
+        };
+        upcomingSessionsRV.setAdapter(fbAdDateAndTimeAdapter);
+        fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                updateListViews();
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                if (rowIndex==positionStart) {
+                    if (fbAdDateAndTimeAdapter.getItemCount()==0) {
+                        adSelected = null;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        adSelectedReady = true;
+                        onTaskFinished();
+                    } else {
+                        adSelected = fbAdDateAndTimeAdapter.getItem(0);
+                        //setAdListItemSelected((SessionDateAndTimeViewHolder) upcomingSessionsRV.findViewHolderForAdapterPosition(0));
+                        rowIndex = 0;
+                        fbAdDateAndTimeAdapter.notifyDataSetChanged();
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        adSelectedReady = true;
+                        onTaskFinished();
+                    }
+                }
+                updateListViews();
+            }
+        });
+
+        fbAdDateAndTimeAdapter.startListening();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -421,18 +563,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         displaySessionContainer = view.findViewById(R.id.display_session_container);
         displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
 
-        mDuration = displaySession.findViewById(R.id.durationTV);
+        mDuration = view.findViewById(R.id.durationTV);
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
         mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
-        mAddressAndSessionType = displaySession.findViewById(R.id.addressAndSessionTypeTW);
+        mAddressAndSessionType = view.findViewById(R.id.addressTV);
         writePostLayout = displaySession.findViewById(R.id.write_post_layout);
         mWhatTW = displaySession.findViewById(R.id.whatTW);
         mWhoTW = displaySession.findViewById(R.id.whoTW);
         mWhereTW = displaySession.findViewById(R.id.whereTW);
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
-        mSessionType = view.findViewById(R.id.sessionType);
+        mSessionType = view.findViewById(R.id.sessionDateHeading);
         mSendMessageToHost = displaySession.findViewById(R.id.sendMessageToHost);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
         toolbar = view.findViewById(R.id.toolbar);
@@ -448,22 +590,27 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         paymentFrame = view.findViewById(R.id.framePayment);
         paymentMethodTV = view.findViewById(R.id.paymentMethod);
         snackBarDateAndTimeTV = view.findViewById(R.id.snackBarDateAndTimeTV);
-
         upcomingSessionsRV = displaySession.findViewById(R.id.upcomingSessionsList);
-
         showMore = displaySession.findViewById(R.id.showMoreText);
         noUpcomingAds = displaySession.findViewById(R.id.noUpcomingAdsText);
-        noUpcomingAdsDummyButton = view.findViewById(R.id.noUpcomingAdsDummyButton);
-
+        snackNoUpcomingAds = view.findViewById(R.id.snackNoUpcomingAds);
         editSession = displaySession.findViewById(R.id.editSession);
-
         fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
-
         sessionDateAndTimeLLManager = new LinearLayoutManager(getContext());
         upcomingSessionsRV.setHasFixedSize(true);
         upcomingSessionsRV.setLayoutManager(sessionDateAndTimeLLManager);
         ((SimpleItemAnimator) upcomingSessionsRV.getItemAnimator()).setSupportsChangeAnimations(false);
         upcomingSessionsRV.setNestedScrollingEnabled(false);
+        showMoreTV = displaySession.findViewById(R.id.showMoreTV);
+        displaySessionSV = view.findViewById(R.id.displaySessionSV);
+        rootLayout = view.findViewById(R.id.rootLayout);
+        noSnackAdTV = view.findViewById(R.id.noSnackAdTV);
+
+        //set default
+        snackBarDateAndTimeTV.setVisibility(View.GONE);
+        priceTV.setVisibility(View.GONE);
+        mDisplaySessionBtn.setVisibility(View.GONE);
+        snackNoUpcomingAds.setVisibility(View.VISIBLE);
 
         paymentFrame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -477,7 +624,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
+        appBarLayout = view.findViewById(R.id.displaySessionAppBar);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -498,6 +645,25 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
                 sessionImageCardView.setLayoutParams(mParams);
                 sessionImageCardView.postInvalidate();
+            }
+        });
+
+        showMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fbAdDateAndTimeAdapter.getItemCount()>(currentHeightInNr+4)) {
+                    showMoreTV.setText(getResources().getString(R.string.show_more));
+                    ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
+                    params.height= 167*(currentHeightInNr+4);
+                    fbRVContainer.setLayoutParams(params);
+                    currentHeightInNr = currentHeightInNr +4;
+                } else {
+                    showMoreTV.setText(getResources().getString(R.string.end_of_list));
+                    ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
+                    params.height= 167*(fbAdDateAndTimeAdapter.getItemCount());
+                    fbRVContainer.setLayoutParams(params);
+                    currentHeightInNr = fbAdDateAndTimeAdapter.getItemCount();
+                }
             }
         });
 
@@ -554,207 +720,184 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             setImage(currentUser.getThumb_image(), mCurrentUserPostImage);
         }
 
-        // --------------- SESSION && VIEW -----------------------
+        // ---------------- SESSION && VIEW-----------------
         if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
             sessionAndViewUsed = true;
 
-            // SETUP UPCOMING SESSIONS
-            if (!adsLoaded) {
-                if (session.getAdvertisements()==null) {
-                    // no ads
-                    noUpcomingAds.setVisibility(View.VISIBLE);
-                    adSelectedReady = true;
-                    onTaskFinished();
-                } else {
-                    Long currentTimestamp = System.currentTimeMillis();
-                    Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
-                    Query keyQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+            setupAds();
 
-                    keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue()==null) {
-                                // no ads
-                                noUpcomingAds.setVisibility(View.VISIBLE);
-                                adSelectedReady = true;
-                                onTaskFinished();
-                            } else {
-                                adsLoaded = true;
-                                HashMap<String,Long> adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
+            if (session.getHost().equals(currentFirebaseUser.getUid())) {
 
-                                Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
+                // -------------------- HOST -----------------------------
+                editSession.setVisibility(View.VISIBLE);
+                mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                    }
+                });
 
-                                int twoWeekssize = 0;
+            } else {
 
-                                // Fix initial selection if repAdtimestamp is null
-                                Long firstTimestamp = 0L;
-                                for (Long adTime: adTimes.values()) {
-                                    if (adTime<twoWeekTimestamp) {
-                                        twoWeekssize++;
-                                    }
-                                    if (firstTimestamp==0L) {
-                                        firstTimestamp = adTime;
-                                    } else {
-                                        if (adTime<firstTimestamp) {
-                                            firstTimestamp = adTime;
-                                        }
-                                    }
-                                }
-                                if (representingAdTimestamp==0) {
-                                    representingAdTimestamp = firstTimestamp;
-                                }
-
-                                currentHeightInNr = twoWeekssize;
-
-                                if (twoWeekssize<5) {
-                                    if (adTimes.size()<5) {
-                                        currentHeightInNr = adTimes.size();
-                                    } else {
-                                        currentHeightInNr = 4;
-                                    }
-                                }
-
-                                ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                                params.height= 167*currentHeightInNr;
-                                fbRVContainer.setLayoutParams(params);
-
-                                Query allKeysQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
-
-                                DatabaseReference adDbRef = rootDbRef.child("advertisements");
-                                FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
-                                        .setIndexedQuery(allKeysQuery, adDbRef, Advertisement.class)
-                                        .build();
-                                fbAdDateAndTimeAdapter = new FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder>(options) {
-                                    @Override
-                                    protected void onBindViewHolder(@NonNull SessionDateAndTimeViewHolder holder, int position, @NonNull Advertisement model) {
-
-                                        // -----------  set the number of participants ------------
-                                        long countParticipants;
-                                        if (model.getParticipantsIds()!=null) {
-                                            countParticipants = model.getParticipantsIds().size();
-                                        } else {
-                                            countParticipants = 0;
-                                        }
-                                        holder.setParticipantsTV(countParticipants +"/" + model.getMaxParticipants());
-                                        holder.sessionDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
-                                        holder.setSessionDateAndTimeClickedListener(new SessionDateAndTimeClickedListener() {
-                                            @Override
-                                            public void OnSessionDateAndTimeClicked(View view, int position) {
-                                                rowIndex = position; // set row index to selected position
-                                                adSelected = fbAdDateAndTimeAdapter.getItem(position);
-                                                adSelectedReady = true;
-                                                onTaskFinished();
-                                                snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
-                                                // ---------- Set price text ---------------
-                                                setPriceText();
-                                                notifyDataSetChanged(); // Made effect on Recycler Views adapter
-                                            }
-                                        });
-
-
-
-                                        setAdListItemDefault(holder);
-                                        if (rowIndex==-1) {
-                                            if (representingAdTimestamp==model.getAdvertisementTimestamp()) {
-                                                rowIndex = position;
-                                            }
-                                        }
-                                        if (rowIndex == position) {
-                                            adSelected=model;
-                                            adSelectedReady = true;
-                                            setAdListItemSelected(holder);
-                                            onTaskFinished();
-                                        }
-                                        if (model.getParticipantsIds().size()!=0) {
-                                            if (model.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                                                setAdListItemBooked(holder);
-                                            }
-                                        }
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public SessionDateAndTimeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                                        View view = LayoutInflater.from(parent.getContext())
-                                                .inflate(R.layout.session_date_time_single_layout, parent, false);
-                                        view.measure(
-                                                View.MeasureSpec.makeMeasureSpec(upcomingSessionsRV.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
-                                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                                        itemHeight = view.getMeasuredHeight();
-                                        return new SessionDateAndTimeViewHolder(view);
-                                    }
-                                };
-                                fbAdDateAndTimeAdapter.startListening();
-                                upcomingSessionsRV.setAdapter(fbAdDateAndTimeAdapter);
-
-                                fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                                    @Override
-                                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                                        super.onItemRangeInserted(positionStart, itemCount);
-                                        if (fbAdDateAndTimeAdapter.getItemCount()==0) {
-                                            showMore.setVisibility(View.GONE);
-                                            noUpcomingAds.setVisibility(View.VISIBLE);
-                                            fbRVContainer.setVisibility(View.GONE);
-                                        } else {
-                                            noUpcomingAds.setVisibility(View.GONE);
-                                            fbRVContainer.setVisibility(View.VISIBLE);
-                                        }
-                                        if (fbAdDateAndTimeAdapter.getItemCount() > currentHeightInNr) {
-                                            showMore.setVisibility(View.VISIBLE);
-                                        } else {
-                                            showMore.setVisibility(View.GONE);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onItemRangeRemoved(int positionStart, int itemCount) {
-                                        super.onItemRangeRemoved(positionStart, itemCount);
-                                        if (fbAdDateAndTimeAdapter.getItemCount()==0) {
-                                            showMore.setVisibility(View.GONE);
-                                            noUpcomingAds.setVisibility(View.VISIBLE);
-                                            fbRVContainer.setVisibility(View.GONE);
-                                        } else {
-                                            noUpcomingAds.setVisibility(View.GONE);
-                                            fbRVContainer.setVisibility(View.VISIBLE);
-                                        }
-                                        if (fbAdDateAndTimeAdapter.getItemCount() > currentHeightInNr) {
-                                            showMore.setVisibility(View.VISIBLE);
-                                        } else {
-                                            showMore.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
+                // -------------------- PLAYER -----------------------------
+                editSession.setVisibility(View.GONE);
+                mSendMessageToHost.setText(R.string.send_message_text);
+                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
+                    }
+                });
             }
+        }
 
+        // ---------------- HOST && VIEW-----------------
+        if (hostLoaded && getView()!=null && !hostAndViewUsed) {
+            hostAndViewUsed=true;
+            setImage(host.getImage(), mHostImage);
+            String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
+            mHost.setText(hostText);
+            mHostAboutTV.setText(host.getAboutMe());
+        }
 
-            showMore.setOnClickListener(new View.OnClickListener() {
+        if (postsLoaded && getView()!=null && !postsUsed) {
+            postsUsed = true;
+            postsViewHolderAdapter.notifyDataSetChanged();
+            postList.setAdapter(postsViewHolderAdapter);
+        }
+
+        if (postCommentsLoaded && getView()!=null && !postCommentsUsed) {
+            postCommentsUsed = true;
+            postsViewHolderAdapter.notifyDataSetChanged();
+        }
+
+        // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
+        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
+            paymentMethodProgressBar.setVisibility(View.GONE);
+            sessionAndPaymentAndViewUsed = true;
+
+            postList.setVisibility(View.VISIBLE);
+            writePostLayout.setVisibility(View.VISIBLE);
+            writePostLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (fbAdDateAndTimeAdapter.getItemCount()>(currentHeightInNr+4)) {
-                        showMore.setVisibility(View.VISIBLE);
-                        ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                        params.height= 167*(currentHeightInNr+4);
-                        fbRVContainer.setLayoutParams(params);
-                        currentHeightInNr = currentHeightInNr +4;
-                    } else {
-                        showMore.setVisibility(View.GONE);
-                        ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                        params.height= 167*(fbAdDateAndTimeAdapter.getItemCount());
-                        fbRVContainer.setLayoutParams(params);
-                        currentHeightInNr = fbAdDateAndTimeAdapter.getItemCount();
+                    WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, session.getSessionName());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
+                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
+                        transaction.commit();
                     }
                 }
             });
 
+            // set the image
+            setImage(session.getImageUrl(), sessionImage);
+            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+
+            // -----------  Set the session information in UI from session object --------------
+            collapsingToolbarLayout.setTitle(session.getSessionName());
+            String address = getAddress(session.getLatitude(),session.getLongitude());
+            mAddressAndSessionType.setText(address);
+            mWhatTW.setText(session.getWhat());
+            mWhoTW.setText(session.getWho());
+            mWhereTW.setText(session.getWhereAt());
+            mSessionType.setText(session.getSessionType());
+            mDuration.setText(session.getDuration());
+        }
+
+        // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
+        if (getView()!=null && paymentMethodLoaded && adSelectedReady && !paymentMethodAdSelectedAndViewUsed) {
+            paymentMethodAdSelectedAndViewUsed = true;
+
+            // ------------------ Setup snackbar ----------------------------------
+
+            if (adSelected==null) {
+
+                snackNoUpcomingAds.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        appBarLayout.setExpanded(false);
+                        displaySessionSV.smoothScrollTo(0, upcomingSessionsRV.getRootView().getBottom());
+                    }
+                });
+                if (repAdCancelled) {
+                    noSnackAdTV.setText(R.string.representing_occasion_cancelled);
+                } else {
+                    if (representingAdTimestamp==0) {
+                        noSnackAdTV.setVisibility(View.GONE);
+                    } else {
+                        noSnackAdTV.setText(getResources().getString(R.string.no_upcoming_sessions));
+                    }
+                }
+                //set default
+                snackBarDateAndTimeTV.setVisibility(View.GONE);
+                priceTV.setVisibility(View.GONE);
+                paymentMethodProgressBar.setVisibility(View.GONE);
+                paymentMethodTV.setVisibility(View.GONE);
+                addPaymentMethodTV.setVisibility(View.GONE);
+                mDisplaySessionBtn.setVisibility(View.GONE);
+                snackNoUpcomingAds.setVisibility(View.VISIBLE);
+            } else {
+                // ---------- Set date and price text ---------------
+                snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
+                setPriceText();
+                // -------------------- HOST -----------------------------
+                if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                    snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
+                    priceTV.setVisibility(View.VISIBLE);
+                    mDisplaySessionBtn.setVisibility(View.VISIBLE);
+                    snackNoUpcomingAds.setVisibility(View.GONE);
+                    mDisplaySessionBtn.setEnabled(true);
+                    mDisplaySessionBtn.setText(R.string.show_occasion);
+                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+
+                } else {
+                    // -------------------- PLAYER -----------------------------
+                    snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
+                    priceTV.setVisibility(View.VISIBLE);
+                    paymentMethodProgressBar.setVisibility(View.GONE);
+                    mDisplaySessionBtn.setVisibility(View.VISIBLE);
+                    snackNoUpcomingAds.setVisibility(View.GONE);
+
+                    mDisplaySessionBtn.setText(getString(R.string.book_session));
+                    if (defaultSourceMap.get("brand")!=null) {
+                        String last4 = defaultSourceMap.get("last4").toString();
+                        paymentMethodTV.setText("**** " + last4);
+                        String cardBrand = defaultSourceMap.get("brand").toString();
+                        int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
+                        paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
+
+                        paymentMethodTV.setVisibility(View.VISIBLE);
+                        addPaymentMethodTV.setVisibility(View.GONE);
+
+                        mDisplaySessionBtn.setEnabled(true);
+                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+                    } else {
+                        hasPaymentSystem = false;
+                        mDisplaySessionBtn.setEnabled(true);
+                        paymentMethodTV.setVisibility(View.GONE);
+                        addPaymentMethodTV.setVisibility(View.VISIBLE);
+                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
+                    }
+
+                    if (adSelected.getParticipantsIds() != null) {
+                        if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                            mDisplaySessionBtn.setEnabled(true);
+                            snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
+                            priceTV.setVisibility(View.VISIBLE);
+                            paymentMethodProgressBar.setVisibility(View.GONE);
+                            paymentMethodTV.setVisibility(View.GONE);
+                            addPaymentMethodTV.setVisibility(View.GONE);
+                            mDisplaySessionBtn.setVisibility(View.VISIBLE);
+                            snackNoUpcomingAds.setVisibility(View.GONE);
+                            mDisplaySessionBtn.setText(R.string.show_booking);
+                        }
+                    }
+                }
+
+            }
         }
 
         // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
@@ -793,21 +936,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 */
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
                         //onEditSessionListener.OnEditSession(sessionID);
-
                         onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
                     }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                 remove the current user from that session participant list and go back to main activity.
                 */
-
                     else {
-
                         if (adSelected==null) {
                             // session will display no upcoming sessions.
                             return;
                         }
-
                         if (adSelected.getParticipantsIds()!=null) {
                             if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
                                 onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
@@ -815,8 +954,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 return;
                             }
                         }
-
-
                         if (!hasPaymentSystem) {
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -845,176 +982,23 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 }
             });
         }
+    }
 
-        // ---------------- HOST && VIEW-----------------
-        if (hostLoaded && getView()!=null && !hostAndViewUsed) {
-            hostAndViewUsed=true;
-            setImage(host.getImage(), mHostImage);
-            String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
-            mHost.setText(hostText);
-            mHostAboutTV.setText(host.getAboutMe());
+    private void updateListViews() {
+        // Om det inte finns några som inte är kancellerade sätt till noll
+        if (fbAdDateAndTimeAdapter.getItemCount()==0) {
+            showMoreTV.setText(getResources().getString(R.string.end_of_list));
+            noUpcomingAds.setVisibility(View.VISIBLE);
+            fbRVContainer.setVisibility(View.GONE);
+        } else {
+            noUpcomingAds.setVisibility(View.GONE);
+            fbRVContainer.setVisibility(View.VISIBLE);
         }
-
-        if (postsLoaded && getView()!=null && !postsUsed) {
-            postsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
-            postList.setAdapter(postsViewHolderAdapter);
-        }
-
-        if (postCommentsLoaded && getView()!=null && !postCommentsUsed) {
-            postCommentsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
-        }
-
-        // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
-            sessionAndPaymentAndViewUsed = true;
-
-            postList.setVisibility(View.VISIBLE);
-            writePostLayout.setVisibility(View.VISIBLE);
-            writePostLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, session.getSessionName());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
-                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
-                        transaction.commit();
-                    }
-                }
-            });
-
-            // set the image
-            setImage(session.getImageUrl(), sessionImage);
-            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
-
-            // -----------  Set the session information in UI from session object --------------
-            collapsingToolbarLayout.setTitle(session.getSessionName());
-            String address = getAddress(session.getLatitude(),session.getLongitude());
-            mAddressAndSessionType.setText(address);
-            mWhatTW.setText(session.getWhat());
-            mWhoTW.setText(session.getWho());
-            mWhereTW.setText(session.getWhereAt());
-            mSessionType.setText(session.getSessionType());
-            mDuration.setText(session.getDuration());
-        }
-
-        // ------------------- SESSION -------- VIEW -------- PAYMENT ----- ADSELECTED ---
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && adSelectedReady) {
-
-            // ------------------ Set the text to the display session button ----------------------------------
-
-            if (adSelected!=null) {
-                snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
-                setPriceText();
-            }
-
-            // -------------------- HOST -----------------------------
-            if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
-                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
-                    }
-                });
-
-                editSession.setVisibility(View.VISIBLE);
-
-                paymentMethodProgressBar.setVisibility(View.GONE);
-                paymentMethodTV.setVisibility(View.GONE);
-                addPaymentMethodTV.setVisibility(View.GONE);
-
-                if (adSelected!=null) {
-                    snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
-                    priceTV.setVisibility(View.VISIBLE);
-                    mDisplaySessionBtn.setVisibility(View.VISIBLE);
-                    noUpcomingAdsDummyButton.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setEnabled(true);
-                    mDisplaySessionBtn.setText(R.string.show);
-                    mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
-                } else {
-                    // Hide everything and display no upcoming sessions
-                    snackBarDateAndTimeTV.setVisibility(View.GONE);
-                    priceTV.setVisibility(View.GONE);
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                    paymentMethodTV.setVisibility(View.GONE);
-                    addPaymentMethodTV.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setVisibility(View.GONE);
-                    noUpcomingAdsDummyButton.setVisibility(View.VISIBLE);
-                    mDisplaySessionBtn.setEnabled(false);
-                }
-            } else {
-
-                // -------------------- PLAYER -----------------------------
-                editSession.setVisibility(View.GONE);
-                mSendMessageToHost.setText(R.string.send_message_text);
-                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
-                    }
-                });
-
-                if (adSelected!=null) {
-
-                    snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
-                    priceTV.setVisibility(View.VISIBLE);
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setVisibility(View.VISIBLE);
-                    noUpcomingAdsDummyButton.setVisibility(View.GONE);
-
-                    mDisplaySessionBtn.setText(getString(R.string.book_session));
-                    if (defaultSourceMap.get("brand")!=null) {
-                        String last4 = defaultSourceMap.get("last4").toString();
-                        paymentMethodTV.setText("**** " + last4);
-                        String cardBrand = defaultSourceMap.get("brand").toString();
-                        int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
-                        paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
-
-                        paymentMethodTV.setVisibility(View.VISIBLE);
-                        addPaymentMethodTV.setVisibility(View.GONE);
-
-                        mDisplaySessionBtn.setEnabled(true);
-                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
-                    } else {
-                        hasPaymentSystem = false;
-                        mDisplaySessionBtn.setEnabled(true);
-                        paymentMethodTV.setVisibility(View.GONE);
-                        addPaymentMethodTV.setVisibility(View.VISIBLE);
-                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
-                    }
-
-                    if (adSelected.getParticipantsIds() != null) {
-
-                        if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-
-                            mDisplaySessionBtn.setEnabled(true);
-                            snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
-                            priceTV.setVisibility(View.VISIBLE);
-                            paymentMethodProgressBar.setVisibility(View.GONE);
-                            paymentMethodTV.setVisibility(View.GONE);
-                            addPaymentMethodTV.setVisibility(View.GONE);
-                            mDisplaySessionBtn.setVisibility(View.VISIBLE);
-                            noUpcomingAdsDummyButton.setVisibility(View.GONE);
-
-                            mDisplaySessionBtn.setText(R.string.show_booking);
-                        }
-                    }
-
-                } else {
-                    // Hide everything and display no upcoming sessions
-                    snackBarDateAndTimeTV.setVisibility(View.GONE);
-                    priceTV.setVisibility(View.GONE);
-                    paymentMethodProgressBar.setVisibility(View.GONE);
-                    paymentMethodTV.setVisibility(View.GONE);
-                    addPaymentMethodTV.setVisibility(View.GONE);
-                    mDisplaySessionBtn.setVisibility(View.GONE);
-                    noUpcomingAdsDummyButton.setVisibility(View.VISIBLE);
-                    mDisplaySessionBtn.setEnabled(false);
-                }
-            }
+        // Om det finns fler i adaptern än nuvarande höjd visa visa mer knapp
+        if (fbAdDateAndTimeAdapter.getItemCount() > currentHeightInNr) {
+            showMoreTV.setText(getResources().getString(R.string.show_more));
+        } else {
+            showMoreTV.setText(getResources().getString(R.string.end_of_list));
         }
     }
 
@@ -1211,7 +1195,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionAndPaymentAndViewUsed = false;
         postsUsed = false;
         postCommentsUsed = false;
-        adsLoaded = false;
+        adSetupLoaded = false;
+        paymentMethodAdSelectedAndViewUsed = false;
     }
 
     public void cleanListeners () {

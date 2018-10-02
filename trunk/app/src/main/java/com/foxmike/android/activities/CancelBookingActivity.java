@@ -45,14 +45,10 @@ public class CancelBookingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cancel_booking);
-
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
         progressBarHorizontal = findViewById(R.id.progressBarHorizontal);
-
         progressBarHorizontal.setProgress(20);
-
         mFunctions = FirebaseFunctions.getInstance();
 
         bookingTimestamp = getIntent().getLongExtra("bookingTimestamp",0);
@@ -75,10 +71,8 @@ public class CancelBookingActivity extends AppCompatActivity {
                     return;
                 }
                 progressBarHorizontal.setProgress(40);
-
                 Long currentTimestamp = task.getResult();
                 tryRefund(currentTimestamp);
-
             }
         });
 
