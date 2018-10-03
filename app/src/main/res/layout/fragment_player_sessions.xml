@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:background="@color/color_background_light"
         android:foregroundTint="@color/foxmikePrimaryColor"
+        android:stateListAnimator="@animator/foxmike_app_bar_elevation"
         android:id="@+id/playerSessionsBar">
 
         <android.support.design.widget.TabLayout
