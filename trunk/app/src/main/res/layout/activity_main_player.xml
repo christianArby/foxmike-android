@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="@color/color_background_light"
         android:id="@+id/barLayout"
-        android:elevation="@dimen/appBarElevation">
+        android:stateListAnimator="@animator/foxmike_app_bar_elevation">
 
         <RelativeLayout
             android:layout_width="match_parent"
