@@ -48,6 +48,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
@@ -124,6 +125,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private long mSessionTimestamp;
     private ImageButton mSessionImageButton;
     private static final int GALLERY_REQUEST = 1;
+    private static final int PAYOUT_METHOD_REQUEST = 2;
     private Uri mImageUri = null;
     private ProgressDialog mProgress;
     private LatLng clickedLatLng;
@@ -658,16 +660,36 @@ public class CreateOrEditSessionFragment extends Fragment{
                             HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
                             accountCountry = account.get("country").toString();
                             accountCurrency = account.get("default_currency").toString();
+
+                            // ----------- PAYOUTS ENABLED --------------
                             if (account.get("payouts_enabled").toString().equals("true")) {
                                 payoutsEnabled = true;
                                 progressBar.setVisibility(View.GONE);
                                 mPriceTIL.setVisibility(View.VISIBLE);
                                 mCreateSessionBtn.setVisibility(View.VISIBLE);
+                                if (accountCountry.equals("SE")) {
+                                    mPrice.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            mPriceTIL.setError(null);
+                                            if (hasParticipants) {
+                                                notPossibleHasParticipants(getString(R.string.price_cannot_change));
+                                                return;
+                                            }
+                                            createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
+                                        }
+                                    });
+                                    if (price!=0) {
+                                        mPrice.setText(price + " kr");
+                                    }
+                                }
+                                // ----------- PAYOUTS NOT ENABLED --------------
                             } else {
-                                // TODO HANDLE WHEN PAYOUT IS NOT AVAILABLE YET
-                            }
+                                payoutsEnabled = false;
+                                progressBar.setVisibility(View.GONE);
+                                mPriceTIL.setVisibility(View.VISIBLE);
+                                mCreateSessionBtn.setVisibility(View.VISIBLE);
 
-                            if (accountCountry.equals("SE")) {
                                 mPrice.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -676,13 +698,25 @@ public class CreateOrEditSessionFragment extends Fragment{
                                             notPossibleHasParticipants(getString(R.string.price_cannot_change));
                                             return;
                                         }
-                                        createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
+
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                        builder.setMessage("You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?");
+                                        builder.setPositiveButton("CREATE FREE SESSION", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                mPrice.setText("Free");
+                                            }
+                                        });
+                                        builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                                                startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
+                                            }
+                                        });
+                                        AlertDialog dialog = builder.create();
+                                        dialog.show();
                                     }
                                 });
-
-                                if (price!=0) {
-                                    mPrice.setText(price + " kr");
-                                }
                             }
 
                         } else {
@@ -774,17 +808,24 @@ public class CreateOrEditSessionFragment extends Fragment{
             infoIsValid = false;
         }
 
-        if (accountCountry.equals("SE")) {
-            String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
-            if (sPrice.length()>1) {
-                int intPrice = Integer.parseInt(sPrice);
-                sessionMap.put("price", intPrice);
-                sessionMap.put("currency", accountCurrency);
-            } else {
-                mPriceTIL.setError(getString(R.string.please_set_session_price));
-                infoIsValid=false;
+        if (payoutsEnabled) {
+            if (accountCountry.equals("SE")) {
+                String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
+                if (sPrice.length()>1) {
+                    int intPrice = Integer.parseInt(sPrice);
+                    sessionMap.put("price", intPrice);
+                    sessionMap.put("currency", accountCurrency);
+                } else {
+                    sessionMap.put("price", 0);
+                    sessionMap.put("currency", "free");
+                }
             }
+        } else {
+            sessionMap.put("price", 0);
+            sessionMap.put("currency", "free");
         }
+
+
 
         /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/
@@ -995,6 +1036,15 @@ public class CreateOrEditSessionFragment extends Fragment{
     /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // TODO Change with RxJava instead listening to variable hasPaymentin MainHostAc
+        if(requestCode == PAYOUT_METHOD_REQUEST) {
+            if (existingSession!=null) {
+                setPrice(existingSession.getPrice());
+            } else {
+                setPrice(0);
+            }
+        }
 
         if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
 

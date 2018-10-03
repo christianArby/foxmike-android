@@ -32,6 +32,7 @@
     </string-array>
 
     <string-array name="price_array_SE">
+        <item>Gratis</item>
         <item>30 kr</item>
         <item>40 kr</item>
         <item>50 kr</item>
@@ -459,5 +460,6 @@
     <string name="representing_occasion_cancelled">Det här tillfället är inställt, välj ett annat.</string>
     <string name="cancelled">INSTÄLLT</string>
     <string name="show_availability">Visa tillgänglighet</string>
+    <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
 
 </resources>

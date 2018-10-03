@@ -5,6 +5,18 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.fragments.HostListSmallSessionsFragment">
 
+    <TextView
+        android:visibility="visible"
+        android:id="@+id/noContent"
+        android:background="@color/color_background_dark"
+        android:textColor="@color/primaryTextColor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:padding="@dimen/margin_left"
+        android:text="@string/you_have_no_advertisements"/>
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -29,18 +41,6 @@
                 android:id="@+id/comingAdvertisementsRV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
-            <TextView
-                android:visibility="visible"
-                android:id="@+id/noContent"
-                android:background="@color/color_background_dark"
-                android:textColor="@color/primaryTextColor"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center_horizontal"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:padding="@dimen/margin_left"
-                android:text="@string/you_have_no_advertisements"/>
 
             <TextView
                 android:visibility="gone"

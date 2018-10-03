@@ -470,4 +470,5 @@
     <string name="representing_occasion_cancelled">This occasion has been cancelled, please choose another occasion.</string>
     <string name="cancelled">CANCELLED</string>
     <string name="show_availability">Show availability</string>
+    <string name="you_have_no_sessions">You have no sessions yet, start by clicking on plus button below!</string>
 </resources>

@@ -55,7 +55,6 @@ public class HostListSmallSessionsFragment extends Fragment {
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
         listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getContext(), onSessionClickedListener);
-
         listSmallSessionsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {

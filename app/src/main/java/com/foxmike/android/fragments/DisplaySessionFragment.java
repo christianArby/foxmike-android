@@ -862,24 +862,32 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     snackNoUpcomingAds.setVisibility(View.GONE);
 
                     mDisplaySessionBtn.setText(getString(R.string.book_session));
-                    if (defaultSourceMap.get("brand")!=null) {
-                        String last4 = defaultSourceMap.get("last4").toString();
-                        paymentMethodTV.setText("**** " + last4);
-                        String cardBrand = defaultSourceMap.get("brand").toString();
-                        int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
-                        paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
 
-                        paymentMethodTV.setVisibility(View.VISIBLE);
-                        addPaymentMethodTV.setVisibility(View.GONE);
-
-                        mDisplaySessionBtn.setEnabled(true);
-                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
-                    } else {
-                        hasPaymentSystem = false;
+                    if (adSelected.getPrice()==0) {
                         mDisplaySessionBtn.setEnabled(true);
                         paymentMethodTV.setVisibility(View.GONE);
-                        addPaymentMethodTV.setVisibility(View.VISIBLE);
-                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
+                        addPaymentMethodTV.setVisibility(View.GONE);
+                        mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+                    } else {
+                        if (defaultSourceMap.get("brand")!=null) {
+                            String last4 = defaultSourceMap.get("last4").toString();
+                            paymentMethodTV.setText("**** " + last4);
+                            String cardBrand = defaultSourceMap.get("brand").toString();
+                            int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
+                            paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
+
+                            paymentMethodTV.setVisibility(View.VISIBLE);
+                            addPaymentMethodTV.setVisibility(View.GONE);
+
+                            mDisplaySessionBtn.setEnabled(true);
+                            mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+                        } else {
+                            hasPaymentSystem = false;
+                            mDisplaySessionBtn.setEnabled(true);
+                            paymentMethodTV.setVisibility(View.GONE);
+                            addPaymentMethodTV.setVisibility(View.VISIBLE);
+                            mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
+                        }
                     }
 
                     if (adSelected.getParticipantsIds() != null) {
@@ -954,7 +962,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 return;
                             }
                         }
-                        if (!hasPaymentSystem) {
+                        if (!hasPaymentSystem && adSelected.getPrice()!=0) {
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
@@ -977,7 +985,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         Else (button will show join session) add the user id to the session participant list and
                         the user sessions attending list when button is clicked.
                         */
-                        sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), defaultSourceMap.get("customer").toString(), session.getPrice(), session.getCurrency(), currentUser.isDontShowBookingText());
+                        if (adSelected.getPrice()==0) {
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), "", adSelected.getPrice(), adSelected.getCurrency(), true);
+                        } else {
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), defaultSourceMap.get("customer").toString(), adSelected.getPrice(), adSelected.getCurrency(), currentUser.isDontShowBookingText());
+                        }
                     }
                 }
             });
@@ -1029,7 +1041,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
         String priceText;
         if (adSelected.getPrice()== 0) {
-            priceText = "Free";
+            priceText = getString(R.string.free);
         } else {
             priceText = adSelected.getPrice() + " " + currencyString + " " + "per person";
         }

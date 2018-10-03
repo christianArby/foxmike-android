@@ -17,6 +17,9 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -58,24 +61,45 @@ public class CancelBookingActivity extends AppCompatActivity {
         chargeId = getIntent().getStringExtra("chargeId");
         accountId = getIntent().getStringExtra("accountId");
 
-        getTimestamp().addOnCompleteListener(new OnCompleteListener<Long>() {
-            @Override
-            public void onComplete(@NonNull Task<Long> task) {
-                // If not succesful, show error
-                if (!task.isSuccessful()) {
-                    Exception e = task.getException();
-                    if (e instanceof FirebaseFunctionsException) {
-                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+        if (chargeId.equals("FREE")) {
+            cancelFreeBooking();
+        } else {
+            getTimestamp().addOnCompleteListener(new OnCompleteListener<Long>() {
+                @Override
+                public void onComplete(@NonNull Task<Long> task) {
+                    // If not succesful, show error
+                    if (!task.isSuccessful()) {
+                        Exception e = task.getException();
+                        if (e instanceof FirebaseFunctionsException) {
+                            FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                        }
+                        Log.w("CancelActivity", "getTimestamp:onFailure", e);
+                        return;
                     }
-                    Log.w("CancelActivity", "getTimestamp:onFailure", e);
-                    return;
+                    progressBarHorizontal.setProgress(40);
+                    Long currentTimestamp = task.getResult();
+                    tryRefund(currentTimestamp);
                 }
-                progressBarHorizontal.setProgress(40);
-                Long currentTimestamp = task.getResult();
-                tryRefund(currentTimestamp);
+            });
+        }
+    }
+
+    private void cancelFreeBooking() {
+        // write current user as participant in session to database
+        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        Map bookingMap = new HashMap<>();
+        bookingMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + advertisementId, null);
+        bookingMap.put("advertisements/" + advertisementId + "/participantsIds/" + mAuth.getCurrentUser().getUid(), null);
+        bookingMap.put("advertisements/" + advertisementId + "/participantsTimestamps/" + mAuth.getCurrentUser().getUid(), null);
+
+        rootDbRef.updateChildren(bookingMap, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                setResult(RESULT_OK, null);
+                finish();
             }
         });
-
     }
 
     private void tryRefund(Long currentTimestamp) {
