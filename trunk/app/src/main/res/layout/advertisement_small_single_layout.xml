@@ -6,6 +6,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <TextView
+        android:id="@+id/cancelledCaption"
+        android:visibility="gone"
+        android:elevation="1dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/icon"
+        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:layout_constraintStart_toStartOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="@id/icon"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textSize="10sp"
+        android:textColor="@color/red"
+        android:text="@string/cancelled_capital"/>
+
     <ImageView
         android:contentDescription="@string/advertisement_image"
         android:id="@+id/icon"

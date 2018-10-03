@@ -55,5 +55,9 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
                 onAdvertisementClickedListener.OnAdvertisementClicked(model.getAdvertisementId());
             }
         });
+        if (model.getStatus().equals("cancelled")) {
+            holder.setCancelled(true);
+        }
+
     }
 }

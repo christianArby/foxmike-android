@@ -102,8 +102,9 @@ public class CancelBookingActivity extends AppCompatActivity {
         HashMap<String,Object> refundMap = new HashMap<>();
         refundMap.put("chargeId", chargeId);
         refundMap.put("accountId", accountId);
-        refundMap.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        refundMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
         refundMap.put("advertisementId", advertisementId);
+        refundMap.put("hostCancellation", "false");
 
 
         refundCharge(refundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
