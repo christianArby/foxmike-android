@@ -66,12 +66,15 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
 
         comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
+            public void onItemRangeChanged(int positionStart, int itemCount) {
+                super.onItemRangeChanged(positionStart, itemCount);
+                updateHeadings();
+            }
+
+            @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                if (comingFirebaseAdvertisementsAdapter.getItemCount()>0) {
-                    noContent.setVisibility(View.GONE);
-                    upcomingHeading.setVisibility(View.VISIBLE);
-                }
+                updateHeadings();
             }
         });
 
@@ -83,14 +86,35 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
 
         pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
+            public void onItemRangeChanged(int positionStart, int itemCount) {
+                super.onItemRangeChanged(positionStart, itemCount);
+                updateHeadings();
+            }
+
+            @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                if (pastFirebaseAdvertisementsAdapter.getItemCount()>0) {
-                    noContent.setVisibility(View.GONE);
-                    pastHeading.setVisibility(View.VISIBLE);
-                }
+                updateHeadings();
             }
         });
+    }
+
+    private void updateHeadings() {
+        if (comingFirebaseAdvertisementsAdapter.getItemCount()>0) {
+            noContent.setVisibility(View.GONE);
+            upcomingHeading.setVisibility(View.VISIBLE);
+        } else {
+            upcomingHeading.setVisibility(View.GONE);
+        }
+        if (pastFirebaseAdvertisementsAdapter.getItemCount()>0) {
+            noContent.setVisibility(View.GONE);
+            pastHeading.setVisibility(View.VISIBLE);
+        } else {
+            pastHeading.setVisibility(View.GONE);
+        }
+        if (comingFirebaseAdvertisementsAdapter.getItemCount()==0 && pastFirebaseAdvertisementsAdapter.getItemCount()==0) {
+            noContent.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

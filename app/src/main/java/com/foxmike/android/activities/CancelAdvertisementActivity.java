@@ -51,6 +51,8 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         progressBarHorizontal = findViewById(R.id.progressBarHorizontal);
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        progressBarHorizontal.setProgress(20);
+
         advertisementId = getIntent().getStringExtra("advertisementId");
         sessionId = getIntent().getStringExtra("sessionId");
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
@@ -61,6 +63,8 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
             rootDbRef.child("sessions").child(sessionId).child("advertisements").child(advertisementId).setValue(0);
             rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").child(advertisementId).setValue(0);
+            progressBarHorizontal.setProgress(100);
+            finishCancellation();
         } else {
             refundAll();
         }
@@ -85,8 +89,9 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
 
-
                     int progress = (refundedCounter/participantsIds.size())*(60);
+
+                    progressBarHorizontal.setProgress(20 + progress);
 
                     if (!task.isSuccessful()) {
                         Exception e = task.getException();
@@ -115,11 +120,13 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                                 rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
                                 rootDbRef.child("sessions").child(sessionId).child("advertisements").child(advertisementId).setValue(0);
                                 rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").child(advertisementId).setValue(0);
-                                //rootDbRef.updateChildren(cancelMap);
                                 evaluateDeposition();
+                                progressBarHorizontal.setProgress(100);
+                                finishCancellation();
                             } else {
-                                //rootDbRef.updateChildren(cancelMap);
                                 takeDeposition();
+                                progressBarHorizontal.setProgress(100);
+                                finishCancellation();
                             }
                         }
 
@@ -131,6 +138,11 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void finishCancellation() {
+        setResult(RESULT_OK);
+        finish();
     }
 
     private Task<HashMap<String, Object>> refundCharge(HashMap<String, Object> refundMap) {

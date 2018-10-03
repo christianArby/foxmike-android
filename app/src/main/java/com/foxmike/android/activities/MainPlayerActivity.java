@@ -158,7 +158,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private FirebaseFunctions mFunctions;
     private View mainView;
     static final int BOOK_SESSION_REQUEST = 8;
-    static final int CANCEL_SESSION_REQUEST = 16;
+    static final int CANCEL_BOOKING_REQUEST = 16;
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
     private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
     private float mapOrListBtnStartX;
@@ -853,7 +853,11 @@ public class MainPlayerActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == CANCEL_SESSION_REQUEST) {
+            if (requestCode == CANCEL_ADVERTISEMENT_REQUEST) {
+
+            }
+
+            if (requestCode == CANCEL_BOOKING_REQUEST) {
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (data!=null) {
                     if (data.getBooleanExtra("cancel", false)) {
@@ -916,7 +920,7 @@ public class MainPlayerActivity extends AppCompatActivity
         cancelIntent.putExtra("participantId",participantId);
         cancelIntent.putExtra("chargeId",chargeId);
         cancelIntent.putExtra("accountId",accountId);
-        startActivityForResult(cancelIntent, CANCEL_SESSION_REQUEST);
+        startActivityForResult(cancelIntent, CANCEL_BOOKING_REQUEST);
 
     }
 
