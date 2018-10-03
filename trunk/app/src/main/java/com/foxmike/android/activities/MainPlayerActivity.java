@@ -303,6 +303,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             mapOrListBtn.setVisibility(View.VISIBLE);
                             mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
                             sortAndFilterFAB.setVisibility(View.VISIBLE);
+                            setupListAndMapWithSessions();
                             resumed = false;
                             return true;
                         }

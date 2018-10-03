@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_player_sessions"
     android:layout_width="match_parent"
@@ -14,6 +13,9 @@
         android:id="@+id/playerSessionsBar">
 
         <android.support.design.widget.TabLayout
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Subhead"
+            app:tabSelectedTextColor="@color/foxmikePrimaryColor"
+            app:tabTextColor="@color/primaryTextColor"
             android:id="@+id/player_sessions_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

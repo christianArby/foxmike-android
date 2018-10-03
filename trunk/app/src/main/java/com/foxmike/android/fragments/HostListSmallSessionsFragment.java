@@ -55,6 +55,15 @@ public class HostListSmallSessionsFragment extends Fragment {
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
         listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getContext(), onSessionClickedListener);
+        listSmallSessionsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                if (listSmallSessionsFirebaseAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @Override
@@ -79,7 +88,6 @@ public class HostListSmallSessionsFragment extends Fragment {
         smallSessionsListRV.setAdapter(listSmallSessionsFirebaseAdapter);
         ((SimpleItemAnimator) smallSessionsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         noContent = view.findViewById(R.id.noContent);
-        noContent.setVisibility(View.GONE);
         return view;
     }
 

@@ -31,6 +31,8 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     private FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> pastFirebaseAdvertisementsAdapter;
     private FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> comingFirebaseAdvertisementsAdapter;
     private TextView noContent;
+    private TextView upcomingHeading;
+    private TextView pastHeading;
 
 
     public HostListSmallAdvertisementsFragment() {
@@ -62,6 +64,16 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
                 .build();
         comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onAdvertisementClickedListener);
 
+        comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                if (comingFirebaseAdvertisementsAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                    upcomingHeading.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         Query pastAdsQuery = rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").orderByValue().startAt(0).endAt(currentTimestamp);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
@@ -69,6 +81,16 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
                 .build();
         pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getContext(), onAdvertisementClickedListener);
 
+        pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                if (pastFirebaseAdvertisementsAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                    pastHeading.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -90,6 +112,9 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view =  inflater.inflate(R.layout.fragment_host_list_small_advertisements, container, false);
+
+        upcomingHeading = view.findViewById(R.id.upcomingHeading);
+        pastHeading = view.findViewById(R.id.pastHeading);
 
         comingAdvertisementsRV = (RecyclerView) view.findViewById(R.id.comingAdvertisementsRV);
         comingAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getContext()));
