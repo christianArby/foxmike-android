@@ -66,6 +66,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
@@ -142,11 +144,12 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private boolean paymentMethodLoaded;
     private boolean sessionAndPaymentAndViewUsed;
     private boolean advertisementAndViewUsed;
-    private LinearLayout manageBooking;
+    @BindView(R.id.manageBooking) LinearLayout manageBooking;
     private LinearLayout price;
     private ImageView advertisementImage;
     private int asyncTasksFinished = 0;
     private TextView cancelledTV;
+    @BindView(R.id.participants_layout) LinearLayout participants;
     private OnChatClickedListener onChatClickedListener;
     public DisplayAdvertisementFragment() {
         // Required empty public constructor
@@ -345,6 +348,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         View displayAdvertisement;
         displayAdvertisementContainer = view.findViewById(R.id.display_advertisement_container);
         displayAdvertisement = inflater.inflate(R.layout.display_advertisement,displayAdvertisementContainer,false);
+        ButterKnife.bind(this, displayAdvertisement);
 
         dateAndTimeHeadingTV = displayAdvertisement.findViewById(R.id.sessionDateHeading);
         mAdvertisementName = displayAdvertisement.findViewById(R.id.adName);
@@ -500,6 +504,10 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
             if (advertisement.getStatus().equals("cancelled")) {
                 cancelledTV.setVisibility(View.VISIBLE);
+                price.setVisibility(View.GONE);
+                manageBooking.setVisibility(View.GONE);
+                participants.setVisibility(View.GONE);
+                writePostLsyout.setVisibility(View.GONE);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setMessage(R.string.occasion_cancelled_text).setTitle(R.string.occasion_cancelled);
                 AlertDialog dialog = builder.create();

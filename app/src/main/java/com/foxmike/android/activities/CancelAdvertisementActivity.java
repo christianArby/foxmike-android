@@ -77,9 +77,9 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         for (String participantId: participantsIds.keySet()) {
             refundMap.put("chargeId", participantsIds.get(participantId));
             refundMap.put("accountId", accountId);
-            refundMap.put("userID", currentUserId);
+            refundMap.put("participantUserID", participantId);
             refundMap.put("advertisementId", advertisementId);
-            refundMap.put("hostCancellation", "hostCancellation");
+            refundMap.put("hostCancellation", "true");
 
             refundCharge(refundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                 @Override

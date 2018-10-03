@@ -639,9 +639,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
                         // If not succesful, show error and return from function, will trigger if account ID does not exist
 
-                        progressBar.setVisibility(View.GONE);
-                        mPriceTIL.setVisibility(View.VISIBLE);
-                        mCreateSessionBtn.setVisibility(View.VISIBLE);
+
 
                         if (!task.isSuccessful()) {
                             Exception e = task.getException();
@@ -662,6 +660,11 @@ public class CreateOrEditSessionFragment extends Fragment{
                             accountCurrency = account.get("default_currency").toString();
                             if (account.get("payouts_enabled").toString().equals("true")) {
                                 payoutsEnabled = true;
+                                progressBar.setVisibility(View.GONE);
+                                mPriceTIL.setVisibility(View.VISIBLE);
+                                mCreateSessionBtn.setVisibility(View.VISIBLE);
+                            } else {
+                                // TODO HANDLE WHEN PAYOUT IS NOT AVAILABLE YET
                             }
 
                             if (accountCountry.equals("SE")) {

@@ -1,6 +1,7 @@
 package com.foxmike.android.utils;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,6 +21,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public ImageView sessionIV;
     public TextView text1TV;
     public TextView text2TV;
+    public TextView cancelledTV;
 
     public OnAdvertisementClickedListener onAdvertisementClickedListener;
 
@@ -29,6 +31,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
         sessionIV = (ImageView) itemView.findViewById(R.id.icon);
         text1TV = (TextView) itemView.findViewById(R.id.text1);
         text2TV = (TextView) itemView.findViewById(R.id.text2);
+        cancelledTV = (TextView) itemView.findViewById(R.id.cancelledCaption);
     }
 
     public void setSessionImage(String sessionImage, Context context) {
@@ -41,5 +44,12 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
 
     public void setText2(String text2) {
         text2TV.setText(text2);
+    }
+
+    public void setCancelled(boolean cancelled) {
+        if (cancelled) {
+            cancelledTV.setVisibility(View.VISIBLE);
+            sessionIV.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+        }
     }
 }
