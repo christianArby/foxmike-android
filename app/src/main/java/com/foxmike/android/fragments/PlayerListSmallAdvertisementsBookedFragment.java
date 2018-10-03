@@ -57,6 +57,15 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
         bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onAdvertisementClickedListener);
+        bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                if (bookedAdvertisementsFirebaseAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                }
+            }
+        });
 
     }
 
@@ -82,7 +91,6 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         ((SimpleItemAnimator) smallAdvertisementsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         smallAdvertisementsListRV.setAdapter(bookedAdvertisementsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
-        noContent.setVisibility(View.GONE);
         return view;
     }
 
