@@ -190,23 +190,30 @@ public class MyFirebaseDatabase extends Service {
     }
 
     public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
-
+        // sessionArray will be an array of the near sessions filtered
         ArrayList<Session> sessionArray = new ArrayList<>();
+        // sessionDateArray will be an array of the near sessions filtered, but will contain one session copy per advertisement with the advertisement date saved under representingAdTimestamp
         ArrayList<Session> sessionDateArray = new ArrayList<>();
+        // save the current time in a timestamp to compare with the advertisement timestamps
         Long currentTimestamp = System.currentTimeMillis();
-
         // Filter sessions not part of weekdays
         for (Session nearSession : nearSessions) {
+            // create a boolean to keep track if this session has been added to the sessionArray or not
             boolean sessionAdded = false;
             if (nearSession.getAdvertisements()!=null) {
+                // loop through all the advertisement timestamps found under session/adIds
                 for (long advertisementTimestamp: nearSession.getAdvertisements().values()) {
-
+                    // If part of weekday filter
                     if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            // if time has not passed
                             if (advertisementTimestamp > currentTimestamp) {
+                                // create a session object with the same parameters but with the advertisement timestamp saved under representingAdTimestamp
                                 Session dateSession = new Session(nearSession);
                                 dateSession.setRepresentingAdTimestamp(advertisementTimestamp);
+                                // save that session to sessionDateArray
                                 sessionDateArray.add(dateSession);
+                                // if this session hasn't already been saved to sessionArray save it
                                 if (!sessionAdded) {
                                     sessionArray.add(nearSession);
                                     sessionAdded = true;
@@ -214,7 +221,7 @@ public class MyFirebaseDatabase extends Service {
                             }
                         }
                     }
-
+                    // same for secondWeek of the filter (I have one hashmap for each week)
                     if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             if (advertisementTimestamp > currentTimestamp) {
@@ -227,16 +234,15 @@ public class MyFirebaseDatabase extends Service {
                             }
                         }
                     }
-
                 }
             }
 
         }
-
+        // If array should be sorted by date sort it by date
         if (sortType.equals("date")) {
             Collections.sort(sessionDateArray);
             TextTimestamp prevTextTimestamp = new TextTimestamp();
-
+            // Throw in a session dummy containing the dateheader for every new day so that these can be used in the list
             int i = 0;
             while (i < sessionDateArray.size()) {
                 if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(sessionDateArray.get(i).getRepresentingAdTimestamp()))) {
@@ -249,7 +255,6 @@ public class MyFirebaseDatabase extends Service {
                 i++;
             }
         }
-
         onSessionsFilteredListener.OnSessionsFiltered(sessionArray, sessionDateArray);
     }
 
@@ -257,17 +262,6 @@ public class MyFirebaseDatabase extends Service {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }*/
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -309,8 +303,6 @@ public class MyFirebaseDatabase extends Service {
                                                 session = dataSnapshot.getValue(Session.class);
                                                 SessionMap sessionMap = new SessionMap(session, sessionDistances.get(dataSnapshot.getKey()));
                                                 sessionMapArrayList.add(sessionMap);
-
-
                                                 if (sessionMapArrayList.size()==sessionDistances.size()) {
                                                     Collections.sort(sessionMapArrayList);
                                                     for (SessionMap sessionMapSorted: sessionMapArrayList) {

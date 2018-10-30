@@ -6,6 +6,6 @@ import android.view.View;
  * Created by chris on 2018-09-16.
  */
 
-public interface SessionDateAndTimeClickedListener {
-    void OnSessionDateAndTimeClicked(View view, int position);
+public interface AdvertisementRowClickedListener {
+    void OnAdvertisementRowClicked(View view, int position);
 }

@@ -21,8 +21,8 @@ android {
         applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 152
-        versionName "1.5.2-alpha"
+        versionCode 162
+        versionName "1.6.2-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true //important
@@ -84,6 +84,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:15.0.0'
     implementation 'com.google.android.gms:play-services-places:15.0.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
+    implementation 'com.google.firebase:firebase-perf:16.1.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
     implementation 'com.google.firebase:firebase-database:16.0.2'
     implementation 'com.google.firebase:firebase-crash:16.2.0'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
@@ -114,3 +116,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'io.fabric'

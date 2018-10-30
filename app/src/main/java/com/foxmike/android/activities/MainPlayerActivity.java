@@ -801,23 +801,23 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnBookSession(String advertisementId, Long advertisementTimestamp,String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
-
+        // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
-            // Get the layout inflater
             LayoutInflater inflater = MainPlayerActivity.this.getLayoutInflater();
             View view = inflater.inflate(R.layout.fragment_booking_dialog,null);
             AppCompatCheckBox showAgainCheckbox = view.findViewById(R.id.doNotShowAgainCheckbox);
             builder.setView(view)
-                    // Add action buttons
+                    // When the button "Book session" in the dialog is pressed
                     .setPositiveButton(R.string.book_session, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            // If the user does not want to see the booking text again, save this to the database
                             if (showAgainCheckbox.isChecked()) {
                                 rootDbRef.child("users").child(userId).child("dontShowBookingText").setValue(true);
                             }
-
+                            // send all the info to the booking activity and start that activity and pick up the result in onActivityResult (another method further down)
                             Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
                             bookIntent.putExtra("advertisementId", advertisementId);
                             bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
@@ -830,14 +830,14 @@ public class MainPlayerActivity extends AppCompatActivity
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                    // cancels the action
                 }
             }).setMessage(R.string.booking_text_policy).setTitle(R.string.confirm_booking);
             AlertDialog dialog = builder.create();
             dialog.show();
             return;
         }
-
+        // send all the info to the booking activity and start that activity and pick up the result in onActivityResult (another method further down)
         Intent bookIntent = new Intent(MainPlayerActivity.this,BookingActivity.class);
         bookIntent.putExtra("advertisementId", advertisementId);
         bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
@@ -856,7 +856,6 @@ public class MainPlayerActivity extends AppCompatActivity
             if (requestCode == CANCEL_ADVERTISEMENT_REQUEST) {
 
             }
-
             if (requestCode == CANCEL_BOOKING_REQUEST) {
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (data!=null) {
@@ -903,6 +902,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
+                    // TODO should not be needed since PlayerSessionsFragment relies on firebaseadapters
                     PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
                     ps.loadPages(true);
                 }
@@ -1126,17 +1126,12 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     private Task<HashMap<String, Object>> retrieveStripeCustomer(String customerID) {
-
-        // Call the function and extract the operation from the result which is a String
         return mFunctions
                 .getHttpsCallable("retrieveCustomer")
                 .call(customerID)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override
                     public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        // This continuation runs on either success or failure, but if the task
-                        // has failed then getResult() will throw an Exception which will be
-                        // propagated down.
                         HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
                         return result;
                     }
