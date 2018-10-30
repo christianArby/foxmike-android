@@ -325,9 +325,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         // FILL VIEW with the session in bundle or with the session with the sessionID
 
         if (existingSessionID != null | existingSession!=null) {
-
             updateSession = true;
-
             /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
              * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
             if (existingSession==null) {
@@ -347,12 +345,9 @@ public class CreateOrEditSessionFragment extends Fragment{
             } else {
                 setupUI();
             }
-
-
         } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
-
             String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
             setPrice(0);
@@ -629,109 +624,110 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     private void setPrice(final int price) {
+        // --------------CHECK IF PAYOUTS ARE ENABLED------
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    // ----------- PAYOUTS NOT ENABLED --------------
+                    payoutsEnabled = false;
+                    showPriceView();
+                } else {
+                    stripeAccountId = dataSnapshot.getValue().toString();
+                    // Stripe function
+                    retrieveStripeAccount(stripeAccountId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                            // If not succesful, show error and return from function, will trigger if account ID does not exist
+                            if (!task.isSuccessful()) {
+                                Exception e = task.getException();
+                                Log.w(TAG, "retrieve:onFailure", e);
+                                showSnackbar("An error occurred." + e.getMessage());
+                                // ----------- PAYOUTS NOT ENABLED --------------
+                                payoutsEnabled = false;
+                                showPriceView();
+                                return;
+                            }
+                            // If successful, extract
+                            HashMap<String, Object> result = task.getResult();
+                            if (result.get("resultType").toString().equals("account")) {
 
-                stripeAccountId = dataSnapshot.getValue().toString();
+                                HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
+                                accountCountry = account.get("country").toString();
+                                accountCurrency = account.get("default_currency").toString();
 
-                retrieveStripeAccount(stripeAccountId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                        // If not succesful, show error and return from function, will trigger if account ID does not exist
+                                // ----------- PAYOUTS ENABLED --------------
+                                if (account.get("payouts_enabled").toString().equals("true")) {
+                                    payoutsEnabled = true;
+                                    showPriceView();
 
+                                } else {
+                                    // ----------- PAYOUTS NOT ENABLED --------------
+                                    payoutsEnabled = false;
+                                    showPriceView();
+                                }
 
-
-                        if (!task.isSuccessful()) {
-                            Exception e = task.getException();
-
-                            // [START_EXCLUDE]
-                            Log.w(TAG, "retrieve:onFailure", e);
-                            showSnackbar("An error occurred." + e.getMessage());
-                            return;
+                            } else {
+                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                showSnackbar(error.get("message").toString());
+                            }
                             // [END_EXCLUDE]
                         }
-                        // If successful, extract
-                        HashMap<String, Object> result = task.getResult();
-
-                        if (result.get("resultType").toString().equals("account")) {
-
-                            HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
-                            accountCountry = account.get("country").toString();
-                            accountCurrency = account.get("default_currency").toString();
-
-                            // ----------- PAYOUTS ENABLED --------------
-                            if (account.get("payouts_enabled").toString().equals("true")) {
-                                payoutsEnabled = true;
-                                progressBar.setVisibility(View.GONE);
-                                mPriceTIL.setVisibility(View.VISIBLE);
-                                mCreateSessionBtn.setVisibility(View.VISIBLE);
-                                if (accountCountry.equals("SE")) {
-                                    mPrice.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            mPriceTIL.setError(null);
-                                            if (hasParticipants) {
-                                                notPossibleHasParticipants(getString(R.string.price_cannot_change));
-                                                return;
-                                            }
-                                            createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
-                                        }
-                                    });
-                                    if (price!=0) {
-                                        mPrice.setText(price + " kr");
-                                    }
-                                }
-                                // ----------- PAYOUTS NOT ENABLED --------------
-                            } else {
-                                payoutsEnabled = false;
-                                progressBar.setVisibility(View.GONE);
-                                mPriceTIL.setVisibility(View.VISIBLE);
-                                mCreateSessionBtn.setVisibility(View.VISIBLE);
-
-                                mPrice.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mPriceTIL.setError(null);
-                                        if (hasParticipants) {
-                                            notPossibleHasParticipants(getString(R.string.price_cannot_change));
-                                            return;
-                                        }
-
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                        builder.setMessage("You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?");
-                                        builder.setPositiveButton("CREATE FREE SESSION", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                mPrice.setText("Free");
-                                            }
-                                        });
-                                        builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
-                                                startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
-                                            }
-                                        });
-                                        AlertDialog dialog = builder.create();
-                                        dialog.show();
-                                    }
-                                });
-                            }
-
-                        } else {
-                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                            showSnackbar(error.get("message").toString());
-                        }
-                        // [END_EXCLUDE]
-                    }
-                });
+                    });
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
+        // -------------- SET PRICE TEXTVIEW ON CLICK LISTENER ------------------
+        mPrice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPriceTIL.setError(null);
+                if (payoutsEnabled) {
+                    if (accountCountry.equals("SE")) {
+                        mPrice.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                mPriceTIL.setError(null);
+                                createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
+                            }
+                        });
+                        if (price!=0) {
+                            mPrice.setText(price + " kr");
+                        }
+                    }
+                    return;
+                }
+                // ---- Payouts not enabled -----
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?");
+                builder.setPositiveButton("CREATE FREE SESSION", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mPrice.setText("Free");
+                    }
+                });
+                builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                        startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+    }
+
+    private void showPriceView() {
+        progressBar.setVisibility(View.GONE);
+        mPriceTIL.setVisibility(View.VISIBLE);
+        mCreateSessionBtn.setVisibility(View.VISIBLE);
     }
 
     @NonNull
@@ -876,13 +872,11 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     /**Send session object to database */
     private void sendSession(Map sendSession) {
-
-        boolean firstAd = true;
-
-        for (Long sessionTimestamp: advertisementTimestamps.keySet()) {
-
+        // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
+        // Loop through the timestamps created by clicking and making events in the calendar
+        for (Long advertisementTimestamp: advertisementTimestamps.keySet()) {
+            // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
             String advertisementKey = rootDbRef.child("advertisements").push().getKey();
-
             Advertisement advertisement = new Advertisement("active",
                     (String) sendSession.get("sessionId"),
                     advertisementKey,
@@ -901,38 +895,25 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (String) sendSession.get("whereAt"),
                     (String) sendSession.get("duration"),
                     (String) sendSession.get("currency"),
-                    sessionTimestamp,
+                    advertisementTimestamp,
                     (int) sendSession.get("price")
             );
-
-            advertisements.put(advertisementKey, sessionTimestamp);
-            /*
-            Advertisement advertisement = new Advertisement();
-            advertisement.setAdvertisementId(advertisementKey);
-            advertisement.setAdvertisementName(sendSession.get("sessionName").toString());
-            advertisement.setAdvertisementTimestamp(sessionTimestamp);
-            advertisement.setCurrency(sendSession.get("currency").toString());
-            advertisement.setImageUrl(sendSession.get("imageUrl").toString());
-            advertisement.setPrice((int) sendSession.get("price"));
-            advertisement.setMaxParticipants((String) sendSession.get("maxParticipants"));
-            advertisement.setHost((String) sendSession.get("host"));
-            advertisement.setSessionId((String) sendSession.get("sessionId"));
-            advertisement.setSessionType((String) sendSession.get("sessionType"));*/
-            //advertisement.setSessionType(sendSession.get("sessionType").toString());
+            // Save the advertisement Id and the ad timestamp in a hashmap to be saved under session
+            advertisements.put(advertisementKey, advertisementTimestamp);
+            // send the ad to the database
             rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement);
-            rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(sessionTimestamp);
-
-            if (firstAd) {
-                sendSession.put("sessionTimestamp", sessionTimestamp);
-                firstAd = false;
-            }
+            // save the key and ad timestamp under user/advertisementHosting
+            rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(advertisementTimestamp);
         }
-
+        // Save the hashmap of ad Ids and timestamps under session
         sendSession.put("advertisements", advertisements);
-
+        // Update the session (with 'updateChildren' so not all child nodes are overwritten)
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
+        // Update user object with sessionsHosting
         mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+        // create geoFire reference
         geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
+        // TODO this listener might not be needed..
         onHostSessionChangedListener.OnHostSessionChanged();
     }
 

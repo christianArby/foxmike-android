@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -19,6 +18,7 @@ import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -97,6 +97,7 @@ public class UpdateStripeExternalAccountFragment extends Fragment {
 
         accountData.put("accountId", accountId);
         accountData.put("externalAccountId", externalAccountId);
+        accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         payoutHeadingTV.setText(getResources().getString(R.string.bank_account_text));
 

@@ -227,7 +227,8 @@
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/firebaseRVContainer">
+        app:layout_constraintTop_toBottomOf="@id/firebaseRVContainer"
+        app:layout_constraintBottom_toTopOf="@id/spaceView05">
 
         <TextView
             android:id="@+id/showMoreTV"
@@ -244,35 +245,6 @@
             android:layout_height="1dp"
             android:background="@color/color_divider"/>
 
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:visibility="gone"
-        android:id="@+id/noUpcomingAdsText"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/showMoreText"
-        app:layout_constraintBottom_toTopOf="@id/spaceView05">
-
-        <TextView
-            android:id="@+id/noUpcomingAds"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:padding="@dimen/marginVertical"
-            android:background="@color/color_background_light"
-            android:text="@string/no_upcoming_sessions"
-            />
-
-        <View
-            android:id="@+id/spaceView03"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/color_divider"/>
 
     </LinearLayout>
 
@@ -325,7 +297,7 @@
         android:layout_height="@dimen/space_view__big_height"
         android:background="@color/color_divider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/noUpcomingAdsText"/>
+        app:layout_constraintTop_toBottomOf="@id/showMoreText"/>
 
     <LinearLayout
         android:id="@+id/write_post_layout"

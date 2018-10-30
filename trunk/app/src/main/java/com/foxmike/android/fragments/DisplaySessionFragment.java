@@ -45,17 +45,17 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
+import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.SessionDateAndTimeClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
-import com.foxmike.android.utils.SessionDateAndTimeViewHolder;
+import com.foxmike.android.utils.AdvertisementRowViewHolder;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -177,7 +177,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView showMoreTV;
     private int currentHeightInNr;
     private SessionListener sessionListener;
-    private FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder> fbAdDateAndTimeAdapter;
+    private FirebaseRecyclerAdapter<Advertisement, AdvertisementRowViewHolder> fbAdDateAndTimeAdapter;
     private ImageView sessionImage;
     private int asyncTasksFinished = 0;
     private int rowIndex = -1;
@@ -185,7 +185,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean adSelectedReady;
     private Long representingAdTimestamp;
     private Advertisement adSelected;
-    private LinearLayout noUpcomingAds;
     private boolean repAdCancelled = false;
     private boolean paymentMethodAdSelectedAndViewUsed;
     private OnChatClickedListener onChatClickedListener;
@@ -248,7 +247,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 currentUserAndSessionAndViewAndMapUsed = false;
                 currentUser = dataSnapshot.getValue(User.class);
                 currentUserLoaded =true;
-                onTaskFinished();
+                onAsyncTaskFinished();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -270,7 +269,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         sessionAndPaymentAndViewUsed = false;
                         sessionUsed = false;
                         sessionLoaded = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                         getPosts();
                         getSessionHost();
                     }
@@ -299,13 +298,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         hasPaymentSystem = true;
                         sessionAndPaymentAndViewUsed = false;
                         paymentMethodLoaded = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                     } else {
                         hasPaymentSystem = false;
                         defaultSourceMap = new HashMap();
                         sessionAndPaymentAndViewUsed = false;
                         paymentMethodLoaded = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                     }
                 }
             });
@@ -314,7 +313,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             defaultSourceMap = new HashMap();
             sessionAndPaymentAndViewUsed = false;
             paymentMethodLoaded = true;
-            onTaskFinished();
+            onAsyncTaskFinished();
         }
     }
 
@@ -327,7 +326,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onDataChange(DataSnapshot dataSnapshot) {
                 host = dataSnapshot.getValue(User.class);
                 hostLoaded = true;
-                onTaskFinished();
+                onAsyncTaskFinished();
             }
 
             @Override
@@ -355,7 +354,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     if (postBranchArrayList.size()==session.getPosts().size()) {
                                         Collections.sort(postBranchArrayList);
                                         postsLoaded = true;
-                                        onTaskFinished();
+                                        onAsyncTaskFinished();
                                     }
                                     // Number of comments listener
                                     if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
@@ -367,7 +366,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                                 if (nrOfComments.size()==session.getPosts().size()) {
                                                     postCommentsUsed = false;
                                                     postCommentsLoaded = true;
-                                                    onTaskFinished();
+                                                    onAsyncTaskFinished();
                                                 }
                                             }
                                             @Override
@@ -394,49 +393,65 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void setupAds() {
+
+        // --------- GET ALL THE AD TIMESTAMPS SAVED UNDER SESSION/ADVERTISEMENTS ---------
+        // Current time as timestamp
         Long currentTimestamp = System.currentTimeMillis();
+        // Create query to get all the advertisement keys from the current session
         Query keyQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+        // Use the query to get all the advertisement keys from the current session
         keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
-                    // no ads
+                    // If data snapshot is null but representingAdTimestamp is not null it means that the ad has been cancelled during the time the user opened the session from the session representing
+                    // the cancelled ad, set the boolean repAdCancelled to true
                     if (representingAdTimestamp!=0) {
                         repAdCancelled = true;
                     }
-                    noUpcomingAds.setVisibility(View.VISIBLE);
-                    showMoreTV.setText(getResources().getString(R.string.end_of_list));
+                    // display text "no upcoming sessions"
+                    showMoreTV.setText(getResources().getString(R.string.no_upcoming_sessions));
+                    // run method which updates snackbar
                     paymentMethodAdSelectedAndViewUsed = false;
                     adSelectedReady = true;
-                    onTaskFinished();
+                    onAsyncTaskFinished();
                 } else {
+                    // if there are advertisements collect all the timestamps in a hashmap
                     HashMap<String,Long> adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
-                    if (!adTimes.containsValue(representingAdTimestamp)) {
-                        repAdCancelled = true;
+                    // If activity has been opened from map representingAdTimestamp will be 0, update snackbar.
+                    if (representingAdTimestamp==0) {
+                        repAdCancelled = false;
+                        // run method which updates snackbar
                         adSelected = null;
                         adSelectedReady = true;
                         paymentMethodAdSelectedAndViewUsed = false;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                     }
+                    if (!adTimes.containsValue(representingAdTimestamp)) {
+                        // if this sessions representing timestamp is not part of the advertisment timestamps it means that the ad has been cancelled during the time the user opened the session from the session representing
+                        // the cancelled ad, set the boolean repAdCancelled to true
+                        repAdCancelled = true;
+                        // run method which updates snackbar
+                        adSelected = null;
+                        adSelectedReady = true;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        onAsyncTaskFinished();
+                    }
+                    // create timestamp which is two weeks ahead of today
                     Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
                     int twoWeekssize = 0;
-                    // Ifall aktiviteten har öppnats från kartan så är repAd null och då sätter vi repAdTimestamp till den som kommer först
-                    // Vi tar dessutom reda på hur hög vår lista ska vara genom att räkna hur många som är med första två veckorna.
-                    Long firstTimestamp = 0L;
+                    // The list height will be based on how many ads exists within the two weeks
+                    // count how many ads exists within the first two weeks
                     for (Long adTime: adTimes.values()) {
                         if (adTime<twoWeekTimestamp) {
                             twoWeekssize++;
                         }
                     }
-                    if (representingAdTimestamp==0) {
-                        repAdCancelled = false;
-                        adSelected = null;
-                        adSelectedReady = true;
-                        paymentMethodAdSelectedAndViewUsed = false;
-                        onTaskFinished();
-                    }
 
+                    // set the variable currentHeightInNr which later sets the height of the list to the number of ads existing within two weeks
                     currentHeightInNr = twoWeekssize;
+                    // if number of ads within two weeks are less than 5 check if that is all the future ads, if so set currentHeightInNr to that number
+                    // if not: display 4 ads regardless if they are within two weeks or not (4 items are minimum if there are more than 4 ads in the future)
                     if (twoWeekssize<5) {
                         if (adTimes.size()<5) {
                             currentHeightInNr = adTimes.size();
@@ -444,26 +459,30 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             currentHeightInNr = 4;
                         }
                     }
+                    // set the height of the list to the height of one row times number of ads to be displayed (currentHeightInNr)
                     ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
                     params.height= 167*currentHeightInNr;
                     fbRVContainer.setLayoutParams(params);
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
 
+        // --------- POPULATE THE RECYCLERVIEW WITH THE ADVERTISEMENTS ---------
+        // Create the key query which will get all the advertisement keys for ads with a date in the future.
         Query allKeysQuery = rootDbRef.child("sessions").child(session.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
+        // Create the firebase recycler adapter which will fill the list with those advertisements specified by the above query
         FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(allKeysQuery, adDbRef, Advertisement.class)
                 .build();
-        fbAdDateAndTimeAdapter = new FirebaseRecyclerAdapter<Advertisement, SessionDateAndTimeViewHolder>(options) {
+        fbAdDateAndTimeAdapter = new FirebaseRecyclerAdapter<Advertisement, AdvertisementRowViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull SessionDateAndTimeViewHolder holder, int position, @NonNull Advertisement model) {
+            protected void onBindViewHolder(@NonNull AdvertisementRowViewHolder holder, int position, @NonNull Advertisement model) {
+                // load the views in each row in the recyclerview (list) with data from each advertisement (found in model)
 
                 // -----------  set the number of participants ------------
                 long countParticipants;
@@ -472,82 +491,96 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 } else {
                     countParticipants = 0;
                 }
+                // set the text of each row in the list of advertisements
                 holder.setParticipantsTV(countParticipants +"/" + model.getMaxParticipants());
-                holder.sessionDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
-                holder.setSessionDateAndTimeClickedListener(new SessionDateAndTimeClickedListener() {
+                holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
+                // set the click listener on each row
+                holder.setAdvertisementRowClickedListener(new AdvertisementRowClickedListener() {
                     @Override
-                    public void OnSessionDateAndTimeClicked(View view, int position) {
-                        rowIndex = position; // set row index to selected position
+                    public void OnAdvertisementRowClicked(View view, int position) {
+                        // Save the clicked position by setting the variable rowIndex = position
+                        rowIndex = position;
+                        // update snackbar
                         adSelected = fbAdDateAndTimeAdapter.getItem(position);
                         paymentMethodAdSelectedAndViewUsed = false;
                         adSelectedReady = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                         notifyDataSetChanged(); // Made effect on Recycler Views adapter
                     }
                 });
-
-                setAdListItemDefault(holder);
+                // set the row appearance to default (no selection or booked color)
+                setAdListItemDefaultAppearance(holder);
+                // if rowIndex==-1 it means that no item has been selected in the list, make the first item (this item) selected
                 if (rowIndex==-1) {
                     if (representingAdTimestamp==model.getAdvertisementTimestamp()) {
                         rowIndex = position;
                     }
                 }
+                // If this item has been selected set advertisement adSelected to this ad and update snackbar
                 if (rowIndex == position) {
                     adSelected=model;
                     paymentMethodAdSelectedAndViewUsed = false;
                     adSelectedReady = true;
-                    setAdListItemSelected(holder);
-                    onTaskFinished();
+                    setAdListItemSelectedAppearance(holder);
+                    onAsyncTaskFinished();
                 }
+                // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
                 if (model.getParticipantsIds().size()!=0) {
                     if (model.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                        setAdListItemBooked(holder);
+                        setAdListItemBookedAppearance(holder);
                     }
                 }
             }
             @NonNull
             @Override
-            public SessionDateAndTimeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public AdvertisementRowViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.session_date_time_single_layout, parent, false);
+                // When view is created measure the height of one row (item)
                 view.measure(
                         View.MeasureSpec.makeMeasureSpec(upcomingSessionsRV.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
                 itemHeight = view.getMeasuredHeight();
-                return new SessionDateAndTimeViewHolder(view);
+                return new AdvertisementRowViewHolder(view);
             }
         };
+        // set the adapter to the recyclerview.
         upcomingSessionsRV.setAdapter(fbAdDateAndTimeAdapter);
+        // --------- LISTEN TO CHANGES IN THE DATABASE) ---------
         fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                // If an item has been inserted, call the function updateListViews() which updates the showMore text
                 updateListViews();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
+                // If an item has been removed that was selected and if the list only contained that item set the adSelected to null and update snackbar
+                // else set the adSelected to the first item in the list instead and update snackbar.
+                // TODO maybe better to set the snackbar to show availability
                 if (rowIndex==positionStart) {
                     if (fbAdDateAndTimeAdapter.getItemCount()==0) {
                         adSelected = null;
                         paymentMethodAdSelectedAndViewUsed = false;
                         adSelectedReady = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                     } else {
                         adSelected = fbAdDateAndTimeAdapter.getItem(0);
-                        //setAdListItemSelected((SessionDateAndTimeViewHolder) upcomingSessionsRV.findViewHolderForAdapterPosition(0));
                         rowIndex = 0;
                         fbAdDateAndTimeAdapter.notifyDataSetChanged();
                         paymentMethodAdSelectedAndViewUsed = false;
                         adSelectedReady = true;
-                        onTaskFinished();
+                        onAsyncTaskFinished();
                     }
                 }
+                // If an item has been removed, call the function updateListViews() which updates the showMore text
                 updateListViews();
             }
         });
-
+        // start listening to changes in the database
         fbAdDateAndTimeAdapter.startListening();
     }
 
@@ -592,7 +625,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         snackBarDateAndTimeTV = view.findViewById(R.id.snackBarDateAndTimeTV);
         upcomingSessionsRV = displaySession.findViewById(R.id.upcomingSessionsList);
         showMore = displaySession.findViewById(R.id.showMoreText);
-        noUpcomingAds = displaySession.findViewById(R.id.noUpcomingAdsText);
         snackNoUpcomingAds = view.findViewById(R.id.snackNoUpcomingAds);
         editSession = displaySession.findViewById(R.id.editSession);
         fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
@@ -647,6 +679,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 sessionImageCardView.postInvalidate();
             }
         });
+
+        // --------- Set on click listener to showMore text --------
+        // If number of items in the list (adapter) is more than current height + 4 set it to current height + 4
+        // else set the height to the number of items in the adapter.
 
         showMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -708,10 +744,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        onTaskFinished();
+        onAsyncTaskFinished();
     }
-
-    private void onTaskFinished() {
+    private void onAsyncTaskFinished() {
 
         // ---------------- CURRENTUSER && VIEW-----------------
         if (currentUserLoaded && getView()!=null && !currentUserAndViewUsed) {
@@ -810,11 +845,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
         if (getView()!=null && paymentMethodLoaded && adSelectedReady && !paymentMethodAdSelectedAndViewUsed) {
             paymentMethodAdSelectedAndViewUsed = true;
-
-            // ------------------ Setup snackbar ----------------------------------
-
+            // When view has been loaded, payment source has been checked and which ad has been selected in the ad list has been saved in the variable adSelected the following
+            // method will run which updates all the views in the snackbar (if it hasn't already been executed with the current variables)
+            // if adSelected is null snackbar will show the text no upcoming ads and when the text is clicked it will scroll the view down to the list
             if (adSelected==null) {
-
+                // Setup the default views of the snackbar
+                snackBarDateAndTimeTV.setVisibility(View.GONE);
+                priceTV.setVisibility(View.GONE);
+                paymentMethodProgressBar.setVisibility(View.GONE);
+                paymentMethodTV.setVisibility(View.GONE);
+                addPaymentMethodTV.setVisibility(View.GONE);
+                mDisplaySessionBtn.setVisibility(View.GONE);
+                snackNoUpcomingAds.setVisibility(View.VISIBLE);
                 snackNoUpcomingAds.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -822,6 +864,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         displaySessionSV.smoothScrollTo(0, upcomingSessionsRV.getRootView().getBottom());
                     }
                 });
+                // If the the current user has clicked a session in the sessionlist which represented an ad which has been cancelled it will show
+                // "This occasion has been cancelled, please choose another occasion." otherwise it will show "no upcoming sessions"
                 if (repAdCancelled) {
                     noSnackAdTV.setText(R.string.representing_occasion_cancelled);
                 } else {
@@ -831,19 +875,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         noSnackAdTV.setText(getResources().getString(R.string.no_upcoming_sessions));
                     }
                 }
-                //set default
-                snackBarDateAndTimeTV.setVisibility(View.GONE);
-                priceTV.setVisibility(View.GONE);
-                paymentMethodProgressBar.setVisibility(View.GONE);
-                paymentMethodTV.setVisibility(View.GONE);
-                addPaymentMethodTV.setVisibility(View.GONE);
-                mDisplaySessionBtn.setVisibility(View.GONE);
-                snackNoUpcomingAds.setVisibility(View.VISIBLE);
             } else {
+                // If the session has upcoming advertisements, set the snackbars text and price to the date and price of the selected ad
+                // Setup all the views accordingly
                 // ---------- Set date and price text ---------------
                 snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
                 setPriceText();
                 // -------------------- HOST -----------------------------
+                // If the current user is the session host display "show occasion" as the text of the button.
                 if (session.getHost().equals(currentFirebaseUser.getUid())) {
                     snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
                     priceTV.setVisibility(View.VISIBLE);
@@ -855,20 +894,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 } else {
                     // -------------------- PLAYER -----------------------------
+                    // If the current user is the player, display "book session" or "show booking" depending on if the user has booked the session or not
                     snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
                     priceTV.setVisibility(View.VISIBLE);
                     paymentMethodProgressBar.setVisibility(View.GONE);
                     mDisplaySessionBtn.setVisibility(View.VISIBLE);
                     snackNoUpcomingAds.setVisibility(View.GONE);
-
                     mDisplaySessionBtn.setText(getString(R.string.book_session));
-
+                    // If the ad selected is free do not show payment method
                     if (adSelected.getPrice()==0) {
                         mDisplaySessionBtn.setEnabled(true);
                         paymentMethodTV.setVisibility(View.GONE);
                         addPaymentMethodTV.setVisibility(View.GONE);
                         mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
                     } else {
+                        // If the ad costs money find out if the current user has a payment source and if so show that payment method
+                        // else display add payment method link to PaymentPreferencesActivity
                         if (defaultSourceMap.get("brand")!=null) {
                             String last4 = defaultSourceMap.get("last4").toString();
                             paymentMethodTV.setText("**** " + last4);
@@ -889,7 +930,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
                         }
                     }
-
+                    // If the ad selected has participants and of the current user is one of them, display show booking
                     if (adSelected.getParticipantsIds() != null) {
                         if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
                             mDisplaySessionBtn.setEnabled(true);
@@ -934,36 +975,26 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
             mMap.addMarker(new MarkerOptions().position(markerLatLng).title(session.getSessionType()).icon(selectedIcon));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
-            // Setup Booking, Cancelling and Editing Button
+            // ----- Setup snackbar button click listener --------
             mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                /*
-                If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
-                and send the session key to that activity as bundle.
-                */
-                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        //onEditSessionListener.OnEditSession(sessionID);
-                        onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
+                    if (adSelected==null) {
+                        // if no ad is selected, snackbar will display no upcoming sessions, return from click.
+                        return;
                     }
-                /*
-                 Else if current user is a participant in the session (button will display cancel booking) and button is clicked
-                remove the current user from that session participant list and go back to main activity.
-                */
-                    else {
-                        if (adSelected==null) {
-                            // session will display no upcoming sessions.
-                            return;
-                        }
+                    // If the current user isn´t the host of the session
+                    if (!session.getHost().equals(currentFirebaseUser.getUid())) {
+                        // If the current user is a participant and already booked this session, button will display show booking and click will send user to advertisement
                         if (adSelected.getParticipantsIds()!=null) {
                             if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
                                 onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
-                                //sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(),adSelected.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                                 return;
                             }
                         }
+                        // If the current user is not a participant, the session is not free and the user does not have a payment method, button will be gray,
+                        // click will show dialog saying you need to have a payment method to book
                         if (!hasPaymentSystem && adSelected.getPrice()!=0) {
-
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setMessage(R.string.you_need_a_payment_method_in_order_to_book_this_session).setTitle(R.string.booking_failed);
                             builder.setPositiveButton(R.string.add_payment_method, new DialogInterface.OnClickListener() {
@@ -974,22 +1005,24 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-
                                 }
                             });
                             AlertDialog dialog = builder.create();
                             dialog.show();
                             return;
                         }
-                        /*
-                        Else (button will show join session) add the user id to the session participant list and
-                        the user sessions attending list when button is clicked.
-                        */
+                        // Payment method has been checked above (method return if no payment method)
+                        // Now user will book session if button is pressed, if free send parameters to book session with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
                             sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), "", adSelected.getPrice(), adSelected.getCurrency(), true);
                         } else {
+                            // session costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
                             sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), defaultSourceMap.get("customer").toString(), adSelected.getPrice(), adSelected.getCurrency(), currentUser.isDontShowBookingText());
                         }
+                    }
+                    // If the current user is the session host, send the user to the currently selected advertisement
+                    if (session.getHost().equals(currentFirebaseUser.getUid())) {
+                        onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
                     }
                 }
             });
@@ -999,11 +1032,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private void updateListViews() {
         // Om det inte finns några som inte är kancellerade sätt till noll
         if (fbAdDateAndTimeAdapter.getItemCount()==0) {
-            showMoreTV.setText(getResources().getString(R.string.end_of_list));
-            noUpcomingAds.setVisibility(View.VISIBLE);
+            showMoreTV.setText(getResources().getString(R.string.no_upcoming_sessions));
             fbRVContainer.setVisibility(View.GONE);
         } else {
-            noUpcomingAds.setVisibility(View.GONE);
+            showMoreTV.setText(getResources().getString(R.string.show_more));
             fbRVContainer.setVisibility(View.VISIBLE);
         }
         // Om det finns fler i adaptern än nuvarande höjd visa visa mer knapp
@@ -1014,21 +1046,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
     }
 
-    private void setAdListItemDefault(@NonNull SessionDateAndTimeViewHolder holder) {
+    private void setAdListItemDefaultAppearance(@NonNull AdvertisementRowViewHolder holder) {
         holder.itemView.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.primaryTextColor));
+        holder.advertisementRowDateAndTimeText.setTextColor(getResources().getColor(R.color.primaryTextColor));
         holder.participantsTV.setTextColor(getResources().getColor(R.color.primaryTextColor));
     }
 
-    private void setAdListItemBooked(@NonNull SessionDateAndTimeViewHolder holder) {
+    private void setAdListItemBookedAppearance(@NonNull AdvertisementRowViewHolder holder) {
         holder.itemView.setBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-        holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.secondaryTextColor));
+        holder.advertisementRowDateAndTimeText.setTextColor(getResources().getColor(R.color.secondaryTextColor));
         holder.participantsTV.setTextColor(getResources().getColor(R.color.secondaryTextColor));
     }
 
-    private void setAdListItemSelected(@NonNull SessionDateAndTimeViewHolder holder) {
+    private void setAdListItemSelectedAppearance(@NonNull AdvertisementRowViewHolder holder) {
         holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-        holder.sessionDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
+        holder.advertisementRowDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
         holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
     }
 
@@ -1054,7 +1086,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mMap = googleMap;
         currentUserAndSessionAndViewAndMapUsed = false;
         mapReady = true;
-        onTaskFinished();
+        onAsyncTaskFinished();
     }
 
     // ------------   Posts viewholder for the post recyclerview ----------------------
