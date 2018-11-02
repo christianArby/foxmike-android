@@ -18,7 +18,9 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.foxmike.android.R;
+import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
@@ -59,7 +61,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
@@ -99,6 +100,8 @@ public class MainHostActivity extends AppCompatActivity implements
     private Session editedSession;
     private String editedSessionID;
     private boolean resumed = false;
+    private AHBottomNavigationViewPager mainPager;
+    private BottomNavigationAdapter bottomNavigationAdapter;
 
 
     @Override
@@ -131,58 +134,34 @@ public class MainHostActivity extends AppCompatActivity implements
         bottomNavigation.setBehaviorTranslationEnabled(false);
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
+        mainPager = findViewById(R.id.mainPager);
+        mainPager.setPagingEnabled(false);
+        bottomNavigationAdapter = new BottomNavigationAdapter(fragmentManager);
+
         // Create instances of fragments
 
         // Add fragments to container and hide them
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
-            hostUserAccountFragment = UserAccountHostFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
-            transaction.hide(hostUserAccountFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainHostSessionsFragment")) {
-            hostSessionsFragment = HostSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostSessionsFragment,"xMainHostSessionsFragment");
-            transaction.hide(hostSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
-            hostInboxFragment = InboxFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
-            transaction.hide(hostInboxFragment);
-        }
-        transaction.commit();
-        fragmentManager.executePendingTransactions();
+
+        hostInboxFragment = InboxFragment.newInstance();
+        bottomNavigationAdapter.addFragments(hostInboxFragment);
+
+        hostSessionsFragment = HostSessionsFragment.newInstance();
+        bottomNavigationAdapter.addFragments(hostSessionsFragment);
+
+        hostUserAccountFragment = UserAccountHostFragment.newInstance();
+        bottomNavigationAdapter.addFragments(hostUserAccountFragment);
+
+        mainPager.setAdapter(bottomNavigationAdapter);
 
         // Listen to bottom navigation and switch to corresponding fragment
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
-                switch (position) {
-                    case 0:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostInboxFragment"));
-                            resumed=false;
-                            return true;
-                        }
-                    case 1:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostSessionsFragment"));
-                            resumed = false;
-                            return true;
-                        }
-                    case 2:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostUserAccountFragment"));
-                            resumed = false;
-                            return true;
-                        }
-                }
-                return false;
+                if (!wasSelected)
+                    mainPager.setCurrentItem(position, false);
+                return true;
             }
         });
-
-        // Set 'start page' / default fragment
-        cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainHostInboxFragment"));
 
         // Add listener to current user's chats to see if there are any chats the user has unread messages in, if so set notification to bottom bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
@@ -220,26 +199,6 @@ public class MainHostActivity extends AppCompatActivity implements
         });
     }
 
-    /* Method to hide all fragments in main container except fragment passed as argument */
-    private void cleanMainActivityAndSwitch(Fragment fragment) {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null && frag.getTag().length()>5) {
-                if (frag.getTag().substring(0,5).equals("xMain")) {
-                    if (frag.isVisible()) {
-                        transaction.hide(frag);
-                    }
-                }
-            }
-
-        }
-        transaction.show(fragment);
-        transaction.commit();
-        bottomNavigation.setVisibility(View.VISIBLE);
-    }
-
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -250,7 +209,6 @@ public class MainHostActivity extends AppCompatActivity implements
             } else {
                 transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(null).commit();
             }
-
         } else {
             transaction.replace(R.id.container_fullscreen_main_host, fragment).commit();
         }
@@ -448,25 +406,6 @@ public class MainHostActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
 
-        // Create instances of fragments
-        // Add fragments to container and hide them
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (null == fragmentManager.findFragmentByTag("xMainHostUserAccountFragment")) {
-            hostUserAccountFragment = UserAccountHostFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostUserAccountFragment,"xMainHostUserAccountFragment");
-            transaction.hide(hostUserAccountFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainHostSessionsFragment")) {
-            hostSessionsFragment = HostSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostSessionsFragment,"xMainHostSessionsFragment");
-            transaction.hide(hostSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainHostInboxFragment")) {
-            hostInboxFragment = InboxFragment.newInstance();
-            transaction.add(R.id.container_main_host, hostInboxFragment,"xMainHostInboxFragment");
-            transaction.hide(hostInboxFragment);
-        }
-        transaction.commit();
         resumed = true;
         bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
     }
