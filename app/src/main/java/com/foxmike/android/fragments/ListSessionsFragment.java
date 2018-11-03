@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,10 +14,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
-import com.foxmike.android.utils.HeaderItemDecoration;
+import com.foxmike.android.adapters.sessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.adapters.sessionsAdapter;
+import com.foxmike.android.utils.HeaderItemDecoration;
 
 import java.util.ArrayList;
 /**
@@ -33,6 +34,17 @@ public class  ListSessionsFragment extends Fragment {
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
     private TextView noSessionsFound;
+    private ArrayList<Session> sessions;
+    private boolean sessionsLoaded;
+    private Location location;
+    private boolean locationLoaded;
+    private boolean sessionsAndLocationUsed;
+
+    private boolean swipeRefreshStatus;
+    private boolean swipeRefreshStatusLoaded;
+    private boolean swipeRefreshStatusUsed;
+
+    private View mainView;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -56,10 +68,10 @@ public class  ListSessionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_list_sessions, container, false);
-        mSessionList = view.findViewById(R.id.session_list);
-        listSessionsSwipeRefreshLayout = view.findViewById(R.id.session_list_swipe_layout);
-        noSessionsFound = view.findViewById(R.id.noSessionsFound);
+        mainView = inflater.inflate(R.layout.fragment_list_sessions, container, false);
+        mSessionList = mainView.findViewById(R.id.session_list);
+        listSessionsSwipeRefreshLayout = mainView.findViewById(R.id.session_list_swipe_layout);
+        noSessionsFound = mainView.findViewById(R.id.noSessionsFound);
         //mSessionList.setHasFixedSize(true); TODO What does this mean
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
@@ -78,28 +90,56 @@ public class  ListSessionsFragment extends Fragment {
             }
         });
 
-        return view;
+        return mainView;
     }
 
     /** Use sessionsAdapter to generate view mSessionList*/
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        onAsyncTaskFinished();
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        int test = 1;
+    }
+
+    private void onAsyncTaskFinished() {
+        if (sessionsLoaded && locationLoaded && !sessionsAndLocationUsed && this.mainView!=null ) {
+            sessionsAndLocationUsed = true;
+
+            if (sessionsAdapter!=null) {
+                noSessionsFound.setVisibility(View.GONE);
+                sessionsAdapter.refreshData(sessions,location);
+            } else {
+                noSessionsFound.setVisibility(View.GONE);
+                sessionsAdapter = new sessionsAdapter(sessions, getActivity(), location, onSessionClickedListener);
+                if (mSessionList!=null) {
+                    HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
+                    mSessionList.addItemDecoration(headerItemDecoration);
+                    mSessionList.setAdapter(sessionsAdapter);
+                }
+                sessionsAdapter.notifyDataSetChanged();
+            }
+        }
+
+        if (swipeRefreshStatusLoaded && mainView!=null && !swipeRefreshStatusUsed) {
+            swipeRefreshStatusUsed = true;
+            listSessionsSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
     // Function to refresh data in sessionsAdapter
     public void updateSessionListView(ArrayList<Session> sessions, Location location) {
-        if (sessionsAdapter!=null) {
-            noSessionsFound.setVisibility(View.GONE);
-            sessionsAdapter.refreshData(sessions,location);
-        } else {
-            noSessionsFound.setVisibility(View.GONE);
-            sessionsAdapter = new sessionsAdapter(sessions, getActivity(), location, onSessionClickedListener);
-            if (mSessionList!=null) {
-                HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
-                mSessionList.addItemDecoration(headerItemDecoration);
-                mSessionList.setAdapter(sessionsAdapter);
-            }
-            sessionsAdapter.notifyDataSetChanged();
-        }
+
+        this.sessions = sessions;
+        this.location = location;
+        sessionsLoaded = true;
+        locationLoaded = true;
+        sessionsAndLocationUsed = false;
+
+        onAsyncTaskFinished();
     }
 
     public void emptyListView() {
@@ -107,7 +147,10 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public void stopSwipeRefreshingSymbol() {
-        listSessionsSwipeRefreshLayout.setRefreshing(false);
+        swipeRefreshStatusUsed = false;
+        swipeRefreshStatus = false;
+        swipeRefreshStatusLoaded = true;
+        onAsyncTaskFinished();
     }
 
     @Override

@@ -14,6 +14,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -90,8 +92,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private Marker selectedMarker;
     int horizontalSessionHeight = 0;
     private int currentSessionInt = 0;
-    private ArrayList<Session> thisNearSessions= new ArrayList<>();
+    private ArrayList<Session> nearSessions = new ArrayList<>();
     private int leftMargin;
+    private boolean nearSessionsLoaded;
+    private boolean nearSessionsUsed;
+
+    private boolean showRecyclerView;
+    private boolean showRecyclerViewLoaded;
+    private boolean showRecyclerViewUsed;
 
     BitmapDescriptor defaultIcon;
     BitmapDescriptor selectedIcon;
@@ -178,6 +186,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onAsyncTaskFinished();
+    }
+
+    @Override
     public void onResume() {
         mapView.onResume();
         super.onResume();
@@ -195,6 +209,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+
+        onAsyncTaskFinished();
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -295,7 +311,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             // If the corresponding session to the clicked marker is not in focus in recyclerView, scroll to that position
                             mSessionList.smoothScrollToPosition(markerArray.indexOf(marker));
                             // When clicked on marker, show recyclerView
-                            if (thisNearSessions.size()>0) {
+                            if (nearSessions.size()>0) {
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
                                 animation.setDuration(500);
                                 animation.start();
@@ -309,7 +325,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                         @Override
                         public void onMapClick(LatLng latLng) {
                             // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
-                            if (thisNearSessions.size()>0) {
+                            if (nearSessions.size()>0) {
                                 hideList();
                             }
                         }
@@ -333,66 +349,100 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
     public void addMarkersToMap(ArrayList<Session> nearSessions) {
-        thisNearSessions = nearSessions;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        this.nearSessions = nearSessions;
+        nearSessionsLoaded = true;
+        nearSessionsUsed = false;
 
-        try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            boolean success = mMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            getActivity(), R.raw.maps_style));
+        onAsyncTaskFinished();
 
-            if (!success) {
-                Log.e("MAPS", "Style parsing failed.");
+    }
+
+    private void onAsyncTaskFinished() {
+
+        if (nearSessionsLoaded && getView()!=null && mMap!=null && !nearSessionsUsed) {
+            nearSessionsUsed = true;
+
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+            try {
+                // Customise the styling of the base map using a JSON object defined
+                // in a raw resource file.
+                boolean success = mMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(
+                                getActivity(), R.raw.maps_style));
+
+                if (!success) {
+                    Log.e("MAPS", "Style parsing failed.");
+                }
+            } catch (Resources.NotFoundException e) {
+                Log.e("MAPS", "Can't find style. Error: ", e);
             }
-        } catch (Resources.NotFoundException e) {
-            Log.e("MAPS", "Can't find style. Error: ", e);
-        }
-        // Clear the map of markers and clear set the array of the new array
-        mMap.clear();
-        selectedMarker = null;
-        currentSessionInt = 0;
-        markerArray.clear();
+            // Clear the map of markers and clear set the array of the new array
+            mMap.clear();
+            selectedMarker = null;
+            currentSessionInt = 0;
+            markerArray.clear();
 
-        if (nearSessions.size()==0) {
-            if (listSmallRecyclerViewsAdapter!=null) {
-                listSmallRecyclerViewsAdapter.refreshData(nearSessions);
-                mSessionList.smoothScrollToPosition(0);
-                hideList();
-            }
-        }
-
-        if (nearSessions.size()>0) {
-            // Add markers the map
-            for (Session session : nearSessions) {
-                LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
-                //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
-                Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));
-                markerArray.add(marker);
+            if (nearSessions.size()==0) {
+                if (listSmallRecyclerViewsAdapter!=null) {
+                    listSmallRecyclerViewsAdapter.refreshData(nearSessions);
+                    mSessionList.smoothScrollToPosition(0);
+                    hideList();
+                }
             }
 
-            // Update or create the recyclerView
-            if (listSmallRecyclerViewsAdapter!=null) {
-                listSmallRecyclerViewsAdapter.refreshData(nearSessions);
-                mSessionList.smoothScrollToPosition(0);
-                markerArray.get(0).setIcon(selectedIcon);
-                selectedMarker = markerArray.get(0);
+            if (nearSessions.size()>0) {
+                // Add markers the map
+                for (Session session : nearSessions) {
+                    LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
+                    //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));
+                    markerArray.add(marker);
+                }
 
-            } else {
-                listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(thisNearSessions, getActivity(), onSessionClickedListener, mLastLocation);
-                if (mSessionList!=null) {
-                    mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
+                // Update or create the recyclerView
+                if (listSmallRecyclerViewsAdapter!=null) {
+                    listSmallRecyclerViewsAdapter.refreshData(nearSessions);
+                    mSessionList.smoothScrollToPosition(0);
                     markerArray.get(0).setIcon(selectedIcon);
                     selectedMarker = markerArray.get(0);
+
+                } else {
+                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(nearSessions, getActivity(), onSessionClickedListener, mLastLocation);
+                    if (mSessionList!=null) {
+                        mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
+                        markerArray.get(0).setIcon(selectedIcon);
+                        selectedMarker = markerArray.get(0);
+                    }
+                    listSmallRecyclerViewsAdapter.notifyDataSetChanged();
                 }
-                listSmallRecyclerViewsAdapter.notifyDataSetChanged();
+            }
+
+        }
+
+        if (showRecyclerViewLoaded && mMap!=null && !showRecyclerViewUsed) {
+            showRecyclerViewUsed = true;
+
+            if (!showRecyclerView) {
+                if (nearSessions.size()>0) {
+                    hideList();
+                }
+            } else {
+                if (nearSessions.size()==0) {
+                    hideList();
+                } else {
+                    ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
+                    animation.setDuration(500);
+                    animation.start();
+                    mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
+                }
             }
         }
+
     }
 
     private void hideList() {
-        if (thisNearSessions.size()>0) {
+        if (nearSessions.size()>0) {
             ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", horizontalSessionHeight);
             animation.setDuration(500);
             animation.start();
@@ -433,8 +483,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        if (listSmallRecyclerViewsAdapter!=null && thisNearSessions.size()>0)
-        listSmallRecyclerViewsAdapter.refreshData(thisNearSessions);
+        if (listSmallRecyclerViewsAdapter!=null && nearSessions.size()>0)
+        listSmallRecyclerViewsAdapter.refreshData(nearSessions);
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
@@ -532,20 +582,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public void showRecylerView(boolean showRecyclerView) {
-        if (!showRecyclerView) {
-            if (thisNearSessions.size()>0) {
-                hideList();
-            }
-        } else {
-            if (thisNearSessions.size()==0) {
-                hideList();
-            } else {
-                ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
-                animation.setDuration(500);
-                animation.start();
-                mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
-            }
-        }
+
+        this.showRecyclerView = showRecyclerView;
+        showRecyclerViewLoaded = true;
+        showRecyclerViewUsed = false;
+
+        onAsyncTaskFinished();
     }
 
     public float convertDpToPx(Context context, float dp) {

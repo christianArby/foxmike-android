@@ -39,6 +39,13 @@
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>
 
+    <com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager
+        android:id="@+id/exploreFragmentViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/barLayout">
+    </com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager>
+
     <android.support.design.widget.FloatingActionButton
         app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/white"

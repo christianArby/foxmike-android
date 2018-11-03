@@ -1,24 +1,17 @@
 package com.foxmike.android.activities;
 //Checked
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Path;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -29,18 +22,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.foxmike.android.R;
+import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplayAdvertisementFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
+import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.MapsFragment;
@@ -51,18 +44,15 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
-import com.foxmike.android.fragments.WeekdayFilterFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayChangedListener;
@@ -70,8 +60,6 @@ import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.utils.MyFirebaseDatabase;
-import com.foxmike.android.utils.WrapContentViewPager;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -85,13 +73,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
-import com.rd.PageIndicatorView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
@@ -102,19 +86,13 @@ import static android.content.ContentValues.TAG;
 public class MainPlayerActivity extends AppCompatActivity
 
         implements
-        OnWeekdayChangedListener,
-        OnWeekdayButtonClickedListener,
         OnSessionClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
         UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
         UserProfileFragment.OnUserProfileFragmentInteractionListener,
         UserProfilePublicEditFragment.OnUserProfilePublicEditFragmentInteractionListener,
         OnNewMessageListener,
-        ListSessionsFragment.OnRefreshSessionsListener,
         OnUserClickedListener,
-        ListSessionsFragment.OnListSessionsScrollListener,
-        SortAndFilterFragment.OnListSessionsFilterListener,
-        SortAndFilterFragment.OnListSessionsSortListener,
         SessionListener,
         OnHostSessionChangedListener,
         OnSessionBranchClickedListener,
@@ -122,48 +100,37 @@ public class MainPlayerActivity extends AppCompatActivity
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         MapsFragment.OnLocationPickedListener, OnAdvertisementClickedListener,OnAdvertisementsFoundListener,
-        AdvertisementListener{
+        AdvertisementListener,
+        ListSessionsFragment.OnRefreshSessionsListener,
+        ListSessionsFragment.OnListSessionsScrollListener,
+        SortAndFilterFragment.OnListSessionsSortListener,
+        SortAndFilterFragment.OnListSessionsFilterListener,
+        OnWeekdayChangedListener,
+        OnWeekdayButtonClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
     private UserProfileFragment userProfileFragment;
-    private ListSessionsFragment listSessionsFragment;
-    private MapsFragment mapsFragment;
     private PlayerSessionsFragment playerSessionsFragment;
     private DisplaySessionFragment displaySessionFragment;
     private DisplayAdvertisementFragment displayAdvertisementFragment;
     private InboxFragment inboxFragment;
     private UserProfilePublicFragment userProfilePublicFragment;
     private UserProfilePublicEditFragment userProfilePublicEditFragment;
-    private AllUsersFragment allUsersFragment;
-    private CreateOrEditSessionFragment createOrEditSessionFragment;
-    private MyFirebaseDatabase myFirebaseDatabase;
-    public HashMap<String,Boolean> firstWeekdayHashMap;
-    public HashMap<String,Boolean> secondWeekdayHashMap;
     private AHBottomNavigation bottomNavigation;
-    private FloatingActionButton mapOrListBtn;
-    private FloatingActionButton sortAndFilterFAB;
-    private FloatingActionButton myLocationBtn;
-    private RelativeLayout weekdayFilterContainer;
     private String fromUserID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef;
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
-    private ArrayList<Session> sessionListArrayList = new ArrayList<>();
-    private Location locationClosetoSessions;
-    private String sortType;
-    private int distanceRadius;
-    Boolean started = false;
     private boolean resumed = false;
     private FirebaseFunctions mFunctions;
     private View mainView;
     static final int BOOK_SESSION_REQUEST = 8;
     static final int CANCEL_BOOKING_REQUEST = 16;
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
-    private ArrayList<ArrayList<Session>> mainNearSessionsArrays = new ArrayList<>();
-    private float mapOrListBtnStartX;
-    private float mapOrListBtnStartY;
     private String stripeCustomerId;
+    private AHBottomNavigationViewPager mainPager;
+    private BottomNavigationAdapter bottomNavigationAdapter;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -189,17 +156,10 @@ public class MainPlayerActivity extends AppCompatActivity
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
-        sortType = "date";
-        distanceRadius = this.getResources().getInteger(R.integer.distanceMax);
+        fragmentManager = getSupportFragmentManager();
 
         // get views
-        weekdayFilterContainer = findViewById(R.id.weekdayFilterFragmentContainer);
         bottomNavigation = findViewById(R.id.bottom_navigation_player);
-        mapOrListBtn = findViewById(R.id.map_or_list_button);
-        sortAndFilterFAB = findViewById(R.id.sort_button);
-        myLocationBtn = findViewById(R.id.my_location_button);
-        WrapContentViewPager weekdayViewpager = findViewById(R.id.weekdayPager);
-        PageIndicatorView pageIndicatorView = findViewById(R.id.pageIndicatorView);
 
         // get Firebase instances and references
         mAuth = FirebaseAuth.getInstance();
@@ -218,60 +178,27 @@ public class MainPlayerActivity extends AppCompatActivity
         bottomNavigation.setBehaviorTranslationEnabled(false);
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));
 
-        /** Setup weekdayHashmaps*/
-        firstWeekdayHashMap = new HashMap<String,Boolean>();
-        secondWeekdayHashMap = new HashMap<String,Boolean>();
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        final Calendar cal = Calendar.getInstance();
-        for(int i=1; i<8; i++){
-            String stringDate = sdf.format(cal.getTime());
-            firstWeekdayHashMap.put(stringDate, true);
-            cal.add(Calendar.DATE,1);
-        }
-        for(int i=1; i<8; i++){
-            String stringDate = sdf.format(cal.getTime());
-            secondWeekdayHashMap.put(stringDate, true);
-            cal.add(Calendar.DATE,1);
-        }
+        mainPager = findViewById(R.id.mainPager);
+        mainPager.setPagingEnabled(false);
+        mainPager.setOffscreenPageLimit(4);
+        bottomNavigationAdapter = new BottomNavigationAdapter(fragmentManager);
 
         /** Setup fragments */
-        fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
-            userAccountFragment = new UserAccountFragment();
-            transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
-            transaction.hide(userAccountFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")) {
-            playerSessionsFragment = PlayerSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_player, playerSessionsFragment,"xMainPlayerSessionsFragment");
-            transaction.hide(playerSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
-            mapsFragment = MapsFragment.newInstance();
-            Bundle bundle = new Bundle();
-            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-            mapsFragment.setArguments(bundle);
-            transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
-            transaction.hide(mapsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainListSessionsFragment")) {
-            listSessionsFragment = ListSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_player, listSessionsFragment,"xMainListSessionsFragment");
-            transaction.hide(listSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
-            inboxFragment = InboxFragment.newInstance();
-            transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
-            transaction.hide(inboxFragment);
-        }
-        transaction.commitNow();
 
-        // Setup weekdaypager
-        weekdayViewpager.setAdapter(new weekdayViewpagerAdapter(fragmentManager));
-        pageIndicatorView.setViewPager(weekdayViewpager);
+        ExploreFragment exploreFragment = new ExploreFragment();
+        bottomNavigationAdapter.addFragments(exploreFragment);
 
-        fragmentManager.executePendingTransactions();
+        playerSessionsFragment = PlayerSessionsFragment.newInstance();
+        bottomNavigationAdapter.addFragments(playerSessionsFragment);
+
+        inboxFragment = InboxFragment.newInstance();
+        bottomNavigationAdapter.addFragments(inboxFragment);
+
+        userAccountFragment = new UserAccountFragment();
+        bottomNavigationAdapter.addFragments(userAccountFragment);
+
+        mainPager.setAdapter(bottomNavigationAdapter);
+
 
         /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
         if (fromUserID!=null) {
@@ -281,52 +208,16 @@ public class MainPlayerActivity extends AppCompatActivity
             userProfilePublicFragment.setArguments(fromUserbundle);
             cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
         } else {
-            cleanMainActivityAndSwitch(listSessionsFragment);
-            weekdayFilterContainer.setVisibility(View.VISIBLE);
-            mapOrListBtn.setVisibility(View.VISIBLE);
-            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-            sortAndFilterFAB.setVisibility(View.VISIBLE);
+            // Start normally
         }
-
-        /** Setup List and Map with sessions*/
-        setupListAndMapWithSessions();
 
         /** Setup Bottom navigation */
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
-                switch (position) {
-                    case 0:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainListSessionsFragment"));
-                            weekdayFilterContainer.setVisibility(View.VISIBLE);
-                            mapOrListBtn.setVisibility(View.VISIBLE);
-                            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-                            sortAndFilterFAB.setVisibility(View.VISIBLE);
-                            setupListAndMapWithSessions();
-                            resumed = false;
-                            return true;
-                        }
-                    case 1:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment"));
-                            resumed = false;
-                            return true;
-                        }
-                    case 2:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainInboxFragment"));
-                            resumed = false;
-                            return true;
-                        }
-                    case 3:
-                        if (!wasSelected | resumed) {
-                            cleanMainActivityAndSwitch(fragmentManager.findFragmentByTag("xMainUserAccountFragment"));
-                            resumed = false;
-                            return true;
-                        }
-                }
-                return false;
+                if (!wasSelected)
+                    mainPager.setCurrentItem(position, false);
+                return true;
             }
         });
 
@@ -375,9 +266,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
         });
-
-
-
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set notifications to the bottom navigation bar
         ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
@@ -407,75 +295,6 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
         listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
-
-        /** Setup mapOrList FAB*/
-        mapOrListBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                if (mapsFragment.isVisible()) {
-                    FragmentTransaction transaction1 = fragmentManager.beginTransaction();
-                    transaction1.hide(mapsFragment);
-                    transaction1.show(listSessionsFragment);
-                    transaction1.commit();
-                    switchMapOrListUI(false);
-                } else if (listSessionsFragment.isVisible()) {
-                    FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-                    transaction2.hide(listSessionsFragment);
-                    transaction2.show(mapsFragment);
-                    transaction2.commit();
-                    switchMapOrListUI(true);
-                } else {
-                    FragmentTransaction transaction3 = fragmentManager.beginTransaction();
-                    transaction3.hide(mapsFragment);
-                    transaction3.show(listSessionsFragment);
-                    transaction3.commit();
-                    switchMapOrListUI(false);
-                }
-            }
-        });
-
-        /** Setup sortAndFilter FAB*/
-        sortAndFilterFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                if (sortAndFilterFragment!=null) {
-                    transaction.remove(sortAndFilterFragment);
-                }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius);
-                sortAndFilterFragment.show(transaction,"sortAndFilterFragment");
-            }
-        });
-
-        // Setup my location button
-        myLocationBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.goToMyLocation();
-            }
-        });
-
-        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                if (userAccountFragment.isVisible() | playerSessionsFragment.isVisible() | listSessionsFragment.isVisible() | mapsFragment.isVisible() | inboxFragment.isVisible()){
-                    bottomNavigation.setVisibility(View.VISIBLE);
-                }
-                if (listSessionsFragment.isVisible()| mapsFragment.isVisible()) {
-                    weekdayFilterContainer.setVisibility(View.VISIBLE);
-                    mapOrListBtn.setVisibility(View.VISIBLE);
-                    sortAndFilterFAB.setVisibility(View.VISIBLE);
-                }
-                if(mapsFragment.isVisible()) {
-                    myLocationBtn.setVisibility(View.VISIBLE);
-                }
-            }
-        });
     }
 
     private void updateStripeCustomerInfo() {
@@ -518,115 +337,6 @@ public class MainPlayerActivity extends AppCompatActivity
         });
     }
 
-    private void switchMapOrListUI(boolean mapIsVisible) {
-
-        int width = mainView.getRight();
-        int height = mainView.getBottom();
-        float fabDiameter = convertDpToPx(MainPlayerActivity.this, 56);
-
-        mapOrListBtnStartX = width/2 - fabDiameter/2;
-        mapOrListBtnStartY = height -  convertDpToPx(MainPlayerActivity.this, 80) - fabDiameter;
-        float Xcontrol2 = width - convertDpToPx(MainPlayerActivity.this,72);
-        float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(MainPlayerActivity.this, 144);
-
-
-        if (mapIsVisible) {
-            mapsFragment.showRecylerView(true);
-            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
-            myLocationBtn.show();
-
-            Path path = new Path();
-            path.moveTo(mapOrListBtnStartX, mapOrListBtnStartY);
-            path.quadTo(mapOrListBtnStartX, Ycontrol2, Xcontrol2, Ycontrol2);
-            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
-            objectAnimator1.setDuration(500);
-            objectAnimator1.setInterpolator(new LinearOutSlowInInterpolator());
-            objectAnimator1.start();
-        } else {
-            mapsFragment.showRecylerView(false);
-            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-            myLocationBtn.hide();
-
-            Path path = new Path();
-            path.moveTo(Xcontrol2, Ycontrol2);
-            path.quadTo(Ycontrol2, mapOrListBtnStartY, mapOrListBtnStartX, mapOrListBtnStartY);
-            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
-            objectAnimator1.setDuration(500);
-            objectAnimator1.setInterpolator(new FastOutLinearInInterpolator());
-            objectAnimator1.start();
-        }
-    }
-
-    private void setupListAndMapWithSessions() {
-        myFirebaseDatabase= new MyFirebaseDatabase();
-        // TODO if new filtersessions int is smaller than previous this function should only filter and not download
-        myFirebaseDatabase.getNearSessions(this, distanceRadius, new OnNearSessionsFoundListener() {
-
-            @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
-                sessionListArrayList.clear();
-                sessionListArrayList = nearSessions;
-                locationClosetoSessions = location;
-
-                myFirebaseDatabase.filterSessions(nearSessions,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-                    @Override
-                    public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                        listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
-                        listSessionsFragment.stopSwipeRefreshingSymbol();
-
-                        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                        mapsFragment.addMarkersToMap(sessions);
-                    }
-                });
-            }
-
-            @Override
-            public void OnLocationNotFound() {
-                Toast.makeText(MainPlayerActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.emptyListView();
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-
-            }
-        });
-    }
-
-    public float convertDpToPx(Context context, float dp) {
-        return dp * context.getResources().getDisplayMetrics().density;
-    }
-
-    /** FUNCTION to clean whole activity and switch fragment*/
-    private void cleanMainActivityAndSwitch(Fragment fragment) {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment frag:fragmentList) {
-            if (frag.getTag()!=null && frag.getTag().length()>5) {
-                if (frag.getTag().substring(0,5).equals("xMain")) {
-                    if (frag.isVisible()) {
-                        transaction.hide(frag);
-                    }
-                }
-            }
-        }
-        transaction.show(fragment);
-        transaction.commit();
-        weekdayFilterContainer.setVisibility(View.GONE);
-        mapOrListBtn.setVisibility(View.GONE);
-        if (mapsFragment!=null) {
-            mapsFragment.showRecylerView(false);
-        }
-        sortAndFilterFAB.setVisibility(View.GONE);
-        myLocationBtn.setVisibility(View.GONE);
-        bottomNavigation.setVisibility(View.VISIBLE);
-
-        if (mapOrListBtn.getX()!=0 && mapOrListBtnStartX!=0) {
-            if (mapOrListBtn.getX()!= mapOrListBtnStartX) {
-                switchMapOrListUI(false);
-            }
-
-        }
-    }
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -636,52 +346,6 @@ public class MainPlayerActivity extends AppCompatActivity
         } else {
             transaction.replace(R.id.container_fullscreen_main_player, fragment).commit();
         }
-    }
-
-
-
-    /** INTERFACE to change weekday hashmaps based on inputs */
-    @Override
-    public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
-        if (week==1) {
-            firstWeekdayHashMap.put(weekdayKey,weekdayBoolean);
-        }
-        if (week==2) {
-            secondWeekdayHashMap.put(weekdayKey,weekdayBoolean);
-        }
-    }
-
-    /** INTERFACE to refilter sessions in List and Map based on weekday hashmaps */
-    @Override
-    public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
-        HashMap<Integer, Boolean> toggleMap1;
-        HashMap<Integer, Boolean> toggleMap2;
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        WeekdayFilterFragment weekdayFilterFragment = (WeekdayFilterFragment) fragmentManager.findFragmentByTag(makeFragmentName(R.id.weekdayPager,0));
-        WeekdayFilterFragment weekdayFilterFragmentB = (WeekdayFilterFragment) fragmentManager.findFragmentByTag(makeFragmentName(R.id.weekdayPager,1));
-
-        toggleMap1 = weekdayFilterFragment.getToggleMap1();
-        toggleMap2 = weekdayFilterFragmentB.getToggleMap2();
-
-        weekdayFilterFragment.changeToggleMap(week,button,toggleMap1,toggleMap2);
-        weekdayFilterFragmentB.changeToggleMap(week,button,toggleMap1,toggleMap2);
-
-        toggleMap1 = weekdayFilterFragment.getAndUpdateToggleMap1();
-        weekdayFilterFragmentB.setToggleMap1(toggleMap1);
-        toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
-        weekdayFilterFragment.setToggleMap2(toggleMap2);
-
-        myFirebaseDatabase.filterSessions(sessionListArrayList, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-            @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
-                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
-
-            }
-        });
     }
 
     @Override
@@ -729,59 +393,6 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNewMessage() {
         // TODO check if this should be used
-    }
-
-    /** INTERFACE triggered when list is scrolled setting behaviour of buttons */
-    @Override
-    public void OnListSessionsScroll(int dy) {
-        if (dy > 0 && !started) {
-            started = true;
-            sortAndFilterFAB.hide();
-            mapOrListBtn.animate()
-                    .translationY(400)
-                    .withLayer()
-                    .start();
-
-        } else if (dy < 0 && started) {
-            started = false;
-            sortAndFilterFAB.hide();
-            sortAndFilterFAB.show();
-            mapOrListBtn
-                    .animate()
-                    .translationY(0)
-                    .withLayer()
-                    .start();
-        }
-    }
-
-    /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
-    @Override
-    public void OnRefreshSessions() {
-        setupListAndMapWithSessions();
-    }
-
-    /** INTERFACE triggered when sort buttons are clicked, SORTS sessions*/
-    @Override
-    public void OnListSessionsSort(String sortType) {
-        this.sortType = sortType;
-        myFirebaseDatabase.filterSessions(sessionListArrayList,firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsFilteredListener() {
-            @Override
-            public void OnSessionsFiltered(ArrayList<Session> sessions, ArrayList<Session> dateSessions) {
-                MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag("xMainMapsFragment");
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) fragmentManager.findFragmentByTag("xMainListSessionsFragment");
-                listSessionsFragment.updateSessionListView(dateSessions,locationClosetoSessions);
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-            }
-        });
-    }
-
-    /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
-    @Override
-    public void OnListSessionsFilter(int filterDistance) {
-        distanceRadius = filterDistance;
-        setupListAndMapWithSessions();
     }
 
     @Override
@@ -978,27 +589,6 @@ public class MainPlayerActivity extends AppCompatActivity
         startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
     }
 
-    // Sets up weekday pager
-    class weekdayViewpagerAdapter extends FragmentPagerAdapter {
-        public weekdayViewpagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-        @Override
-        public Fragment getItem(int position) {
-            Fragment fragment = null;
-            if (position == 0) {
-                fragment = WeekdayFilterFragment.newInstance(1);
-            }
-            if (position == 1) {
-                fragment = WeekdayFilterFragment.newInstance(2);
-            }
-            return fragment;
-        }
-        @Override
-        public int getCount() {
-            return 2;
-        }
-    }
     // Makes a fragemnt name to fragments created by pager
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
@@ -1010,14 +600,8 @@ public class MainPlayerActivity extends AppCompatActivity
         int count = getSupportFragmentManager().getBackStackEntryCount();
 
         if (count == 0) {
-            // /super.onBackPressed();
-            //additional code
         } else {
-            // TODO Add Newsfeed fragment here later when exist
             getSupportFragmentManager().popBackStack();
-            if (!listSessionsFragment.isVisible()&&!mapsFragment.isVisible()&&!playerSessionsFragment.isVisible()&&!userAccountFragment.isVisible()&&!inboxFragment.isVisible()){
-
-            }
         }
         hideKeyboard(MainPlayerActivity.this);
     }
@@ -1047,21 +631,6 @@ public class MainPlayerActivity extends AppCompatActivity
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
-
-        if (getSupportFragmentManager().findFragmentByTag("xMainInboxFragment") !=null) {
-            InboxFragment inboxFragment = (InboxFragment) getSupportFragmentManager().findFragmentByTag("xMainInboxFragment");
-            inboxFragment.cleanInboxListeners();
-        }
-
-        if (getSupportFragmentManager().findFragmentByTag("displaySessionFragment")!=null) {
-            DisplaySessionFragment displaySessionFragment = (DisplaySessionFragment) getSupportFragmentManager().findFragmentByTag("displaySessionFragment");
-            displaySessionFragment.cleanListeners();
-        }
-
-        if (getSupportFragmentManager().findFragmentByTag("displayAdvertisementFragment")!=null) {
-            DisplayAdvertisementFragment displayAdvertisementFragment = (DisplayAdvertisementFragment) getSupportFragmentManager().findFragmentByTag("displayAdvertisementFragment");
-            displayAdvertisementFragment.cleanListeners();
-        }
     }
 
     @Override
@@ -1077,41 +646,7 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         FoxmikeApplication.activityResumed();
-        /** Setup fragments */
-        fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (null == fragmentManager.findFragmentByTag("xMainUserAccountFragment")) {
-            userAccountFragment = new UserAccountFragment();
-            transaction.add(R.id.container_main_player, userAccountFragment,"xMainUserAccountFragment");
-            transaction.hide(userAccountFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")) {
-            playerSessionsFragment = PlayerSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_player, playerSessionsFragment,"xMainPlayerSessionsFragment");
-            transaction.hide(playerSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainMapsFragment")) {
-            mapsFragment = MapsFragment.newInstance();
-            Bundle bundle = new Bundle();
-            bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-            mapsFragment.setArguments(bundle);
-            transaction.add(R.id.container_main_player, mapsFragment,"xMainMapsFragment");
-            transaction.hide(mapsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainListSessionsFragment")) {
-            listSessionsFragment = ListSessionsFragment.newInstance();
-            transaction.add(R.id.container_main_player, listSessionsFragment,"xMainListSessionsFragment");
-            transaction.hide(listSessionsFragment);
-        }
-        if (null == fragmentManager.findFragmentByTag("xMainInboxFragment")) {
-            inboxFragment = InboxFragment.newInstance();
-            transaction.add(R.id.container_main_player, inboxFragment,"xMainInboxFragment");
-            transaction.hide(inboxFragment);
-        }
-
         resumed=true;
-        bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
-        transaction.commitNow();
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -1146,5 +681,41 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         FoxmikeApplication.activityPaused();
+    }
+
+    @Override
+    public void OnRefreshSessions() {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnRefreshSessions();
+    }
+
+    @Override
+    public void OnListSessionsScroll(int dy) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnListSessionsScroll(dy);
+    }
+
+    @Override
+    public void OnListSessionsSort(String sortType) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnListSessionsSort(sortType);
+    }
+
+    @Override
+    public void OnListSessionsFilter(int filterDistance) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnListSessionsFilter(filterDistance);
+    }
+
+    @Override
+    public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnWeekdayChanged(week, weekdayKey, weekdayBoolean, activity);
+    }
+
+    @Override
+    public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnWeekdayButtonClicked(week, button, toggleHashMap);
     }
 }

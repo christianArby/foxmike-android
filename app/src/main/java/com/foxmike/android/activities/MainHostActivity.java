@@ -136,6 +136,7 @@ public class MainHostActivity extends AppCompatActivity implements
 
         mainPager = findViewById(R.id.mainPager);
         mainPager.setPagingEnabled(false);
+        mainPager.setOffscreenPageLimit(3);
         bottomNavigationAdapter = new BottomNavigationAdapter(fragmentManager);
 
         // Create instances of fragments
@@ -405,9 +406,7 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
         resumed = true;
-        bottomNavigation.setCurrentItem(bottomNavigation.getCurrentItem());
     }
 
     @Override
