@@ -36,9 +36,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            ext.enableCrashlytics = false
-        }
     }
     packagingOptions {
         exclude 'META-INF/NOTICE' // will not include NOTICE file
