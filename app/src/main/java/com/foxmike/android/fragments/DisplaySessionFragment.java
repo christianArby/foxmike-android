@@ -487,12 +487,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // -----------  set the number of participants ------------
                 long countParticipants;
                 if (model.getParticipantsIds()!=null) {
-                    countParticipants = model.getParticipantsIds().size();
+                    countParticipants = model.getParticipantsIds().size() + 1;
                 } else {
-                    countParticipants = 0;
+                    countParticipants = 1;
                 }
                 // set the text of each row in the list of advertisements
-                holder.setParticipantsTV(countParticipants +"/" + model.getMaxParticipants());
+                int maxParticipants = Integer.parseInt(model.getMaxParticipants()) + 1;
+                holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
                 holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
                 // set the click listener on each row
                 holder.setAdvertisementRowClickedListener(new AdvertisementRowClickedListener() {
@@ -867,7 +868,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // If the the current user has clicked a session in the sessionlist which represented an ad which has been cancelled it will show
                 // "This occasion has been cancelled, please choose another occasion." otherwise it will show "no upcoming sessions"
                 if (repAdCancelled) {
-                    noSnackAdTV.setText(R.string.representing_occasion_cancelled);
+                    noSnackAdTV.setText(R.string.show_availability);
                 } else {
                     if (representingAdTimestamp==0) {
                         noSnackAdTV.setVisibility(View.GONE);
