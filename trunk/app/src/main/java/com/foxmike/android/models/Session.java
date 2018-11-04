@@ -22,12 +22,12 @@ public class Session implements Comparable<Session>, Serializable {
     private String what;
     private String who;
     private String whereAt;
-    private String duration;
+    private int durationInMin;
     private String currency;
     private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
         this.host = host;
         this.stripeAccountId = stripeAccountId;
@@ -43,7 +43,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.what = what;
         this.who = who;
         this.whereAt = whereAt;
-        this.duration = duration;
+        this.durationInMin = durationInMin;
         this.currency = currency;
         this.representingAdTimestamp = representingAdTimestamp;
         this.price = price;
@@ -68,7 +68,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
         this.whereAt = sessionToCopy.whereAt;
-        this.duration = sessionToCopy.duration;
+        this.durationInMin = sessionToCopy.durationInMin;
         this.currency = sessionToCopy.currency;
         this.representingAdTimestamp = sessionToCopy.representingAdTimestamp;
         this.price = sessionToCopy.price;
@@ -188,12 +188,12 @@ public class Session implements Comparable<Session>, Serializable {
         this.whereAt = whereAt;
     }
 
-    public String getDuration() {
-        return duration;
+    public int getDurationInMin() {
+        return durationInMin;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
+    public void setDurationInMin(int durationInMin) {
+        this.durationInMin = durationInMin;
     }
 
     public HashMap<String, String> getParticipants() {

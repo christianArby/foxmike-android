@@ -210,7 +210,7 @@
     <string name="creating_session">Creating session…</string>
     <string name="select_time">Select Time</string>
     <string name="choose_session_type">Choose session type</string>
-    <string name="session_duration">Session duration in minutes</string>
+    <string name="session_duration">Session durationInMin in minutes</string>
     <string name="nr_participants">Nr of participants</string>
     <string name="type_in_necessary_information">Type in necessary information</string>
     <string name="tab_messages">Messages</string>
@@ -472,4 +472,5 @@
     <string name="show_availability">Show availability</string>
     <string name="you_have_no_sessions">You have no sessions yet, start by clicking on plus button below!</string>
     <string name="could_not_find_payment_method">Could not find payment method, please try again later.</string>
+    <string name="minutes_append">\u0020min</string>
 </resources>

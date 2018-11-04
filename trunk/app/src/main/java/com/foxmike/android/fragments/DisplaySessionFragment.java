@@ -839,7 +839,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mWhoTW.setText(session.getWho());
             mWhereTW.setText(session.getWhereAt());
             mSessionType.setText(session.getSessionType());
-            mDuration.setText(session.getDuration());
+            mDuration.setText(session.getDurationInMin() + getString(R.string.minutes_append));
         }
 
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
