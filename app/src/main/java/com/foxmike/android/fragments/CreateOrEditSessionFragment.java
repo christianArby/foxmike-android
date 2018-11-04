@@ -435,7 +435,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 }
             }
             mMaxParticipants.setText(existingSession.getMaxParticipants());
-            mDuration.setText(existingSession.getDuration());
+            mDuration.setText(existingSession.getDurationInMin() + getString(R.string.minutes_append));
             mWhat.setText(existingSession.getWhat());
             mWho.setText(existingSession.getWho());
             mWhere.setText(existingSession.getWhereAt());
@@ -758,7 +758,15 @@ public class CreateOrEditSessionFragment extends Fragment{
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
         sessionMap.put("maxParticipants", mMaxParticipants.getText().toString());
-        sessionMap.put("duration", mDuration.getText().toString());
+
+        String sDur = mDuration.getText().toString().replaceAll("[^0-9]", "");
+        if (sDur.length()>1) {
+            int intDur = Integer.parseInt(sDur);
+            sessionMap.put("durationInMin", intDur);
+        } else {
+            sessionMap.put("durationInMin", 0);
+        }
+
         sessionMap.put("longitude", clickedLatLng.longitude);
         sessionMap.put("latitude", clickedLatLng.latitude);
         sessionMap.put("host", currentFirebaseUser.getUid());
@@ -893,7 +901,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (String) sendSession.get("what"),
                     (String) sendSession.get("who"),
                     (String) sendSession.get("whereAt"),
-                    (String) sendSession.get("duration"),
+                    (int) sendSession.get("durationInMin"),
                     (String) sendSession.get("currency"),
                     advertisementTimestamp,
                     (int) sendSession.get("price")

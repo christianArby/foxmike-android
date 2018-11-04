@@ -261,6 +261,10 @@ public class MyFirebaseDatabase extends Service {
     public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
+        if (activity==null) {
+            onNearSessionsFoundListener.OnLocationNotFound();
+            return;
+        }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {

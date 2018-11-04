@@ -58,6 +58,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.joda.time.DateTime;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -514,7 +516,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 dialog.show();
             } else {
                 cancelledTV.setVisibility(View.GONE);
-                dateAndTimeHeadingTV.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+                DateTime sessionDate = new DateTime(advertisement.getAdvertisementTimestamp());
+                dateAndTimeHeadingTV.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()) + "-" + TextTimestamp.textTime(sessionDate.plusMinutes(advertisement.getDurationInMin()).getMillis()));
             }
             mAdvertisementName.setText(advertisement.getAdvertisementName());
             // set the image

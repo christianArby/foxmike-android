@@ -28,7 +28,7 @@ public class Advertisement implements Comparable<Advertisement> {
     private String what;
     private String who;
     private String whereAt;
-    private String duration;
+    private int durationInMin;
     private String currency;
     private long advertisementTimestamp;
     private int price;
@@ -37,7 +37,7 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, String duration, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
         this.advertisementId = advertisementId;
@@ -54,7 +54,7 @@ public class Advertisement implements Comparable<Advertisement> {
         this.what = what;
         this.who = who;
         this.whereAt = whereAt;
-        this.duration = duration;
+        this.durationInMin = durationInMin;
         this.currency = currency;
         this.advertisementTimestamp = advertisementTimestamp;
         this.price = price;
@@ -108,12 +108,12 @@ public class Advertisement implements Comparable<Advertisement> {
         this.whereAt = whereAt;
     }
 
-    public String getDuration() {
-        return duration;
+    public int getDurationInMin() {
+        return durationInMin;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
+    public void setDuration(int durationInMin) {
+        this.durationInMin = durationInMin;
     }
 
     public String getSessionId() {

@@ -461,5 +461,6 @@
     <string name="cancelled">INSTÄLLT</string>
     <string name="show_availability">Visa tillgänglighet</string>
     <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
+    <string name="minutes_append">\u0020min</string>
 
 </resources>
