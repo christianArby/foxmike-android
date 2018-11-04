@@ -491,11 +491,12 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             // -----------  set the number of participants ------------
             long countParticipants;
             if (advertisement.getParticipantsIds().size()>0) {
-                countParticipants = advertisement.getParticipantsIds().size();
+                countParticipants = advertisement.getParticipantsIds().size() + 1;
             } else {
-                countParticipants = 0;
+                countParticipants = 1;
             }
-            mParticipants.setText(countParticipants +"/" + advertisement.getMaxParticipants());
+            int maxParticipants = Integer.parseInt(advertisement.getMaxParticipants()) + 1;
+            mParticipants.setText(countParticipants +"/" + maxParticipants);
 
             gotToSession.setOnClickListener(new View.OnClickListener() {
                 @Override
