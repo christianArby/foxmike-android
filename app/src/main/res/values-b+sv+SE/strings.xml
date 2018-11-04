@@ -462,5 +462,6 @@
     <string name="show_availability">Visa tillgänglighet</string>
     <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
     <string name="minutes_append">\u0020min</string>
+    <string name="search_for_name_or_username">Sök efter namn eller @användarnamn…</string>
 
 </resources>

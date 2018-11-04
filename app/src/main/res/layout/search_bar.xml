@@ -8,7 +8,7 @@
         android:id="@+id/searchField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search for name or @username..."
+        android:hint="@string/search_for_name_or_username"
         android:inputType="textCapWords"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_marginRight="@dimen/margin_right"
