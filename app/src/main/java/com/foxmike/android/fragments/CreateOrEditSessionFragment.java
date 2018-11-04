@@ -710,9 +710,6 @@ public class CreateOrEditSessionFragment extends Fragment{
             mSessionId = mMarkerDbRef.push().getKey();
         }
 
-
-
-
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         sessionMap.put("sessionType", mSessionType.getText().toString());
