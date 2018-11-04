@@ -52,7 +52,6 @@ import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.utils.TextTimestamp;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -235,49 +234,12 @@ public class CreateOrEditSessionFragment extends Fragment{
                     cannotCreateSessionInPastPopUp();
                     return;
                 }
-                // See if there already is an event at the date clicked, if so ask user if user wants to remove session
-                List<Event> events = compactCalendarView.getEvents(dateClicked);
-                if (events.size()!=0) {
 
-                    if (events.get(0).getData()!=null) {
-                        String adType = events.get(0).getData().toString();
-                        if (adType.equals("existingAd")) {
-                            Toast.makeText(getContext(),"existingAd", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                    }
-
-                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    TextTimestamp textTimestamp = new TextTimestamp(events.get(0).getTimeInMillis());
-                    builder.setMessage(textTimestamp.textTime()).setTitle(textTimestamp.textSessionDate());
-                    builder.setPositiveButton("Remove session", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                            if (DateUtils.isToday(events.get(0).getTimeInMillis())) {
-                                compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.lightGreyBackgroundColor));
-                            }
-
-                            advertisementTimestamps.remove(events.get(0).getTimeInMillis());
-                            compactCalendarView.removeEvent(events.get(0));
-                            compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
-                        }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                    // Ask user to pick time
-                } else {
-                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
-                    // set the calendar to the clicked date
-                    myCalendar.setTime(dateClicked);
-                    pickTime();
-                    // Open timepicker in order for user to set time for the event
-                }
+                compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
+                // set the calendar to the clicked date
+                myCalendar.setTime(dateClicked);
+                pickTime();
+                // Open timepicker in order for user to set time for the event
             }
             @Override
             public void onMonthScroll(Date firstDayOfNewMonth) {
