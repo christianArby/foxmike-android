@@ -28,8 +28,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
+import com.foxmike.android.adapters.ParticipantsFirebaseAdapter;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -152,6 +154,9 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private int asyncTasksFinished = 0;
     private TextView cancelledTV;
     @BindView(R.id.participants_layout) LinearLayout participants;
+    @BindView(R.id.participants_RV) RecyclerView participantsRV;
+    @BindView(R.id.hostParticipantAvatar) CircleImageView hostParticipantAvatar;
+    private ParticipantsFirebaseAdapter participantsFirebaseAdapter;
     private OnChatClickedListener onChatClickedListener;
     public DisplayAdvertisementFragment() {
         // Required empty public constructor
@@ -232,6 +237,13 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
+
+        // Build participant query
+        Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsIds");
+        FirebaseRecyclerOptions<User> participantOptions = new FirebaseRecyclerOptions.Builder<User>()
+                .setIndexedQuery(participantsQuery, mUserDbRef, User.class)
+                .build();
+        participantsFirebaseAdapter = new ParticipantsFirebaseAdapter(participantOptions, getContext());
     }
 
     private void getDefaultSourceMap () {
@@ -458,7 +470,23 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         postList.setLayoutManager(linearLayoutManager);
         postList.setNestedScrollingEnabled(false);
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        participantsRV.setLayoutManager(layoutManager);
+        participantsRV.setAdapter(participantsFirebaseAdapter);
+
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        participantsFirebaseAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        participantsFirebaseAdapter.stopListening();
     }
 
     @Override
@@ -496,7 +524,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 countParticipants = 1;
             }
             int maxParticipants = Integer.parseInt(advertisement.getMaxParticipants()) + 1;
-            mParticipants.setText(countParticipants +"/" + maxParticipants);
+            mParticipants.setText(countParticipants + "/" + maxParticipants);
 
             gotToSession.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -644,6 +672,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
+            Glide.with(getContext()).load(host.getThumb_image()).into(hostParticipantAvatar);
         }
 
         if (postsLoaded && getView()!=null && !postsUsed) {
