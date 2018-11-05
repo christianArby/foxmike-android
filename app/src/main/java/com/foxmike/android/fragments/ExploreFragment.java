@@ -195,7 +195,7 @@ public class ExploreFragment extends Fragment{
 
             @Override
             public void OnLocationNotFound() {
-                Toast.makeText(getActivity(), R.string.location_not_found, Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
                 listSessionsFragment.emptyListView();
                 listSessionsFragment.stopSwipeRefreshingSymbol();
