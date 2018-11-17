@@ -474,4 +474,5 @@
     <string name="could_not_find_payment_method">Could not find payment method, please try again later.</string>
     <string name="minutes_append">\u0020min</string>
     <string name="search_for_name_or_username">Search for name or @username...</string>
+    <string name="no_sessions_this_time">No sessions available during this time period.</string>
 </resources>

@@ -23,12 +23,13 @@ android {
             disable 'MissingTranslation'
         }
         // If debuggable true
-        // signingConfig signingConfigs.config
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             // If debuggable true
-            // debuggable true
+            debuggable true
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -49,8 +50,8 @@ android {
         sourceCompatibility 1.8
     }
     // If debuggable true
-    /*productFlavors {
-    }*/
+    productFlavors {
+    }
 }
 
 dependencies {
