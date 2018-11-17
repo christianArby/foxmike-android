@@ -43,6 +43,7 @@ public class  ListSessionsFragment extends Fragment {
     private boolean swipeRefreshStatus;
     private boolean swipeRefreshStatusLoaded;
     private boolean swipeRefreshStatusUsed;
+    private TextView noContent;
 
     private View mainView;
 
@@ -71,6 +72,7 @@ public class  ListSessionsFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = mainView.findViewById(R.id.session_list);
         listSessionsSwipeRefreshLayout = mainView.findViewById(R.id.session_list_swipe_layout);
+        noContent = mainView.findViewById(R.id.noContent);
         noSessionsFound = mainView.findViewById(R.id.noSessionsFound);
         //mSessionList.setHasFixedSize(true); TODO What does this mean
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -108,6 +110,12 @@ public class  ListSessionsFragment extends Fragment {
     private void onAsyncTaskFinished() {
         if (sessionsLoaded && locationLoaded && !sessionsAndLocationUsed && this.mainView!=null ) {
             sessionsAndLocationUsed = true;
+
+            if (sessions.size()>0) {
+                noContent.setVisibility(View.GONE);
+            } else {
+                noContent.setVisibility(View.VISIBLE);
+            }
 
             if (sessionsAdapter!=null) {
                 noSessionsFound.setVisibility(View.GONE);
