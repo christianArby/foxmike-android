@@ -14,6 +14,7 @@ public class User implements Comparable<User>{
     public HashMap<String,Boolean> sessionsHosting;
     public HashMap<String,Long> advertisementsHosting;
     public HashMap<String,Boolean> chats;
+    private HashMap<String,Object> stripeCustomer;
     public String firstName;
     public String lastName;
     public String fullName;
@@ -23,7 +24,6 @@ public class User implements Comparable<User>{
     public boolean trainerMode;
     public String aboutMe;
     private String stripeAccountId;
-    private HashMap<String,Object> stripeCustomer;
     private boolean dontShowBookingText;
 
     public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
@@ -48,6 +48,8 @@ public class User implements Comparable<User>{
         this.sessionsAttending = new HashMap<String,Long>();
         this.sessionsHosting = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
+        this.advertisementsHosting = new HashMap<String, Long>();
+        this.chats = new HashMap<String, Boolean>();
     }
 
     public HashMap<String, Long> getAdvertisementsHosting() {

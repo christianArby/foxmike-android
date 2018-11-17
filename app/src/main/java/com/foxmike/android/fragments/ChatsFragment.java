@@ -128,52 +128,31 @@ public class ChatsFragment extends Fragment {
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         User user = dataSnapshot.getValue(User.class);
 
-                                                        for (String friendChats : user.getChats().keySet()) {
-                                                            if (chatIDs.contains(friendChats)) {
-                                                                int pos = chatIDs.indexOf(friendChats);
-                                                                if (users.containsKey(pos)) {
-                                                                    users.put(pos,user);
-                                                                    if (chatsViewHolderAdapter!=null) {
-                                                                        chatsViewHolderAdapter.notifyItemChanged(pos);
-                                                                    }
-
-                                                                } else {
-                                                                    users.put(pos,user);
-                                                                    if (users.size()==chats.size()) {
-                                                                        chatsLoaded=true;
+                                                        if (user != null) {
+                                                            for (String friendChats : user.getChats().keySet()) {
+                                                                if (chatIDs.contains(friendChats)) {
+                                                                    int pos = chatIDs.indexOf(friendChats);
+                                                                    if (users.containsKey(pos)) {
+                                                                        users.put(pos,user);
                                                                         if (chatsViewHolderAdapter!=null) {
-                                                                            chatsViewHolderAdapterInitiated = true;
-                                                                            chatsViewHolderAdapter.notifyDataSetChanged();
+                                                                            chatsViewHolderAdapter.notifyItemChanged(pos);
                                                                         }
 
-                                                                    }
-                                                                }
-
-                                                            }
-                                                        }
-                                                        /*// Add listener the presence of the chatuser
-                                                        if (!listenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
-                                                            ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
-                                                                @Override
-                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                    Presence presence = dataSnapshot.getValue(Presence.class);
-
-                                                                    for (Integer userIdInt : userIDs.keySet()) {
-                                                                        if (userIDs.get(userIdInt).equals(dataSnapshot.getKey()) ) {
-                                                                            presenceHashMap.put(userIdInt,presence);
+                                                                    } else {
+                                                                        users.put(pos,user);
+                                                                        if (users.size()==chats.size()) {
+                                                                            chatsLoaded=true;
                                                                             if (chatsViewHolderAdapter!=null) {
-                                                                                chatsViewHolderAdapter.notifyItemChanged(userIdInt);
+                                                                                chatsViewHolderAdapterInitiated = true;
+                                                                                chatsViewHolderAdapter.notifyDataSetChanged();
                                                                             }
 
                                                                         }
                                                                     }
+
                                                                 }
-                                                                @Override
-                                                                public void onCancelled(DatabaseError databaseError) {
-                                                                }
-                                                            });
-                                                            listenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
-                                                        }*/
+                                                            }
+                                                        }
                                                     }
                                                     @Override
                                                     public void onCancelled(DatabaseError databaseError) {
