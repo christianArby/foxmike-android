@@ -8,12 +8,6 @@ android {
             storeFile file('C:/Users/chris/Documents/signingKey.jks')
             storePassword 'ybra3740'
         }
-        config1 {
-            keyAlias 'key01'
-            keyPassword 'ybra3470'
-            storeFile file('C:/Users/chris/Documents/signingKey.jks')
-            storePassword 'ybra3740'
-        }
     }
     compileSdkVersion 27
     //buildToolsVersion "27.1.1"
@@ -24,15 +18,17 @@ android {
         versionCode 170
         versionName "1.7.0-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
         multiDexEnabled true //important
-
         lintOptions {
             disable 'MissingTranslation'
         }
+        // If debuggable true
+        // signingConfig signingConfigs.config
     }
     buildTypes {
         release {
+            // If debuggable true
+            // debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -52,6 +48,9 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    // If debuggable true
+    /*productFlavors {
+    }*/
 }
 
 dependencies {
