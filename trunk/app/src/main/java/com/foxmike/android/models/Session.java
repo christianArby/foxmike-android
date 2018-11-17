@@ -17,7 +17,7 @@ public class Session implements Comparable<Session>, Serializable {
     private double longitude;
     private HashMap<String, Long> advertisements;
     private HashMap<String,String> participants  = new HashMap<String, String>();
-    private HashMap<String,Boolean> posts;
+    private HashMap<String,Long> posts;
     private String imageUrl;
     private String what;
     private String who;
@@ -27,7 +27,7 @@ public class Session implements Comparable<Session>, Serializable {
     private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Boolean> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Long> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
         this.host = host;
         this.stripeAccountId = stripeAccountId;
@@ -207,14 +207,14 @@ public class Session implements Comparable<Session>, Serializable {
         this.participants = participants;
     }
 
-    public HashMap<String, Boolean> getPosts() {
+    public HashMap<String, Long> getPosts() {
         if (this.posts==null) {
-            posts = new HashMap<String, Boolean>();
+            posts = new HashMap<String, Long>();
         }
         return posts;
     }
 
-    public void setPosts(HashMap<String, Boolean> posts) {
+    public void setPosts(HashMap<String, Long> posts) {
         this.posts = posts;
     }
 
