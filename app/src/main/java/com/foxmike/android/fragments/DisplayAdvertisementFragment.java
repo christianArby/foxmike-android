@@ -302,10 +302,10 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     final Advertisement tempAd = new Advertisement();
                     postBranchArrayList.clear();
-                    tempAd.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+                    tempAd.setPosts((HashMap<String,Long>)dataSnapshot.getValue());
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (final String postID : tempAd.getPosts().keySet()) {
-                            rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                            rootDbRef.child("advertisementPosts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Post post = dataSnapshot.getValue(Post.class);

@@ -855,7 +855,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (double) sendSession.get("longitude"),
                     new HashMap<String, String>(),
                     new HashMap<String, Long>(),
-                    new HashMap<String, Boolean>(),
+                    new HashMap<String, Long>(),
                     sendSession.get("imageUrl").toString(),
                     (String) sendSession.get("what"),
                     (String) sendSession.get("who"),

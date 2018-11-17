@@ -342,10 +342,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     final Session session = new Session();
                     postBranchArrayList.clear();
-                    session.setPosts((HashMap<String,Boolean>)dataSnapshot.getValue());
+                    session.setPosts((HashMap<String,Long>)dataSnapshot.getValue());
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (final String postID : session.getPosts().keySet()) {
-                            rootDbRef.child("posts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                            rootDbRef.child("sessionPosts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Post post = dataSnapshot.getValue(Post.class);

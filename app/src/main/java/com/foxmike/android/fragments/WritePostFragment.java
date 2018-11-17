@@ -139,12 +139,20 @@ public class WritePostFragment extends Fragment {
             public void onClick(View view) {
                 if (sendable && currentUser!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
-                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image());
+                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image(), sourceID);
 
-                    rootDbRef.child("posts").child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    String postRef;
+
+                    if (dbParent.equals("sessions")) {
+                        postRef = "sessionPosts";
+                    } else {
+                        postRef = "advertisementPosts";
+                    }
+
+                    rootDbRef.child(postRef).child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     getActivity().onBackPressed();
