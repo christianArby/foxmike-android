@@ -1,13 +1,10 @@
 package com.foxmike.android.fragments;
 
 
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -61,6 +56,8 @@ public class CommentFragment extends Fragment {
     private String time;
     private String message;
     private String thumb_image;
+    private String wallType;
+    private String postCommentsDatabaseRef;
     private Toolbar commentToolbar;
     private boolean refreshTriggeredByScroll;
 
@@ -68,7 +65,7 @@ public class CommentFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CommentFragment newInstance(String postID, String heading, String time, String message, String thumb_image) {
+    public static CommentFragment newInstance(String postID, String heading, String time, String message, String thumb_image, String wallType) {
         CommentFragment fragment = new CommentFragment();
         Bundle args = new Bundle();
         args.putString("postID", postID);
@@ -76,6 +73,7 @@ public class CommentFragment extends Fragment {
         args.putString("time", time);
         args.putString("message", message);
         args.putString("thumb_image", thumb_image);
+        args.putString("wallType", wallType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,6 +87,12 @@ public class CommentFragment extends Fragment {
             time = getArguments().getString("time");
             message = getArguments().getString("message");
             thumb_image = getArguments().getString("thumb_image");
+            wallType = getArguments().getString("wallType");
+        }
+        if (wallType.equals("session")) {
+            postCommentsDatabaseRef = "sessionPostComments";
+        } else {
+            postCommentsDatabaseRef = "advertisementPostComments";
         }
     }
 
@@ -173,8 +177,8 @@ public class CommentFragment extends Fragment {
             }
         });
 
-        DatabaseReference messageRef = rootDbRef.child("postMessages").child(postID);
-        messageQuery = messageRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
+        DatabaseReference commentsRef = rootDbRef.child(postCommentsDatabaseRef).child(postID);
+        messageQuery = commentsRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
         //messageAdapter = new MessageAdapter(messageList);
         FirebaseRecyclerOptions<Message> options =
                 new FirebaseRecyclerOptions.Builder<Message>()
@@ -200,7 +204,7 @@ public class CommentFragment extends Fragment {
 
                 final int currentItems = messageFirebaseAdapter.getItemCount();
                 messageFirebaseAdapter.stopListening();
-                DatabaseReference messageRef = rootDbRef.child("postMessages").child(postID);
+                DatabaseReference messageRef = rootDbRef.child(postCommentsDatabaseRef).child(postID);
                 messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
                 FirebaseRecyclerOptions<Message> options =
                         new FirebaseRecyclerOptions.Builder<Message>()
@@ -231,7 +235,7 @@ public class CommentFragment extends Fragment {
     private void sendMessage(String userName, String userThumbImage) {
         String message = postMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-            String messageID = rootDbRef.child("postMessages").child(postID).push().getKey();
+            String messageID = rootDbRef.child(postCommentsDatabaseRef).child(postID).push().getKey();
             Map messageMap = new HashMap();
             messageMap.put("message", message);
             messageMap.put("time", ServerValue.TIMESTAMP);
@@ -239,7 +243,7 @@ public class CommentFragment extends Fragment {
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
             messageMap.put("senderThumbImage", userThumbImage);
-            rootDbRef.child("postMessages").child(postID).child(messageID).setValue(messageMap);
+            rootDbRef.child(postCommentsDatabaseRef).child(postID).child(messageID).setValue(messageMap);
             postMessage.setText("");
         }
     }

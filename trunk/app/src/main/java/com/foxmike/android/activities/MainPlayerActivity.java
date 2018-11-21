@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -50,6 +51,7 @@ import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
+import com.foxmike.android.interfaces.OnLocationNeededListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
@@ -106,7 +108,8 @@ public class MainPlayerActivity extends AppCompatActivity
         SortAndFilterFragment.OnListSessionsSortListener,
         SortAndFilterFragment.OnListSessionsFilterListener,
         OnWeekdayChangedListener,
-        OnWeekdayButtonClickedListener{
+        OnWeekdayButtonClickedListener,
+        OnLocationNeededListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -550,8 +553,8 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
+    public void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image, String wallType) {
+        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image, wallType);
         cleanMainFullscreenActivityAndSwitch(commentFragment,true,"");
     }
 
@@ -717,5 +720,10 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
         exploreFragment.OnWeekdayButtonClicked(week, button, toggleHashMap);
+    }
+
+    @Override
+    public void onLocationNeeded() {
+        Toast.makeText(this, R.string.location_not_found, Toast.LENGTH_LONG).show();
     }
 }

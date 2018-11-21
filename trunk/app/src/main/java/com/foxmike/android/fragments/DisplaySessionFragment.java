@@ -357,9 +357,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                         onAsyncTaskFinished();
                                     }
                                     // Number of comments listener
-                                    if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
+                                    if (!listenerMap.containsKey(rootDbRef.child("sessionPostComments").child(postID))) {
 
-                                        ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
+                                        ValueEventListener postCommentsListener = rootDbRef.child("sessionPostComments").child(postID).addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
@@ -373,7 +373,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                             public void onCancelled(DatabaseError databaseError) {
                                             }
                                         });
-                                        listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+                                        listenerMap.put(rootDbRef.child("sessionPostComments").child(postID), postCommentsListener);
                                     }
                                 }
                                 @Override
@@ -1145,7 +1145,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void startCommentFragment(String postID, String heading, String time, String message, String thumb_image) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
+        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image, "session");
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("commentFragment")) {

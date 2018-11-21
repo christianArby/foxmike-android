@@ -317,8 +317,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                                         onTaskFinished();
                                     }
                                     // Number of comments listener
-                                    if (!listenerMap.containsKey(rootDbRef.child("postMessages").child(postID))) {
-                                        ValueEventListener postMessagesListener = rootDbRef.child("postMessages").child(postID).addValueEventListener(new ValueEventListener() {
+                                    if (!listenerMap.containsKey(rootDbRef.child("advertisementPostComments").child(postID))) {
+                                        ValueEventListener postCommentsListener = rootDbRef.child("advertisementPostComments").child(postID).addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
@@ -332,7 +332,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                                             public void onCancelled(DatabaseError databaseError) {
                                             }
                                         });
-                                        listenerMap.put(rootDbRef.child("postMessages").child(postID), postMessagesListener);
+                                        listenerMap.put(rootDbRef.child("advertisementPostComments").child(postID), postCommentsListener);
                                     }
                                 }
                                 @Override
@@ -781,7 +781,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     }
 
     private void startCommentFragment(String postID, String heading, String time, String message, String thumb_image) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image);
+        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image, "advertisement");
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("commentFragment")) {
