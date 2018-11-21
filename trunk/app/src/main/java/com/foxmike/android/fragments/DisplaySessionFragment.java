@@ -487,12 +487,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // -----------  set the number of participants ------------
                 long countParticipants;
                 if (model.getParticipantsIds()!=null) {
-                    countParticipants = model.getParticipantsIds().size() + 1;
+                    countParticipants = model.getParticipantsIds().size();
                 } else {
-                    countParticipants = 1;
+                    countParticipants = 0;
                 }
                 // set the text of each row in the list of advertisements
-                int maxParticipants = Integer.parseInt(model.getMaxParticipants()) + 1;
+                int maxParticipants = Integer.parseInt(model.getMaxParticipants());
                 holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
                 holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
                 // set the click listener on each row
