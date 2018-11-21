@@ -652,13 +652,9 @@ public class CreateOrEditSessionFragment extends Fragment{
                 mPriceTIL.setError(null);
                 if (payoutsEnabled) {
                     if (accountCountry.equals("SE")) {
-                        mPrice.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                mPriceTIL.setError(null);
-                                createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
-                            }
-                        });
+                        mPriceTIL.setError(null);
+                        createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
+
                         if (price!=0) {
                             mPrice.setText(price + " kr");
                         }
