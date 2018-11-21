@@ -340,34 +340,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/hostParticipantAvatar"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginBottom="@dimen/marginVertical"
-                android:layout_marginStart="@dimen/margin_left"
-                android:src="@mipmap/profile_picture"/>
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/participants_RV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
             </android.support.v7.widget.RecyclerView>
-
-            <!--<de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/participantsTest2"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginBottom="@dimen/marginVertical"
-                android:layout_marginStart="@dimen/margin_left"
-                android:src="@mipmap/profile_picture"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_left"
-                android:text="Bjud in en vän"/>-->
 
         </LinearLayout>
 

@@ -155,7 +155,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private TextView cancelledTV;
     @BindView(R.id.participants_layout) LinearLayout participants;
     @BindView(R.id.participants_RV) RecyclerView participantsRV;
-    @BindView(R.id.hostParticipantAvatar) CircleImageView hostParticipantAvatar;
     private ParticipantsFirebaseAdapter participantsFirebaseAdapter;
     private OnChatClickedListener onChatClickedListener;
     public DisplayAdvertisementFragment() {
@@ -519,11 +518,11 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             // -----------  set the number of participants ------------
             long countParticipants;
             if (advertisement.getParticipantsIds().size()>0) {
-                countParticipants = advertisement.getParticipantsIds().size() + 1;
+                countParticipants = advertisement.getParticipantsIds().size();
             } else {
-                countParticipants = 1;
+                countParticipants = 0;
             }
-            int maxParticipants = Integer.parseInt(advertisement.getMaxParticipants()) + 1;
+            int maxParticipants = Integer.parseInt(advertisement.getMaxParticipants());
             mParticipants.setText(countParticipants + "/" + maxParticipants);
 
             gotToSession.setOnClickListener(new View.OnClickListener() {
@@ -672,7 +671,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
-            Glide.with(getContext()).load(host.getThumb_image()).into(hostParticipantAvatar);
         }
 
         if (postsLoaded && getView()!=null && !postsUsed) {
