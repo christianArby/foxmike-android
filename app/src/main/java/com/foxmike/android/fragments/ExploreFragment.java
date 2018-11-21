@@ -18,11 +18,11 @@ import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.BottomNavigationAdapter;
+import com.foxmike.android.interfaces.OnLocationNeededListener;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.models.Session;
@@ -59,6 +59,7 @@ public class ExploreFragment extends Fragment{
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
     private Boolean started = false;
+    private OnLocationNeededListener onLocationNeededListener;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -195,7 +196,7 @@ public class ExploreFragment extends Fragment{
 
             @Override
             public void OnLocationNotFound() {
-                Toast.makeText(getContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
+                onLocationNeededListener.onLocationNeeded();
                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
                 listSessionsFragment.emptyListView();
                 listSessionsFragment.stopSwipeRefreshingSymbol();
@@ -369,4 +370,20 @@ public class ExploreFragment extends Fragment{
         return "android:switcher:" + viewPagerId + ":" + index;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnLocationNeededListener) {
+            onLocationNeededListener = (OnLocationNeededListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnLocationNeededListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onLocationNeededListener = null;
+    }
 }

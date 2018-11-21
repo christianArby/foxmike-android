@@ -16,17 +16,27 @@ public class Post implements Comparable<Post> {
     private String senderName;
     private String senderThumbImage;
     private String sourceId;
+    private String sourceName;
 
-    public Post(String author, String message, String senderName, String senderThumbImage, String sourceId) {
+    public Post(String author, String message, String senderName, String senderThumbImage, String sourceId, String sourceName) {
         this.author = author;
         this.timestamp = ServerValue.TIMESTAMP;
         this.message = message;
         this.senderName = senderName;
         this.senderThumbImage = senderThumbImage;
         this.sourceId = sourceId;
+        this.sourceName = sourceName;
     }
 
     public Post() {
+    }
+
+    public String getsourceName() {
+        return sourceName;
+    }
+
+    public void setsourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public String getSourceId() {

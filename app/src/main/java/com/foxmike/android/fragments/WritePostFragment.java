@@ -139,7 +139,7 @@ public class WritePostFragment extends Fragment {
             public void onClick(View view) {
                 if (sendable && currentUser!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
-                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image(), sourceID);
+                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image(), sourceID, title);
 
                     String postRef;
 

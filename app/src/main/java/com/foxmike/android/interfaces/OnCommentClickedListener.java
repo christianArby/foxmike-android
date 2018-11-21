@@ -5,5 +5,5 @@ package com.foxmike.android.interfaces;
  */
 
 public interface OnCommentClickedListener {
-    void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image);
+    void OnCommentClicked(String postID, String heading, String time, String message, String thumb_image, String wallTyp);
 }
