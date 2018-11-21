@@ -257,21 +257,27 @@ public class RegisterActivity extends AppCompatActivity {
                                 addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                                     @Override
                                     public void OnUserAddedToDatabase() {
+                                        if (!currentUserID.equals(getResources().getString(R.string.foxmikeUserId))) {
+                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                            Map friendsMap = new HashMap();
+                                            friendsMap.put("friends/" + currentUserID + "/" + R.string.foxmikeUserId + "/date", currentDate);
+                                            friendsMap.put("friends/" + R.string.foxmikeUserId + "/" + currentUserID + "/date", currentDate);
 
-                                        final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                        Map friendsMap = new HashMap();
-                                        friendsMap.put("friends/" + currentUserID + "/" + R.string.foxmikeUserId + "/date", currentDate);
-                                        friendsMap.put("friends/" + R.string.foxmikeUserId + "/" + currentUserID + "/date", currentDate);
-
-                                        rootDbRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
-                                            @Override
-                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                                myProgressBar.stopProgressBar();
-                                                Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                startActivity(mainIntent);
-                                            }
-                                        });
+                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
+                                                @Override
+                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                    myProgressBar.stopProgressBar();
+                                                    Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                    startActivity(mainIntent);
+                                                }
+                                            });
+                                        } else {
+                                            myProgressBar.stopProgressBar();
+                                            Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                            startActivity(mainIntent);
+                                        }
                                     }
                                 });
                             }
