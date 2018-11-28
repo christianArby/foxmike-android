@@ -260,8 +260,8 @@ public class RegisterActivity extends AppCompatActivity {
                                         if (!currentUserID.equals(getResources().getString(R.string.foxmikeUserId))) {
                                             final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
                                             Map friendsMap = new HashMap();
-                                            friendsMap.put("friends/" + currentUserID + "/" + R.string.foxmikeUserId + "/date", currentDate);
-                                            friendsMap.put("friends/" + R.string.foxmikeUserId + "/" + currentUserID + "/date", currentDate);
+                                            friendsMap.put("friends/" + currentUserID + "/" + getResources().getString(R.string.foxmikeUserId) + "/date", currentDate);
+                                            friendsMap.put("friends/" + getResources().getString(R.string.foxmikeUserId) + "/" + currentUserID + "/date", currentDate);
 
                                             FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
                                                 @Override
