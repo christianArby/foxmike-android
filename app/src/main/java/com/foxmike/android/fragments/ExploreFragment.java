@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Path;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -18,11 +19,11 @@ import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.BottomNavigationAdapter;
-import com.foxmike.android.interfaces.OnLocationNeededListener;
 import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.models.Session;
@@ -59,7 +60,10 @@ public class ExploreFragment extends Fragment{
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
     private Boolean started = false;
-    private OnLocationNeededListener onLocationNeededListener;
+
+    private Boolean locationFound = false;
+    private Boolean locationLoaded = false;
+    private Boolean locationAndViewUsed = false;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -169,6 +173,12 @@ public class ExploreFragment extends Fragment{
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        locationAndViewUsed = false;
+        onAsyncTaskFinished();
+    }
 
     private void setupListAndMapWithSessions() {
         myFirebaseDatabase= new MyFirebaseDatabase();
@@ -177,6 +187,10 @@ public class ExploreFragment extends Fragment{
 
             @Override
             public void OnNearSessionsFound(ArrayList<Session> nearSessions, Location location) {
+                locationFound = true;
+                locationAndViewUsed = false;
+                onAsyncTaskFinished();
+
                 sessionListArrayList.clear();
                 sessionListArrayList = nearSessions;
                 locationClosetoSessions = location;
@@ -196,13 +210,21 @@ public class ExploreFragment extends Fragment{
 
             @Override
             public void OnLocationNotFound() {
-                onLocationNeededListener.onLocationNeeded();
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
-                listSessionsFragment.emptyListView();
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-
+                locationFound = false;
+                locationAndViewUsed = false;
+                onAsyncTaskFinished();
             }
         });
+    }
+
+    private void onAsyncTaskFinished() {
+        if (getView()!=null && locationLoaded && locationAndViewUsed) {
+            locationAndViewUsed = true;
+            Toast.makeText(getContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+            listSessionsFragment.emptyListView();
+            listSessionsFragment.stopSwipeRefreshingSymbol();
+        }
     }
 
     private void switchMapOrListUI(boolean mapIsVisible) {
@@ -370,20 +392,4 @@ public class ExploreFragment extends Fragment{
         return "android:switcher:" + viewPagerId + ":" + index;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnLocationNeededListener) {
-            onLocationNeededListener = (OnLocationNeededListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnLocationNeededListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        onLocationNeededListener = null;
-    }
 }

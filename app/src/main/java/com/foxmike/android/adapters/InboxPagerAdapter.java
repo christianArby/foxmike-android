@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.ChatsFragment;
 import com.foxmike.android.fragments.FriendsFragment;
+import com.foxmike.android.fragments.NotificationsFragment;
 
 /**
  * This adapter sets up the three tabs in Inbox fragment and fill those pages with corresponding fragments
@@ -31,6 +32,9 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
             case 1:
                 FriendsFragment friendsFragment = new FriendsFragment();
                 return friendsFragment;
+            case 2:
+                NotificationsFragment notificationsFragment = new NotificationsFragment();
+                return notificationsFragment;
             default:
                 return null;
         }
@@ -38,7 +42,7 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
 
     @Override
     public int getCount() {
-        return 2;
+        return 3;
     }
 
     public CharSequence getPageTitle(int position) {
@@ -48,6 +52,8 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
                 return context.getResources().getString(R.string.tab_messages);
             case 1:
                 return context.getString(R.string.tab_friends);
+            case 2:
+                return context.getString(R.string.notifications);
             default:
                 return null;
         }

@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -38,6 +37,7 @@ import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.fragments.PlayerSessionsFragment;
 import com.foxmike.android.fragments.SortAndFilterFragment;
 import com.foxmike.android.fragments.UserAccountFragment;
@@ -51,7 +51,6 @@ import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
-import com.foxmike.android.interfaces.OnLocationNeededListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
@@ -60,6 +59,7 @@ import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayChangedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.google.android.gms.maps.model.LatLng;
@@ -109,7 +109,7 @@ public class MainPlayerActivity extends AppCompatActivity
         SortAndFilterFragment.OnListSessionsFilterListener,
         OnWeekdayChangedListener,
         OnWeekdayButtonClickedListener,
-        OnLocationNeededListener{
+        NotificationsFragment.OnNotificationClickedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -134,6 +134,10 @@ public class MainPlayerActivity extends AppCompatActivity
     private String stripeCustomerId;
     private AHBottomNavigationViewPager mainPager;
     private BottomNavigationAdapter bottomNavigationAdapter;
+    private int unreadChats = 0;
+    private int unreadNotifications = 0;
+    private int unreadFriendRequests = 0;
+    private int inboxNotifications = 0;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -270,34 +274,83 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
         // --------------------------  LISTEN TO CHATS -------------------------------------
-        // Check if there are unread chatmessages and if so set notifications to the bottom navigation bar
-        ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.hasChildren()) {
-                    int nrOfUnreadChats = 0;
-                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
-                        Boolean read = (Boolean) chatID.getValue();
-                        if (!read) {
-                            nrOfUnreadChats++;
+        // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
+        if (!listenerMap.containsKey(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"))) {
+            ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    unreadChats = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                            Boolean read = (Boolean) chatID.getValue();
+                            if (!read) {
+                                unreadChats++;
+                            }
                         }
-
-                        if (nrOfUnreadChats>0) {
-                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),2);
-                        } else {
-                            bottomNavigation.setNotification("",2);
-                        }
-
+                    }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                    } else {
+                        bottomNavigation.setNotification("",2);
                     }
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
+                }
+            });
+            listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
+        }
+
+        if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener notificationsListener = rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    unreadNotifications = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            unreadNotifications++;
+                        }
+                    }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                    } else {
+                        bottomNavigation.setNotification("",2);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
+        }
+
+        if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    unreadFriendRequests = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            unreadFriendRequests++;
+                        }
+                    }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                    } else {
+                        bottomNavigation.setNotification("",2);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
+        }
     }
 
     private void updateStripeCustomerInfo() {
@@ -723,7 +776,26 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLocationNeeded() {
-        Toast.makeText(this, R.string.location_not_found, Toast.LENGTH_LONG).show();
+    public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
+        if (foxmikeNotification.getType().equals("sessionPost")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("advertisementPost")) {
+            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
+        }
+        if (foxmikeNotification.getType().equals("sessionPostComment")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("advertisementPostComment")) {
+            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
+        }
+        if (foxmikeNotification.getType().equals("advertisementParticipant")) {
+            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
+        }
     }
 }
