@@ -51,6 +51,9 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -198,23 +201,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
-        /*mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(WelcomeActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            checkIfUserExistsInDb();
-                        } else {
-                            myProgressBar.stopProgressBar();
-                            facebookLoginButton.setEnabled(true);
-                            // If sign in fails, account already exists, ask user if he/she wants to link the accounts
-                            FragmentManager fragmentManager = getSupportFragmentManager();
-                            FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            LinkWithFacebookFragment linkWithFacebookFragment = LinkWithFacebookFragment.newInstance(email);
-                            linkWithFacebookFragment.show(transaction,"linkWithFacebookFragment");
-                        }
-                    }
-                });*/
     }
 
     // ------------------- Handle GOOGLE SIGN IN result ----------------
@@ -275,11 +261,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    myProgressBar.stopProgressBar();
-                    facebookLoginButton.setEnabled(true);
-                    Intent mainIntent = new Intent(WelcomeActivity.this,MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(mainIntent);
+                    registrationFinished();
                 } else {
                     User user = new User();
                     user.setFirstName(firstName);
@@ -292,11 +274,30 @@ public class WelcomeActivity extends AppCompatActivity {
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {
-                            myProgressBar.stopProgressBar();
-                            facebookLoginButton.setEnabled(true);
-                            Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(mainIntent);
+                            FirebaseDatabase.getInstance().getReference().child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue()!=null) {
+                                        String foxmikeUID = dataSnapshot.getValue().toString();
+                                        if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
+                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                            Map friendsMap = new HashMap();
+                                            friendsMap.put("friends/" + mAuth.getCurrentUser().getUid() + "/" + foxmikeUID + "/date", currentDate);
+                                            friendsMap.put("friends/" + foxmikeUID + "/" + mAuth.getCurrentUser().getUid() + "/date", currentDate);
+                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
+                                                registrationFinished();
+                                            });
+                                        } else {
+                                            registrationFinished();
+                                        }
+                                    } else {
+                                        registrationFinished();
+                                    }
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                }
+                            });
                         }
                     });
                 }
@@ -305,6 +306,14 @@ public class WelcomeActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
+
+    private void registrationFinished() {
+        myProgressBar.stopProgressBar();
+        facebookLoginButton.setEnabled(true);
+        Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(mainIntent);
     }
 
     public AuthCredential getCredential() {

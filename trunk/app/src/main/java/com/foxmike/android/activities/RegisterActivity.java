@@ -30,9 +30,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -257,27 +259,30 @@ public class RegisterActivity extends AppCompatActivity {
                                 addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                                     @Override
                                     public void OnUserAddedToDatabase() {
-                                        if (!currentUserID.equals(getResources().getString(R.string.foxmikeUserId))) {
-                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                            Map friendsMap = new HashMap();
-                                            friendsMap.put("friends/" + currentUserID + "/" + getResources().getString(R.string.foxmikeUserId) + "/date", currentDate);
-                                            friendsMap.put("friends/" + getResources().getString(R.string.foxmikeUserId) + "/" + currentUserID + "/date", currentDate);
-
-                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
-                                                @Override
-                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                                    myProgressBar.stopProgressBar();
-                                                    Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                    startActivity(mainIntent);
+                                        rootDbRef.child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if (dataSnapshot.getValue()!=null) {
+                                                    String foxmikeUID = dataSnapshot.getValue().toString();
+                                                    if (!currentUserID.equals(foxmikeUID)) {
+                                                        final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                                        Map friendsMap = new HashMap();
+                                                        friendsMap.put("friends/" + currentUserID + "/" + foxmikeUID + "/date", currentDate);
+                                                        friendsMap.put("friends/" + foxmikeUID + "/" + currentUserID + "/date", currentDate);
+                                                        FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
+                                                            registerFinished(myProgressBar);
+                                                        });
+                                                    } else {
+                                                        registerFinished(myProgressBar);
+                                                    }
+                                                } else {
+                                                    registerFinished(myProgressBar);
                                                 }
-                                            });
-                                        } else {
-                                            myProgressBar.stopProgressBar();
-                                            Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            startActivity(mainIntent);
-                                        }
+                                            }
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -290,6 +295,13 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void registerFinished(MyProgressBar myProgressBar) {
+        myProgressBar.stopProgressBar();
+        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(mainIntent);
     }
 
     // when gallery intent has been opened and an image clicked start crop image activity
