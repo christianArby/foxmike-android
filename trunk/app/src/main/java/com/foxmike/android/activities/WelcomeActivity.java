@@ -1,12 +1,12 @@
 package com.foxmike.android.activities;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -44,8 +44,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -180,8 +182,24 @@ public class WelcomeActivity extends AppCompatActivity {
     private void handleFacebookAccessToken(AccessToken token) {
         mAuth = FirebaseAuth.getInstance();
         credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    checkIfUserExistsInDb();
+                } else {
+                    myProgressBar.stopProgressBar();
+                    facebookLoginButton.setEnabled(true);
+                    // If sign in fails, account already exists, ask user if he/she wants to link the accounts
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    LinkWithFacebookFragment linkWithFacebookFragment = LinkWithFacebookFragment.newInstance(email);
+                    linkWithFacebookFragment.show(transaction,"linkWithFacebookFragment");
+                }
+            }
+        });
+        /*mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(WelcomeActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -196,7 +214,7 @@ public class WelcomeActivity extends AppCompatActivity {
                             linkWithFacebookFragment.show(transaction,"linkWithFacebookFragment");
                         }
                     }
-                });
+                });*/
     }
 
     // ------------------- Handle GOOGLE SIGN IN result ----------------
