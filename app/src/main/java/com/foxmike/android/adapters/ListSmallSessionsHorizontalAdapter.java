@@ -58,7 +58,31 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         holder.setText0(sessionArrayList.get(position).getSessionType());
         String sessionName = sessionArrayList.get(position).getSessionName();
         holder.setSessionName(sessionName);
-        holder.setText2(TextTimestamp.textSDF(sessionArrayList.get(position).getRepresentingAdTimestamp()));
+
+        if (sessionArrayList.get(position).getAdvertisements().size()>0) {
+            Long currentTimestamp = System.currentTimeMillis();
+            Long earliestAd = 0L;
+            for (Long adTimestamp : sessionArrayList.get(position).getAdvertisements().values()) {
+                if (earliestAd == 0L) {
+                    earliestAd = adTimestamp;
+                }
+                if (adTimestamp<earliestAd && adTimestamp>currentTimestamp) {
+                    earliestAd = adTimestamp;
+                }
+            }
+            if (earliestAd!= 0L) {
+                holder.setText2(TextTimestamp.textSessionDate(earliestAd));
+            } else {
+                holder.setText2("No upcoming sessions");
+            }
+        } else {
+            holder.setText2("No upcoming sessions");
+        }
+
+
+
+
+
         String address = getAddress(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude());
         holder.setText3(address);
         String distance = getDistance(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude(), lastLocation);

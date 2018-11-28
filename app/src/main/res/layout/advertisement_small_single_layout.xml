@@ -40,7 +40,9 @@
         android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toTopOf="@id/icon"
         app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintBottom_toBottomOf="@id/icon">
+        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0">
 
         <TextView
             android:id="@+id/text1"
@@ -49,6 +51,8 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:text="Medium Text"
             android:textColor="@color/primaryTextColor"
+            android:ellipsize="end"
+            android:maxLines="1"
             />
 
         <TextView

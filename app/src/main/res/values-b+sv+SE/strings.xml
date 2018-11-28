@@ -445,7 +445,7 @@
     <string name="price_colon">Pris:</string>
     <string name="per_person">per person</string>
     <string name="cost_colon">Kostnad:</string>
-    <string name="all">Alla</string>
+    <string name="all">Visa"\n"alla</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Klicka på kalendern för att välja datum och tider för ditt pass.</string>
     <string name="show_booking">Visa bokning</string>
     <string name="show_occasion">Visa tillfälle</string>
