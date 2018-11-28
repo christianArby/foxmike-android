@@ -475,4 +475,11 @@
     <string name="minutes_append">\u0020min</string>
     <string name="search_for_name_or_username">Search for name or @username...</string>
     <string name="no_sessions_this_time">No sessions available during this time period.</string>
+    <string name="you_have_no_notifications_yet">You have no notifications yet.</string>
+    <string name="notifications">Notifications</string>
+    <string name="has_made_a_post_in">\u0020has made a post in\u0020</string>
+    <string name="has_made_a_comment_to_your_post_in">\u0020has made a comment to your post in\u0020</string>
+    <string name="you_have_a_friend_request_from">You have a friend request from\u0020</string>
+    <string name="you_have_a_new_participant_in">You have a new participant in\u0020</string>
+    <string name="you_have_a_cancellation_in">You have a cancellation in\u0020</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -15,10 +15,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
-import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -200,17 +200,10 @@ public class UserProfilePublicFragment extends Fragment {
                 // -------------- NOT FRIENDS STATE ----------------
                 // If not friends and button is clicked, send friend request by creating structure in database
                 if (areFriends==0) {
-                    DatabaseReference newNotificationRef = rootDbRef.child("notifications").child(otherUserID).push();
-                    String newNotificationID = newNotificationRef.getKey();
-
-                    HashMap<String,String> notificationData = new HashMap<String, String>();
-                    notificationData.put("from", currentFirebaseUser.getUid());
-                    notificationData.put("type", "request");
 
                     Map requestMap = new HashMap<>();
                     requestMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + otherUserID + "/request_type", "sent");
                     requestMap.put("friend_requests/" + otherUserID + "/" + currentFirebaseUser.getUid() + "/request_type", "received");
-                    requestMap.put("notifications/" + otherUserID + "/" + newNotificationID, notificationData);
 
                     rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
                         @Override

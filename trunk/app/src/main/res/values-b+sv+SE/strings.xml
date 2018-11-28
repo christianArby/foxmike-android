@@ -464,5 +464,12 @@
     <string name="minutes_append">\u0020min</string>
     <string name="search_for_name_or_username">Sök efter namn eller @användarnamn…</string>
     <string name="no_sessions_this_time">Inga pass tillgängliga den här tidsperioden.</string>
+    <string name="you_have_no_notifications_yet">Du har inga notiser än.</string>
+    <string name="notifications">Notiser</string>
+    <string name="has_made_a_post_in">\u0020har gjort ett inlägg i\u0020</string>
+    <string name="has_made_a_comment_to_your_post_in">\u0020har kommenterat ditt inlägg i\u0020</string>
+    <string name="you_have_a_friend_request_from">Du har en vänförfrågan från\u0020</string>
+    <string name="you_have_a_new_participant_in">Du har en ny deltagare i\u0020</string>
+    <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
 
 </resources>

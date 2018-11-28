@@ -30,6 +30,7 @@ import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.MapsFragment;
+import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.fragments.UserAccountFragment;
 import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
@@ -48,6 +49,7 @@ import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.google.android.gms.maps.model.LatLng;
@@ -79,7 +81,12 @@ public class MainHostActivity extends AppCompatActivity implements
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
-        MapsFragment.OnLocationPickedListener, OnCreateSessionClickedListener, OnAdvertisementsFoundListener, OnAdvertisementClickedListener, AdvertisementListener {
+        MapsFragment.OnLocationPickedListener,
+        OnCreateSessionClickedListener,
+        OnAdvertisementsFoundListener,
+        OnAdvertisementClickedListener,
+        AdvertisementListener,
+        NotificationsFragment.OnNotificationClickedListener {
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;
@@ -458,5 +465,10 @@ public class MainHostActivity extends AppCompatActivity implements
         cancelAdIntent.putExtra("participantsIds",participantsIds);
         cancelAdIntent.putExtra("accountId",accountId);
         startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
+    }
+
+    @Override
+    public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
+        // TODO
     }
 }
