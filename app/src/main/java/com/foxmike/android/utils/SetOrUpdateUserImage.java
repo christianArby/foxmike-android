@@ -59,7 +59,7 @@ public class SetOrUpdateUserImage {
 
         final DatabaseReference current_user_db = mDatabaseUsers.child(currentUserID);
         final StorageReference thumb_filepath = mStorageImage.child("thumbs").child(currentUserID + ".jpg");
-        StorageReference filepath = mStorageImage.child(imageUri.getLastPathSegment());
+        StorageReference filepath = mStorageImage.child(currentUserID + ".jpg");
 
         filepath.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override

@@ -137,7 +137,6 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadChats = 0;
     private int unreadNotifications = 0;
     private int unreadFriendRequests = 0;
-    private int inboxNotifications = 0;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -275,8 +274,8 @@ public class MainPlayerActivity extends AppCompatActivity
         });
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
-        if (!listenerMap.containsKey(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"))) {
-            ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener chatsListener = rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     unreadChats = 0;
@@ -299,7 +298,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
                 }
             });
-            listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
+            listenerMap.put(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()), chatsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
@@ -349,7 +348,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
                 }
             });
-            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
+            listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
         }
     }
 

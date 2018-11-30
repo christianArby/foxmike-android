@@ -3,8 +3,10 @@ package com.foxmike.android.utils;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
+
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,7 +40,7 @@ public class AddUserToDatabase {
     }
 
     // Add user to Firabase database
-    public void AddUserToDatabaseWithUniqueUsername(final Activity activity, final User user) {
+    public void AddUserToDatabaseWithUniqueUsername(final Activity activity, final User user, final UserPublic userPublic) {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Random random = new Random();
@@ -67,7 +69,12 @@ public class AddUserToDatabase {
                     mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            onUserAddedToDatabaseListener.OnUserAddedToDatabase();
+                            mDatabase.child("usersPublic").child(mAuth.getCurrentUser().getUid()).setValue(userPublic).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    onUserAddedToDatabaseListener.OnUserAddedToDatabase();
+                                }
+                            });
                         }
                     });
                 } else {
@@ -77,7 +84,7 @@ public class AddUserToDatabase {
                         startRangeCeiling = startRangeCeiling*10;
                     }
                     if (AddUserToDatabase.this.numberOfTriedUserNames<10) {
-                        AddUserToDatabaseWithUniqueUsername(activity, user);
+                        AddUserToDatabaseWithUniqueUsername(activity, user, userPublic);
                     } else {
                         Toast.makeText(activity, R.string.failed_registration_text, Toast.LENGTH_SHORT).show();
                     }

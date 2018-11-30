@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,14 +10,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.utils.MyFirebaseDatabase;
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserImageUrlMap;
+import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * This Fragment shows the current user's profile (without buttons to add friend or send message as in UserProfilePublicFragment)
@@ -86,7 +89,13 @@ public class UserProfileFragment extends Fragment {
                 fullNameTV.setText(userDb.getFullName());
                 userAboutMeTV.setText(userDb.getAboutMe());
                 userNameTV.setText(userDb.getUserName());
-                setCircleImage(userDb.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
+
+                userDb.getImagesDownloadUrls(currentFirebaseUser.getUid(), new OnUrlMapSetListener() {
+                    @Override
+                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
+                        setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
+                    }
+                });
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

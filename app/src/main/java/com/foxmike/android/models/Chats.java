@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class Chats {
 
+    public String chatId;
     public long timestamp;
     public String lastMessage;
     public HashMap<String,Boolean> users;
@@ -15,10 +16,19 @@ public class Chats {
     public Chats() {
     }
 
-    public Chats(long timestamp, String lastMessage, HashMap<String, Boolean> users) {
+    public Chats(String chatId, long timestamp, String lastMessage, HashMap<String, Boolean> users) {
+        this.chatId = chatId;
         this.timestamp = timestamp;
         this.lastMessage = lastMessage;
         this.users = users;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
     public long getTimestamp() {

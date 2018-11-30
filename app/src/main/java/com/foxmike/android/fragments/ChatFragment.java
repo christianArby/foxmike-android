@@ -2,14 +2,10 @@ package com.foxmike.android.fragments;
 
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +16,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,10 +26,11 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.FoxmikeApplication;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
-import com.foxmike.android.models.User;
-import com.foxmike.android.utils.GetTimeAgo;
+import com.foxmike.android.models.UserImageUrlMap;
+import com.foxmike.android.models.UserPublic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class ChatFragment extends Fragment {
@@ -74,8 +68,6 @@ public class ChatFragment extends Fragment {
     private MessageFirebaseAdapter messageFirebaseAdapter;
     private DatabaseReference rootDbRef;
     private Query messageQuery;
-    private DatabaseReference userDbRef;
-    private DatabaseReference friendDbRef;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
     private ValueEventListener usersChatUserIDListener;
     private OnUserClickedListener onUserClickedListener;
@@ -166,27 +158,21 @@ public class ChatFragment extends Fragment {
 
         // Set database references
         rootDbRef = FirebaseDatabase.getInstance().getReference();
-        userDbRef = rootDbRef.child("users").child(currentUserID);
-        friendDbRef = rootDbRef.child("users").child(chatUserID);
 
         // see if current user has a chat with the friend already and add listener to send message button
-        userDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        rootDbRef.child("chatMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final User currentUser = dataSnapshot.getValue(User.class);
-                friendDbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                final DataSnapshot currentUserChats = dataSnapshot;
+
+                rootDbRef.child("chatMembers").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User friendUser = dataSnapshot.getValue(User.class);
-                        // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (chatID==null) {
-                            if (currentUser.getChats()!=null) {
-                                for (String userChatID : currentUser.getChats().keySet()) {
-                                    if (friendUser.getChats()!= null) {
-                                        if (friendUser.getChats().containsKey(userChatID)) {
-                                            chatID = userChatID;
-                                        }
-                                    }
+                            for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                                if (currentUserChats.hasChild(snapshot.getKey())) {
+                                    chatID = snapshot.getKey();
                                 }
                             }
                             // If chat did not exist between users create a new chatID
@@ -194,6 +180,7 @@ public class ChatFragment extends Fragment {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
                         }
+
                         // --------------- chatID IS NOW SET ----------------
 
                         // Set database reference to chat id in message root and build query
@@ -213,21 +200,72 @@ public class ChatFragment extends Fragment {
                                 // Set that current user has seen the chat
                                 if (FoxmikeApplication.isActivityVisible()) {
                                     rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                                    rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                                    rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
                                 }
                             }
                         });
                         messagesListRV.setAdapter(messageFirebaseAdapter);
                         // Setup send button, when button is clicked send message to database
-                        chatSendBtn.setOnClickListener(new View.OnClickListener() {
+                        rootDbRef.child("usersPublic").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onClick(View view) {
-                                refreshTriggeredByScroll = false;
-                                sendMessage(currentUser.getFirstName(), currentUser.getThumb_image());
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                UserPublic currentUser = dataSnapshot.getValue(UserPublic.class);
+
+                                currentUser.getImagesDownloadUrls(currentUserID, new OnUrlMapSetListener() {
+                                    @Override
+                                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
+                                        chatSendBtn.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                refreshTriggeredByScroll = false;
+                                                sendMessage(currentUser.getFirstName(), userImageUrlMap.getUserThumbImageUrl());
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
                             }
                         });
+
                         // Start listening to changes in database
                         messageFirebaseAdapter.startListening();
+
+
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        rootDbRef.child("chatsMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot currentUserChatsCnapshot = dataSnapshot;
+                rootDbRef.child("chatMembers").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
+                        if (chatID== null) {
+                            for (DataSnapshot friendSnapshot: dataSnapshot.getChildren()) {
+                                if (currentUserChatsCnapshot.hasChild(friendSnapshot.getKey())) {
+                                    chatID = friendSnapshot.getKey();
+                                }
+                            }
+                        }
+                        // If chat did not exist between users create a new chatID
+                        if (chatID==null) {
+                            chatID = rootDbRef.child("chats").push().getKey();
+                        }
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -298,7 +336,7 @@ public class ChatFragment extends Fragment {
                         // Set that current user has seen the chat
                         if (FoxmikeApplication.isActivityVisible()) {
                             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
+                            rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
                         }
                     }
                 });
@@ -337,9 +375,9 @@ public class ChatFragment extends Fragment {
             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
             // Other users ID is set to false in chats/users since other user has not seen the message
             rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(false);
-            // Same thing as above but in the users objects
-            rootDbRef.child("users").child(currentUserID).child("chats").child(chatID).setValue(true);
-            rootDbRef.child("users").child(chatUserID).child("chats").child(chatID).setValue(false);
+            // Same thing as above but in the chatMembers objects
+            rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
+            rootDbRef.child("chatMembers").child(chatUserID).child(chatID).setValue(false);
             // Clear the input field
             chatMessage.setText("");
         }

@@ -19,7 +19,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserImageUrlMap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -127,7 +129,13 @@ public class UserProfilePublicFragment extends Fragment {
                 fullNameTV.setText(otherUser.getFullName());
                 userAboutMeTV.setText(otherUser.getAboutMe());
                 userNameTV.setText(otherUser.getUserName());
-                setCircleImage(otherUser.image,(CircleImageView) profile.findViewById(R.id.profilePublicIV));
+
+                otherUser.getImagesDownloadUrls(otherUserID, new OnUrlMapSetListener() {
+                    @Override
+                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
+                        setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
+                    }
+                });
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
                 // Find out if there are any requests sent or recieved from the other user in the database/"friend_requests"/currentUserID

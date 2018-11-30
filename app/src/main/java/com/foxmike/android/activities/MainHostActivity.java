@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -109,6 +110,9 @@ public class MainHostActivity extends AppCompatActivity implements
     private boolean resumed = false;
     private AHBottomNavigationViewPager mainPager;
     private BottomNavigationAdapter bottomNavigationAdapter;
+    private int unreadChats = 0;
+    private int unreadNotifications = 0;
+    private int unreadFriendRequests = 0;
 
 
     @Override
@@ -171,31 +175,84 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        // Add listener to current user's chats to see if there are any chats the user has unread messages in, if so set notification to bottom bar
-        ValueEventListener chatsListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.hasChildren()) {
-                    int nrOfUnreadChats = 0;
-                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
-                        Boolean read = (Boolean) chatID.getValue();
-                        if (!read) {
-                            nrOfUnreadChats++;
-                        }
-                        if (nrOfUnreadChats>0) {
-                            bottomNavigation.setNotification(Integer.toString(nrOfUnreadChats),0);
-                        } else {
-                            bottomNavigation.setNotification("",0);
+        // --------------------------  LISTEN TO CHATS -------------------------------------
+        // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
+        if (!listenerMap.containsKey(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener chatsListener = rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    unreadChats = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                            Boolean read = (Boolean) chatID.getValue();
+                            if (!read) {
+                                unreadChats++;
+                            }
                         }
                     }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                    } else {
+                        bottomNavigation.setNotification("",0);
+                    }
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-        listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("chats"), chatsListener);
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()), chatsListener);
+        }
+
+        if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener notificationsListener = rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    unreadNotifications = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            unreadNotifications++;
+                        }
+                    }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                    } else {
+                        bottomNavigation.setNotification("",0);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
+        }
+
+        if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    unreadFriendRequests = 0;
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot child: dataSnapshot.getChildren()) {
+                            unreadFriendRequests++;
+                        }
+                    }
+                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                    } else {
+                        bottomNavigation.setNotification("",0);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
+        }
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
