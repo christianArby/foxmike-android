@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
@@ -97,6 +98,8 @@ public class SetupAccountActivity extends AppCompatActivity {
             user.setLastName(lastName);
             user.setFullName(firstName + " " + lastName);
 
+            UserPublic userPublic = new UserPublic(firstName, lastName,"");
+
             SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
             setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this,mImageUri,currentUserID);
             setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
@@ -106,7 +109,7 @@ public class SetupAccountActivity extends AppCompatActivity {
                     user.setThumb_image(imageUrlHashMap.get("thumb_image").toString());
 
                     AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
-                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(SetupAccountActivity.this, user);
+                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(SetupAccountActivity.this, user, userPublic);
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {

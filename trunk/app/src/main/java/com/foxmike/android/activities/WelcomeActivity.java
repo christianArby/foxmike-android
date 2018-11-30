@@ -25,6 +25,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.LinkWithFacebookFragment;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -269,8 +270,11 @@ public class WelcomeActivity extends AppCompatActivity {
                     user.setFullName(firstName + " " + lastName);
                     user.setImage(imageURL);
                     user.setThumb_image(imageURL);
+
+                    UserPublic userPublic = new UserPublic(firstName, lastName,"");
+
                     AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
-                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(WelcomeActivity.this, user);
+                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(WelcomeActivity.this, user, userPublic);
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {

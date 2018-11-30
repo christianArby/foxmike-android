@@ -155,7 +155,7 @@ public class WritePostFragment extends Fragment {
                             rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    getActivity().onBackPressed();
+                                    getActivity().getFragmentManager().popBackStack();
                                 }
                             });
                         }

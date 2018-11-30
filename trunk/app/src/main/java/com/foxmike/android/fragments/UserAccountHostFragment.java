@@ -1,9 +1,9 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,30 +20,23 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.AboutActivity;
-import com.foxmike.android.activities.CreateStripeAccountActivity;
-import com.foxmike.android.activities.MainHostActivity;
-import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
 import com.foxmike.android.activities.WelcomeActivity;
-import com.foxmike.android.utils.MyFirebaseDatabase;
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserImageUrlMap;
+import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * This Fragment creates the user profile view by using the xml files:
@@ -221,7 +213,13 @@ public class UserAccountHostFragment extends Fragment {
 
             fullNameTV.setText(currentUser.getFullName());
             userNameTV.setText(currentUser.getUserName());
-            setCircleImage(currentUser.image,(CircleImageView) profile.findViewById(R.id.profileIV));
+
+            currentUser.getImagesDownloadUrls(currentUserID, new OnUrlMapSetListener() {
+                @Override
+                public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
+                    setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profileIV));
+                }
+            });
 
             switchModeTV.setOnClickListener(new View.OnClickListener() {
                 @Override

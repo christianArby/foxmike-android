@@ -1,6 +1,12 @@
 package com.foxmike.android.models;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
+
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
@@ -13,24 +19,22 @@ public class User implements Comparable<User>{
     public HashMap<String,Long> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
     public HashMap<String,Long> advertisementsHosting;
-    public HashMap<String,Boolean> chats;
     private HashMap<String,Object> stripeCustomer;
     public String firstName;
     public String lastName;
+    public String aboutMe;
     public String fullName;
     public String userName;
     public String image;
     public String thumb_image;
     public boolean trainerMode;
-    public String aboutMe;
     private String stripeAccountId;
     private boolean dontShowBookingText;
 
-    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, HashMap<String, Boolean> chats, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
+    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.advertisementsHosting = advertisementsHosting;
-        this.chats = chats;
         this.firstName = firstName;
         this.lastName = lastName;
         this.fullName = fullName;
@@ -49,7 +53,6 @@ public class User implements Comparable<User>{
         this.sessionsHosting = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
         this.advertisementsHosting = new HashMap<String, Long>();
-        this.chats = new HashMap<String, Boolean>();
     }
 
     public HashMap<String, Long> getAdvertisementsHosting() {
@@ -81,20 +84,12 @@ public class User implements Comparable<User>{
         this.sessionsHosting = sessionsHosting;
     }
 
-    public HashMap<String, Boolean> getChats() {
-        return chats;
-    }
-
     public String getAboutMe() {
         return aboutMe;
     }
 
     public void setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
-    }
-
-    public void setChats(HashMap<String, Boolean> chats) {
-        this.chats = chats;
     }
 
     public String getFirstName() {
@@ -180,5 +175,25 @@ public class User implements Comparable<User>{
 
     public void setDontShowBookingText(boolean dontShowBookingText) {
         this.dontShowBookingText = dontShowBookingText;
+    }
+
+    public void getImagesDownloadUrls(String userId,OnUrlMapSetListener onUrlMapSetListener) {
+        StorageReference imageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child(userId + ".jpg");
+        StorageReference thumbImageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child("thumbs").child(userId + ".jpg");
+        imageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                String imageDownloadUrl = uri.toString();
+                thumbImageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        UserImageUrlMap userImageUrlMap = new UserImageUrlMap();
+                        userImageUrlMap.setUserImageUrl(imageDownloadUrl);
+                        userImageUrlMap.setUserThumbImageUrl(uri.toString());
+                        onUrlMapSetListener.OnUrlMapSet(userImageUrlMap);
+                    }
+                });
+            }
+        });
     }
 }

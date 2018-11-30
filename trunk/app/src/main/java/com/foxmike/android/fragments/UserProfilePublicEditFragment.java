@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,7 +11,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,11 +25,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnUserFoundListener;
+import com.foxmike.android.interfaces.OnUrlMapSetListener;
+import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
-import com.foxmike.android.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,9 +42,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -121,7 +118,12 @@ public class UserProfilePublicEditFragment extends Fragment {
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
                 userNameET.setText(user.getUserName());
-                setImageButton(user.image,profileImageButton);
+                user.getImagesDownloadUrls(currentFirebaseUser.getUid(), new OnUrlMapSetListener() {
+                    @Override
+                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
+                        setImageButton(userImageUrlMap.getUserImageUrl(), profileImageButton);
+                    }
+                });
             }
 
             @Override
@@ -246,6 +248,11 @@ public class UserProfilePublicEditFragment extends Fragment {
                 usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+
+                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
+                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
+                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());

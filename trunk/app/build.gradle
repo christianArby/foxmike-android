@@ -15,20 +15,20 @@ android {
         applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 180
-        versionName "1.8.0-alpha"
+        versionCode 190
+        versionName "1.9.0-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
         lintOptions {
             disable 'MissingTranslation'
         }
         // If debuggable true
-        signingConfig signingConfigs.config
+        // signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             // If debuggable true
-            debuggable true
+            // debuggable true
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -50,8 +50,8 @@ android {
         sourceCompatibility 1.8
     }
     // If debuggable true
-    productFlavors {
-    }
+    //productFlavors {
+    //}
 }
 
 dependencies {
