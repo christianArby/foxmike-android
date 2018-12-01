@@ -818,13 +818,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             writePostLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, session.getSessionName());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
-                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
-                        transaction.commit();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    Fragment prev = getFragmentManager().findFragmentByTag("writePostFragment");
+                    if (prev != null) {
+                        ft.remove(prev);
                     }
+                    ft.addToBackStack(null);
+                    WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, session.getSessionName());
+                    writePostFragment.show(ft, "writePostFragment");
                 }
             });
 
