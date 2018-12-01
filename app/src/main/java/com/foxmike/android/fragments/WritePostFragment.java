@@ -1,10 +1,11 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -32,7 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 /**
  * This dialog fragment lets the user write a post to the session
  */
-public class WritePostFragment extends Fragment {
+public class WritePostFragment extends DialogFragment {
 
     DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -70,6 +71,18 @@ public class WritePostFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+        }
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog d = getDialog();
+        if (d!=null){
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            d.getWindow().setLayout(width, height);
         }
     }
 
@@ -155,7 +168,7 @@ public class WritePostFragment extends Fragment {
                             rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    getActivity().getFragmentManager().popBackStack();
+                                    dismiss();
                                 }
                             });
                         }

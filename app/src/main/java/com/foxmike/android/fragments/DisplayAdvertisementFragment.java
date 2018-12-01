@@ -618,13 +618,14 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             writePostLsyout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    WritePostFragment writePostFragment = WritePostFragment.newInstance("advertisements", advertisementId, advertisement.getAdvertisementName());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (null == fragmentManager.findFragmentByTag("writePostFragment")) {
-                        transaction.add(R.id.container_fullscreen_display_session, writePostFragment,"writePostFragment").addToBackStack(null);
-                        transaction.commit();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    Fragment prev = getFragmentManager().findFragmentByTag("writePostFragment");
+                    if (prev != null) {
+                        ft.remove(prev);
                     }
+                    ft.addToBackStack(null);
+                    WritePostFragment writePostFragment = WritePostFragment.newInstance("advertisements", advertisementId, advertisement.getAdvertisementName());
+                    writePostFragment.show(ft, "writePostFragment");
                 }
             });
         }
