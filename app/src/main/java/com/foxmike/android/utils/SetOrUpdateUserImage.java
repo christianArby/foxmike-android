@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.foxmike.android.models.UserImageUrlMap;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -15,8 +16,6 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 
@@ -34,7 +33,9 @@ public class SetOrUpdateUserImage {
     public SetOrUpdateUserImage() {
     }
 
-    public void setOrUpdateUserImages(final Context context, Uri imageUri, String mCurrentUserID) {
+    public void setOrUpdateUserImages(final Context context, Uri imageUri, String mCurrentUserID, OnUserImageSetListener onUserImageSetListener) {
+
+        this.onUserImageSetListener = onUserImageSetListener;
 
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
         mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
@@ -74,11 +75,9 @@ public class SetOrUpdateUserImage {
                                 thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        Map imageUrlHashMap = new HashMap();
-                                        imageUrlHashMap.put("image", downloadUrl);
-                                        imageUrlHashMap.put("thumb_image", uri.toString());
+                                        UserImageUrlMap userImageUrlMap = new UserImageUrlMap(downloadUrl, uri.toString());
 
-                                        onUserImageSetListener.onUserImageSet(imageUrlHashMap);
+                                        onUserImageSetListener.onUserImageSet(userImageUrlMap);
                                     }
                                 });
                             }
@@ -89,11 +88,7 @@ public class SetOrUpdateUserImage {
         });
     }
 
-    public void setOnUserImageSetListener(OnUserImageSetListener onUserImageSetListener) {
-        this.onUserImageSetListener = onUserImageSetListener;
-    }
-
     public interface OnUserImageSetListener {
-        void onUserImageSet(Map imageUrlHashMap);
+        void onUserImageSet(UserImageUrlMap userImageUrlMap);
     }
 }

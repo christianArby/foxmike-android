@@ -41,6 +41,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,7 +81,7 @@ import io.reactivex.functions.Consumer;
  */
 public class DisplayAdvertisementFragment extends Fragment implements OnMapReadyCallback {
 
-    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("usersPublic");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
@@ -157,6 +158,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     @BindView(R.id.participants_RV) RecyclerView participantsRV;
     private ParticipantsFirebaseAdapter participantsFirebaseAdapter;
     private OnChatClickedListener onChatClickedListener;
+    HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     public DisplayAdvertisementFragment() {
         // Required empty public constructor
     }
@@ -195,7 +197,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
         // GET CURRENT USER FROM DATABASE
 
-        ValueEventListener currentUserListener = mUserDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        ValueEventListener currentUserListener = rootDbRef.child("users").child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUserAndViewUsed = false;
@@ -208,7 +210,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
+        listenerMap.put(rootDbRef.child("users").child(currentFirebaseUser.getUid()),currentUserListener);
 
         // GET SESSION FROM DATABASE
         if (!advertisementId.equals("")) {
@@ -239,8 +241,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
         // Build participant query
         Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsIds");
-        FirebaseRecyclerOptions<User> participantOptions = new FirebaseRecyclerOptions.Builder<User>()
-                .setIndexedQuery(participantsQuery, mUserDbRef, User.class)
+        FirebaseRecyclerOptions<UserPublic> participantOptions = new FirebaseRecyclerOptions.Builder<UserPublic>()
+                .setIndexedQuery(participantsQuery, mUserDbRef, UserPublic.class)
                 .build();
         participantsFirebaseAdapter = new ParticipantsFirebaseAdapter(participantOptions, getContext());
     }
@@ -452,9 +454,13 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                     String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
-                    holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
+                    populateUserPublicHashMap(postBranchArrayList.get(position).getPost().getAuthor(), new OnUsersLoadedListener() {
+                        @Override
+                        public void OnUsersLoaded(UserPublic user) {
+                            holder.setUserImage(user.getThumb_image(), getContext());
+                        }
+                    });
                     holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
-                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID(),postBranchArrayList.get(position).getPost().getSenderName(),timeText, postBranchArrayList.get(position).getPost().getMessage(),postBranchArrayList.get(position).getPost().getSenderThumbImage());
                     holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
                 }
             }
@@ -668,7 +674,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
         // ---------------- HOST && VIEW-----------------
         if (hostLoaded && getView()!=null && !hostAndViewUsed) {
-            setImage(host.getImage(), mHostImage);
+            setImage(host.getThumb_image(), mHostImage);
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
@@ -962,5 +968,30 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         onUserAccountFragmentInteractionListener = null;
         onSessionClickedListener = null;
         advertisementListener = null;
+    }
+
+    private void populateUserPublicHashMap(String userId, OnUsersLoadedListener onUsersLoadedListener) {
+
+        if (!userPublicHashMap.containsKey(userId)) {
+            FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
+                    userPublicHashMap.put(userId, userPublic);
+                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        } else {
+            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
+        }
+    }
+
+    public interface OnUsersLoadedListener{
+        void OnUsersLoaded(UserPublic user);
     }
 }

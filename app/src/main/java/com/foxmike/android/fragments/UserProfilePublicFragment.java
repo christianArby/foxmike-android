@@ -19,9 +19,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
-import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserImageUrlMap;
+import com.foxmike.android.models.UserPublic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,7 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class UserProfilePublicFragment extends Fragment {
 
-    private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
+    private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("usersPublic");
     private DatabaseReference friendReqDbRef = FirebaseDatabase.getInstance().getReference().child("friend_requests");
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
     private  DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -55,7 +53,7 @@ public class UserProfilePublicFragment extends Fragment {
     private Button declineBtn;
     private Button sendMessageBtn;
     private int areFriends;
-    private User otherUser;
+    private UserPublic otherUser;
     private OnChatClickedListener onChatClickedListener;
 
 
@@ -125,17 +123,12 @@ public class UserProfilePublicFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
-                otherUser = dataSnapshot.getValue(User.class);
-                fullNameTV.setText(otherUser.getFullName());
+                otherUser = dataSnapshot.getValue(UserPublic.class);
+                fullNameTV.setText(otherUser.getFirstName() + " " + otherUser.getLastName());
                 userAboutMeTV.setText(otherUser.getAboutMe());
                 userNameTV.setText(otherUser.getUserName());
 
-                otherUser.getImagesDownloadUrls(otherUserID, new OnUrlMapSetListener() {
-                    @Override
-                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-                        setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
-                    }
-                });
+                setCircleImage(otherUser.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
                 // Find out if there are any requests sent or recieved from the other user in the database/"friend_requests"/currentUserID

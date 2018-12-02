@@ -168,7 +168,7 @@ public class CommentFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         refreshTriggeredByScroll = false;
-                        sendMessage(currentUser.getFirstName(), currentUser.getThumb_image());
+                        sendMessage(currentUser.getFirstName());
                     }
                 });
             }
@@ -232,7 +232,7 @@ public class CommentFragment extends Fragment {
         return view;
     }
 
-    private void sendMessage(String userName, String userThumbImage) {
+    private void sendMessage(String userName) {
         String message = postMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
             String messageID = rootDbRef.child(postCommentsDatabaseRef).child(postID).push().getKey();
@@ -242,7 +242,6 @@ public class CommentFragment extends Fragment {
             messageMap.put("seen", false);
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
-            messageMap.put("senderThumbImage", userThumbImage);
             rootDbRef.child(postCommentsDatabaseRef).child(postID).child(messageID).setValue(messageMap);
             postMessage.setText("");
         }

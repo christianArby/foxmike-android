@@ -26,10 +26,8 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.FoxmikeApplication;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
-import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.models.UserPublic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -210,21 +208,11 @@ public class ChatFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 UserPublic currentUser = dataSnapshot.getValue(UserPublic.class);
-
-                                currentUser.getImagesDownloadUrls(currentUserID, new OnUrlMapSetListener() {
-                                    @Override
-                                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-                                        chatSendBtn.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                refreshTriggeredByScroll = false;
-                                                sendMessage(currentUser.getFirstName(), userImageUrlMap.getUserThumbImageUrl());
-                                            }
-                                        });
-                                    }
+                                chatSendBtn.setOnClickListener(view1 -> {
+                                    refreshTriggeredByScroll = false;
+                                    sendMessage(currentUser.getFirstName(), currentUser.getImage());
                                 });
                             }
-
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
 

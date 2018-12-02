@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
-import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -19,7 +19,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by chris on 2018-11-04.
  */
 
-public class ParticipantsFirebaseAdapter extends FirebaseRecyclerAdapter<User, ParticipantsFirebaseAdapter.ParticipantsRowViewHolder>{
+public class ParticipantsFirebaseAdapter extends FirebaseRecyclerAdapter<UserPublic, ParticipantsFirebaseAdapter.ParticipantsRowViewHolder>{
 
     private Context ctx;
 
@@ -30,13 +30,13 @@ public class ParticipantsFirebaseAdapter extends FirebaseRecyclerAdapter<User, P
      *
      * @param options
      */
-    public ParticipantsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<User> options, Context ctx) {
+    public ParticipantsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<UserPublic> options, Context ctx) {
         super(options);
         this.ctx = ctx;
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull ParticipantsRowViewHolder holder, int position, @NonNull User model) {
+    protected void onBindViewHolder(@NonNull ParticipantsRowViewHolder holder, int position, @NonNull UserPublic model) {
         holder.setAvatar(model.getThumb_image());
     }
 

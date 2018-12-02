@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
@@ -246,19 +246,18 @@ public class RegisterActivity extends AppCompatActivity {
                         user.setLastName(lastName);
                         user.setFullName(firstName + " " + lastName);
 
-                        final UserPublic userPublic = new UserPublic(firstName,lastName,"");
+
 
                         SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this,mImageUri,currentUserID);
-                        setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {
                             @Override
-                            public void onUserImageSet(Map imageUrlHashMap) {
+                            public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
 
-                                user.setImage(imageUrlHashMap.get("image").toString());
-                                user.setThumb_image(imageUrlHashMap.get("thumb_image").toString());
+                                user.setImage(userImageUrlMap.getUserImageUrl());
+                                user.setThumb_image(userImageUrlMap.getUserThumbImageUrl());
 
                                 AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
-                                addUserToDatabase.AddUserToDatabaseWithUniqueUsername(RegisterActivity.this, user, userPublic);
+                                addUserToDatabase.AddUserToDatabaseWithUniqueUsername(RegisterActivity.this, user);
                                 addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                                     @Override
                                     public void OnUserAddedToDatabase() {

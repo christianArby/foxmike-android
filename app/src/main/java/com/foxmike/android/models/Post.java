@@ -14,16 +14,14 @@ public class Post implements Comparable<Post> {
     private Object timestamp;
     private String message;
     private String senderName;
-    private String senderThumbImage;
     private String sourceId;
     private String sourceName;
 
-    public Post(String author, String message, String senderName, String senderThumbImage, String sourceId, String sourceName) {
+    public Post(String author, String message, String senderName, String sourceId, String sourceName) {
         this.author = author;
         this.timestamp = ServerValue.TIMESTAMP;
         this.message = message;
         this.senderName = senderName;
-        this.senderThumbImage = senderThumbImage;
         this.sourceId = sourceId;
         this.sourceName = sourceName;
     }
@@ -77,14 +75,6 @@ public class Post implements Comparable<Post> {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
-    }
-
-    public String getSenderThumbImage() {
-        return senderThumbImage;
-    }
-
-    public void setSenderThumbImage(String senderThumbImage) {
-        this.senderThumbImage = senderThumbImage;
     }
 
     @Override

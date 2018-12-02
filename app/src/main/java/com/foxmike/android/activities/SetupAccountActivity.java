@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
@@ -98,18 +98,17 @@ public class SetupAccountActivity extends AppCompatActivity {
             user.setLastName(lastName);
             user.setFullName(firstName + " " + lastName);
 
-            UserPublic userPublic = new UserPublic(firstName, lastName,"");
+
 
             SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this,mImageUri,currentUserID);
-            setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {
                 @Override
-                public void onUserImageSet(Map imageUrlHashMap) {
-                    user.setImage(imageUrlHashMap.get("image").toString());
-                    user.setThumb_image(imageUrlHashMap.get("thumb_image").toString());
+                public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
+                    user.setImage(userImageUrlMap.getUserImageUrl());
+                    user.setThumb_image(userImageUrlMap.getUserThumbImageUrl());
 
                     AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
-                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(SetupAccountActivity.this, user, userPublic);
+                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(SetupAccountActivity.this, user);
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {

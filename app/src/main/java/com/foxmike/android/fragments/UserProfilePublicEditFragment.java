@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.MyFirebaseDatabase;
@@ -45,6 +44,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -118,12 +118,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
                 userNameET.setText(user.getUserName());
-                user.getImagesDownloadUrls(currentFirebaseUser.getUid(), new OnUrlMapSetListener() {
-                    @Override
-                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-                        setImageButton(userImageUrlMap.getUserImageUrl(), profileImageButton);
-                    }
-                });
+                setImageButton(user.getImage(), profileImageButton);
             }
 
             @Override
@@ -252,13 +247,17 @@ public class UserProfilePublicEditFragment extends Fragment {
                 rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
                 rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
                 rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
+                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+
 
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(),mImageUri,currentFirebaseUser.getUid());
-                    setOrUpdateUserImage.setOnUserImageSetListener(new SetOrUpdateUserImage.OnUserImageSetListener() {
+                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(), mImageUri, currentFirebaseUser.getUid(), new SetOrUpdateUserImage.OnUserImageSetListener() {
                         @Override
-                        public void onUserImageSet(Map imageUrlHashMap) {
+                        public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
+                            Map imageUrlHashMap = new HashMap();
+                            imageUrlHashMap.put("image", userImageUrlMap.getUserImageUrl());
+                            imageUrlHashMap.put("thumb_image", userImageUrlMap.getUserThumbImageUrl());
                             usersDbRef.child(currentFirebaseUser.getUid()).updateChildren(imageUrlHashMap).addOnCompleteListener(new OnCompleteListener() {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
