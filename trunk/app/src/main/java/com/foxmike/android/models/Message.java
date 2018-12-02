@@ -11,15 +11,13 @@ public class Message {
     private boolean seen;
     private String senderUserID;
     private String senderName;
-    private String senderThumbImage;
 
-    public Message(String message, long time, boolean seen, String senderUserID, String senderName, String senderThumbImage) {
+    public Message(String message, long time, boolean seen, String senderUserID, String senderName) {
         this.message = message;
         this.time = time;
         this.seen = seen;
         this.senderUserID = senderUserID;
         this.senderName = senderName;
-        this.senderThumbImage = senderThumbImage;
     }
 
     public Message() {
@@ -63,13 +61,5 @@ public class Message {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
-    }
-
-    public String getSenderThumbImage() {
-        return senderThumbImage;
-    }
-
-    public void setSenderThumbImage(String senderThumbImage) {
-        this.senderThumbImage = senderThumbImage;
     }
 }

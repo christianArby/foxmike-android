@@ -10,9 +10,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.Chats;
-import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -73,20 +71,12 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
                     final String chatFriendName = userPublicHashMap.get(finalChatFriend).getFirstName();
                     holder.setHeading(chatFriendName);
 
-                    userPublicHashMap.get(finalChatFriend).getImagesDownloadUrls(finalChatFriend, new OnUrlMapSetListener() {
+                    final String chatFriendImage = friend.getThumb_image();
+                    holder.setUserImage(chatFriendImage, context);
+                    holder.mView.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-
-                            final String chatFriendImage = userImageUrlMap.getUserThumbImageUrl();
-                            holder.setUserImage(chatFriendImage, context);
-
-                            holder.mView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    onChatClickedListener.OnChatClicked(finalChatFriend,chatFriendName,chatFriendImage,chatID);
-                                }
-                            });
+                        public void onClick(View view) {
+                            onChatClickedListener.OnChatClicked(finalChatFriend,chatFriendName,chatFriendImage,chatID);
                         }
                     });
 

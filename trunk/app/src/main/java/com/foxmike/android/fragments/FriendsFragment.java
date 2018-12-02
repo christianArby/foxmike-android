@@ -1,9 +1,8 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,9 +14,9 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
-import com.foxmike.android.models.Presence;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserBranch;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.HeaderViewHolder;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,12 +25,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * This fragment lists all the current user's friend requests and friends
@@ -56,7 +54,7 @@ public class FriendsFragment extends Fragment {
     private OnUserClickedListener onUserClickedListener;
     private RecyclerView.Adapter<RecyclerView.ViewHolder> friendsViewHolderAdapter;
     private RecyclerView requestsList;
-    private HashMap<Integer, User> requestUsers = new HashMap<Integer, User>();
+    private HashMap<Integer, UserPublic> requestUsers = new HashMap<Integer, UserPublic>();
     private RecyclerView.Adapter<UsersViewHolder> requestsViewHolderAdapter;
     private TextView requestsHeading;
     private TextView friendsHeading;
@@ -114,14 +112,14 @@ public class FriendsFragment extends Fragment {
 
                 // Loop through the user IDs the current user has requests sent to or received from
                 for (String requestUserID : requestsUserIDs) {
-                    rootDbRef.child("users").child(requestUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    rootDbRef.child("usersPublic").child(requestUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            User user = dataSnapshot.getValue(User.class);
+                            UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
 
                             // Save the user to the array of users and notify recycler view on data set changed
                             int pos = requestsUserIDs.indexOf(dataSnapshot.getKey());
-                            requestUsers.put(pos,user);
+                            requestUsers.put(pos,userPublic);
                             if (requestUsers.size()==requestsUserIDs.size()) {
                                 requestsViewHolderAdapter.notifyDataSetChanged();
                             }
@@ -149,8 +147,8 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
                 holder.setText(requests.get(requestsUserIDs.get(position)), true);
-                final User friend = requestUsers.get(position);
-                holder.setHeading(friend.getFullName());
+                final UserPublic friend = requestUsers.get(position);
+                holder.setHeading(friend.getFirstName()+ " " + friend.getLastName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                 holder.setOnlineIcon(false);
                 holder.mView.setOnClickListener(new View.OnClickListener() {

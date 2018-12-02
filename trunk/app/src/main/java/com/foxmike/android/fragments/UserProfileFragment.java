@@ -15,9 +15,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -90,12 +88,7 @@ public class UserProfileFragment extends Fragment {
                 userAboutMeTV.setText(userDb.getAboutMe());
                 userNameTV.setText(userDb.getUserName());
 
-                userDb.getImagesDownloadUrls(currentFirebaseUser.getUid(), new OnUrlMapSetListener() {
-                    @Override
-                    public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-                        setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
-                    }
-                });
+                setCircleImage(userDb.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

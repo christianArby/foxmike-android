@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -9,10 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
-import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +37,7 @@ public class ParticipantsFragment extends DialogFragment {
     private ArrayList<String> userIDs = new ArrayList<String>();
     private OnUserClickedListener onUserClickedListener;
     private RecyclerView.Adapter<UsersViewHolder> friendsViewHolderAdapter;
-    private ArrayList<User> users = new ArrayList<>();
+    private ArrayList<UserPublic> users = new ArrayList<>();
 
     public ParticipantsFragment() {
         // Required empty public constructor
@@ -76,7 +78,7 @@ public class ParticipantsFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         View mainView = inflater.inflate(R.layout.fragment_participants, container, false);
 
-        usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        usersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
         mAuth = FirebaseAuth.getInstance();
         // Clear usersIDs and users since they will exist when onCreateView is recreated
         userIDs.clear();
@@ -91,9 +93,9 @@ public class ParticipantsFragment extends DialogFragment {
             usersDatabase.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
+                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                     // hitta positionen i userIDs
-                    users.add(user);
+                    users.add(userPublic);
                     if (users.size()==userIDs.size()) {
                         Collections.sort(users);
                         friendsViewHolderAdapter.notifyDataSetChanged();
@@ -117,8 +119,8 @@ public class ParticipantsFragment extends DialogFragment {
             @Override
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
                 holder.setText("nothing", true);
-                final User friend = users.get(position);
-                holder.setHeading(friend.getFullName());
+                final UserPublic friend = users.get(position);
+                holder.setHeading(friend.getFirstName() + " " + friend.getLastName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
 
                 // Vid klick på en user skicka dess user ID genom lyssnaren OnUserClickedListener

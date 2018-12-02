@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.Post;
-import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,7 +51,7 @@ public class WritePostFragment extends DialogFragment {
     private String title;
     private String postID;
     private Toolbar postToolbar;
-    private User currentUser;
+    private UserPublic currentUserPublic;
 
     public WritePostFragment() {
         // Required empty public constructor
@@ -116,12 +116,12 @@ public class WritePostFragment extends DialogFragment {
         postTitle = view.findViewById(R.id.post_custom_bar_name);
         postTitle.setText(title);
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("usersPublic").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
-                postName.setText(currentUser.getFullName());
-                Glide.with(getActivity()).load(currentUser.getThumb_image()).into(postProfileImage);
+                currentUserPublic = dataSnapshot.getValue(UserPublic.class);
+                postName.setText(currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName());
+                Glide.with(getActivity()).load(currentUserPublic.getThumb_image()).into(postProfileImage);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -150,9 +150,9 @@ public class WritePostFragment extends DialogFragment {
         sendTW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (sendable && currentUser!=null) {
+                if (sendable && currentUserPublic!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
-                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUser.getFullName(), currentUser.getThumb_image(), sourceID, title);
+                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName(), sourceID, title);
 
                     String postRef;
 

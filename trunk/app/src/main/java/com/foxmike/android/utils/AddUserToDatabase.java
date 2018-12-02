@@ -40,7 +40,7 @@ public class AddUserToDatabase {
     }
 
     // Add user to Firabase database
-    public void AddUserToDatabaseWithUniqueUsername(final Activity activity, final User user, final UserPublic userPublic) {
+    public void AddUserToDatabaseWithUniqueUsername(final Activity activity, final User user) {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Random random = new Random();
@@ -66,6 +66,10 @@ public class AddUserToDatabase {
             public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
                 if (commited) {
                     user.setUserName(userName);
+                    user.setUserId(mAuth.getCurrentUser().getUid());
+
+                    final UserPublic userPublic = new UserPublic(mAuth.getCurrentUser().getUid(),user.getFirstName(),user.getLastName(),"", user.getImage(), user.getThumb_image(), user.getUserName());
+
                     mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -84,7 +88,7 @@ public class AddUserToDatabase {
                         startRangeCeiling = startRangeCeiling*10;
                     }
                     if (AddUserToDatabase.this.numberOfTriedUserNames<10) {
-                        AddUserToDatabaseWithUniqueUsername(activity, user, userPublic);
+                        AddUserToDatabaseWithUniqueUsername(activity, user);
                     } else {
                         Toast.makeText(activity, R.string.failed_registration_text, Toast.LENGTH_SHORT).show();
                     }

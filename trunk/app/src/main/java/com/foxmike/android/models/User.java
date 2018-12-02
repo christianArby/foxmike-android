@@ -1,12 +1,6 @@
 package com.foxmike.android.models;
 
-import android.net.Uri;
 import android.support.annotation.NonNull;
-
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
@@ -16,6 +10,7 @@ import java.util.HashMap;
 
 public class User implements Comparable<User>{
 
+    private String userId;
     public HashMap<String,Long> sessionsAttending;
     public HashMap<String,Boolean> sessionsHosting;
     public HashMap<String,Long> advertisementsHosting;
@@ -31,20 +26,22 @@ public class User implements Comparable<User>{
     private String stripeAccountId;
     private boolean dontShowBookingText;
 
-    public User(HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, String firstName, String lastName, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String aboutMe, String stripeAccountId, HashMap<String, Object> stripeCustomer, boolean dontShowBookingText) {
+
+    public User(String userId, HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, HashMap<String, Object> stripeCustomer, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
+        this.userId = userId;
         this.sessionsAttending = sessionsAttending;
         this.sessionsHosting = sessionsHosting;
         this.advertisementsHosting = advertisementsHosting;
+        this.stripeCustomer = stripeCustomer;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.aboutMe = aboutMe;
         this.fullName = fullName;
         this.userName = userName;
         this.image = image;
         this.thumb_image = thumb_image;
         this.trainerMode = trainerMode;
-        this.aboutMe = aboutMe;
         this.stripeAccountId = stripeAccountId;
-        this.stripeCustomer = stripeCustomer;
         this.dontShowBookingText = dontShowBookingText;
     }
 
@@ -53,6 +50,30 @@ public class User implements Comparable<User>{
         this.sessionsHosting = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
         this.advertisementsHosting = new HashMap<String, Long>();
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
+    }
+
+    public void setThumb_image(String thumb_image) {
+        this.thumb_image = thumb_image;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public HashMap<String, Long> getAdvertisementsHosting() {
@@ -108,22 +129,6 @@ public class User implements Comparable<User>{
         this.lastName = lastName;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getThumb_image() {
-        return thumb_image;
-    }
-
-    public void setThumb_image(String thumb_image) {
-        this.thumb_image = thumb_image;
-    }
-
     public boolean isTrainerMode() {
         return trainerMode;
     }
@@ -175,25 +180,5 @@ public class User implements Comparable<User>{
 
     public void setDontShowBookingText(boolean dontShowBookingText) {
         this.dontShowBookingText = dontShowBookingText;
-    }
-
-    public void getImagesDownloadUrls(String userId,OnUrlMapSetListener onUrlMapSetListener) {
-        StorageReference imageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child(userId + ".jpg");
-        StorageReference thumbImageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child("thumbs").child(userId + ".jpg");
-        imageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                String imageDownloadUrl = uri.toString();
-                thumbImageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        UserImageUrlMap userImageUrlMap = new UserImageUrlMap();
-                        userImageUrlMap.setUserImageUrl(imageDownloadUrl);
-                        userImageUrlMap.setUserThumbImageUrl(uri.toString());
-                        onUrlMapSetListener.OnUrlMapSet(userImageUrlMap);
-                    }
-                });
-            }
-        });
     }
 }

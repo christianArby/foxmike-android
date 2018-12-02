@@ -1,28 +1,55 @@
 package com.foxmike.android.models;
 
-import android.net.Uri;
-
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import android.support.annotation.NonNull;
 
 /**
  * Created by chris on 2018-11-29.
  */
 
-public class UserPublic {
+public class UserPublic implements Comparable<UserPublic> {
+    public String userId;
     public String firstName;
     public String lastName;
     public String aboutMe;
+    public String image;
+    public String thumb_image;
+    public String userName;
 
-    public UserPublic(String firstName, String lastName, String aboutMe) {
+    public UserPublic(String userId, String firstName, String lastName, String aboutMe, String image, String thumb_image, String userName) {
+        this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.aboutMe = aboutMe;
+        this.image = image;
+        this.thumb_image = thumb_image;
+        this.userName = userName;
     }
 
     public UserPublic() {
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
+    }
+
+    public void setThumb_image(String thumb_image) {
+        this.thumb_image = thumb_image;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getFirstName() {
@@ -49,23 +76,16 @@ public class UserPublic {
         this.aboutMe = aboutMe;
     }
 
-    public void getImagesDownloadUrls(String userId,OnUrlMapSetListener onUrlMapSetListener) {
-        StorageReference imageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child(userId + ".jpg");
-        StorageReference thumbImageFilepath = FirebaseStorage.getInstance().getReference().child("Profile_images").child("thumbs").child(userId + ".jpg");
-        imageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                String imageDownloadUrl = uri.toString();
-                thumbImageFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        UserImageUrlMap userImageUrlMap = new UserImageUrlMap();
-                        userImageUrlMap.setUserImageUrl(imageDownloadUrl);
-                        userImageUrlMap.setUserThumbImageUrl(uri.toString());
-                        onUrlMapSetListener.OnUrlMapSet(userImageUrlMap);
-                    }
-                });
-            }
-        });
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    @Override
+    public int compareTo(@NonNull UserPublic userPublic) {
+        return this.getFirstName().compareToIgnoreCase(userPublic.getFirstName());
     }
 }

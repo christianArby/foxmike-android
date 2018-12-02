@@ -55,6 +55,7 @@ import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
@@ -192,6 +193,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private AppBarLayout appBarLayout;
     private CoordinatorLayout rootLayout;
     private TextView noSnackAdTV;
+    HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -722,9 +724,16 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
-                    holder.setUserImage(postBranchArrayList.get(position).getPost().getSenderThumbImage(), getContext());
+                    populateUserPublicHashMap(postBranchArrayList.get(position).getPost().getAuthor(), new OnUsersLoadedListener() {
+                        @Override
+                        public void OnUsersLoaded(UserPublic userPublic) {
+                            holder.setUserImage(userPublic.getThumb_image(), getContext());
+                        }
+                    });
+
+
                     holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
-                    holder.setCommentClickListener(postBranchArrayList.get(position).getPostID(),postBranchArrayList.get(position).getPost().getSenderName(),timeText, postBranchArrayList.get(position).getPost().getMessage(),postBranchArrayList.get(position).getPost().getSenderThumbImage());
+
                     holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
                 }
             }
@@ -791,7 +800,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // ---------------- HOST && VIEW-----------------
         if (hostLoaded && getView()!=null && !hostAndViewUsed) {
             hostAndViewUsed=true;
-            setImage(host.getImage(), mHostImage);
+            setImage(host.getThumb_image(), mHostImage);
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
@@ -1347,5 +1356,30 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.startListening();
         }
+    }
+
+    private void populateUserPublicHashMap(String userId, OnUsersLoadedListener onUsersLoadedListener) {
+
+        if (!userPublicHashMap.containsKey(userId)) {
+            FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
+                    userPublicHashMap.put(userId, userPublic);
+                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        } else {
+            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
+        }
+    }
+
+    public interface OnUsersLoadedListener{
+        void OnUsersLoaded(UserPublic userPublic);
     }
 }

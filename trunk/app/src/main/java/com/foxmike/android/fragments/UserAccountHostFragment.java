@@ -24,9 +24,7 @@ import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
 import com.foxmike.android.activities.WelcomeActivity;
-import com.foxmike.android.interfaces.OnUrlMapSetListener;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -214,12 +212,7 @@ public class UserAccountHostFragment extends Fragment {
             fullNameTV.setText(currentUser.getFullName());
             userNameTV.setText(currentUser.getUserName());
 
-            currentUser.getImagesDownloadUrls(currentUserID, new OnUrlMapSetListener() {
-                @Override
-                public void OnUrlMapSet(UserImageUrlMap userImageUrlMap) {
-                    setCircleImage(userImageUrlMap.getUserImageUrl(), (CircleImageView) profile.findViewById(R.id.profileIV));
-                }
-            });
+            setCircleImage(currentUser.getImage(), (CircleImageView) profile.findViewById(R.id.profileIV));
 
             switchModeTV.setOnClickListener(new View.OnClickListener() {
                 @Override
