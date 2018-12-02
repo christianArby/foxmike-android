@@ -1,7 +1,6 @@
 package com.foxmike.android.activities;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -26,10 +25,8 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.LinkWithFacebookFragment;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
-import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -270,48 +267,42 @@ public class WelcomeActivity extends AppCompatActivity {
                     user.setFirstName(firstName);
                     user.setLastName(lastName);
                     user.setFullName(firstName + " " + lastName);
-                    SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
+                    user.setImage(imageURL);
+                    user.setThumb_image(imageURL);
 
-                    Uri imageUri =  Uri.parse(imageURL);
-
-                    setOrUpdateUserImage.setOrUpdateUserImages(WelcomeActivity.this, imageUri, mAuth.getCurrentUser().getUid(), new SetOrUpdateUserImage.OnUserImageSetListener() {
+                    AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
+                    addUserToDatabase.AddUserToDatabaseWithUniqueUsername(WelcomeActivity.this, user);
+                    addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
-                        public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
-                            user.setImage(userImageUrlMap.getUserImageUrl());
-                            user.setThumb_image(userImageUrlMap.getUserThumbImageUrl());
-                            AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
-                            addUserToDatabase.AddUserToDatabaseWithUniqueUsername(WelcomeActivity.this, user);
-                            addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
+                        public void OnUserAddedToDatabase() {
+                            FirebaseDatabase.getInstance().getReference().child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void OnUserAddedToDatabase() {
-                                    FirebaseDatabase.getInstance().getReference().child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            if (dataSnapshot.getValue()!=null) {
-                                                String foxmikeUID = dataSnapshot.getValue().toString();
-                                                if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
-                                                    final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                                    Map friendsMap = new HashMap();
-                                                    friendsMap.put("friends/" + mAuth.getCurrentUser().getUid() + "/" + foxmikeUID + "/date", currentDate);
-                                                    friendsMap.put("friends/" + foxmikeUID + "/" + mAuth.getCurrentUser().getUid() + "/date", currentDate);
-                                                    FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
-                                                        registrationFinished();
-                                                    });
-                                                } else {
-                                                    registrationFinished();
-                                                }
-                                            } else {
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue()!=null) {
+                                        String foxmikeUID = dataSnapshot.getValue().toString();
+                                        if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
+                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                            Map friendsMap = new HashMap();
+                                            friendsMap.put("friends/" + mAuth.getCurrentUser().getUid() + "/" + foxmikeUID + "/date", currentDate);
+                                            friendsMap.put("friends/" + foxmikeUID + "/" + mAuth.getCurrentUser().getUid() + "/date", currentDate);
+                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
                                                 registrationFinished();
-                                            }
+                                            });
+                                        } else {
+                                            registrationFinished();
                                         }
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                                        }
-                                    });
+                                    } else {
+                                        registrationFinished();
+                                    }
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
                                 }
                             });
                         }
                     });
+
+
                 }
             }
             @Override
