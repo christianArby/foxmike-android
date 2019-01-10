@@ -471,5 +471,6 @@
     <string name="you_have_a_friend_request_from">Du har en vänförfrågan från\u0020</string>
     <string name="you_have_a_new_participant_in">Du har en ny deltagare i\u0020</string>
     <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
+    <string name="cancelled_free_session">Du har nu avbokat det här passet.</string>
 
 </resources>

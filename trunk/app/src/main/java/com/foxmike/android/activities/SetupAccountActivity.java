@@ -98,8 +98,6 @@ public class SetupAccountActivity extends AppCompatActivity {
             user.setLastName(lastName);
             user.setFullName(firstName + " " + lastName);
 
-
-
             SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
             setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {
                 @Override

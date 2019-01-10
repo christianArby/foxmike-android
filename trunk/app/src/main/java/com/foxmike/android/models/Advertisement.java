@@ -23,7 +23,6 @@ public class Advertisement implements Comparable<Advertisement> {
     private double longitude;
     private HashMap<String,String> participantsIds;
     private HashMap<String,Long> participantsTimestamps;
-    private HashMap<String,Long> posts;
     private String imageUrl;
     private String what;
     private String who;
@@ -37,7 +36,7 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, HashMap<String, Long> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
         this.advertisementId = advertisementId;
@@ -49,7 +48,6 @@ public class Advertisement implements Comparable<Advertisement> {
         this.longitude = longitude;
         this.participantsIds = participantsIds;
         this.participantsTimestamps = participantsTimestamps;
-        this.posts = posts;
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
@@ -185,14 +183,6 @@ public class Advertisement implements Comparable<Advertisement> {
 
     public void setParticipantsTimestamps(HashMap<String, Long> participantsTimestamps) {
         this.participantsTimestamps = participantsTimestamps;
-    }
-
-    public HashMap<String, Long> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(HashMap<String, Long> posts) {
-        this.posts = posts;
     }
 
     public long getAdvertisementTimestamp() {

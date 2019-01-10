@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
@@ -69,7 +70,7 @@ public class FriendsFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         rootDbRef = FirebaseDatabase.getInstance().getReference();
-        usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        usersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
@@ -251,12 +252,14 @@ public class FriendsFragment extends Fragment {
                         }
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(getContext(),databaseError.getMessage() + " in " + this.getClass().getName(), Toast.LENGTH_LONG).show();
                         }
                     });
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),databaseError.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
         listenerMap.put(myFriendsDbRef,friendsListener);

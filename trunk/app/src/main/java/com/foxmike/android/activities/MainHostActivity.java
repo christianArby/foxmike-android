@@ -429,15 +429,15 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnBookSession(String sessionId, Long advertisementTimestamp, String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
-        // Not applicable in Host environment
-    }
-
-    @Override
     public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, String chargeId, String accountId) {
         // Not applicable in Host environment
     }
 
+    @Override
+    public void OnBookSession(String sessionId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText) {
+        // Not applicable in Host environment
+
+    }
 
 
     @Override

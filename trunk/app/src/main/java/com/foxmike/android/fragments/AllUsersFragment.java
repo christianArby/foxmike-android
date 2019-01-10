@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 //Checked
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,12 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
@@ -33,11 +31,8 @@ import com.google.firebase.database.Query;
 
 import java.util.concurrent.TimeUnit;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.Flowable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.PublishSubject;
 
 /**
  * This fragment lists all users in database with a firebase recycler adapter and query
@@ -143,7 +138,7 @@ public class AllUsersFragment extends Fragment {
                         if (firebaseRecyclerAdapter!=null) {
                             firebaseRecyclerAdapter.stopListening();
                         }
-                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
                         // Find usernames which starts with our searchtext and ends with our searchtext and any other text (any other text = "\uf8ff")
                         Query query = mUsersDatabase.orderByChild("userName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
 
@@ -191,7 +186,7 @@ public class AllUsersFragment extends Fragment {
                         if (firebaseRecyclerAdapter!=null) {
                             firebaseRecyclerAdapter.stopListening();
                         }
-                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
                         // Find fullnames which starts with our searchtext and ends with our searchtext and any other text (any other text = "\uf8ff")
                         Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
 
@@ -246,7 +241,7 @@ public class AllUsersFragment extends Fragment {
                         firebaseRecyclerAdapter.stopListening();
                     }
 
-                    mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                    mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
                     Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
 
                     FirebaseRecyclerOptions<User> options =

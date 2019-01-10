@@ -162,15 +162,10 @@ public class WritePostFragment extends DialogFragment {
                         postRef = "advertisementPosts";
                     }
 
-                    rootDbRef.child(postRef).child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    rootDbRef.child(postRef).child(sourceID).child(postID).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            rootDbRef.child(dbParent).child(sourceID).child("posts").child(postID).setValue(System.currentTimeMillis()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    dismiss();
-                                }
-                            });
+                            dismiss();
                         }
                     });
                 }
