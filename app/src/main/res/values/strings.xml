@@ -482,4 +482,5 @@
     <string name="you_have_a_friend_request_from">You have a friend request from\u0020</string>
     <string name="you_have_a_new_participant_in">You have a new participant in\u0020</string>
     <string name="you_have_a_cancellation_in">You have a cancellation in\u0020</string>
+    <string name="cancelled_free_session">You have now cancelled this session.</string>
 </resources>

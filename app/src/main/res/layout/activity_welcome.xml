@@ -19,7 +19,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="60dp"
         android:layout_marginStart="@dimen/margin_left"
-        android:src="@drawable/foxmike_icon"
+        android:src="@mipmap/ic_foxmike_launcher"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 

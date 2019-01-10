@@ -30,7 +30,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -283,6 +282,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             }
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                registerFinished(myProgressBar);
                                             }
                                         });
                                     }
@@ -291,8 +291,7 @@ public class RegisterActivity extends AppCompatActivity {
                         });
                     } else {
                         myProgressBar.stopProgressBar();
-                        FirebaseAuthException e = (FirebaseAuthException )task.getException();
-                        Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Failed Registration: "+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

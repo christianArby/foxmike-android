@@ -466,7 +466,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp,String hostId, String stripeCustomerId, int amount, String currency, boolean dontShowBookingText) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp,String hostId, int amount, boolean dontShowBookingText) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -488,9 +488,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             bookIntent.putExtra("advertisementId", advertisementId);
                             bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
                             bookIntent.putExtra("hostId", hostId);
-                            bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
                             bookIntent.putExtra("amount",amount);
-                            bookIntent.putExtra("currency",currency);
                             startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
                         }
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -508,9 +506,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("advertisementId", advertisementId);
         bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
         bookIntent.putExtra("hostId", hostId);
-        bookIntent.putExtra("stripeCustomerId", stripeCustomerId);
         bookIntent.putExtra("amount",amount);
-        bookIntent.putExtra("currency",currency);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
     }
 
@@ -700,7 +696,6 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        FoxmikeApplication.activityResumed();
         resumed=true;
     }
 
@@ -735,7 +730,6 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        FoxmikeApplication.activityPaused();
     }
 
     @Override

@@ -29,6 +29,8 @@ import com.foxmike.android.adapters.MessageFirebaseAdapter;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
 import com.foxmike.android.models.UserPublic;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -235,7 +237,7 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        rootDbRef.child("chatsMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("chatMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DataSnapshot currentUserChatsCnapshot = dataSnapshot;
@@ -343,34 +345,42 @@ public class ChatFragment extends Fragment {
         // get message from EditText
         String message = chatMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-            // create a message ID in database under messages/chatID/
-            String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
-            // Create a message map which is used to write all this data to the database at once
-            Map messageMap = new HashMap();
-            messageMap.put("message", message);
-            messageMap.put("time", ServerValue.TIMESTAMP);
-            messageMap.put("seen", false);
-            messageMap.put("senderUserID", currentUserID);
-            messageMap.put("senderName", userName);
-            messageMap.put("senderThumbImage", userThumbImage);
-            // Write the message map to the database
-            rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
+            Map chatsMap = new HashMap();
+            Map userMap = new HashMap();
             // Set the last message in the chat Object to the current message
-            rootDbRef.child("chats").child(chatID).child("lastMessage").setValue(message);
+            chatsMap.put("lastMessage", message);
             // Set current time to the chat object in the dataabce
-            rootDbRef.child("chats").child(chatID).child("timestamp").setValue(ServerValue.TIMESTAMP);
+            chatsMap.put("timestamp", ServerValue.TIMESTAMP);
             // Current users ID is set to true in chats/users since current user has seen the message
-            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+            userMap.put(currentUserID, true);
             // Other users ID is set to false in chats/users since other user has not seen the message
-            rootDbRef.child("chats").child(chatID).child("users").child(chatUserID).setValue(false);
-            // Same thing as above but in the chatMembers objects
-            rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
-            rootDbRef.child("chatMembers").child(chatUserID).child(chatID).setValue(false);
-            // Clear the input field
-            chatMessage.setText("");
+            userMap.put(chatUserID, false);
+            chatsMap.put("users",userMap);
+            rootDbRef.child("chats").child(chatID).setValue(chatsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    // Same thing as above but in the chatMembers objects
+                    rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
+                    rootDbRef.child("chatMembers").child(chatUserID).child(chatID).setValue(false);
+                    // create a message ID in database under messages/chatID/
+                    String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
+                    // Create a message map which is used to write all this data to the database at once
+                    Map messageMap = new HashMap();
+                    messageMap.put("message", message);
+                    messageMap.put("time", ServerValue.TIMESTAMP);
+                    messageMap.put("seen", false);
+                    messageMap.put("senderUserID", currentUserID);
+                    messageMap.put("senderName", userName);
+                    messageMap.put("senderThumbImage", userThumbImage);
+                    // Write the message map to the database
+                    rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
+
+                    // Clear the input field
+                    chatMessage.setText("");
+                }
+            });
         }
     }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();

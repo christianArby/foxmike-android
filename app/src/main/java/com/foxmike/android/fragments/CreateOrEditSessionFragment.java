@@ -95,7 +95,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
-    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private TextView mLocation;
     private TextInputLayout mSessionNameTIL;
     private TextInputLayout mLocationTIL;
@@ -851,7 +850,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (double) sendSession.get("longitude"),
                     new HashMap<String, String>(),
                     new HashMap<String, Long>(),
-                    new HashMap<String, Long>(),
                     sendSession.get("imageUrl").toString(),
                     (String) sendSession.get("what"),
                     (String) sendSession.get("who"),
@@ -873,7 +871,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         // Update the session (with 'updateChildren' so not all child nodes are overwritten)
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
         // Update user object with sessionsHosting
-        mUserDbRef.child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+        rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
         // create geoFire reference
         geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
         // TODO this listener might not be needed..

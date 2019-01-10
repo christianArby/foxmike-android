@@ -81,7 +81,6 @@ import io.reactivex.functions.Consumer;
  */
 public class DisplayAdvertisementFragment extends Fragment implements OnMapReadyCallback {
 
-    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("usersPublic");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
@@ -242,7 +241,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         // Build participant query
         Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsIds");
         FirebaseRecyclerOptions<UserPublic> participantOptions = new FirebaseRecyclerOptions.Builder<UserPublic>()
-                .setIndexedQuery(participantsQuery, mUserDbRef, UserPublic.class)
+                .setIndexedQuery(participantsQuery, rootDbRef.child("usersPublic"), UserPublic.class)
                 .build();
         participantsFirebaseAdapter = new ParticipantsFirebaseAdapter(participantOptions, getContext());
     }
@@ -282,7 +281,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         /*
             Get the host image from the database (found under users with the userID=session.host)
             */
-        mUserDbRef.child(advertisement.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("usersPublic").child(advertisement.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 host = dataSnapshot.getValue(User.class);
@@ -297,58 +296,44 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     }
 
     private void getPosts() {
-        if (!listenerMap.containsKey(rootDbRef.child("advertisements").child(advertisementId).child("posts"))) {
-            ValueEventListener postsListener = rootDbRef.child("advertisements").child(advertisementId).child("posts").addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("advertisementPosts").child(advertisementId))) {
+            ValueEventListener postsListener = rootDbRef.child("advertisementPosts").child(advertisementId).addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    final Advertisement tempAd = new Advertisement();
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     postBranchArrayList.clear();
-                    tempAd.setPosts((HashMap<String,Long>)dataSnapshot.getValue());
-                    if (dataSnapshot.getChildrenCount()>0) {
-                        for (final String postID : tempAd.getPosts().keySet()) {
-                            rootDbRef.child("advertisementPosts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        String postID = postSnapshot.getKey();
+                        Post post = postSnapshot.getValue(Post.class);
+                        PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                        postBranchArrayList.add(postBranch);
+                        // Number of comments listener
+                        if (!listenerMap.containsKey(rootDbRef.child("advertisementPostComments").child(postSnapshot.getKey()))) {
+                            ValueEventListener postCommentsListener = rootDbRef.child("advertisementPostComments").child(postID).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Post post = dataSnapshot.getValue(Post.class);
-                                    PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
-                                    postBranchArrayList.add(postBranch);
-                                    if (postBranchArrayList.size()==tempAd.getPosts().size()) {
-                                        Collections.sort(postBranchArrayList);
-                                        postsLoaded = true;
+                                    nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
+                                    if (nrOfComments.size()==dataSnapshot.getChildrenCount()) {
+                                        postCommentsUsed = false;
+                                        postCommentsLoaded = true;
                                         onTaskFinished();
-                                    }
-                                    // Number of comments listener
-                                    if (!listenerMap.containsKey(rootDbRef.child("advertisementPostComments").child(postID))) {
-                                        ValueEventListener postCommentsListener = rootDbRef.child("advertisementPostComments").child(postID).addValueEventListener(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                                if (nrOfComments.size()==tempAd.getPosts().size()) {
-                                                    postCommentsUsed = false;
-                                                    postCommentsLoaded = true;
-                                                    onTaskFinished();
-                                                }
-                                            }
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                            }
-                                        });
-                                        listenerMap.put(rootDbRef.child("advertisementPostComments").child(postID), postCommentsListener);
                                     }
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
                                 }
                             });
+                            listenerMap.put(rootDbRef.child("advertisementPostComments").child(postID), postCommentsListener);
                         }
                     }
+                    Collections.sort(postBranchArrayList);
+                    postsLoaded = true;
+                    onTaskFinished();
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
                 }
             });
-            listenerMap.put(rootDbRef.child("advertisements").child(advertisementId).child("posts"), postsListener);
+            listenerMap.put(rootDbRef.child("advertisementPosts").child(advertisementId), postsListener);
         }
     }
 

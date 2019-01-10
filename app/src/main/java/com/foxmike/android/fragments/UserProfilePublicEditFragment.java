@@ -244,12 +244,6 @@ public class UserProfilePublicEditFragment extends Fragment {
                 usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
 
-                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("firstName").setValue(userFirstNameET.getText().toString());
-                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
-                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
-                rootDbRef.child("usersPublic").child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
-
-
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                     setOrUpdateUserImage.setOrUpdateUserImages(getActivity(), mImageUri, currentFirebaseUser.getUid(), new SetOrUpdateUserImage.OnUserImageSetListener() {

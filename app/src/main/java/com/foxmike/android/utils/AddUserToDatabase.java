@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
-import com.foxmike.android.models.UserPublic;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,17 +67,10 @@ public class AddUserToDatabase {
                     user.setUserName(userName);
                     user.setUserId(mAuth.getCurrentUser().getUid());
 
-                    final UserPublic userPublic = new UserPublic(mAuth.getCurrentUser().getUid(),user.getFirstName(),user.getLastName(),"", user.getImage(), user.getThumb_image(), user.getUserName());
-
                     mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            mDatabase.child("usersPublic").child(mAuth.getCurrentUser().getUid()).setValue(userPublic).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    onUserAddedToDatabaseListener.OnUserAddedToDatabase();
-                                }
-                            });
+                            onUserAddedToDatabaseListener.OnUserAddedToDatabase();
                         }
                     });
                 } else {

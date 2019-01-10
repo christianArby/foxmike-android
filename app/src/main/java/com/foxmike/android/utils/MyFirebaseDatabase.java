@@ -18,7 +18,6 @@ import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
 import com.foxmike.android.interfaces.OnSessionsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
-import com.foxmike.android.interfaces.OnUsersFoundListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
@@ -168,27 +167,6 @@ public class MyFirebaseDatabase extends Service {
         });
     }
 
-    public void getUsers(final HashMap<String, Boolean> usersHashMap, final OnUsersFoundListener onUsersFoundListener) {
-        final ArrayList<User> users = new ArrayList<User>();
-        for (String key : usersHashMap.keySet()) {
-            dbRef.child("users").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user;
-                    user = dataSnapshot.getValue(User.class);
-                    users.add(user);
-                    if (users.size() == usersHashMap.size()) {
-                        onUsersFoundListener.OnUsersFound(users);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-        }
-    }
-
     public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
         // sessionArray will be an array of the near sessions filtered
         ArrayList<Session> sessionArray = new ArrayList<>();
@@ -225,8 +203,12 @@ public class MyFirebaseDatabase extends Service {
                     if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             if (advertisementTimestamp > currentTimestamp) {
-                                nearSession.setRepresentingAdTimestamp(advertisementTimestamp);
-                                sessionDateArray.add(nearSession);
+                                // create a session object with the same parameters but with the advertisement timestamp saved under representingAdTimestamp
+                                Session dateSession = new Session(nearSession);
+                                dateSession.setRepresentingAdTimestamp(advertisementTimestamp);
+                                // save that session to sessionDateArray
+                                sessionDateArray.add(dateSession);
+                                // if this session hasn't already been saved to sessionArray save it
                                 if (!sessionAdded) {
                                     sessionArray.add(nearSession);
                                     sessionAdded = true;

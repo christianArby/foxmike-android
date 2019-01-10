@@ -99,7 +99,6 @@ import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 public class DisplaySessionFragment extends Fragment implements OnMapReadyCallback {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    private final DatabaseReference mUserDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
@@ -242,7 +241,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         getDefaultSourceMap();
 
         // GET CURRENT USER FROM DATABASE
-        ValueEventListener currentUserListener = mUserDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        ValueEventListener currentUserListener = rootDbRef.child("users").child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUserAndViewUsed = false;
@@ -255,7 +254,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        listenerMap.put(mUserDbRef.child(currentFirebaseUser.getUid()),currentUserListener);
+        listenerMap.put(rootDbRef.child("users").child(currentFirebaseUser.getUid()),currentUserListener);
 
         // GET SESSION FROM DATABASE
         if (!sessionID.equals("")) {
@@ -323,7 +322,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         /*
             Get the host image from the database (found under users with the userID=session.host)
             */
-        mUserDbRef.child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("usersPublic").child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 host = dataSnapshot.getValue(User.class);
@@ -338,59 +337,44 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void getPosts() {
-        if (!listenerMap.containsKey(mSessionDbRef.child(sessionID).child("posts"))) {
-            ValueEventListener postsListener = mSessionDbRef.child(sessionID).child("posts").addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("sessionPosts").child(sessionID))) {
+            ValueEventListener postsListener = rootDbRef.child("sessionPosts").child(sessionID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    final Session session = new Session();
                     postBranchArrayList.clear();
-                    session.setPosts((HashMap<String,Long>)dataSnapshot.getValue());
-                    if (dataSnapshot.getChildrenCount()>0) {
-                        for (final String postID : session.getPosts().keySet()) {
-                            rootDbRef.child("sessionPosts").child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        String postID = postSnapshot.getKey();
+                        Post post = postSnapshot.getValue(Post.class);
+                        PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                        postBranchArrayList.add(postBranch);
+                        // Number of comments listener
+                        if (!listenerMap.containsKey(rootDbRef.child("sessionPostComments").child(postID))) {
+                            ValueEventListener postCommentsListener = rootDbRef.child("sessionPostComments").child(postID).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Post post = dataSnapshot.getValue(Post.class);
-                                    PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
-                                    postBranchArrayList.add(postBranch);
-                                    if (postBranchArrayList.size()==session.getPosts().size()) {
-                                        Collections.sort(postBranchArrayList);
-                                        postsLoaded = true;
+                                    nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
+                                    if (nrOfComments.size()==dataSnapshot.getChildrenCount()) {
+                                        postCommentsUsed = false;
+                                        postCommentsLoaded = true;
                                         onAsyncTaskFinished();
-                                    }
-                                    // Number of comments listener
-                                    if (!listenerMap.containsKey(rootDbRef.child("sessionPostComments").child(postID))) {
-
-                                        ValueEventListener postCommentsListener = rootDbRef.child("sessionPostComments").child(postID).addValueEventListener(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                                if (nrOfComments.size()==session.getPosts().size()) {
-                                                    postCommentsUsed = false;
-                                                    postCommentsLoaded = true;
-                                                    onAsyncTaskFinished();
-                                                }
-                                            }
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                            }
-                                        });
-                                        listenerMap.put(rootDbRef.child("sessionPostComments").child(postID), postCommentsListener);
                                     }
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
                                 }
                             });
+                            listenerMap.put(rootDbRef.child("sessionPostComments").child(postID), postCommentsListener);
                         }
                     }
+                    Collections.sort(postBranchArrayList);
+                    postsLoaded = true;
+                    onAsyncTaskFinished();
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
                 }
             });
-            listenerMap.put(mSessionDbRef.child(sessionID).child("posts"), postsListener);
+            listenerMap.put(rootDbRef.child("sessionPosts").child(sessionID), postsListener);
         }
     }
 
@@ -1025,10 +1009,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // Payment method has been checked above (method return if no payment method)
                         // Now user will book session if button is pressed, if free send parameters to book session with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), "", adSelected.getPrice(), adSelected.getCurrency(), true);
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), true);
                         } else {
                             // session costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), defaultSourceMap.get("customer").toString(), adSelected.getPrice(), adSelected.getCurrency(), currentUser.isDontShowBookingText());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText());
                         }
                     }
                     // If the current user is the session host, send the user to the currently selected advertisement
