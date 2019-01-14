@@ -57,6 +57,7 @@ import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
+import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -193,6 +194,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private CoordinatorLayout rootLayout;
     private TextView noSnackAdTV;
     HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
+    private long nrOfPosts;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -341,19 +343,20 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             ValueEventListener postsListener = rootDbRef.child("sessionPosts").child(sessionID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    nrOfPosts = dataSnapshot.getChildrenCount();
                     postBranchArrayList.clear();
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         String postID = postSnapshot.getKey();
                         Post post = postSnapshot.getValue(Post.class);
-                        PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                        PostBranch postBranch = new PostBranch(postSnapshot.getKey(),post);
                         postBranchArrayList.add(postBranch);
                         // Number of comments listener
-                        if (!listenerMap.containsKey(rootDbRef.child("sessionPostComments").child(postID))) {
-                            ValueEventListener postCommentsListener = rootDbRef.child("sessionPostComments").child(postID).addValueEventListener(new ValueEventListener() {
+                        if (!listenerMap.containsKey(rootDbRef.child("sessionPostComments").child(sessionID).child(postID))) {
+                            ValueEventListener postCommentsListener = rootDbRef.child("sessionPostComments").child(sessionID).child(postID).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                    if (nrOfComments.size()==dataSnapshot.getChildrenCount()) {
+                                    if (nrOfComments.size()==nrOfPosts) {
                                         postCommentsUsed = false;
                                         postCommentsLoaded = true;
                                         onAsyncTaskFinished();
@@ -363,7 +366,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 public void onCancelled(DatabaseError databaseError) {
                                 }
                             });
-                            listenerMap.put(rootDbRef.child("sessionPostComments").child(postID), postCommentsListener);
+                            listenerMap.put(rootDbRef.child("sessionPostComments").child(sessionID).child(postID), postCommentsListener);
                         }
                     }
                     Collections.sort(postBranchArrayList);
@@ -644,6 +647,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         appBarLayout = view.findViewById(R.id.displaySessionAppBar);
+        ((CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams()).setBehavior(new FixAppBarLayoutBehavior());
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -702,22 +706,23 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onBindViewHolder(PostsViewHolder holder, int position) {
                 if (postBranchArrayList.size()>0) {
-                    holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
+                    Post post = postBranchArrayList.get(position).getPost();
+                    String postID = postBranchArrayList.get(position).getPostID();
 
-                    TextTimestamp textTimestamp = new TextTimestamp((long) postBranchArrayList.get(position).getPost().getTimestamp());
+                    holder.setHeading(post.getSenderName());
+
+                    TextTimestamp textTimestamp = new TextTimestamp((long) post.getTimestamp());
                     String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
-                    populateUserPublicHashMap(postBranchArrayList.get(position).getPost().getAuthor(), new OnUsersLoadedListener() {
+                    populateUserPublicHashMap(post.getAuthor(), new OnUsersLoadedListener() {
                         @Override
                         public void OnUsersLoaded(UserPublic userPublic) {
                             holder.setUserImage(userPublic.getThumb_image(), getContext());
+                            holder.setCommentClickListener(postID, post.getSenderName(), timeText, post.getMessage(), userPublic.getThumb_image());
                         }
                     });
-
-
-                    holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
-
+                    holder.setMessage(post.getMessage());
                     holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
                 }
             }
@@ -1109,20 +1114,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
         public void setCommentClickListener(String postID, String heading, String time, String message, String thumb_image) {
             TextView commentLayout = mView.findViewById(R.id.session_post_comment_text);
-            TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
+            TextView nrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startCommentFragment(postID, heading, time, message, thumb_image);
+                    onCommentClickedListener.OnCommentClicked(sessionID, postID, heading, time, message,thumb_image, "session");
                 }
             });
-            NrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
+            nrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startCommentFragment(postID, heading, time, message, thumb_image);
+                    onCommentClickedListener.OnCommentClicked(sessionID, postID, heading, time, message,thumb_image, "session");
                 }
             });
-
         }
         public void setNrOfComments(Long nr) {
             TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
@@ -1139,7 +1143,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void startCommentFragment(String postID, String heading, String time, String message, String thumb_image) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image, "session");
+        CommentFragment commentFragment = CommentFragment.newInstance(sessionID, postID, heading, time, message, thumb_image, "session");
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("commentFragment")) {

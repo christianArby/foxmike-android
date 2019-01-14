@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -42,6 +43,7 @@ import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -153,6 +155,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     private ImageView advertisementImage;
     private int asyncTasksFinished = 0;
     private TextView cancelledTV;
+    private long nrOfPosts;
     @BindView(R.id.participants_layout) LinearLayout participants;
     @BindView(R.id.participants_RV) RecyclerView participantsRV;
     private ParticipantsFirebaseAdapter participantsFirebaseAdapter;
@@ -300,19 +303,20 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             ValueEventListener postsListener = rootDbRef.child("advertisementPosts").child(advertisementId).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    nrOfPosts = dataSnapshot.getChildrenCount();
                     postBranchArrayList.clear();
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         String postID = postSnapshot.getKey();
                         Post post = postSnapshot.getValue(Post.class);
-                        PostBranch postBranch = new PostBranch(dataSnapshot.getKey(),post);
+                        PostBranch postBranch = new PostBranch(postSnapshot.getKey(),post);
                         postBranchArrayList.add(postBranch);
                         // Number of comments listener
-                        if (!listenerMap.containsKey(rootDbRef.child("advertisementPostComments").child(postSnapshot.getKey()))) {
-                            ValueEventListener postCommentsListener = rootDbRef.child("advertisementPostComments").child(postID).addValueEventListener(new ValueEventListener() {
+                        if (!listenerMap.containsKey(rootDbRef.child("advertisementPostComments").child(advertisementId).child(postSnapshot.getKey()))) {
+                            ValueEventListener postCommentsListener = rootDbRef.child("advertisementPostComments").child(advertisementId).child(postID).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                    if (nrOfComments.size()==dataSnapshot.getChildrenCount()) {
+                                    if (nrOfComments.size()==nrOfPosts) {
                                         postCommentsUsed = false;
                                         postCommentsLoaded = true;
                                         onTaskFinished();
@@ -320,9 +324,10 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
+                                    Toast.makeText(getContext(),"postCommentsListener" + databaseError.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
-                            listenerMap.put(rootDbRef.child("advertisementPostComments").child(postID), postCommentsListener);
+                            listenerMap.put(rootDbRef.child("advertisementPostComments").child(advertisementId).child(postID), postCommentsListener);
                         }
                     }
                     Collections.sort(postBranchArrayList);
@@ -331,6 +336,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(getContext(),"postsListener" + databaseError.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
             listenerMap.put(rootDbRef.child("advertisementPosts").child(advertisementId), postsListener);
@@ -383,6 +389,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         AppBarLayout appBarLayout = view.findViewById(R.id.displaySessionAppBar);
+        ((CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams()).setBehavior(new FixAppBarLayoutBehavior());
 
         // Setup standard aspect ratio of session image
         sessionImageCardView.post(new Runnable() {
@@ -433,20 +440,26 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             @Override
             public void onBindViewHolder(PostsViewHolder holder, int position) {
                 if (postBranchArrayList.size()>0) {
-                    holder.setHeading(postBranchArrayList.get(position).getPost().getSenderName());
+                    Post post = postBranchArrayList.get(position).getPost();
+                    String postID = postBranchArrayList.get(position).getPostID();
 
-                    TextTimestamp textTimestamp = new TextTimestamp((long) postBranchArrayList.get(position).getPost().getTimestamp());
+                    holder.setHeading(post.getSenderName());
+
+                    TextTimestamp textTimestamp = new TextTimestamp((long) post.getTimestamp());
                     String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
-                    populateUserPublicHashMap(postBranchArrayList.get(position).getPost().getAuthor(), new OnUsersLoadedListener() {
+                    populateUserPublicHashMap(post.getAuthor(), new OnUsersLoadedListener() {
                         @Override
                         public void OnUsersLoaded(UserPublic user) {
                             holder.setUserImage(user.getThumb_image(), getContext());
+                            holder.setCommentClickListener(postID, post.getSenderName(), timeText, post.getMessage(), user.getThumb_image());
                         }
                     });
-                    holder.setMessage(postBranchArrayList.get(position).getPost().getMessage());
+                    holder.setMessage(post.getMessage());
                     holder.setNrOfComments(nrOfComments.get(postBranchArrayList.get(position).getPostID()));
+
+
                 }
             }
             @Override
@@ -741,20 +754,19 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         }
         public void setCommentClickListener(String postID, String heading, String time, String message, String thumb_image) {
             TextView commentLayout = mView.findViewById(R.id.session_post_comment_text);
-            TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
+            TextView nrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
             commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startCommentFragment(postID, heading, time, message, thumb_image);
+                    onCommentClickedListener.OnCommentClicked(advertisementId, postID, heading, time, message,thumb_image, "advertisement");
                 }
             });
-            NrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
+            nrOfCommentsLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startCommentFragment(postID, heading, time, message, thumb_image);
+                    onCommentClickedListener.OnCommentClicked(advertisementId, postID, heading, time, message,thumb_image, "advertisement");
                 }
             });
-
         }
         public void setNrOfComments(Long nr) {
             TextView NrOfCommentsLayout = mView.findViewById(R.id.post_nr_comments_text);
@@ -771,7 +783,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     }
 
     private void startCommentFragment(String postID, String heading, String time, String message, String thumb_image) {
-        CommentFragment commentFragment = CommentFragment.newInstance(postID, heading, time, message, thumb_image, "advertisement");
+        CommentFragment commentFragment = CommentFragment.newInstance(advertisementId, postID, heading, time, message, thumb_image, "advertisement");
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (null == fragmentManager.findFragmentByTag("commentFragment")) {

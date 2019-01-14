@@ -75,6 +75,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
@@ -834,6 +835,8 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     /**Send session object to database */
     private void sendSession(Map sendSession) {
+
+        ArrayList<String> writeReferences = new ArrayList<>();
         // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
         // Loop through the timestamps created by clicking and making events in the calendar
         for (Long advertisementTimestamp: advertisementTimestamps.keySet()) {
@@ -862,9 +865,14 @@ public class CreateOrEditSessionFragment extends Fragment{
             // Save the advertisement Id and the ad timestamp in a hashmap to be saved under session
             advertisements.put(advertisementKey, advertisementTimestamp);
             // send the ad to the database
-            rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement);
-            // save the key and ad timestamp under user/advertisementHosting
-            rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(advertisementTimestamp);
+            rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    // save the key and ad timestamp under user/advertisementHosting
+                    writeReferences.add(rootDbRef.child("advertisements").child(advertisementKey).toString());
+                    rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(advertisementTimestamp);
+                }
+            });
         }
         // Save the hashmap of ad Ids and timestamps under session
         sendSession.put("advertisements", advertisements);

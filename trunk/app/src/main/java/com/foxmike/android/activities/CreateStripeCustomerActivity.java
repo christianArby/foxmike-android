@@ -1,13 +1,12 @@
 package com.foxmike.android.activities;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -20,7 +19,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.stripe.android.Stripe;
 import com.stripe.android.TokenCallback;
@@ -96,7 +94,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                 Toast.makeText(CreateStripeCustomerActivity.this, "Invalid card details",Toast.LENGTH_LONG).show();
             } else {
                 // Card is valid get Token from Stripe
-                Stripe stripe = new Stripe(CreateStripeCustomerActivity.this, "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
+                Stripe stripe = new Stripe(CreateStripeCustomerActivity.this, getString(R.string.stripe_publishable_key));
                 stripe.createToken(
                         cardToSave,
                         new TokenCallback() {
