@@ -2,5 +2,7 @@
 <resources>
 
     <string name="web_client_id_for_google">1001204278871-19j8f8k78gfbqa7j6143btrqvj5qpcfo.apps.googleusercontent.com</string>
+    <string name="stripe_publishable_key">pk_test_6IcNIdHpN4LegxE3t8KzvmHx</string>
+    <string name="release_type">debug</string>
 
 </resources>

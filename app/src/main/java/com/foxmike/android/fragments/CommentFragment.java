@@ -51,6 +51,7 @@ public class CommentFragment extends Fragment {
     private Query messageQuery;
     private DatabaseReference userDbRef;
     private HashMap<DatabaseReference, ValueEventListener> valueEventListenerMap;
+    private String sourceID;
     private String postID;
     private String heading;
     private String time;
@@ -65,9 +66,10 @@ public class CommentFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CommentFragment newInstance(String postID, String heading, String time, String message, String thumb_image, String wallType) {
+    public static CommentFragment newInstance(String sourceID, String postID, String heading, String time, String message, String thumb_image, String wallType) {
         CommentFragment fragment = new CommentFragment();
         Bundle args = new Bundle();
+        args.putString("sourceID", sourceID);
         args.putString("postID", postID);
         args.putString("heading", heading);
         args.putString("time", time);
@@ -82,6 +84,7 @@ public class CommentFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sourceID = getArguments().getString("sourceID");
             postID = getArguments().getString("postID");
             heading = getArguments().getString("heading");
             time = getArguments().getString("time");
@@ -177,7 +180,7 @@ public class CommentFragment extends Fragment {
             }
         });
 
-        DatabaseReference commentsRef = rootDbRef.child(postCommentsDatabaseRef).child(postID);
+        DatabaseReference commentsRef = rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID);
         messageQuery = commentsRef.limitToLast(TOTAL_ITEMS_TO_LOAD);
         //messageAdapter = new MessageAdapter(messageList);
         FirebaseRecyclerOptions<Message> options =
@@ -235,14 +238,14 @@ public class CommentFragment extends Fragment {
     private void sendMessage(String userName) {
         String message = postMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-            String messageID = rootDbRef.child(postCommentsDatabaseRef).child(postID).push().getKey();
+            String messageID = rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).push().getKey();
             Map messageMap = new HashMap();
             messageMap.put("message", message);
             messageMap.put("time", ServerValue.TIMESTAMP);
             messageMap.put("seen", false);
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
-            rootDbRef.child(postCommentsDatabaseRef).child(postID).child(messageID).setValue(messageMap);
+            rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).child(messageID).setValue(messageMap);
             postMessage.setText("");
         }
     }

@@ -188,12 +188,24 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                 final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                 myProgressBar.startProgressBar();
 
-                //String iban = ibanET.getText().toString().trim().replaceAll("\\s+","");
+                String iban;
+                BankAccount bankAccount;
 
                 // TODO REMOVE TEST IBAN
-                String iban = "DE89370400440532013000";
-                BankAccount bankAccount = new BankAccount(iban,"de","eur","");
-                Stripe stripe = new Stripe(getContext(), "pk_test_6IcNIdHpN4LegxE3t8KzvmHx");
+                if (getString(R.string.release_type).equals("debug")) {
+                    iban = "DE89370400440532013000";
+                    bankAccount = new BankAccount(iban,"de","eur","");
+                } else {
+                    iban = ibanET.getText().toString().trim().replaceAll("\\s+","");
+                    if (iban.length()!=24) {
+                        ibanET.setError("IBAN number is not valid.");
+                        return;
+                    }
+                    bankAccount = new BankAccount(iban,"se","sek","");
+
+                }
+
+                Stripe stripe = new Stripe(getContext(), getString(R.string.stripe_publishable_key));
                 // Create Bank Account token
                 stripe.createBankAccountToken(bankAccount, new TokenCallback() {
                     @Override
