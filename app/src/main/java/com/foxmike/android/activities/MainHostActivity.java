@@ -177,8 +177,8 @@ public class MainHostActivity extends AppCompatActivity implements
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
-        if (!listenerMap.containsKey(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener chatsListener = rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        if (!listenerMap.containsKey(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()))) {
+            ValueEventListener chatsListener = rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     unreadChats = 0;
@@ -201,7 +201,7 @@ public class MainHostActivity extends AppCompatActivity implements
 
                 }
             });
-            listenerMap.put(rootDbRef.child("chatMembers").child(mAuth.getCurrentUser().getUid()), chatsListener);
+            listenerMap.put(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()), chatsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
