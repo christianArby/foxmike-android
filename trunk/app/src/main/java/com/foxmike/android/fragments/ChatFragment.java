@@ -161,12 +161,12 @@ public class ChatFragment extends Fragment {
 
         // see if current user has a chat with the friend already and add listener to send message button
 
-        rootDbRef.child("chatMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("userChats").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 final DataSnapshot currentUserChats = dataSnapshot;
 
-                rootDbRef.child("chatMembers").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                rootDbRef.child("userChats").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (chatID==null) {
@@ -200,7 +200,7 @@ public class ChatFragment extends Fragment {
                                 // Set that current user has seen the chat
                                 if (FoxmikeApplication.isActivityVisible()) {
                                     rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                                    rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
+                                    rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
                                 }
                             }
                         });
@@ -237,11 +237,11 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        rootDbRef.child("chatMembers").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootDbRef.child("userChats").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DataSnapshot currentUserChatsCnapshot = dataSnapshot;
-                rootDbRef.child("chatMembers").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                rootDbRef.child("userChats").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
@@ -326,7 +326,7 @@ public class ChatFragment extends Fragment {
                         // Set that current user has seen the chat
                         if (FoxmikeApplication.isActivityVisible()) {
                             rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                            rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
+                            rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
                         }
                     }
                 });
@@ -359,9 +359,9 @@ public class ChatFragment extends Fragment {
             rootDbRef.child("chats").child(chatID).setValue(chatsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    // Same thing as above but in the chatMembers objects
-                    rootDbRef.child("chatMembers").child(currentUserID).child(chatID).setValue(true);
-                    rootDbRef.child("chatMembers").child(chatUserID).child(chatID).setValue(false);
+                    // Same thing as above but in the userChats objects
+                    rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
+                    rootDbRef.child("userChats").child(chatUserID).child(chatID).setValue(false);
                     // create a message ID in database under messages/chatID/
                     String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
                     // Create a message map which is used to write all this data to the database at once

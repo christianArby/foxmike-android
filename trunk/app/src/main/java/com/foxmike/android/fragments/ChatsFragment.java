@@ -51,7 +51,7 @@ public class ChatsFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference chatsRef = rootDbRef.child("chats");
 
-        Query chatsQuery = rootDbRef.child("chatMembers").child(currentUserId).orderByKey();
+        Query chatsQuery = rootDbRef.child("userChats").child(currentUserId).orderByKey();
         FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
                 .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
                 .build();

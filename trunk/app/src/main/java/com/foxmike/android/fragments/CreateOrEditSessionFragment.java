@@ -695,7 +695,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         if (updateSession) {
             mSessionId = existingSessionID;
-            sessionMap.put("posts", existingSession.getPosts());
             sessionMap.put("participants", existingSession.getParticipants());
             if (existingSession.getAdvertisements()!=null) {
                 for (String ad : existingSession.getAdvertisements().keySet()) {

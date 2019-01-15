@@ -17,7 +17,6 @@ public class Session implements Comparable<Session>, Serializable {
     private double longitude;
     private HashMap<String, Long> advertisements;
     private HashMap<String,String> participants  = new HashMap<String, String>();
-    private HashMap<String,Long> posts;
     private String imageUrl;
     private String what;
     private String who;
@@ -27,7 +26,7 @@ public class Session implements Comparable<Session>, Serializable {
     private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants, HashMap<String, Long> posts, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants,  String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
         this.host = host;
         this.stripeAccountId = stripeAccountId;
@@ -38,7 +37,6 @@ public class Session implements Comparable<Session>, Serializable {
         this.longitude = longitude;
         this.advertisements = advertisements;
         this.participants = participants;
-        this.posts = posts;
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
@@ -63,7 +61,6 @@ public class Session implements Comparable<Session>, Serializable {
         this.longitude = sessionToCopy.longitude;
         this.advertisements = sessionToCopy.advertisements;
         this.participants = sessionToCopy.participants;
-        this.posts = sessionToCopy.posts;
         this.imageUrl = sessionToCopy.imageUrl;
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
@@ -205,17 +202,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setParticipants(HashMap<String, String> participants) {
         this.participants = participants;
-    }
-
-    public HashMap<String, Long> getPosts() {
-        if (this.posts==null) {
-            posts = new HashMap<String, Long>();
-        }
-        return posts;
-    }
-
-    public void setPosts(HashMap<String, Long> posts) {
-        this.posts = posts;
     }
 
     public String getCurrency() {
