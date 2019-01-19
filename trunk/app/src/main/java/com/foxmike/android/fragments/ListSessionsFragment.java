@@ -104,7 +104,6 @@ public class  ListSessionsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        int test = 1;
     }
 
     private void onAsyncTaskFinished() {
