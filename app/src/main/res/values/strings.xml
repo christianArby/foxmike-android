@@ -383,7 +383,7 @@
     <string name="booking_session">Booking session...</string>
     <string name="booking_text_policy">Bookings older than 30 minutes and within 6 hours before the starting time of the session are not refundable. For more information read our cancellation policy in our terms of agreement.</string>
     <string name="cancellation_not_possible">Cancellation not possible</string>
-    <string name="session_has_passed">Session has passed, cancellation is not possible.</string>
+    <string name="session_has_passed">Session has already taken place so cancellation is not possible.</string>
     <string name="refund_not_possible">Refund not possible</string>
     <string name="session_is_too_close_to_refund">Session is closer to 6 hours and booking was made more than 30 minutes ago, refund is not possible.</string>
     <string name="cancellation_confirmation">Cancellation confirmation</string>
@@ -483,4 +483,10 @@
     <string name="you_have_a_new_participant_in">You have a new participant in\u0020</string>
     <string name="you_have_a_cancellation_in">You have a cancellation in\u0020</string>
     <string name="cancelled_free_session">You have now cancelled this session.</string>
+    <string name="cancellation">Cancellation</string>
+    <string name="cancellation_small_fee_warning">You are about to cancel this session, you will be charged a small cancellation fee of xx.</string>
+    <string name="cancel_session">Cancel session</string>
+    <string name="do_not_cancel_session">Do not cancel session</string>
+    <string name="session_is_within_24_hours">Session is within 24 hours</string>
+    <string name="cancellation_large_fee_warning">Session is within 24 hours. If cancelled you will be charged a cancellation fee.</string>
 </resources>

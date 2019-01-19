@@ -520,37 +520,9 @@ public class MainPlayerActivity extends AppCompatActivity
             }
             if (requestCode == CANCEL_BOOKING_REQUEST) {
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                if (data!=null) {
-                    if (data.getBooleanExtra("cancel", false)) {
-                        String sessionID = data.getStringExtra("sessionID");
-                        Map requestMap = new HashMap<>();
-                        requestMap.put("sessions/" + sessionID + "/participants/" + mAuth.getCurrentUser().getUid(), null);
-                        requestMap.put("users/" + mAuth.getCurrentUser().getUid() + "/sessionsAttending/" + sessionID, null);
-                        rootDbRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                                    ps.loadPages(true);
-                                }
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
-                                builder.setMessage(R.string.your_booking_has_been_cancelled);
-                                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.show();
-                            }
-                        });
-
-                    }
-                } else {
-                    if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                        PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                        ps.loadPages(true);
-                    }
+                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
+                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
+                    ps.loadPages(true);
                 }
             }
             if (requestCode == BOOK_SESSION_REQUEST) {
