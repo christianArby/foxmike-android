@@ -6,14 +6,6 @@
     <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Session</string>
 
-    <string-array name="sessionType_array">
-        <item>Running</item>
-        <item>Biking</item>
-        <item>Trailing</item>
-        <item>Physical</item>
-        <item>Other</item>
-    </string-array>
-
     <string-array name="duration_array">
         <item>10 min</item>
         <item>20 min</item>
