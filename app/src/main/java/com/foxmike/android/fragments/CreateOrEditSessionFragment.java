@@ -468,7 +468,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
 
-        /** When item is clicked create a dialog with the specified title and string array */
+        /** When item is clicked create a dialog where use can choose between different session types */
         mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -477,7 +477,21 @@ public class CreateOrEditSessionFragment extends Fragment{
                     notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
                     return;
                 }
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+                Locale current = getResources().getConfiguration().locale;
+                DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+                sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> sessionTypeArray = new ArrayList<>();
+                        for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                            sessionTypeArray.add(sessionTypeSnap.getKey());
+                        }
+                        createDialog(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
             }
         });
         mSessionType.setOnClickListener(new View.OnClickListener() {
@@ -488,7 +502,22 @@ public class CreateOrEditSessionFragment extends Fragment{
                     notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
                     return;
                 }
-                createDialog(getString(R.string.choose_session_type), R.array.sessionType_array,mSessionType);
+
+                Locale current = getResources().getConfiguration().locale;
+                DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+                sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> sessionTypeArray = new ArrayList<>();
+                        for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                            sessionTypeArray.add(sessionTypeSnap.getKey());
+                        }
+                        createDialog(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
             }
         });
 
@@ -668,7 +697,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 builder.setMessage(R.string.create_free_session_question);
                 builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mPrice.setText("Free");
+                        mPrice.setText(R.string.free);
                     }
                 });
                 builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
@@ -935,6 +964,28 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
+    private void createDialog(String title, ArrayList<String> string_array, final EditText mEditText) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getLayoutInflater();
+        View convertView = inflater.inflate(R.layout.dialog_listview, null);
+        alertDialogBuilder.setView(convertView);
+        alertDialogBuilder.setTitle(title);
+        lv = convertView.findViewById(R.id.listView1);
+        lv.getDivider().setAlpha(0);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,string_array);
+        lv.setAdapter(adapter);
+        final AlertDialog dlg = alertDialogBuilder.show();
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int itemPosition = position;
+                String itemValue = (String) lv.getItemAtPosition(position);
+                mEditText.setText(itemValue);
+                dlg.dismiss();
+            }
+        });
+    }
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
@@ -943,8 +994,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         alertDialogBuilder.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
-        String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,string_array);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -7,15 +7,6 @@
     <string name="title_activity_register">Register</string>
     <string name="title_activity_join_session">Session</string>
 
-
-    <string-array name="sessionType_array">
-        <item>Löpning</item>
-        <item>Cykling</item>
-        <item>Trailing</item>
-        <item>Fysiskt</item>
-        <item>Other</item>
-    </string-array>
-
     <string-array name="duration_array">
         <item>10 min</item>
         <item>20 min</item>
