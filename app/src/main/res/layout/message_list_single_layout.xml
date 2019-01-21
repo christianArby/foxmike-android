@@ -35,12 +35,12 @@
     <TextView
         android:textColor="@color/grayTextColor"
         android:id="@+id/user_single_status"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
         android:text="@string/loading"
+        android:layout_width="0dp"
         android:maxLines="1"
         android:ellipsize="end"
         app:layout_constraintHorizontal_bias="0"

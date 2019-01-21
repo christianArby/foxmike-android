@@ -332,7 +332,9 @@ public class CreateOrEditSessionFragment extends Fragment{
                     @Override
                     public void OnSessionUpdated(final Map sessionMap) {
 
-                        if (!payoutsEnabled) {
+                        int sad = 0;
+
+                        if (!payoutsEnabled && (int) sessionMap.get("price")!=0) {
 
                             LayoutInflater factory = LayoutInflater.from(getContext());
                             final View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
@@ -663,8 +665,8 @@ public class CreateOrEditSessionFragment extends Fragment{
                 }
                 // ---- Payouts not enabled -----
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?");
-                builder.setPositiveButton("CREATE FREE SESSION", new DialogInterface.OnClickListener() {
+                builder.setMessage(R.string.create_free_session_question);
+                builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         mPrice.setText("Free");
                     }

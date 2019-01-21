@@ -34,37 +34,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:text="Medium Text"
+        android:textColor="@color/primaryTextColor"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/text2"
+        />
+
+    <TextView
+        android:id="@+id/text2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/leadSub2Body"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:text="@string/session_text"
         android:layout_marginStart="@dimen/margin_left"
-        app:layout_constraintTop_toTopOf="@id/icon"
+        android:layout_marginEnd="@dimen/margin_right"
         app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/text1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0">
-
-        <TextView
-            android:id="@+id/text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:text="Medium Text"
-            android:textColor="@color/primaryTextColor"
-            android:ellipsize="end"
-            android:maxLines="1"
-            />
-
-        <TextView
-            android:id="@+id/text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/leadSub2Body"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="@string/session_text"
-            android:layout_below="@id/text1"/>
-
-
-    </RelativeLayout>
+        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:layout_constraintHorizontal_bias="0"/>
 
 </android.support.constraint.ConstraintLayout>
