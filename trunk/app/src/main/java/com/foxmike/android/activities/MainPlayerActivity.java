@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -137,6 +138,8 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadChats = 0;
     private int unreadNotifications = 0;
     private int unreadFriendRequests = 0;
+    // variable to track event time
+    private long mLastClickTime = 0;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -221,8 +224,13 @@ public class MainPlayerActivity extends AppCompatActivity
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
-                if (!wasSelected)
+                if (!wasSelected) {
                     mainPager.setCurrentItem(position, false);
+                    if (position==0) {
+                        exploreFragment.OnRefreshSessions();
+                    }
+                }
+
                 return true;
             }
         });
@@ -405,12 +413,20 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnSessionClicked(String sessionId) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
     @Override
     public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }

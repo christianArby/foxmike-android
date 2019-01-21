@@ -3,9 +3,9 @@ package com.foxmike.android.activities;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
@@ -36,7 +36,6 @@ public class AboutActivity extends AppCompatActivity {
         }
 
         versionTV = findViewById(R.id.versionName);
-
         versionTV.setText(version);
 
         // Setup toolbar
@@ -45,7 +44,6 @@ public class AboutActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-
     }
 
     @Override

@@ -472,5 +472,7 @@
     <string name="you_have_a_new_participant_in">Du har en ny deltagare i\u0020</string>
     <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
     <string name="cancelled_free_session">Du har nu avbokat det här passet.</string>
+    <string name="create_free_session_question">Du har inga aktiva utbetalningsmetoder, vill du skapa ett gratispass?</string>
+    <string name="create_free_session">Skapa gratispass</string>
 
 </resources>

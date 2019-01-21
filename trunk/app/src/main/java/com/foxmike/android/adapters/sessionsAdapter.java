@@ -123,7 +123,6 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public void onClick(View view) {
                     onSessionClickedListener.OnSessionClicked(session.getSessionId(), session.getRepresentingAdTimestamp());
-                    //displaySession(sessionLatLng);
                 }
             });
         }

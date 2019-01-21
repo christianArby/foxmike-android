@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
@@ -44,6 +45,7 @@ public class  ListSessionsFragment extends Fragment {
     private boolean swipeRefreshStatusLoaded;
     private boolean swipeRefreshStatusUsed;
     private TextView noContent;
+    private FrameLayout progressBar;
 
     private View mainView;
 
@@ -76,6 +78,7 @@ public class  ListSessionsFragment extends Fragment {
         noSessionsFound = mainView.findViewById(R.id.noSessionsFound);
         //mSessionList.setHasFixedSize(true); TODO What does this mean
         mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        progressBar = mainView.findViewById(R.id.progressBar);
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -109,6 +112,8 @@ public class  ListSessionsFragment extends Fragment {
     private void onAsyncTaskFinished() {
         if (sessionsLoaded && locationLoaded && !sessionsAndLocationUsed && this.mainView!=null ) {
             sessionsAndLocationUsed = true;
+
+            progressBar.setVisibility(View.GONE);
 
             if (sessions.size()>0) {
                 noContent.setVisibility(View.GONE);
