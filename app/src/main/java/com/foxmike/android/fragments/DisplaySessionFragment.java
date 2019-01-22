@@ -80,6 +80,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -983,6 +984,23 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // if no ad is selected, snackbar will display no upcoming sessions, return from click.
                         return;
                     }
+
+                    DateTime currentTime = DateTime.now();
+                    DateTime adTime = new DateTime(adSelected.getAdvertisementTimestamp());
+                    Duration durationCurrentToAd = new Duration(currentTime, adTime);
+
+                    if (durationCurrentToAd.getStandardDays()>13) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage(R.string.booking_more_than_2_weeks_ahead).setTitle(R.string.booking_not_possible);
+                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        return;
+                    }
+
                     // If the current user isn´t the host of the session
                     if (!session.getHost().equals(currentFirebaseUser.getUid())) {
                         // If the current user is a participant and already booked this session, button will display show booking and click will send user to advertisement

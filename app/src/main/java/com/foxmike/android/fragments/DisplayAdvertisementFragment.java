@@ -324,7 +324,6 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-                                    Toast.makeText(getContext(),"postCommentsListener" + databaseError.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
                             listenerMap.put(rootDbRef.child("advertisementPostComments").child(advertisementId).child(postID), postCommentsListener);
@@ -336,7 +335,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(getContext(),"postsListener" + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+
                 }
             });
             listenerMap.put(rootDbRef.child("advertisementPosts").child(advertisementId), postsListener);
