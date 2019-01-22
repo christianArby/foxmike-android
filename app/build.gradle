@@ -1,11 +1,18 @@
 apply plugin: 'com.android.application'
 
+ext.versionMajor = 0
+ext.versionMinor = 1
+ext.versionPatch = 0
+ext.versionClassifier = null
+ext.isSnapshot = true
+ext.minimumSdkVersion = 21
+
 android {
     signingConfigs {
         config {
-            keyAlias 'key01'
+            keyAlias 'betaKey'
             keyPassword 'ybra3740'
-            storeFile file('C:/Users/chris/Documents/signingKey.jks')
+            storeFile file('C:/Users/chris/Documents/foxmikeSigningKey.jks')
             storePassword 'ybra3740'
         }
     }
@@ -15,8 +22,8 @@ android {
         applicationId "com.foxmike.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 207
-        versionName "2.0.7-alpha"
+        versionCode generateVersionCode() // 190010203
+        versionName generateVersionName() // 1.2.3-SNAPSHOT
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
         lintOptions {
@@ -28,7 +35,7 @@ android {
     buildTypes {
         release {
             // If debuggable true
-            //debuggable true
+            // debuggable true
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -112,3 +119,19 @@ dependencies {
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
+
+private Integer generateVersionCode() {
+    return ext.minimumSdkVersion * 10000000 + ext.versionMajor * 10000 + ext.versionMinor * 100 + ext.versionPatch
+}
+
+private String generateVersionName() {
+    String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+    if (ext.versionClassifier == null && ext.isSnapshot) {
+        ext.versionClassifier = "SNAPSHOT"
+    }
+
+    if (ext.versionClassifier != null) {
+        versionName += "-" + ext.versionClassifier
+    }
+    return versionName;
+}

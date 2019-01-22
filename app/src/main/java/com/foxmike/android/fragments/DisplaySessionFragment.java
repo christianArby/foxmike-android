@@ -28,6 +28,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -451,7 +452,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     // set the height of the list to the height of one row times number of ads to be displayed (currentHeightInNr)
                     ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                    params.height= 167*currentHeightInNr;
+                    params.height= itemHeight*currentHeightInNr;
                     fbRVContainer.setLayoutParams(params);
                 }
             }
@@ -527,11 +528,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public AdvertisementRowViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.session_date_time_single_layout, parent, false);
-                // When view is created measure the height of one row (item)
-                view.measure(
-                        View.MeasureSpec.makeMeasureSpec(upcomingSessionsRV.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                itemHeight = view.getMeasuredHeight();
                 return new AdvertisementRowViewHolder(view);
             }
         };
@@ -635,6 +631,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mDisplaySessionBtn.setVisibility(View.GONE);
         snackNoUpcomingAds.setVisibility(View.VISIBLE);
 
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        View adRow = view.findViewById(R.id.adRowDummyToMeasure);
+        adRow.measure(display.getWidth(), display.getHeight());
+
+        itemHeight = adRow.getMeasuredHeight(); //view height*/
+
         paymentFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -682,13 +684,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 if (fbAdDateAndTimeAdapter.getItemCount()>(currentHeightInNr+4)) {
                     showMoreTV.setText(getResources().getString(R.string.show_more));
                     ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                    params.height= 167*(currentHeightInNr+4);
+                    params.height= itemHeight*(currentHeightInNr+4);
                     fbRVContainer.setLayoutParams(params);
                     currentHeightInNr = currentHeightInNr +4;
                 } else {
                     showMoreTV.setText(getResources().getString(R.string.end_of_list));
                     ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                    params.height= 167*(fbAdDateAndTimeAdapter.getItemCount());
+                    params.height= itemHeight*(fbAdDateAndTimeAdapter.getItemCount());
                     fbRVContainer.setLayoutParams(params);
                     currentHeightInNr = fbAdDateAndTimeAdapter.getItemCount();
                 }
