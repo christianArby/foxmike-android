@@ -32,10 +32,12 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
 
     private String advertisementId;
     private String sessionId;
+    private String imageUrl;
     private HashMap<String,String> participantsIds;
     private Long advertisementTimestamp;
     private String accountId;
     private String currentUserId;
+    private String advertisementName;
     private HashMap<String,Object> cancelMap = new HashMap<>();
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -48,13 +50,17 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        advertisementName = getIntent().getStringExtra("advertisementName");
         advertisementId = getIntent().getStringExtra("advertisementId");
+        imageUrl = getIntent().getStringExtra("imageUrl");
         sessionId = getIntent().getStringExtra("sessionId");
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
         participantsIds = (HashMap) getIntent().getSerializableExtra("participantsIds");
         accountId = getIntent().getStringExtra("accountId");
 
+        cancelMap.put("advertisementName", advertisementName);
         cancelMap.put("participantsIds", participantsIds);
+        cancelMap.put("imageUrl", imageUrl);
         cancelMap.put("accountId", accountId);
         cancelMap.put("advertisementId", advertisementId);
         cancelMap.put("sessionId", sessionId);

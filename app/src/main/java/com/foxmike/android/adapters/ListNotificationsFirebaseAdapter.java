@@ -97,6 +97,17 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             }
         }
 
+        if (model.getType().equals("sessionCancellation")) {
+            String notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled);
+
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold1, context.getString(R.string.the_session).length(), context.getString(R.string.the_session).length() + model.getParam3().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
+            holder.setNotificationText(notificationTextFormatted);
+
+        }
+
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
     }
 

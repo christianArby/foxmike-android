@@ -486,7 +486,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
                             sessionTypeArray.add(sessionTypeSnap.getKey());
                         }
-                        createDialog(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                        createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -512,7 +512,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
                             sessionTypeArray.add(sessionTypeSnap.getKey());
                         }
-                        createDialog(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                        createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -964,7 +964,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
-    private void createDialog(String title, ArrayList<String> string_array, final EditText mEditText) {
+    private void createDialogWithArray(String title, ArrayList<String> string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
@@ -994,7 +994,8 @@ public class CreateOrEditSessionFragment extends Fragment{
         alertDialogBuilder.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,string_array);
+        String[] values = getResources().getStringArray(string_array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
