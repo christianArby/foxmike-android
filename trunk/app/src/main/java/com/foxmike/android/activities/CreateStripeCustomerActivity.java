@@ -1,5 +1,6 @@
 package com.foxmike.android.activities;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -120,8 +122,9 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                                             setResult(RESULT_OK, null);
                                             finish();
                                         } else {
+                                            hideKeyboard(CreateStripeCustomerActivity.this);
                                             myProgressBar.stopProgressBar();
-                                            showSnackbar("An error occurred:" + " " + result);
+                                            showSnackbar(getString(R.string.the_card_could_not_be_added));
                                         }
                                     }
                                 });
@@ -166,5 +169,16 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

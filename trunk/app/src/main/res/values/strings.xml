@@ -486,4 +486,7 @@
     <string name="the_session">The session\u0020</string>
     <string name="has_been_cancelled">\u0020has been cancelled.</string>
     <string name="on">\u0020on\u0020</string>
+    <string name="the_card_could_not_be_added">The card could not be added.</string>
+    <string name="booking_more_than_2_weeks_ahead">It is not possible to book this occasion since it\'s more than 2 weeks ahead.</string>
+    <string name="booking_not_possible">Booking not possible.</string>
 </resources>
