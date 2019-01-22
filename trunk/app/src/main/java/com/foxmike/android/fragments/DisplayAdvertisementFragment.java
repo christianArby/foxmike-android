@@ -657,7 +657,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 and send the session key to that activity as bundle.
                 */
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementId(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getParticipantsIds(), session.getStripeAccountId());
+                        advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementName(), advertisement.getAdvertisementId(), advertisement.getImageUrl(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getParticipantsIds(), session.getStripeAccountId());
                     }
                 /*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked

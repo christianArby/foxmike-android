@@ -483,4 +483,7 @@
     <string name="cancellation_large_fee_warning">Session is within 24 hours. If cancelled you will be charged a cancellation fee.</string>
     <string name="create_free_session_question">You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?</string>
     <string name="create_free_session">CREATE FREE SESSION</string>
+    <string name="the_session">The session\u0020</string>
+    <string name="has_been_cancelled">\u0020has been cancelled.</string>
+    <string name="on">\u0020on\u0020</string>
 </resources>
