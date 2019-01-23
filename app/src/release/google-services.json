@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "961444435312-l0bimmujq4jevn0frk7sse6r6gb5fida.apps.googleusercontent.com",
+          "client_id": "961444435312-qc4i5agluvq92fdnec8mu6gbhqi11dq7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.foxmike.android",
-            "certificate_hash": "9127c486b117b3e2b9cd963a19dd2cce7a38ca7c"
+            "certificate_hash": "1c14b798619cecd1208ed52af255740290d7b7d5"
           }
         },
         {
