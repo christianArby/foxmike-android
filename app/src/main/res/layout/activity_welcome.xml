@@ -15,11 +15,11 @@
 
     <ImageView
         android:id="@+id/foxmikeIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_marginTop="60dp"
         android:layout_marginStart="@dimen/margin_left"
-        android:src="@mipmap/ic_foxmike_launcher"
+        android:src="@drawable/foxmike_icon_fill_transparent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
