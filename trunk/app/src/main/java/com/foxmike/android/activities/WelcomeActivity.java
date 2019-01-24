@@ -32,6 +32,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -44,6 +45,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,11 +76,17 @@ public class WelcomeActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private static int RC_SIGN_IN = 1;
     private Button googleSignInButton;
+    private FirebaseFunctions mFunctions;
+    private HashMap<String, Object> friendsData = new HashMap<>();
+    private View view;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        mFunctions = FirebaseFunctions.getInstance();
 
         loginTV = findViewById(R.id.loginTV);
         createAccountBtn = findViewById(R.id.createAccountBtn);
@@ -86,6 +95,7 @@ public class WelcomeActivity extends AppCompatActivity {
         myProgressBar = new MyProgressBar(progressBar,this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        view = findViewById(R.id.welcomeParentView);
 
         getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
 
@@ -281,13 +291,32 @@ public class WelcomeActivity extends AppCompatActivity {
                                     if (dataSnapshot.getValue()!=null) {
                                         String foxmikeUID = dataSnapshot.getValue().toString();
                                         if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
-                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                            Map friendsMap = new HashMap();
-                                            friendsMap.put("friends/" + mAuth.getCurrentUser().getUid() + "/" + foxmikeUID + "/date", currentDate);
-                                            friendsMap.put("friends/" + foxmikeUID + "/" + mAuth.getCurrentUser().getUid() + "/date", currentDate);
-                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
-                                                registrationFinished();
+
+                                            String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
+                                            friendsData.put("foxmikeUID", foxmikeUID);
+                                            friendsData.put("currentDate", currentDate);
+
+                                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<String> task) {
+                                                    // If not succesful, show error
+                                                    if (!task.isSuccessful()) {
+                                                        Exception e = task.getException();
+                                                        myProgressBar.stopProgressBar();
+                                                        showSnackbar("An error occurred." + e.getMessage());
+                                                        return;
+                                                    }
+                                                    // Show the string passed from the Firebase server if task/function call on server is successful
+                                                    String result = task.getResult();
+                                                    if (result.equals("success")) {
+                                                        registrationFinished();
+                                                    } else {
+                                                        showSnackbar(result);
+                                                    }
+                                                }
                                             });
+
                                         } else {
                                             registrationFinished();
                                         }
@@ -364,5 +393,27 @@ public class WelcomeActivity extends AppCompatActivity {
             Log.d("min app","Error parsing JSON");
         }
         return null;
+    }
+
+    // Function makeUserFriendWithFoxmike
+    private Task<String> makeUserFriendWithFoxmike(Map<String, Object> friendsData) {
+        // Call the function and extract the operation from the result which is a String
+        return mFunctions
+                .getHttpsCallable("makeUserFriendWithFoxmike")
+                .call(friendsData)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
+                        return (String) result.get("operationResult");
+                    }
+                });
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
     }
 }

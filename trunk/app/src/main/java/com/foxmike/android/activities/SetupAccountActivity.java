@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -18,12 +19,17 @@ import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -44,11 +50,17 @@ public class SetupAccountActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseUsers;
     private ProgressBar progressBar;
     private String currentUserID;
+    private View mainView;
+
+    private FirebaseFunctions mFunctions;
+    private HashMap<String, Object> friendsData = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_account);
+
+        mFunctions = FirebaseFunctions.getInstance();
 
         getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
 
@@ -62,6 +74,7 @@ public class SetupAccountActivity extends AppCompatActivity {
         mLastNameField = findViewById(R.id.setupLastNameField);
         mSubmitBtn = findViewById(R.id.setupSubmitBtn);
         progressBar = findViewById(R.id.progressBar_cyclic);
+        mainView = findViewById(R.id.mainView);
 
         // Setup image button to choose image from gallery
         mSetupImageButton.setOnClickListener(new View.OnClickListener() {
@@ -116,12 +129,32 @@ public class SetupAccountActivity extends AppCompatActivity {
                                     if (dataSnapshot.getValue()!=null) {
                                         String foxmikeUID = dataSnapshot.getValue().toString();
                                         if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
-                                            final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                            Map friendsMap = new HashMap();
-                                            friendsMap.put("friends/" + mAuth.getCurrentUser().getUid() + "/" + foxmikeUID + "/date", currentDate);
-                                            friendsMap.put("friends/" + foxmikeUID + "/" + mAuth.getCurrentUser().getUid() + "/date", currentDate);
-                                            FirebaseDatabase.getInstance().getReference().updateChildren(friendsMap, (databaseError, databaseReference) -> {
-                                                finishSetup(myProgressBar);
+
+
+
+
+                                            String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
+                                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
+                                            friendsData.put("foxmikeUID", foxmikeUID);
+                                            friendsData.put("currentDate", currentDate);
+                                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<String> task) {
+                                                    // If not succesful, show error
+                                                    if (!task.isSuccessful()) {
+                                                        Exception e = task.getException();
+                                                        myProgressBar.stopProgressBar();
+                                                        showSnackbar("An error occurred." + e.getMessage());
+                                                        return;
+                                                    }
+                                                    // Show the string passed from the Firebase server if task/function call on server is successful
+                                                    String result = task.getResult();
+                                                    if (result.equals("success")) {
+                                                        finishSetup(myProgressBar);
+                                                    } else {
+                                                        showSnackbar(result);
+                                                    }
+                                                }
                                             });
                                         } else {
                                             finishSetup(myProgressBar);
@@ -184,5 +217,27 @@ public class SetupAccountActivity extends AppCompatActivity {
             mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(mainIntent);
         }
+    }
+
+    // Function makeUserFriendWithFoxmike
+    private Task<String> makeUserFriendWithFoxmike(Map<String, Object> friendsData) {
+        // Call the function and extract the operation from the result which is a String
+        return mFunctions
+                .getHttpsCallable("makeUserFriendWithFoxmike")
+                .call(friendsData)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
+                        return (String) result.get("operationResult");
+                    }
+                });
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
     }
 }

@@ -1,18 +1,18 @@
 apply plugin: 'com.android.application'
 
 ext.versionMajor = 0
-ext.versionMinor = 1
-ext.versionPatch = 0
+ext.versionMinor = 3
+ext.versionPatch = 1
 ext.versionClassifier = null
-ext.isSnapshot = true
+ext.isSnapshot = false
 ext.minimumSdkVersion = 21
 
 android {
     signingConfigs {
         config {
-            keyAlias 'betaKey'
+            keyAlias 'key01'
             keyPassword 'ybra3740'
-            storeFile file('C:/Users/chris/Documents/foxmikeSigningKey.jks')
+            storeFile file('C:/Users/chris/Documents/signingKey.jks')
             storePassword 'ybra3740'
         }
     }
@@ -30,12 +30,12 @@ android {
             disable 'MissingTranslation'
         }
         // If debuggable true
-        //signingConfig signingConfigs.config
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             // If debuggable true
-            // debuggable true
+            debuggable true
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -57,8 +57,8 @@ android {
         sourceCompatibility 1.8
     }
     // If debuggable true
-    //productFlavors {
-    //}
+    productFlavors {
+    }
 }
 
 dependencies {
@@ -127,7 +127,7 @@ private Integer generateVersionCode() {
 private String generateVersionName() {
     String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
     if (ext.versionClassifier == null && ext.isSnapshot) {
-        ext.versionClassifier = "SNAPSHOT"
+        ext.versionClassifier = "alpha"
     }
 
     if (ext.versionClassifier != null) {
