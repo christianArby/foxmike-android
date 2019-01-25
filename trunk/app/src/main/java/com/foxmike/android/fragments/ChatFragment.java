@@ -76,6 +76,7 @@ public class ChatFragment extends Fragment {
     private int lastVisiblePosition;
     int itemsLoaded;
     int itemsDifference;
+    private SwipeRefreshLayout.OnRefreshListener onRefreshListener;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -288,9 +289,11 @@ public class ChatFragment extends Fragment {
         });
         valueEventListenerMap.put(rootDbRef.child("presence").child(chatUserID), usersChatUserIDListener);*/
         // Setup refresh event
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+        onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 final int currentItems = messageFirebaseAdapter.getItemCount();
                 LinearLayoutManager layoutManager = ((LinearLayoutManager)messagesListRV.getLayoutManager());
                 lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
@@ -334,8 +337,11 @@ public class ChatFragment extends Fragment {
                 messagesListRV.setAdapter(messageFirebaseAdapter);
                 messageFirebaseAdapter.startListening();
                 swipeRefreshLayout.setRefreshing(false);
+
             }
-        });
+        };
+
+        swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
 
         return view;
     }
@@ -373,10 +379,18 @@ public class ChatFragment extends Fragment {
                     messageMap.put("senderName", userName);
                     messageMap.put("senderThumbImage", userThumbImage);
                     // Write the message map to the database
-                    rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap);
+                    rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (messageFirebaseAdapter.getItemCount()==0) {
+                                onRefreshListener.onRefresh();
+                            }
+                            // Clear the input field
+                            chatMessage.setText("");
+                        }
+                    });
 
-                    // Clear the input field
-                    chatMessage.setText("");
+
                 }
             });
         }

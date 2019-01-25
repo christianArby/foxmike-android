@@ -374,7 +374,7 @@
     <string name="booking_failed">Bokningen misslyckades</string>
     <string name="choose_location">Välj plats</string>
     <string name="booking_session">Bokar pass…</string>
-    <string name="booking_text_policy">Bokningar äldre än 30 min och inom 6 timmar från passets startid är inte återbetalningsbara. För mer information läs våra användarvillkor.</string>
+    <string name="booking_text_policy">Bokningar äldre än 30 min och inom 6 timmar från passets starttid är inte återbetalningsbara. För mer information läs våra användarvillkor.</string>
     <string name="cancellation_not_possible">Passet går ej att avboka</string>
     <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
     <string name="refund_not_possible">Återbetalning ej möjlig</string>
@@ -386,7 +386,7 @@
     <string name="your_booking_has_been_cancelled">Passet är nu avbokat.</string>
     <string name="booking_confirmed">Passet är bokat!</string>
     <string name="ok">Ok</string>
-    <string name="dont_show_booking_text">Jag fattar, visa inte den här texten nästa gång jag bokar ett pass.</string>
+    <string name="dont_show_booking_text">Visa inte den här texten nästa gång jag bokar ett pass.</string>
     <string name="switching_to_participant_mode">Byter till deltagarläge</string>
     <string name="switching_to_trainer_mode">Byter till tränarläge</string>
     <string name="not_advertised_cap">AVANNONSERAD</string>
