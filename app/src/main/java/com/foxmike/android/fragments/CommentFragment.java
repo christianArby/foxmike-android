@@ -207,7 +207,7 @@ public class CommentFragment extends Fragment {
 
                 final int currentItems = messageFirebaseAdapter.getItemCount();
                 messageFirebaseAdapter.stopListening();
-                DatabaseReference messageRef = rootDbRef.child(postCommentsDatabaseRef).child(postID);
+                DatabaseReference messageRef = rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID);
                 messageQuery = messageRef.limitToLast(currentItems+TOTAL_ITEMS_TO_LOAD);
                 FirebaseRecyclerOptions<Message> options =
                         new FirebaseRecyclerOptions.Builder<Message>()

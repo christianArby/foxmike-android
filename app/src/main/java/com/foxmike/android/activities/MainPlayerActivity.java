@@ -341,7 +341,9 @@ public class MainPlayerActivity extends AppCompatActivity
                     unreadFriendRequests = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            unreadFriendRequests++;
+                            if (!child.child("request_type").getValue().toString().equals("sent")) {
+                                unreadFriendRequests++;
+                            }
                         }
                     }
                     if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
