@@ -18,7 +18,14 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.models.FoxmikeNotification;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.TextTimestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -30,7 +37,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<FoxmikeNotification, ListNotificationsFirebaseAdapter.NotificationsViewHolder> {
 
     private Context context;
-    private NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener;;
+    private NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener;
+    HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
@@ -52,9 +60,11 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
     @Override
     protected void onBindViewHolder(@NonNull NotificationsViewHolder holder, int position, @NonNull FoxmikeNotification model) {
-        holder.setNotificationImage(model.getThumbNail(),context);
+
         holder.setNotificationClickedListener(model);
         if (model.getType().equals("sessionPost") | model.getType().equals("advertisementPost")) {
+            holder.setNotificationImage(model.getThumbNail(),context);
+
             String notificationText = model.getParam1() + context.getString(R.string.has_made_a_post_in) + model.getParam3();
 
             SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
@@ -67,6 +77,16 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
         }
         if (model.getType().equals("sessionPostComment") | model.getType().equals("advertisementPostComment")) {
+
+            // TODO ta bort null när gammal version 0.2.3-beta inte längre används
+            if (model.getThumbNail()!=null) {
+                populateUserPublicHashMap(model.getThumbNail(), new MessageFirebaseAdapter.OnUsersLoadedListener() {
+                    @Override
+                    public void OnUsersLoaded(UserPublic userPublic) {
+                        holder.setNotificationImage(userPublic.getThumb_image(),context);
+                    }
+                });
+            }
             String notificationText = model.getParam1() + context.getString(R.string.has_made_a_comment_to_your_post_in) + model.getParam3();
 
             SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
@@ -78,6 +98,8 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             holder.setNotificationText(notificationTextFormatted);
         }
         if (model.getType().equals("advertisementParticipant")) {
+            holder.setNotificationImage(model.getThumbNail(),context);
+
             if (!model.getParam2().equals("none")) {
                 String notificationText = context.getString(R.string.you_have_a_new_participant_in) + model.getParam3();
 
@@ -98,6 +120,8 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         }
 
         if (model.getType().equals("sessionCancellation")) {
+            holder.setNotificationImage(model.getThumbNail(),context);
+
             String notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled);
 
             SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
@@ -142,6 +166,26 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         public void setNotificationImage(String thumb_image, android.content.Context context) {
             CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
             Glide.with(context).load(thumb_image).into(notificationImageIV);
+        }
+    }
+
+
+
+    private void populateUserPublicHashMap(String userId, MessageFirebaseAdapter.OnUsersLoadedListener onUsersLoadedListener) {
+        if (!userPublicHashMap.containsKey(userId)) {
+            FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
+                    userPublicHashMap.put(userId, userPublic);
+                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+        } else {
+            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
         }
     }
 }

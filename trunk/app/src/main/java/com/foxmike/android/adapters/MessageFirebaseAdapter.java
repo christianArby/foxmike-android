@@ -153,7 +153,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
     }
 
     private void populateUserPublicHashMap(String userId, OnUsersLoadedListener onUsersLoadedListener) {
-
         if (!userPublicHashMap.containsKey(userId)) {
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -162,17 +161,14 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
                     userPublicHashMap.put(userId, userPublic);
                     onUsersLoadedListener.OnUsersLoaded(userPublic);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             });
         } else {
             onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
         }
     }
-
     public interface OnUsersLoadedListener{
         void OnUsersLoaded(UserPublic userPublic);
     }
