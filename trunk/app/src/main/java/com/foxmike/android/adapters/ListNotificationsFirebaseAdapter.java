@@ -132,6 +132,19 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
         }
 
+        if (model.getType().equals("friendRequestAccepted")) {
+            holder.setNotificationImage(model.getThumbNail(),context);
+
+            String notificationText = model.getParam1() + " has accepted your friend request.";
+
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
+            holder.setNotificationText(notificationTextFormatted);
+
+        }
+
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
     }
 

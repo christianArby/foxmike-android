@@ -48,8 +48,8 @@ import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
-import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
+import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
@@ -142,6 +142,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
     private OnAdvertisementClickedListener onAdvertisementClickedListener;
+    private OnUserClickedListener onUserClickedListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
     private User host;
@@ -190,7 +191,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private Advertisement adSelected;
     private boolean repAdCancelled = false;
     private boolean paymentMethodAdSelectedAndViewUsed;
-    private OnChatClickedListener onChatClickedListener;
     private NestedScrollView displaySessionSV;
     private AppBarLayout appBarLayout;
     private CoordinatorLayout rootLayout;
@@ -779,11 +779,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -------------------- PLAYER -----------------------------
                 editSession.setVisibility(View.GONE);
-                mSendMessageToHost.setText(R.string.send_message_text);
+                mSendMessageToHost.setText(R.string.show_profile);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        onChatClickedListener.OnChatClicked(session.getHost(),host.getFirstName(),host.getThumb_image(),null);
+                        onUserClickedListener.OnUserClicked(session.getHost());
                     }
                 });
             }
@@ -1320,12 +1320,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnCommentClickedListener");
         }
-        if (context instanceof OnChatClickedListener) {
-            onChatClickedListener = (OnChatClickedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnChatClickedListener");
-        }
         if (context instanceof UserAccountFragment.OnUserAccountFragmentInteractionListener) {
             onUserAccountFragmentInteractionListener = (UserAccountFragment.OnUserAccountFragmentInteractionListener) context;
         } else {
@@ -1338,6 +1332,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnAdvertisementClickedListener");
         }
+        if (context instanceof OnUserClickedListener) {
+            onUserClickedListener = (OnUserClickedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnUserClickedListener");
+        }
     }
 
     @Override
@@ -1345,9 +1345,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         super.onDetach();
         onAdvertisementClickedListener = null;
         onCommentClickedListener = null;
-        onChatClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
         sessionListener = null;
+        onUserClickedListener = null;
     }
 
     @Override

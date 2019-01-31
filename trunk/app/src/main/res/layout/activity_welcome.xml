@@ -5,13 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background_light"
     tools:context="com.foxmike.android.activities.WelcomeActivity">
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@mipmap/background_welcome_foxmike"/>
 
     <ImageView
         android:id="@+id/foxmikeIcon"
@@ -19,7 +14,7 @@
         android:layout_height="80dp"
         android:layout_marginTop="60dp"
         android:layout_marginStart="@dimen/margin_left"
-        android:src="@drawable/foxmike_icon_fill_transparent"
+        android:src="@drawable/foxmike_icon_transparent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -27,7 +22,7 @@
         android:id="@+id/loginTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/secondaryTextColor"
+        android:textColor="@color/foxmikePrimaryColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:text="@string/login_text"
         android:padding="@dimen/marginVertical"
@@ -41,7 +36,7 @@
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:text="@string/welcome_to_foxmike_text"
-        android:textColor="@color/secondaryTextColor"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/foxmikeIcon"/>
 
@@ -85,13 +80,26 @@
         app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
 
     <TextView
+        android:id="@+id/versionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="versionName"
+        android:textColor="@color/primaryTextColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintTop_toBottomOf="@id/createAccountBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginTop="@dimen/marginVertical"/>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/foxmike_policy_text_swe"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginBottom="@dimen/marginVertical"
         android:layout_marginEnd="70dp"
-        android:textColor="@color/secondaryTextColor"
+        android:textColor="@color/primaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
