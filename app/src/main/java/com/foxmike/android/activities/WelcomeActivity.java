@@ -1,6 +1,9 @@
 package com.foxmike.android.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -79,6 +82,8 @@ public class WelcomeActivity extends AppCompatActivity {
     private FirebaseFunctions mFunctions;
     private HashMap<String, Object> friendsData = new HashMap<>();
     private View view;
+    private TextView versionNameTV;
+    String version;
 
 
     @Override
@@ -96,8 +101,19 @@ public class WelcomeActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         view = findViewById(R.id.welcomeParentView);
+        versionNameTV = findViewById(R.id.versionName);
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+        version = "";
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        versionNameTV.setText(version + "-beta");
+
+        getWindow().setStatusBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         // ----------------- E-mail and password login ------------------------
         loginTV.setOnClickListener(new View.OnClickListener() {

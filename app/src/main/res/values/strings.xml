@@ -489,4 +489,5 @@
     <string name="the_card_could_not_be_added">The card could not be added.</string>
     <string name="booking_more_than_2_weeks_ahead">It is not possible to book this occasion since it\'s more than 2 weeks ahead.</string>
     <string name="booking_not_possible">Booking not possible.</string>
+    <string name="show_profile">Show profile</string>
 </resources>

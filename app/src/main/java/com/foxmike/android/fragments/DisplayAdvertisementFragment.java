@@ -34,9 +34,9 @@ import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.adapters.ParticipantsFirebaseAdapter;
 import com.foxmike.android.interfaces.AdvertisementListener;
-import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
+import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
@@ -159,7 +159,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     @BindView(R.id.participants_layout) LinearLayout participants;
     @BindView(R.id.participants_RV) RecyclerView participantsRV;
     private ParticipantsFirebaseAdapter participantsFirebaseAdapter;
-    private OnChatClickedListener onChatClickedListener;
+    private OnUserClickedListener onUserClickedListener;
     HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     public DisplayAdvertisementFragment() {
         // Required empty public constructor
@@ -608,10 +608,11 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 });
             } else {
                 mManageBookingTV.setText(R.string.cancel_booking);
+                mSendMessageToHost.setText(R.string.show_profile);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        onChatClickedListener.OnChatClicked(advertisement.getHost(),host.getFirstName(),host.getThumb_image(),null);
+                        onUserClickedListener.OnUserClicked(advertisement.getHost());
                     }
                 });
             }
@@ -929,8 +930,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             throw new RuntimeException(context.toString()
                     + " must implement OnCommentClickedListener");
         }
-        if (context instanceof OnChatClickedListener) {
-            onChatClickedListener = (OnChatClickedListener) context;
+        if (context instanceof OnUserClickedListener) {
+            onUserClickedListener = (OnUserClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnChatClickedListener");
@@ -960,7 +961,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         super.onDetach();
         sessionListener = null;
         onCommentClickedListener = null;
-        onChatClickedListener = null;
+        onUserClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
         onSessionClickedListener = null;
         advertisementListener = null;
