@@ -106,11 +106,10 @@ public class MainPlayerActivity extends AppCompatActivity
         AdvertisementListener,
         ListSessionsFragment.OnRefreshSessionsListener,
         ListSessionsFragment.OnListSessionsScrollListener,
-        SortAndFilterFragment.OnListSessionsSortListener,
-        SortAndFilterFragment.OnListSessionsFilterListener,
         OnWeekdayChangedListener,
         OnWeekdayButtonClickedListener,
-        NotificationsFragment.OnNotificationClickedListener{
+        NotificationsFragment.OnNotificationClickedListener,
+        SortAndFilterFragment.OnFilterChangedListener{
 
     private FragmentManager fragmentManager;
     private UserAccountFragment userAccountFragment;
@@ -737,18 +736,6 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnListSessionsSort(String sortType) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
-        exploreFragment.OnListSessionsSort(sortType);
-    }
-
-    @Override
-    public void OnListSessionsFilter(int filterDistance) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
-        exploreFragment.OnListSessionsFilter(filterDistance);
-    }
-
-    @Override
     public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
         exploreFragment.OnWeekdayChanged(week, weekdayKey, weekdayBoolean, activity);
@@ -782,5 +769,30 @@ public class MainPlayerActivity extends AppCompatActivity
             displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
             cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
         }
+    }
+
+    @Override
+    public void OnSortTypeChanged(String sortType) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnChangeSortType(sortType);
+    }
+
+    @Override
+    public void OnDistanceFilterChanged(int filterDistance) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnFilterByDistance(filterDistance);
+
+    }
+
+    @Override
+    public void OnMinPriceChanged(int minPrice) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnMinPriceChanged(minPrice, "SE");
+    }
+
+    @Override
+    public void OnMaxPriceChanged(int maxPrice) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        exploreFragment.OnMaxPriceChanged(maxPrice, "SE");
     }
 }

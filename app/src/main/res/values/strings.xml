@@ -32,6 +32,32 @@
         <item>100 kr</item>
     </string-array>
 
+    <string-array name="price_array_filter_min">
+        <item>Min</item>
+        <item>Gratis</item>
+        <item>30 kr</item>
+        <item>40 kr</item>
+        <item>50 kr</item>
+        <item>60 kr</item>
+        <item>70 kr</item>
+        <item>80 kr</item>
+        <item>90 kr</item>
+        <item>100 kr</item>
+    </string-array>
+
+    <string-array name="price_array_filter_max">
+        <item>Max</item>
+        <item>Gratis</item>
+        <item>30 kr</item>
+        <item>40 kr</item>
+        <item>50 kr</item>
+        <item>60 kr</item>
+        <item>70 kr</item>
+        <item>80 kr</item>
+        <item>90 kr</item>
+        <item>100 kr</item>
+    </string-array>
+
     <string-array name="max_participants_array">
         <item>0</item>
         <item>1</item>
@@ -490,4 +516,5 @@
     <string name="booking_more_than_2_weeks_ahead">It is not possible to book this occasion since it\'s more than 2 weeks ahead.</string>
     <string name="booking_not_possible">Booking not possible.</string>
     <string name="show_profile">Show profile</string>
+    <string name="filter_by_price">Filter by price</string>
 </resources>

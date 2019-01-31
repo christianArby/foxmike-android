@@ -6,10 +6,13 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.ToggleButton;
 
 import com.foxmike.android.R;
@@ -22,8 +25,7 @@ public class SortAndFilterFragment extends DialogFragment {
     private RadioButton distance1, distance2;
     private ToggleButton sortDateTB;
     private ToggleButton sortDistanceTB;
-    private OnListSessionsSortListener onListSessionsSortListener;
-    private OnListSessionsFilterListener onListSessionsFilterListener;
+    private OnFilterChangedListener onFilterChangedListener;
     private static final String ARG_SORT= "sort";
     private static final String ARG_FILTER = "filter";
     private String mSortType;
@@ -70,7 +72,63 @@ public class SortAndFilterFragment extends DialogFragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sortDistanceTB.setChecked(!b);
                 mSortType ="date";
-                onListSessionsSortListener.OnListSessionsSort(mSortType);
+                onFilterChangedListener.OnSortTypeChanged(mSortType);
+            }
+        });
+
+        // Setup price filter
+        Spinner spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
+        ArrayAdapter<CharSequence> adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
+                R.array.price_array_filter_min, android.R.layout.simple_spinner_item);
+        adapterPriceMin.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMin.setAdapter(adapterPriceMin);
+        spinnerMin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                // TODO FIX CURRENCY
+                String minPriceString = (String) spinnerMin.getSelectedItem();
+                int minPrice;
+                String sPriceMin = minPriceString.replaceAll("[^0-9]", "");
+                if (sPriceMin.length()>1) {
+                    minPrice = Integer.parseInt(sPriceMin);
+                } else {
+                    minPrice = 0;
+                }
+                onFilterChangedListener.OnMinPriceChanged(minPrice);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                onFilterChangedListener.OnMinPriceChanged(0);
+            }
+        });
+
+        Spinner spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
+        ArrayAdapter<CharSequence> adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
+                R.array.price_array_filter_max, android.R.layout.simple_spinner_item);
+        adapterPriceMax.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMax.setAdapter(adapterPriceMax);
+        spinnerMax.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                // TODO FIX CURRENCY
+                String maxPriceString = (String) spinnerMax.getSelectedItem();
+                int maxPrice;
+                String sPriceMax = maxPriceString.replaceAll("[^0-9]", "");
+                if (sPriceMax.length()>1) {
+                    maxPrice = Integer.parseInt(sPriceMax);
+                } else {
+                    maxPrice = 0;
+                }
+                onFilterChangedListener.OnMaxPriceChanged(maxPrice);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                onFilterChangedListener.OnMaxPriceChanged(100000);
             }
         });
 
@@ -83,7 +141,7 @@ public class SortAndFilterFragment extends DialogFragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sortDateTB.setChecked(!b);
                 mSortType = "distance";
-                onListSessionsSortListener.OnListSessionsSort(mSortType);
+                onFilterChangedListener.OnSortTypeChanged(mSortType);
             }
         });
 
@@ -122,7 +180,7 @@ public class SortAndFilterFragment extends DialogFragment {
                         mFilterDistance = getActivity().getResources().getInteger(R.integer.distanceMax);
                         break;
                 }
-                onListSessionsFilterListener.OnListSessionsFilter(mFilterDistance);
+                onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
             }
         });
 
@@ -160,32 +218,24 @@ public class SortAndFilterFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof OnListSessionsSortListener) {
-            onListSessionsSortListener = (OnListSessionsSortListener) context;
+        if (context instanceof OnFilterChangedListener) {
+            onFilterChangedListener = (OnFilterChangedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListSessionsSortListener");
-        }
-        if (context instanceof OnListSessionsFilterListener) {
-            onListSessionsFilterListener = (OnListSessionsFilterListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListSessionsFilterListener");
+                    + " must implement OnFilterChangedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onListSessionsSortListener = null;
-        onListSessionsFilterListener = null;
+        onFilterChangedListener = null;
     }
 
-    public interface OnListSessionsSortListener {
-        void OnListSessionsSort(String sortType);
-    }
-
-    public interface OnListSessionsFilterListener {
-        void OnListSessionsFilter(int filterDistance);
+    public interface OnFilterChangedListener {
+        void OnSortTypeChanged(String sortType);
+        void OnDistanceFilterChanged(int filterDistance);
+        void OnMinPriceChanged(int minPrice);
+        void OnMaxPriceChanged(int maxPrice);
     }
 }

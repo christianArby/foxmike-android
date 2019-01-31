@@ -1,6 +1,5 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/edit_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -39,6 +38,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color"
         style="?android:attr/borderlessButtonStyle"/>
+
     <ToggleButton
         app:layout_constraintEnd_toEndOf="parent"
         android:id="@+id/sortDistanceToggle"
@@ -54,10 +54,38 @@
         style="?android:attr/borderlessButtonStyle"/>
 
     <TextView
+        android:id="@+id/sortPriceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="@dimen/margin_left"
+        android:text="@string/filter_by_price"/>
+
+    <Spinner
+        android:id="@+id/priceSpinnerMin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/grayTextColor"
+        app:layout_constraintTop_toBottomOf="@id/sortPriceText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="@dimen/margin_left"/>
+
+    <Spinner
+        android:id="@+id/priceSpinnerMax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/grayTextColor"
+        app:layout_constraintTop_toBottomOf="@id/sortPriceText"
+        app:layout_constraintStart_toEndOf="@id/priceSpinnerMin"
+        android:layout_margin="@dimen/margin_left"/>
+
+    <TextView
         app:layout_constraintStart_toStartOf="@id/sortText"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_marginTop="@dimen/margin_editText_in_center"
-        app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
+        app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin"
         android:id="@+id/filterText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

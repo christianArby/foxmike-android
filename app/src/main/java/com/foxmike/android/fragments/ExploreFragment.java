@@ -62,7 +62,8 @@ public class ExploreFragment extends Fragment{
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
     private Boolean started = false;
-
+    private int minPrice = 0;
+    private int maxPrice = 100000;
     private Boolean locationFound = false;
     private Boolean locationLoaded = false;
     private Boolean locationAndViewUsed = false;
@@ -200,7 +201,7 @@ public class ExploreFragment extends Fragment{
                 advertisementHashMap = nearAdvertisements;
                 locationClosetoSessions = location;
 
-                myFirebaseDatabase.filterSessionAndAdvertisements(nearSessions, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsAndAdvertisementsFilteredListener() {
+                myFirebaseDatabase.filterSessionAndAdvertisements(nearSessions, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
                     @Override
                     public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
@@ -308,7 +309,7 @@ public class ExploreFragment extends Fragment{
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsAndAdvertisementsFilteredListener() {
+        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
                 MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
@@ -349,9 +350,9 @@ public class ExploreFragment extends Fragment{
 
     }
     /** INTERFACE triggered when sort buttons are clicked, SORTS sessions*/
-    public void OnListSessionsSort(String sortType) {
+    public void OnChangeSortType(String sortType) {
         this.sortType = sortType;
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, new OnSessionsAndAdvertisementsFilteredListener() {
+        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
                 MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
@@ -365,9 +366,39 @@ public class ExploreFragment extends Fragment{
 
     }
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
-    public void OnListSessionsFilter(int filterDistance) {
+    public void OnFilterByDistance(int filterDistance) {
         distanceRadius = filterDistance;
         setupListAndMapWithSessions();
+    }
+
+    public void OnMinPriceChanged(int minPrice, String currencyCountry) {
+
+        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
+            @Override
+            public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                mapsFragment.addMarkersToMap(sessions);
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                listSessionsFragment.updateSessionListView(advertisements,locationClosetoSessions);
+                listSessionsFragment.stopSwipeRefreshingSymbol();
+            }
+        });
+    }
+
+    public void OnMaxPriceChanged(int maxPrice, String currencyCountry) {
+
+        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
+            @Override
+            public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                mapsFragment.addMarkersToMap(sessions);
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                listSessionsFragment.updateSessionListView(advertisements,locationClosetoSessions);
+                listSessionsFragment.stopSwipeRefreshingSymbol();
+            }
+        });
     }
 
     public void OnLocationPicked(LatLng latLng, String requestType) {
