@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.firebase.geofire.GeoFire;
@@ -13,19 +14,23 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
-import com.foxmike.android.interfaces.OnNearSessionsFoundListener;
+import com.foxmike.android.interfaces.OnNearSessionsAndAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
-import com.foxmike.android.interfaces.OnSessionsFilteredListener;
+import com.foxmike.android.interfaces.OnSessionsAndAdvertisementsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.AdvertisementDistanceMap;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.models.SessionMap;
 import com.foxmike.android.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +38,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +60,7 @@ public class MyFirebaseDatabase extends Service {
     private TreeMap<Integer, String> nearStudioIDs = new TreeMap<Integer, String>();
     private Location currentLocation;
     private GeoFire geoFire;
-    private SessionMap sessionMap;
+    private AdvertisementDistanceMap advertisementDistanceMap;
     private int studioDownloadedCounter = 0;
     private HashMap<String,Integer> studioDistances = new HashMap<>();
 
@@ -167,11 +175,10 @@ public class MyFirebaseDatabase extends Service {
         });
     }
 
-    public void filterSessions(ArrayList<Session> nearSessions, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsFilteredListener onSessionsFilteredListener) {
+    public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
         // sessionArray will be an array of the near sessions filtered
-        ArrayList<Session> sessionArray = new ArrayList<>();
-        // sessionDateArray will be an array of the near sessions filtered, but will contain one session copy per advertisement with the advertisement date saved under representingAdTimestamp
-        ArrayList<Session> sessionDateArray = new ArrayList<>();
+        ArrayList<Session> sessionsFiltered = new ArrayList<>();
+        ArrayList<Advertisement> advertisementsFiltered = new ArrayList<>();
         // save the current time in a timestamp to compare with the advertisement timestamps
         Long currentTimestamp = System.currentTimeMillis();
         // Filter sessions not part of weekdays
@@ -180,20 +187,17 @@ public class MyFirebaseDatabase extends Service {
             boolean sessionAdded = false;
             if (nearSession.getAdvertisements()!=null) {
                 // loop through all the advertisement timestamps found under session/adIds
-                for (long advertisementTimestamp: nearSession.getAdvertisements().values()) {
+                for (String advertisementKey: nearSession.getAdvertisements().keySet()) {
                     // If part of weekday filter
+                    long advertisementTimestamp = nearSession.getAdvertisements().get(advertisementKey);
                     if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             // if time has not passed
                             if (advertisementTimestamp > currentTimestamp) {
-                                // create a session object with the same parameters but with the advertisement timestamp saved under representingAdTimestamp
-                                Session dateSession = new Session(nearSession);
-                                dateSession.setRepresentingAdTimestamp(advertisementTimestamp);
-                                // save that session to sessionDateArray
-                                sessionDateArray.add(dateSession);
+                                advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                 // if this session hasn't already been saved to sessionArray save it
                                 if (!sessionAdded) {
-                                    sessionArray.add(nearSession);
+                                    sessionsFiltered.add(nearSession);
                                     sessionAdded = true;
                                 }
                             }
@@ -203,14 +207,10 @@ public class MyFirebaseDatabase extends Service {
                     if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             if (advertisementTimestamp > currentTimestamp) {
-                                // create a session object with the same parameters but with the advertisement timestamp saved under representingAdTimestamp
-                                Session dateSession = new Session(nearSession);
-                                dateSession.setRepresentingAdTimestamp(advertisementTimestamp);
-                                // save that session to sessionDateArray
-                                sessionDateArray.add(dateSession);
+                                advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                 // if this session hasn't already been saved to sessionArray save it
                                 if (!sessionAdded) {
-                                    sessionArray.add(nearSession);
+                                    sessionsFiltered.add(nearSession);
                                     sessionAdded = true;
                                 }
                             }
@@ -222,29 +222,29 @@ public class MyFirebaseDatabase extends Service {
         }
         // If array should be sorted by date sort it by date
         if (sortType.equals("date")) {
-            Collections.sort(sessionDateArray);
+            Collections.sort(advertisementsFiltered);
             TextTimestamp prevTextTimestamp = new TextTimestamp();
-            // Throw in a session dummy containing the dateheader for every new day so that these can be used in the list
+            // Throw in a ad dummy containing the dateheader for every new day so that these can be used in the list
             int i = 0;
-            while (i < sessionDateArray.size()) {
-                if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(sessionDateArray.get(i).getRepresentingAdTimestamp()))) {
-                    Session dummySession = new Session();
-                    dummySession.setImageUrl("dateHeader");
-                    dummySession.setRepresentingAdTimestamp(sessionDateArray.get(i).getRepresentingAdTimestamp());
-                    sessionDateArray.add(i, dummySession);
-                    prevTextTimestamp = new TextTimestamp(sessionDateArray.get(i).getRepresentingAdTimestamp());
+            while (i < advertisementsFiltered.size()) {
+                if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(advertisementsFiltered.get(i).getAdvertisementTimestamp()))) {
+                    Advertisement dummyAdvertisement = new Advertisement();
+                    dummyAdvertisement.setImageUrl("dateHeader");
+                    dummyAdvertisement.setAdvertisementTimestamp(advertisementsFiltered.get(i).getAdvertisementTimestamp());
+                    advertisementsFiltered.add(i, dummyAdvertisement);
+                    prevTextTimestamp = new TextTimestamp(advertisementsFiltered.get(i).getAdvertisementTimestamp());
                 }
                 i++;
             }
         }
-        onSessionsFilteredListener.OnSessionsFiltered(sessionArray, sessionDateArray);
+        onSessionsAndAdvertisementsFilteredListener.OnSessionsAndAdvertisementsFiltered(sessionsFiltered, advertisementsFiltered);
     }
 
-    public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    public void getNearSessions(Activity activity, final int distanceRadius, final OnNearSessionsAndAdvertisementsFoundListener onNearSessionsAndAdvertisementsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         if (activity==null) {
-            onNearSessionsFoundListener.OnLocationNotFound();
+            onNearSessionsAndAdvertisementsFoundListener.OnLocationNotFound();
             return;
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -279,32 +279,93 @@ public class MyFirebaseDatabase extends Service {
                                 @Override
                                 public void onGeoQueryReady() {
                                     final ArrayList<Session> sessions = new ArrayList<Session>();
-                                    final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                    final HashMap<String,Advertisement> advertisements = new HashMap<>();
+                                    final ArrayList<AdvertisementDistanceMap> advertisementDistanceMapArrayList = new ArrayList<AdvertisementDistanceMap>();
+
+                                    ArrayList<Task<?>> sessionTasks = new ArrayList<>();
+                                    ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
+
+                                    Long currentTimestamp = System.currentTimeMillis();
+                                    DateTime currentTime = new DateTime(currentTimestamp);
+
                                     // Download all the near sessions
                                     for (String sessionId : sessionDistances.keySet()) {
-                                        dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                        Task dbTask = dbSource.getTask();
+                                        DatabaseReference ref = dbRef.child("sessions").child(sessionId);
+                                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                                Session session;
-                                                session = dataSnapshot.getValue(Session.class);
-                                                SessionMap sessionMap = new SessionMap(session, sessionDistances.get(dataSnapshot.getKey()));
-                                                sessionMapArrayList.add(sessionMap);
-                                                if (sessionMapArrayList.size()==sessionDistances.size()) {
-                                                    Collections.sort(sessionMapArrayList);
-                                                    for (SessionMap sessionMapSorted: sessionMapArrayList) {
-                                                        sessions.add(sessionMapSorted.getSession());
-                                                    }
-                                                    onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
-                                                }
+                                                dbSource.setResult(dataSnapshot);
                                             }
-
                                             @Override
                                             public void onCancelled(DatabaseError databaseError) {
+                                                dbSource.setException(databaseError.toException());
                                             }
                                         });
+                                        sessionTasks.add(dbTask);
                                     }
+
+                                    Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                for (Task finishedTask: sessionTasks) {
+                                                    DataSnapshot dataSnapshot = (DataSnapshot) finishedTask.getResult();
+                                                    Session session = dataSnapshot.getValue(Session.class);
+                                                    sessions.add(session);
+                                                    for (String advertisementkey: session.getAdvertisements().keySet()) {
+                                                        DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementkey));
+                                                        Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
+                                                        if (durationCurrentToAdvertisment.getStandardDays()<15) {
+                                                            TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                                            Task dbTask = dbSource.getTask();
+                                                            DatabaseReference ref = dbRef.child("advertisements").child(advertisementkey);
+                                                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                    dbSource.setResult(dataSnapshot);
+                                                                }
+                                                                @Override
+                                                                public void onCancelled(DatabaseError databaseError) {
+                                                                    dbSource.setException(databaseError.toException());
+                                                                }
+                                                            });
+                                                            advertisementTasks.add(dbTask);
+                                                        }
+                                                    }
+                                                }
+
+                                                Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            for (Task finishedAdTask: advertisementTasks) {
+                                                                DataSnapshot dataSnapshot = (DataSnapshot) finishedAdTask.getResult();
+                                                                Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                                                                AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(advertisement, sessionDistances.get(advertisement.getSessionId()));
+                                                                advertisementDistanceMapArrayList.add(advertisementDistanceMap);
+                                                            }
+                                                            Collections.sort(advertisementDistanceMapArrayList);
+                                                            for (AdvertisementDistanceMap advertisementDistanceMapSorted : advertisementDistanceMapArrayList) {
+                                                                advertisements.put(advertisementDistanceMapSorted.getAdvertisement().getAdvertisementId(), advertisementDistanceMapSorted.getAdvertisement());
+                                                            }
+                                                            onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+
+
+
+
+
+
                                     if (sessionDistances.size() < 1) {
-                                        onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);
+                                        onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
                                     }
                                 }
 
@@ -313,13 +374,13 @@ public class MyFirebaseDatabase extends Service {
                                 }
                             });
                         } else {
-                            onNearSessionsFoundListener.OnLocationNotFound();
+                            onNearSessionsAndAdvertisementsFoundListener.OnLocationNotFound();
                         }
                     }
                 });
     }
 
-    /*public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsFoundListener onNearSessionsFoundListener) {
+    /*public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsAndAdvertisementsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;
         geoFire = new GeoFire(mGeofireDbRef);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -381,18 +442,18 @@ public class MyFirebaseDatabase extends Service {
                                                 }
                                                 if (studioDownloadedCounter == nearStudioIDs.size()) {
                                                     final ArrayList<Session> sessions = new ArrayList<Session>();
-                                                    final ArrayList<SessionMap> sessionMapArrayList = new ArrayList<SessionMap>();
+                                                    final ArrayList<AdvertisementDistanceMap> sessionMapArrayList = new ArrayList<AdvertisementDistanceMap>();
                                                     for (String sessionId : nearSessionIdsArray) {
                                                         dbRef.child("sessions").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 Session session;
                                                                 session = dataSnapshot.getValue(Session.class);
-                                                                SessionMap sessionMap = new SessionMap(session, studioDistances.get(session.getStudioId()));
-                                                                sessionMapArrayList.add(sessionMap);
+                                                                AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(session, studioDistances.get(session.getStudioId()));
+                                                                sessionMapArrayList.add(advertisementDistanceMap);
                                                                 if (sessionMapArrayList.size() == nearSessionIdsArray.size()) {
                                                                     Collections.sort(sessionMapArrayList);
-                                                                    for (SessionMap sessionMapSorted: sessionMapArrayList) {
+                                                                    for (AdvertisementDistanceMap sessionMapSorted: sessionMapArrayList) {
                                                                         sessions.add(sessionMapSorted.getSession());
                                                                     }
                                                                     onNearSessionsFoundListener.OnNearSessionsFound(sessions, location);

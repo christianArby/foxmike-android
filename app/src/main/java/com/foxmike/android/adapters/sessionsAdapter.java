@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.models.Session;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
@@ -36,20 +36,20 @@ import java.util.Locale;
  */
 public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface {
 
-    private ArrayList<Session> sessions;
+    private ArrayList<Advertisement> advertisements;
     private final Context context;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
 
-    public sessionsAdapter(ArrayList<Session> sessions, Context context, Location currentLocation, final OnSessionClickedListener onSessionClickedListener) {
-        this.sessions = sessions;
+    public sessionsAdapter(ArrayList<Advertisement> advertisements, Context context, Location currentLocation, final OnSessionClickedListener onSessionClickedListener) {
+        this.advertisements = advertisements;
         this.context = context;
         this.currentLocation=currentLocation;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
-    public void refreshData(ArrayList<Session> sessions, Location currentLocation) {
-        this.sessions = sessions;
+    public void refreshData(ArrayList<Advertisement> advertisements, Location currentLocation) {
+        this.advertisements = advertisements;
         this.currentLocation=currentLocation;
         this.notifyDataSetChanged();
     }
@@ -83,12 +83,12 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         /**Get the current session inflated in the sessionViewHolder from the session arraylist" */
-        final Session session = sessions.get(position);
+        final Advertisement advertisement = advertisements.get(position);
 
-        if (session.getImageUrl().equals("dateHeader")) {
+        if (advertisement.getImageUrl().equals("dateHeader")) {
             DateTime currentTime = DateTime.now();
             DateTime tomorrowTime = currentTime.plusDays(1);
-            DateTime sessionTime = new DateTime(session.getRepresentingAdTimestamp());
+            DateTime sessionTime = new DateTime(advertisement.getAdvertisementTimestamp());
             if (currentTime.getYear()==sessionTime.getYear() &&
                     currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
@@ -100,20 +100,20 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ) {
                 ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
             } else {
-                ((SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(sessions.get(position).getRepresentingAdTimestamp()));
+                ((SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(advertisements.get(position).getAdvertisementTimestamp()));
             }
         } else {
 
             /**Fill the cardview with information of the session" */
-            final LatLng sessionLatLng = new LatLng(session.getLatitude(),session.getLongitude());
-            String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
-            ((SessionViewHolder) holder).setTitle(session.getSessionName());
-            ((SessionViewHolder) holder).setDesc(session.getSessionType());
-            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDate(sessions.get(position).getRepresentingAdTimestamp()));
+            final LatLng sessionLatLng = new LatLng(advertisement.getLatitude(), advertisement.getLongitude());
+            String address = getAddress(advertisement.getLatitude(),advertisement.getLongitude())+"  |  "+getDistance(advertisement.getLatitude(),advertisement.getLongitude(), currentLocation);
+            ((SessionViewHolder) holder).setTitle(advertisement.getAdvertisementName());
+            ((SessionViewHolder) holder).setDesc(advertisement.getSessionType());
+            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDate(advertisement.getAdvertisementTimestamp()));
             ((SessionViewHolder) holder).setAddress(address);
-            ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
+            ((SessionViewHolder) holder).setImage(this.context,advertisement.getImageUrl());
 
-            if (position > 0 && !sessions.get(position-1).getImageUrl().equals("dateHeader")) {
+            if (position > 0 && !advertisements.get(position-1).getImageUrl().equals("dateHeader")) {
                 ((SessionViewHolder) holder).setMargin();
             } else {
                 ((SessionViewHolder) holder).resetMargin();
@@ -122,15 +122,28 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onSessionClickedListener.OnSessionClicked(session.getSessionId(), session.getRepresentingAdTimestamp());
+                    onSessionClickedListener.OnSessionClicked(advertisement.getSessionId(), advertisement.getAdvertisementTimestamp());
                 }
             });
+            String currencyString = "?";
+            if (advertisement.getCurrency()==null) {
+                currencyString = "";
+            } else {
+                currencyString = context.getResources().getString(R.string.sek);
+            }
+            String priceText;
+            if (advertisement.getPrice()== 0) {
+                priceText = context.getResources().getString(R.string.free);
+            } else {
+                priceText = advertisement.getPrice() + " " + currencyString;
+            }
+            ((SessionViewHolder) holder).setPrice(priceText);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (sessions.get(position).getImageUrl().equals("dateHeader")) {
+        if (advertisements.get(position).getImageUrl().equals("dateHeader")) {
             return 1;
         }
         return 0;
@@ -139,7 +152,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**Change getItemCount to return the number of items this sessionsAdapter should adapt*/
     @Override
     public int getItemCount() {
-        return sessions.size();
+        return advertisements.size();
     }
 
     /**
@@ -170,7 +183,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getHeaderLayout(int headerPosition) {
         int layoutResource = 0;
-        if (sessions.size() > 0  && sessions.get(0).getImageUrl().equals("dateHeader")) {
+        if (advertisements.size() > 0  && advertisements.get(0).getImageUrl().equals("dateHeader")) {
             return R.layout.session_list_date_header;
         } else {
             return R.layout.blank_dummy_for_header_list;
@@ -185,11 +198,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void bindHeaderData(View header, int headerPosition) {
-        if (sessions.size()>headerPosition && sessions.get(0).getImageUrl().equals("dateHeader")) {
+        if (advertisements.size()>headerPosition && advertisements.get(0).getImageUrl().equals("dateHeader")) {
             TextView headerTV = header.findViewById(R.id.listSessionsDateHeader);
             DateTime currentTime = DateTime.now();
             DateTime tomorrowTime = currentTime.plusDays(1);
-            DateTime sessionTime = new DateTime(sessions.get(headerPosition).getRepresentingAdTimestamp());
+            DateTime sessionTime = new DateTime(advertisements.get(headerPosition).getAdvertisementTimestamp());
             if (currentTime.getYear()==sessionTime.getYear() &&
                     currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
@@ -201,7 +214,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ) {
                 headerTV.setText(context.getString(R.string.tomorrow_text));
             } else {
-                headerTV.setText(TextTimestamp.textSessionDate(sessions.get(headerPosition).getRepresentingAdTimestamp()));
+                headerTV.setText(TextTimestamp.textSessionDate(advertisements.get(headerPosition).getAdvertisementTimestamp()));
             }
         }
     }
@@ -215,8 +228,8 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public boolean isHeader(int itemPosition) {
 
-        if (sessions.size()>itemPosition) {
-            if (sessions.get(itemPosition).getImageUrl().equals("dateHeader")) {
+        if (advertisements.size()>itemPosition) {
+            if (advertisements.get(itemPosition).getImageUrl().equals("dateHeader")) {
                 return true;
             } else {
                 return false;
@@ -255,6 +268,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void setTitle(String title){
             TextView session_title = mView.findViewById(R.id.session_title);
             session_title.setText(title);
+        }
+
+        public void setPrice(String price){
+            TextView priceTV = mView.findViewById(R.id.priceTV);
+            priceTV.setText(price);
         }
 
         public void setAddress(String address){

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.sessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
-import com.foxmike.android.models.Session;
+import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.HeaderItemDecoration;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class  ListSessionsFragment extends Fragment {
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
     private TextView noSessionsFound;
-    private ArrayList<Session> sessions;
+    private ArrayList<Advertisement> advertisements;
     private boolean sessionsLoaded;
     private Location location;
     private boolean locationLoaded;
@@ -115,7 +115,7 @@ public class  ListSessionsFragment extends Fragment {
 
             progressBar.setVisibility(View.GONE);
 
-            if (sessions.size()>0) {
+            if (advertisements.size()>0) {
                 noContent.setVisibility(View.GONE);
             } else {
                 noContent.setVisibility(View.VISIBLE);
@@ -123,10 +123,10 @@ public class  ListSessionsFragment extends Fragment {
 
             if (sessionsAdapter!=null) {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter.refreshData(sessions,location);
+                sessionsAdapter.refreshData(advertisements, location);
             } else {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new sessionsAdapter(sessions, getActivity(), location, onSessionClickedListener);
+                sessionsAdapter = new sessionsAdapter(advertisements, getActivity(), location, onSessionClickedListener);
                 if (mSessionList!=null) {
                     HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
                     mSessionList.addItemDecoration(headerItemDecoration);
@@ -143,9 +143,9 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     // Function to refresh data in sessionsAdapter
-    public void updateSessionListView(ArrayList<Session> sessions, Location location) {
+    public void updateSessionListView(ArrayList<Advertisement> advertisements, Location location) {
 
-        this.sessions = sessions;
+        this.advertisements = advertisements;
         this.location = location;
         sessionsLoaded = true;
         locationLoaded = true;
