@@ -175,7 +175,7 @@ public class MyFirebaseDatabase extends Service {
         });
     }
 
-    public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
+    public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, int minPrice, int maxPrice, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
         // sessionArray will be an array of the near sessions filtered
         ArrayList<Session> sessionsFiltered = new ArrayList<>();
         ArrayList<Advertisement> advertisementsFiltered = new ArrayList<>();
@@ -194,11 +194,13 @@ public class MyFirebaseDatabase extends Service {
                         if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             // if time has not passed
                             if (advertisementTimestamp > currentTimestamp) {
-                                advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
-                                // if this session hasn't already been saved to sessionArray save it
-                                if (!sessionAdded) {
-                                    sessionsFiltered.add(nearSession);
-                                    sessionAdded = true;
+                                if (nearAdvertisements.get(advertisementKey).getPrice()>=minPrice && nearAdvertisements.get(advertisementKey).getPrice()<=maxPrice) {
+                                    advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
+                                    // if this session hasn't already been saved to sessionArray save it
+                                    if (!sessionAdded) {
+                                        sessionsFiltered.add(nearSession);
+                                        sessionAdded = true;
+                                    }
                                 }
                             }
                         }
@@ -207,11 +209,13 @@ public class MyFirebaseDatabase extends Service {
                     if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             if (advertisementTimestamp > currentTimestamp) {
-                                advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
-                                // if this session hasn't already been saved to sessionArray save it
-                                if (!sessionAdded) {
-                                    sessionsFiltered.add(nearSession);
-                                    sessionAdded = true;
+                                if (nearAdvertisements.get(advertisementKey).getPrice()>=minPrice && nearAdvertisements.get(advertisementKey).getPrice()<=maxPrice) {
+                                    advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
+                                    // if this session hasn't already been saved to sessionArray save it
+                                    if (!sessionAdded) {
+                                        sessionsFiltered.add(nearSession);
+                                        sessionAdded = true;
+                                    }
                                 }
                             }
                         }
