@@ -180,8 +180,8 @@
     <string name="distance3_text">16 km</string>
     <string name="distance4_text">40 km</string>
     <string name="distance5_text">80 km</string>
-    <string name="distance6_text">150 km</string>
-    <string name="distanceMax">3000 km</string>
+    <string name="distance6_text">1000 km</string>
+    <string name="distanceMax">Max</string>
 
     <string name="sort_type_date">Datum</string>
 
@@ -270,8 +270,8 @@
     <string name="who_heading">Vem som kan vara med</string>
     <string name="where_heading">Var vi ska vara</string>
     <string name="pick_location_text">Välj en plats genom att klicka på kartan!</string>
-    <string name="Sort_on_text">Sortera efter:</string>
-    <string name="filter_on_distance_text">Filtrera på avstånd:</string>
+    <string name="Sort_on_text">I listan, sortera passen baserat på:</string>
+    <string name="filter_on_distance_text">Visa bara pass som är inom det här avståndet från min nuvarande plats:</string>
     <string name="send_friend_request_text">Skicka vänförfrågan</string>
     <string name="decline_friend_request_text">Avvisa vänförfrågan</string>
     <string name="Write_something_hint_text">Skriv något…</string>
@@ -462,7 +462,7 @@
     <string name="price_colon">Pris:</string>
     <string name="per_person">per person</string>
     <string name="cost_colon">Kostnad:</string>
-    <string name="all">Visa"\n"alla</string>
+    <string name="all">Alla"\n"datum</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Klicka på kalendern för att välja datum och tider för ditt pass.</string>
     <string name="show_booking">Visa bokning</string>
     <string name="show_occasion">Visa tillfälle</string>
@@ -497,7 +497,10 @@
     <string name="the_card_could_not_be_added">Det gick inte att lägga till kortet.</string>
     <string name="booking_more_than_2_weeks_ahead">Det är inte möjligt att boka det här passet då det är längre fram än 2 veckor..</string>
     <string name="booking_not_possible">Bokning ej möjlig.</string>
-    <string name="filter_by_price">Filtrera på pris</string>
+    <string name="filter_by_price">Pris</string>
+    <string name="distance_colon">Avstånd:\u0020</string>
+    <string name="min_price_colon">Min pris:\u0020</string>
+    <string name="max_price_colon">Max pris:\u0020</string>
 
 
 </resources>

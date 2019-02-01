@@ -8,13 +8,15 @@
         android:id="@+id/toggleButton0"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_weight="1"
-        android:background="@color/color_background_light"
+        android:layout_weight="1.2"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="@drawable/all_dates_button"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textAllCaps="false"
-        android:textColor="@color/toggle_color_all_button" />
+        android:textColor="@color/secondaryTextColor" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton1"
         android:layout_width="0dp"
@@ -26,6 +28,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton2"
         android:layout_width="0dp"
@@ -37,6 +40,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton3"
         android:layout_width="0dp"
@@ -48,6 +52,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton4"
         android:layout_width="0dp"
@@ -59,6 +64,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton5"
         android:layout_width="0dp"
@@ -70,6 +76,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton6"
         android:layout_width="0dp"
@@ -81,6 +88,7 @@
         android:textColor="@color/toggle_color" />
 
     <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton7"
         android:layout_width="0dp"

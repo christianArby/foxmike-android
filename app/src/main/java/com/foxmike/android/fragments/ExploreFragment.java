@@ -19,6 +19,7 @@ import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
@@ -37,6 +38,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+
+import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
+import static com.foxmike.android.utils.Distance.DISTANCE_STRINGS_SE;
+import static com.foxmike.android.utils.Price.PRICES_INTEGERS_SE;
+import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,10 +69,15 @@ public class ExploreFragment extends Fragment{
     private float mapOrListBtnStartY;
     private Boolean started = false;
     private int minPrice = 0;
-    private int maxPrice = 100000;
+    private int maxPrice = PRICES_INTEGERS_SE.get("Max");
     private Boolean locationFound = false;
     private Boolean locationLoaded = false;
     private Boolean locationAndViewUsed = false;
+    private TextView filteredItem1;
+    private TextView filteredItem2;
+    private TextView filteredItem3;
+    private ArrayList<TextView> filteredItems = new ArrayList<>();
+    private SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -108,7 +119,7 @@ public class ExploreFragment extends Fragment{
 
         /** Setup List and Map with sessions*/
         sortType = "date";
-        distanceRadius = this.getResources().getInteger(R.integer.distanceMax);
+        distanceRadius = DISTANCE_INTEGERS_SE.get("Max");
         setupListAndMapWithSessions();
 
     }
@@ -125,6 +136,39 @@ public class ExploreFragment extends Fragment{
 
         WrapContentViewPager weekdayViewpager = view.findViewById(R.id.weekdayPager);
         PageIndicatorView pageIndicatorView = view.findViewById(R.id.pageIndicatorView);
+
+        // filter buttons
+        filteredItem1 = view.findViewById(R.id.filteredItem1);
+        filteredItem2 = view.findViewById(R.id.filteredItem2);
+        filteredItem3 = view.findViewById(R.id.filteredItem3);
+
+        filteredItems.add(filteredItem1);
+        filteredItem1.setHint("");
+        filteredItems.add(filteredItem2);
+        filteredItem2.setHint("");
+        filteredItems.add(filteredItem3);
+        filteredItem3.setHint("");
+
+        for (TextView filterItem: filteredItems) {
+            filterItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String filterType = filterItem.getHint().toString();
+                    if (filterType.equals("minPrice")) {
+                        minPrice = 0;
+                        onFilterChangedListener.OnMinPriceChanged(minPrice);
+                    }
+                    if (filterType.equals("maxPrice")) {
+                        maxPrice = PRICES_INTEGERS_SE.get("Max");
+                        onFilterChangedListener.OnMaxPriceChanged(maxPrice);
+                    }
+                    if (filterType.equals("distance")) {
+                        distanceRadius = DISTANCE_INTEGERS_SE.get("Max");
+                        onFilterChangedListener.OnDistanceFilterChanged(distanceRadius);
+                    }
+                }
+            });
+        }
 
         // Setup weekdaypager
         weekdayViewpager.setAdapter(new WeekdayViewpagerAdapter(fragmentManager));
@@ -158,7 +202,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice);
                 sortAndFilterFragment.show(transaction,"sortAndFilterFragment");
             }
         });
@@ -368,10 +412,23 @@ public class ExploreFragment extends Fragment{
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
     public void OnFilterByDistance(int filterDistance) {
         distanceRadius = filterDistance;
+        if (filterDistance!= DISTANCE_INTEGERS_SE.get("Max")) {
+            showFilteredItem("distance", getString(R.string.distance_colon) + DISTANCE_STRINGS_SE.get(distanceRadius));
+        } else {
+            removeFilteredItem("distance");
+        }
         setupListAndMapWithSessions();
     }
 
     public void OnMinPriceChanged(int minPrice, String currencyCountry) {
+
+        this.minPrice = minPrice;
+
+        if (minPrice!=0) {
+            showFilteredItem("minPrice", getString(R.string.min_price_colon) + PRICES_STRINGS_SE.get(minPrice));
+        } else {
+            removeFilteredItem("minPrice");
+        }
 
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
@@ -388,6 +445,14 @@ public class ExploreFragment extends Fragment{
 
     public void OnMaxPriceChanged(int maxPrice, String currencyCountry) {
 
+        this.maxPrice = maxPrice;
+
+        if (maxPrice!=PRICES_INTEGERS_SE.get("Max")) {
+            showFilteredItem("maxPrice", getString(R.string.max_price_colon) + PRICES_STRINGS_SE.get(maxPrice));
+        } else {
+            removeFilteredItem("maxPrice");
+        }
+
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(ArrayList<Session> sessions, ArrayList<Advertisement> advertisements) {
@@ -399,6 +464,40 @@ public class ExploreFragment extends Fragment{
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
         });
+    }
+
+    private void showFilteredItem(String filterType, String filterText) {
+        boolean itemSet = false;
+        for (TextView filteredItem: filteredItems) {
+            if (filteredItem.getHint().equals(filterType)) {
+                filteredItem.setText(filterText);
+                filteredItem.setHint(filterType);
+                filteredItem.setVisibility(View.VISIBLE);
+                itemSet = true;
+            }
+        }
+        if (!itemSet) {
+            for (TextView filteredItem: filteredItems) {
+                if (!itemSet) {
+                    if (filteredItem.getHint().equals("")) {
+                        filteredItem.setText(filterText);
+                        filteredItem.setHint(filterType);
+                        filteredItem.setVisibility(View.VISIBLE);
+                        itemSet = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private void removeFilteredItem(String filterType) {
+        for (TextView filteredItem: filteredItems) {
+            if (filteredItem.getHint().equals(filterType)) {
+                filteredItem.setHint("");
+                filteredItem.setText("");
+                filteredItem.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void OnLocationPicked(LatLng latLng, String requestType) {
@@ -430,6 +529,24 @@ public class ExploreFragment extends Fragment{
     // Makes a fragemnt name to fragments created by pager
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof SortAndFilterFragment.OnFilterChangedListener) {
+            onFilterChangedListener = (SortAndFilterFragment.OnFilterChangedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFilterChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onFilterChangedListener = null;
     }
 
 }

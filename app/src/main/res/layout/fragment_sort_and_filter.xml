@@ -16,49 +16,11 @@
         android:src="@drawable/ic_close_black_24dp"/>
 
     <TextView
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="@dimen/margin_editText_in_center"
-        android:layout_marginStart="@dimen/margin_editText_in_center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:id="@+id/sortText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Sort_on_text" />
-
-    <ToggleButton
-        app:layout_constraintStart_toStartOf="@id/sortText"
-        android:layout_marginTop="@dimen/marginVertical"
-        android:id="@+id/sortDateToggle"
-        app:layout_constraintTop_toBottomOf="@+id/sortText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/color_background_light"
-        android:fontFamily="sans-serif"
-        android:textAllCaps="false"
-        android:textColor="@color/toggle_color"
-        style="?android:attr/borderlessButtonStyle"/>
-
-    <ToggleButton
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/sortDistanceToggle"
-        android:layout_marginEnd="@dimen/margin_editText_in_center"
-        app:layout_constraintStart_toEndOf="@+id/sortDateToggle"
-        app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/color_background_light"
-        android:fontFamily="sans-serif"
-        android:textAllCaps="false"
-        android:textColor="@color/toggle_color"
-        style="?android:attr/borderlessButtonStyle"/>
-
-    <TextView
         android:id="@+id/sortPriceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        app:layout_constraintTop_toBottomOf="@id/sortDateToggle"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="@dimen/margin_left"
         android:text="@string/filter_by_price"/>
@@ -82,21 +44,23 @@
         android:layout_margin="@dimen/margin_left"/>
 
     <TextView
-        app:layout_constraintStart_toStartOf="@id/sortText"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:layout_marginTop="@dimen/margin_editText_in_center"
-        app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin"
         android:id="@+id/filterText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="@dimen/margin_left"
         android:text="@string/filter_on_distance_text"/>
 
     <RadioGroup
         android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintStart_toStartOf="@id/filterText"
         app:layout_constraintTop_toBottomOf="@id/filterText"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sortText"
         android:layout_marginBottom="@dimen/margin_editText_in_center"
+        android:layout_marginStart="@dimen/margin_left"
         android:id="@+id/filterDistanceRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -138,6 +102,46 @@
             android:text="@string/distance6_text"/>
 
     </RadioGroup>
+
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/filterDistanceRadioGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/margin_editText_in_center"
+        android:layout_marginStart="@dimen/margin_editText_in_center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:id="@+id/sortText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Sort_on_text" />
+
+    <ToggleButton
+        app:layout_constraintStart_toStartOf="@id/sortText"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:id="@+id/sortDateToggle"
+        app:layout_constraintTop_toBottomOf="@+id/sortText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="@dimen/marginVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color"
+        style="?android:attr/borderlessButtonStyle"/>
+
+    <ToggleButton
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/sortDistanceToggle"
+        android:layout_marginEnd="@dimen/margin_editText_in_center"
+        app:layout_constraintStart_toEndOf="@+id/sortDateToggle"
+        app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background_light"
+        android:fontFamily="sans-serif"
+        android:textAllCaps="false"
+        android:textColor="@color/toggle_color"
+        style="?android:attr/borderlessButtonStyle"/>
 
 
 
