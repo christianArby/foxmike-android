@@ -1,5 +1,6 @@
 package com.foxmike.android.fragments;
 // Checked
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -16,6 +17,11 @@ import android.widget.Spinner;
 import android.widget.ToggleButton;
 
 import com.foxmike.android.R;
+
+import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
+import static com.foxmike.android.utils.Price.PRICES_INTEGERS_SE;
+import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
+
 /**
  * This opens up a dialog fragment in order to choose way to sort and filter
  */
@@ -31,16 +37,22 @@ public class SortAndFilterFragment extends DialogFragment {
     private String mSortType;
     private int mFilterDistance = 3000;
     private ImageButton closeButton;
+    private int minClicked = 0;
+    private int maxClicked = 0;
+    private int minPrice;
+    private int maxPrice;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
     }
 
-    public static SortAndFilterFragment newInstance(String sort, int filter) {
+    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice) {
         SortAndFilterFragment fragment = new SortAndFilterFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT, sort);
         args.putInt(ARG_FILTER, filter);
+        args.putInt("minPrice", minPrice);
+        args.putInt("maxPrice", maxPrice);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,6 +63,8 @@ public class SortAndFilterFragment extends DialogFragment {
         if (getArguments() != null) {
             mSortType = getArguments().getString(ARG_SORT);
             mFilterDistance = getArguments().getInt(ARG_FILTER);
+            minPrice = getArguments().getInt("minPrice");
+            maxPrice = getArguments().getInt("maxPrice");
         }
     }
 
@@ -67,68 +81,22 @@ public class SortAndFilterFragment extends DialogFragment {
         sortDateTB.setText(getString(R.string.date_text));
         sortDateTB.setTextOn(getString(R.string.date_text));
         sortDateTB.setTextOff(getString(R.string.date_text));
+
+        // Set initial state of sort buttons
+        if (mSortType.equals("distance")) {
+            sortDistanceTB.setChecked(true);
+            sortDateTB.setChecked(false);
+        } else {
+            sortDistanceTB.setChecked(false);
+            sortDateTB.setChecked(true);
+        }
+
         sortDateTB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 sortDistanceTB.setChecked(!b);
                 mSortType ="date";
                 onFilterChangedListener.OnSortTypeChanged(mSortType);
-            }
-        });
-
-        // Setup price filter
-        Spinner spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
-        ArrayAdapter<CharSequence> adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
-                R.array.price_array_filter_min, android.R.layout.simple_spinner_item);
-        adapterPriceMin.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMin.setAdapter(adapterPriceMin);
-        spinnerMin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                // TODO FIX CURRENCY
-                String minPriceString = (String) spinnerMin.getSelectedItem();
-                int minPrice;
-                String sPriceMin = minPriceString.replaceAll("[^0-9]", "");
-                if (sPriceMin.length()>1) {
-                    minPrice = Integer.parseInt(sPriceMin);
-                } else {
-                    minPrice = 0;
-                }
-                onFilterChangedListener.OnMinPriceChanged(minPrice);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                onFilterChangedListener.OnMinPriceChanged(0);
-            }
-        });
-
-        Spinner spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
-        ArrayAdapter<CharSequence> adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
-                R.array.price_array_filter_max, android.R.layout.simple_spinner_item);
-        adapterPriceMax.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMax.setAdapter(adapterPriceMax);
-        spinnerMax.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // TODO FIX CURRENCY
-                String maxPriceString = (String) spinnerMax.getSelectedItem();
-                int maxPrice;
-                String sPriceMax = maxPriceString.replaceAll("[^0-9]", "");
-                if (sPriceMax.length()>1) {
-                    maxPrice = Integer.parseInt(sPriceMax);
-                } else {
-                    maxPrice = 0;
-                }
-                onFilterChangedListener.OnMaxPriceChanged(maxPrice);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                onFilterChangedListener.OnMaxPriceChanged(100000);
             }
         });
 
@@ -145,64 +113,94 @@ public class SortAndFilterFragment extends DialogFragment {
             }
         });
 
-        // Set initial state of sort buttons
-        if (mSortType.equals("distance")) {
-            sortDistanceTB.setChecked(true);
-            sortDateTB.setChecked(false);
-        } else {
-            sortDistanceTB.setChecked(false);
-            sortDateTB.setChecked(true);
-        }
+        // Setup price filter
+        Spinner spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
+        ArrayAdapter<CharSequence> adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
+                R.array.price_array_filter_min, android.R.layout.simple_spinner_item);
+        adapterPriceMin.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMin.setAdapter(adapterPriceMin);
 
-        // Setup filter on distance group buttons
-        radioGroup = view.findViewById(R.id.filterDistanceRadioGroup);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        if (minPrice!=0) {
+            spinnerMin.setSelection(adapterPriceMin.getPosition(PRICES_STRINGS_SE.get(minPrice)));
+        }
+        spinnerMin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                int radioButtonID = radioGroup.getCheckedRadioButtonId();
-                switch (radioButtonID) {
-                    case R.id.distance1:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distance1);
-                        break;
-                    case R.id.distance2:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distance2);
-                        break;
-                    case R.id.distance3:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distance3);
-                        break;
-                    case R.id.distance4:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distance4);
-                        break;
-                    case R.id.distance5:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distance5);
-                        break;
-                    case R.id.distance6:
-                        mFilterDistance = getActivity().getResources().getInteger(R.integer.distanceMax);
-                        break;
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (minClicked!=0) {
+                    String minPriceString = (String) spinnerMin.getSelectedItem();
+                    onFilterChangedListener.OnMinPriceChanged(PRICES_INTEGERS_SE.get(minPriceString));
                 }
-                onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
+                minClicked++;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                onFilterChangedListener.OnMinPriceChanged(0);
+            }
+        });
+
+        Spinner spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
+        ArrayAdapter<CharSequence> adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
+                R.array.price_array_filter_max, android.R.layout.simple_spinner_item);
+        adapterPriceMax.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMax.setAdapter(adapterPriceMax);
+        spinnerMax.setSelection(adapterPriceMax.getPosition(PRICES_STRINGS_SE.get(maxPrice)));
+        spinnerMax.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (maxClicked!=0) {
+                    // TODO FIX CURRENCY
+                    String maxPriceString = (String) spinnerMax.getSelectedItem();
+                    onFilterChangedListener.OnMaxPriceChanged(PRICES_INTEGERS_SE.get(maxPriceString));
+                }
+
+                maxClicked++;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                onFilterChangedListener.OnMaxPriceChanged(PRICES_INTEGERS_SE.get("Max"));
             }
         });
 
         // Set initial state of filter buttons
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance1)) {
+        radioGroup = view.findViewById(R.id.filterDistanceRadioGroup);
+
+        RadioButton radioButton1 = (RadioButton) view.findViewById(R.id.distance1);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton1.getText())) {
             radioGroup.check(R.id.distance1);
         }
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance2)) {
+        RadioButton radioButton2 = (RadioButton) view.findViewById(R.id.distance2);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton2.getText())) {
             radioGroup.check(R.id.distance2);
         }
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance3)) {
+        RadioButton radioButton3 = (RadioButton) view.findViewById(R.id.distance3);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton3.getText())) {
             radioGroup.check(R.id.distance3);
         }
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance4)) {
+        RadioButton radioButton4 = (RadioButton) view.findViewById(R.id.distance4);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton4.getText())) {
             radioGroup.check(R.id.distance4);
         }
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distance5)) {
+        RadioButton radioButton5 = (RadioButton) view.findViewById(R.id.distance5);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton5.getText())) {
             radioGroup.check(R.id.distance5);
         }
-        if (mFilterDistance== getActivity().getResources().getInteger(R.integer.distanceMax)) {
+        RadioButton radioButton6 = (RadioButton) view.findViewById(R.id.distance6);
+        if (mFilterDistance == DISTANCE_INTEGERS_SE.get(radioButton6.getText())) {
             radioGroup.check(R.id.distance6);
         }
+
+        // Setup filter on distance group buttons
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                int radioButtonID = radioGroup.getCheckedRadioButtonId();
+                RadioButton radioButton = (RadioButton) view.findViewById(radioButtonID);
+                mFilterDistance = DISTANCE_INTEGERS_SE.get(radioButton.getText());
+                onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
+            }
+        });
 
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override

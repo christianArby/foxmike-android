@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="distance1">3</integer>
-    <integer name="distance2">8</integer>
-    <integer name="distance3">16</integer>
-    <integer name="distance4">40</integer>
-    <integer name="distance5">80</integer>
-    <integer name="distance6">150</integer>
-    <integer name="distanceMax">30000</integer>
 
     <integer name="card_flip_time_half">200</integer>
     <integer name="card_flip_time_full">400</integer>

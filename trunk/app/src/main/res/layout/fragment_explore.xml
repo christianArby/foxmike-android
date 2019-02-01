@@ -46,6 +46,78 @@
         android:layout_below="@id/barLayout">
     </com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/barLayout"
+        android:layout_marginTop="50dp"
+        android:paddingBottom="@dimen/marginVertical">
+
+        <TextView
+            android:id="@+id/filteredItem1"
+            android:visibility="gone"
+            android:elevation="8dp"
+            android:background="@drawable/small_filter_button"
+            android:drawableEnd="@mipmap/baseline_clear_black_18"
+            android:drawablePadding="@dimen/margin_minimum"
+            android:drawableTint="@color/secondaryTextColor"
+            android:paddingStart="@dimen/margin_minimum"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="test"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/marginVertical"/>
+
+        <TextView
+            android:id="@+id/filteredItem2"
+            android:visibility="gone"
+            android:elevation="8dp"
+            android:background="@drawable/small_filter_button"
+            android:drawableEnd="@mipmap/baseline_clear_black_18"
+            android:drawablePadding="@dimen/margin_minimum"
+            android:drawableTint="@color/secondaryTextColor"
+            android:paddingStart="@dimen/margin_minimum"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="test"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_below="@+id/filteredItem1"/>
+
+        <TextView
+            android:id="@+id/filteredItem3"
+            android:visibility="gone"
+            android:elevation="8dp"
+            android:background="@drawable/small_filter_button"
+            android:drawableEnd="@mipmap/baseline_clear_black_18"
+            android:drawablePadding="@dimen/margin_minimum"
+            android:drawableTint="@color/secondaryTextColor"
+            android:paddingStart="@dimen/margin_minimum"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="test"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_below="@+id/filteredItem2"/>
+
+
+
+    </RelativeLayout>
+
+
+
     <android.support.design.widget.FloatingActionButton
         app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/white"
