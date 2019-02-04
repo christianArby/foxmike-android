@@ -26,7 +26,6 @@ import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.CreateOrEditSessionFragment;
-import com.foxmike.android.fragments.DisplayAdvertisementFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
@@ -38,7 +37,6 @@ import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
-import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -53,6 +51,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.utils.CheckVersion;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -85,7 +84,6 @@ public class MainHostActivity extends AppCompatActivity implements
         MapsFragment.OnLocationPickedListener,
         OnCreateSessionClickedListener,
         OnAdvertisementsFoundListener,
-        OnAdvertisementClickedListener,
         AdvertisementListener,
         NotificationsFragment.OnNotificationClickedListener {
 
@@ -93,7 +91,6 @@ public class MainHostActivity extends AppCompatActivity implements
     private UserAccountHostFragment hostUserAccountFragment;
     private MapsFragment hostMapsFragment;
     private DisplaySessionFragment hostDisplaySessionFragment;
-    private DisplayAdvertisementFragment displayAdvertisementFragment;
     private InboxFragment hostInboxFragment;
     private HostSessionsFragment hostSessionsFragment;
     private UserProfileFragment hostUserProfileFragment;
@@ -471,6 +468,7 @@ public class MainHostActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         resumed = true;
+        CheckVersion.checkVersion(this);
     }
 
     @Override
@@ -500,12 +498,6 @@ public class MainHostActivity extends AppCompatActivity implements
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-    }
-
-    @Override
-    public void OnAdvertisementClicked(String advertisementId) {
-        displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(advertisementId);
-        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "");
     }
 
     @Override

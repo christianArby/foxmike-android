@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
-import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
+import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -24,7 +24,7 @@ import com.google.firebase.database.Query;
 
 public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
 
-    private OnAdvertisementClickedListener onAdvertisementClickedListener;
+    private OnSessionClickedListener onSessionClickedListener;
     private RecyclerView smallAdvertisementsListRV;
     private TextView noContent;
     private ListSmallAdvertisementsFirebaseAdapter bookedAdvertisementsFirebaseAdapter;
@@ -56,7 +56,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onAdvertisementClickedListener);
+        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onSessionClickedListener);
 
         bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -110,18 +110,18 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnAdvertisementClickedListener) {
-            onAdvertisementClickedListener = (OnAdvertisementClickedListener) context;
+        if (context instanceof OnSessionClickedListener) {
+            onSessionClickedListener = (OnSessionClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnAdvertisementClickedListener");
+                    + " must implement OnSessionClickedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onAdvertisementClickedListener = null;
+        onSessionClickedListener = null;
     }
 
 }

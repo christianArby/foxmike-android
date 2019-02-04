@@ -177,7 +177,7 @@ public class MyFirebaseDatabase extends Service {
 
     public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, int minPrice, int maxPrice, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
         // sessionArray will be an array of the near sessions filtered
-        ArrayList<Session> sessionsFiltered = new ArrayList<>();
+        HashMap<String, Session> sessionsFiltered = new HashMap<>();
         ArrayList<Advertisement> advertisementsFiltered = new ArrayList<>();
         // save the current time in a timestamp to compare with the advertisement timestamps
         Long currentTimestamp = System.currentTimeMillis();
@@ -198,7 +198,7 @@ public class MyFirebaseDatabase extends Service {
                                     advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                     // if this session hasn't already been saved to sessionArray save it
                                     if (!sessionAdded) {
-                                        sessionsFiltered.add(nearSession);
+                                        sessionsFiltered.put(nearSession.getSessionId(), nearSession);
                                         sessionAdded = true;
                                     }
                                 }
@@ -213,7 +213,7 @@ public class MyFirebaseDatabase extends Service {
                                     advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                     // if this session hasn't already been saved to sessionArray save it
                                     if (!sessionAdded) {
-                                        sessionsFiltered.add(nearSession);
+                                        sessionsFiltered.put(nearSession.getSessionId(), nearSession);
                                         sessionAdded = true;
                                     }
                                 }

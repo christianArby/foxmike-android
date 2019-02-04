@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
+import com.foxmike.android.utils.CheckVersion;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -50,5 +51,11 @@ public class AboutActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CheckVersion.checkVersion(this);
     }
 }

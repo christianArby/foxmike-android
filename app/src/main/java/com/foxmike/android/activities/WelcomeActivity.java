@@ -29,6 +29,7 @@ import com.foxmike.android.fragments.LinkWithFacebookFragment;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.AddUserToDatabase;
+import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -431,5 +432,11 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CheckVersion.checkVersion(this);
     }
 }

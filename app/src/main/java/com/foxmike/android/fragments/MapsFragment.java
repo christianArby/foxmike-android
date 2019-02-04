@@ -56,6 +56,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -92,7 +93,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private Marker selectedMarker;
     int horizontalSessionHeight = 0;
     private int currentSessionInt = 0;
-    private ArrayList<Session> nearSessions = new ArrayList<>();
+    private HashMap<String, Session> nearSessions = new HashMap<>();
     private int leftMargin;
     private boolean nearSessionsLoaded;
     private boolean nearSessionsUsed;
@@ -348,7 +349,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(ArrayList<Session> nearSessions) {
+    public void addMarkersToMap(HashMap<String, Session> nearSessions) {
         this.nearSessions = nearSessions;
         nearSessionsLoaded = true;
         nearSessionsUsed = false;
@@ -393,7 +394,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
             if (nearSessions.size()>0) {
                 // Add markers the map
-                for (Session session : nearSessions) {
+                for (Session session : nearSessions.values()) {
                     LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
                     //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
                     Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));

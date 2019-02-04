@@ -2,13 +2,13 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +23,7 @@ import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.fragments.UpdateStripeExternalAccountFragment;
 import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
+import com.foxmike.android.utils.CheckVersion;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -236,5 +237,11 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
         Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
         startActivity(refresh);
         this.finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CheckVersion.checkVersion(this);
     }
 }

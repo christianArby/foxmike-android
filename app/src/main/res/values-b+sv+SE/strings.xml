@@ -242,7 +242,7 @@
     <string name="meet_your_session_leader">Möt din passledare,</string>
     <string name="upcoming_advertisements">Kommande annonser</string>
     <string name="date_text">Datum</string>
-    <string name="distance_word">Distans</string>
+    <string name="distance_word">Avstånd till pass</string>
     <string name="switch_to_participant_mode_text">Byt till deltagarläge</string>
     <string name="switch_to_host_mode_text">Byt till tränarläge</string>
     <string name="hint_enter_message">Skriv meddelande ...</string>

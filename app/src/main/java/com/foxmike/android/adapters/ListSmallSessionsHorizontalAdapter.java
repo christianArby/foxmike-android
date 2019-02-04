@@ -21,6 +21,7 @@ import com.foxmike.android.utils.TextTimestamp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,13 +31,15 @@ import java.util.Locale;
 
 public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<ListSmallSessionsHorizontalAdapter.ListSmallSessionsHorizontalViewholder> {
 
+    private HashMap<String, Session> sessionHashMap;
     private ArrayList<Session> sessionArrayList;
     private Context context;
     private OnSessionClickedListener onSessionClickedListener;
     private Location lastLocation;
 
-    public ListSmallSessionsHorizontalAdapter(ArrayList<Session> sessionArrayList, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation) {
-        this.sessionArrayList = sessionArrayList;
+    public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation) {
+        this.sessionHashMap = sessionHashMap;
+        this.sessionArrayList = new ArrayList<>(sessionHashMap.values());
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
         this.lastLocation = lastLocation;
@@ -83,9 +86,9 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
 
 
 
-        String address = getAddress(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude());
+        String address = getAddress(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude());
         holder.setText3(address);
-        String distance = getDistance(sessionArrayList.get(position).getLatitude(),sessionArrayList.get(position).getLongitude(), lastLocation);
+        String distance = getDistance(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude(), lastLocation);
         holder.setText4(" \u2022 " + distance);
         holder.setSessionImage(sessionArrayList.get(position).getImageUrl());
         holder.setSessionClickedListener(sessionArrayList.get(position).getSessionId());
@@ -145,8 +148,9 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         }
     }
 
-    public void refreshData(ArrayList<Session> sessions) {
-        this.sessionArrayList = sessions;
+    public void refreshData(HashMap<String, Session> sessions) {
+        this.sessionHashMap = sessions;
+        this.sessionArrayList = new ArrayList<>(sessions.values());
         this.notifyDataSetChanged();
     }
 
