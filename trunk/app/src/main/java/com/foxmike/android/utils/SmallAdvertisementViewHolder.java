@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
-import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 
 /**
  * Created by chris on 2018-09-22.
@@ -22,8 +21,6 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public TextView text1TV;
     public TextView text2TV;
     public TextView cancelledTV;
-
-    public OnAdvertisementClickedListener onAdvertisementClickedListener;
 
 
     public SmallAdvertisementViewHolder(View itemView) {

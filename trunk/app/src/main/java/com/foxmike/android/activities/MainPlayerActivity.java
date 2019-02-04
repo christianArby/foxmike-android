@@ -32,7 +32,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.DisplayAdvertisementFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
@@ -47,7 +46,6 @@ import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
-import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -63,6 +61,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.utils.CheckVersion;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -102,7 +101,8 @@ public class MainPlayerActivity extends AppCompatActivity
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
-        MapsFragment.OnLocationPickedListener, OnAdvertisementClickedListener,OnAdvertisementsFoundListener,
+        MapsFragment.OnLocationPickedListener,
+        OnAdvertisementsFoundListener,
         AdvertisementListener,
         ListSessionsFragment.OnRefreshSessionsListener,
         ListSessionsFragment.OnListSessionsScrollListener,
@@ -116,7 +116,6 @@ public class MainPlayerActivity extends AppCompatActivity
     private UserProfileFragment userProfileFragment;
     private PlayerSessionsFragment playerSessionsFragment;
     private DisplaySessionFragment displaySessionFragment;
-    private DisplayAdvertisementFragment displayAdvertisementFragment;
     private InboxFragment inboxFragment;
     private UserProfilePublicFragment userProfilePublicFragment;
     private UserProfilePublicEditFragment userProfilePublicEditFragment;
@@ -607,12 +606,6 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnAdvertisementClicked(String advertisementId) {
-        displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(advertisementId);
-        cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
-    }
-
-    @Override
     public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
 
     }
@@ -688,6 +681,7 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         resumed=true;
+        CheckVersion.checkVersion(this);
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -753,21 +747,9 @@ public class MainPlayerActivity extends AppCompatActivity
             displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
-        if (foxmikeNotification.getType().equals("advertisementPost")) {
-            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
-            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
-        }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
             displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
-        }
-        if (foxmikeNotification.getType().equals("advertisementPostComment")) {
-            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
-            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
-        }
-        if (foxmikeNotification.getType().equals("advertisementParticipant")) {
-            displayAdvertisementFragment = DisplayAdvertisementFragment.newInstance(foxmikeNotification.getSourceId());
-            cleanMainFullscreenActivityAndSwitch(displayAdvertisementFragment, true, "ad");
         }
     }
 

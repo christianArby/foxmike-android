@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.fragments;
 // Checked
 
@@ -78,9 +79,11 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.Consumer;
 
+*/
 /**
  * This fragment takes a longitude and latitude and displays the corresponding session with that longitude and latitude.
- */
+ *//*
+
 public class DisplayAdvertisementFragment extends Fragment implements OnMapReadyCallback {
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -281,10 +284,12 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     }
 
     private void getAdvertisementHost() {
-        /*
+        */
+/*
             Get the host image from the database (found under users with the userID=session.host)
-            */
-        rootDbRef.child("usersPublic").child(advertisement.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
+            *//*
+
+        rootDbRef.child("usersPublic").child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 host = dataSnapshot.getValue(User.class);
@@ -594,9 +599,11 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             priceTV.setText(priceText);
 
             // ----------- EDIT SESSION -----------------------------------------------------
-            /**
+            */
+/**
              If the current user is the session host change the button text to "Edit session"
-             */
+             *//*
+
             if (advertisement.getHost().equals(currentFirebaseUser.getUid())) {
                 mManageBookingTV.setText(R.string.cancel_occasion);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
@@ -652,17 +659,21 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             mManageBooking.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                /*
+                */
+/*
                 If  session host equals current user (button will display edit session) start CreateOrEditSessionActivity when button is clicked
                 and send the session key to that activity as bundle.
-                */
+                *//*
+
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
                         advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementName(), advertisement.getAdvertisementId(), advertisement.getImageUrl(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getParticipantsIds(), session.getStripeAccountId());
                     }
-                /*
+                */
+/*
                  Else if current user is a participant in the session (button will display cancel booking) and button is clicked
                 remove the current user from that session participant list and go back to main activity.
-                */
+                *//*
+
                     else if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
                         sessionListener.OnCancelBookedSession(advertisement.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),advertisement.getAdvertisementTimestamp(),advertisementId,currentFirebaseUser.getUid(),advertisement.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                     }
@@ -991,4 +1002,4 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
     public interface OnUsersLoadedListener{
         void OnUsersLoaded(UserPublic user);
     }
-}
+}*/

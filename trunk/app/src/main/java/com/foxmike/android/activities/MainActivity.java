@@ -1,19 +1,19 @@
 package com.foxmike.android.activities;
 //Checked
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
-import com.foxmike.android.utils.MyFirebaseDatabase;
-import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.models.User;
+import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -116,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         deviceToken = FirebaseInstanceId.getInstance().getToken();
         final FirebaseUser currentUser = mAuth.getCurrentUser();
+        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         if (currentUser!=null) {
             // User is signed in
-            final DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
             rootDbRef.child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

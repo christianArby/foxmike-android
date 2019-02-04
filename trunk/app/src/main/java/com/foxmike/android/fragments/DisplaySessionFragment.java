@@ -46,8 +46,8 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
+import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
-import com.foxmike.android.interfaces.OnAdvertisementClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
@@ -141,7 +141,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private User currentUser;
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
-    private OnAdvertisementClickedListener onAdvertisementClickedListener;
     private OnUserClickedListener onUserClickedListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
@@ -197,6 +196,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView noSnackAdTV;
     HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     private long nrOfPosts;
+    private AdvertisementListener advertisementListener;
+    private TextView mAddress;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -624,6 +625,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         displaySessionSV = view.findViewById(R.id.displaySessionSV);
         rootLayout = view.findViewById(R.id.rootLayout);
         noSnackAdTV = view.findViewById(R.id.noSnackAdTV);
+        mAddress = displaySession.findViewById(R.id.addressTV);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -761,6 +763,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
             sessionAndViewUsed = true;
 
+            String address = getAddress(session.getLatitude(),session.getLongitude());
+            mAddress.setText(address);
+
             setupAds();
 
             if (session.getHost().equals(currentFirebaseUser.getUid())) {
@@ -892,7 +897,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     mDisplaySessionBtn.setVisibility(View.VISIBLE);
                     snackNoUpcomingAds.setVisibility(View.GONE);
                     mDisplaySessionBtn.setEnabled(true);
-                    mDisplaySessionBtn.setText(R.string.show_occasion);
+                    mDisplaySessionBtn.setText(R.string.cancel_occasion);
                     mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
 
                 } else {
@@ -944,7 +949,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             addPaymentMethodTV.setVisibility(View.GONE);
                             mDisplaySessionBtn.setVisibility(View.VISIBLE);
                             snackNoUpcomingAds.setVisibility(View.GONE);
-                            mDisplaySessionBtn.setText(R.string.show_booking);
+                            mDisplaySessionBtn.setText(R.string.cancel_booking);
                         }
                     }
                 }
@@ -1005,10 +1010,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     // If the current user isn´t the host of the session
                     if (!session.getHost().equals(currentFirebaseUser.getUid())) {
-                        // If the current user is a participant and already booked this session, button will display show booking and click will send user to advertisement
+                        // If the current user is a participant and already booked this session, button will display cancel booking and click will start cancellation method
                         if (adSelected.getParticipantsIds()!=null) {
                             if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                                onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
+                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(),adSelected.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                                 return;
                             }
                         }
@@ -1040,9 +1045,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText());
                         }
                     }
-                    // If the current user is the session host, send the user to the currently selected advertisement
+                    // If the current user is the session host, button will show cancel session, if clicked start cancellation process
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        onAdvertisementClickedListener.OnAdvertisementClicked(adSelected.getAdvertisementId());
+                        advertisementListener.OnCancelAdvertisement(session.getSessionName(), adSelected.getAdvertisementId(), session.getImageUrl(), adSelected.getSessionId(), adSelected.getAdvertisementTimestamp(), adSelected.getParticipantsIds(), session.getStripeAccountId());
                     }
                 }
             });
@@ -1326,28 +1331,28 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             throw new RuntimeException(context.toString()
                     + " must implement OnUserAccountFragmentInteractionListener");
         }
-        if (context instanceof OnAdvertisementClickedListener) {
-            onAdvertisementClickedListener = (OnAdvertisementClickedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnAdvertisementClickedListener");
-        }
         if (context instanceof OnUserClickedListener) {
             onUserClickedListener = (OnUserClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnUserClickedListener");
         }
+        if (context instanceof AdvertisementListener) {
+            advertisementListener = (AdvertisementListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement AdvertisementListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onAdvertisementClickedListener = null;
         onCommentClickedListener = null;
         onUserAccountFragmentInteractionListener = null;
         sessionListener = null;
         onUserClickedListener = null;
+        advertisementListener = null;
     }
 
     @Override

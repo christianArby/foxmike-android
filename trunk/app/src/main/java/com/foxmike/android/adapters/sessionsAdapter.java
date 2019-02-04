@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.maps.model.LatLng;
@@ -28,6 +29,7 @@ import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,20 +39,23 @@ import java.util.Locale;
 public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface {
 
     private ArrayList<Advertisement> advertisements;
+    private HashMap<String, Session> sessions;
     private final Context context;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
 
-    public sessionsAdapter(ArrayList<Advertisement> advertisements, Context context, Location currentLocation, final OnSessionClickedListener onSessionClickedListener) {
+    public sessionsAdapter(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements, Context context, Location currentLocation, final OnSessionClickedListener onSessionClickedListener) {
+        this.sessions = sessions;
         this.advertisements = advertisements;
         this.context = context;
         this.currentLocation=currentLocation;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
-    public void refreshData(ArrayList<Advertisement> advertisements, Location currentLocation) {
+    public void refreshData(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements, Location currentLocation) {
+        this.sessions = sessions;
         this.advertisements = advertisements;
-        this.currentLocation=currentLocation;
+        this.currentLocation= currentLocation;
         this.notifyDataSetChanged();
     }
 
@@ -84,6 +89,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         /**Get the current session inflated in the sessionViewHolder from the session arraylist" */
         final Advertisement advertisement = advertisements.get(position);
+        Session session = sessions.get(advertisements.get(position).getSessionId());
 
         if (advertisement.getImageUrl().equals("dateHeader")) {
             DateTime currentTime = DateTime.now();
@@ -105,13 +111,13 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
 
             /**Fill the cardview with information of the session" */
-            final LatLng sessionLatLng = new LatLng(advertisement.getLatitude(), advertisement.getLongitude());
-            String address = getAddress(advertisement.getLatitude(),advertisement.getLongitude())+"  |  "+getDistance(advertisement.getLatitude(),advertisement.getLongitude(), currentLocation);
-            ((SessionViewHolder) holder).setTitle(advertisement.getAdvertisementName());
-            ((SessionViewHolder) holder).setDesc(advertisement.getSessionType());
-            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDate(advertisement.getAdvertisementTimestamp()));
+            final LatLng sessionLatLng = new LatLng(session.getLatitude(), session.getLongitude());
+            String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), currentLocation);
+            ((SessionViewHolder) holder).setTitle(session.getSessionName());
+            ((SessionViewHolder) holder).setDesc(session.getSessionType());
+            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
             ((SessionViewHolder) holder).setAddress(address);
-            ((SessionViewHolder) holder).setImage(this.context,advertisement.getImageUrl());
+            ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
             if (position > 0 && !advertisements.get(position-1).getImageUrl().equals("dateHeader")) {
                 ((SessionViewHolder) holder).setMargin();

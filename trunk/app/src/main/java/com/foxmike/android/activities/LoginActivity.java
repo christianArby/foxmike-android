@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.PasswordResetFragment;
+import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -173,5 +174,11 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CheckVersion.checkVersion(this);
     }
 }

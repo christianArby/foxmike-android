@@ -18,9 +18,12 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.sessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.HeaderItemDecoration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * This fragment creates a list of sessions based on an arraylist of session objects given as arguments. It also
  * uses an location object in order to sort the sessions on distance from user
@@ -36,6 +39,7 @@ public class  ListSessionsFragment extends Fragment {
     private OnListSessionsScrollListener onListSessionsScrollListener;
     private TextView noSessionsFound;
     private ArrayList<Advertisement> advertisements;
+    private HashMap<String, Session> sessions;
     private boolean sessionsLoaded;
     private Location location;
     private boolean locationLoaded;
@@ -123,10 +127,10 @@ public class  ListSessionsFragment extends Fragment {
 
             if (sessionsAdapter!=null) {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter.refreshData(advertisements, location);
+                sessionsAdapter.refreshData(sessions, advertisements, location);
             } else {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new sessionsAdapter(advertisements, getActivity(), location, onSessionClickedListener);
+                sessionsAdapter = new sessionsAdapter(sessions, advertisements, getActivity(), location, onSessionClickedListener);
                 if (mSessionList!=null) {
                     HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
                     mSessionList.addItemDecoration(headerItemDecoration);
@@ -143,8 +147,8 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     // Function to refresh data in sessionsAdapter
-    public void updateSessionListView(ArrayList<Advertisement> advertisements, Location location) {
-
+    public void updateSessionListView(HashMap<String, Session> sessions ,ArrayList<Advertisement> advertisements, Location location) {
+        this.sessions = sessions;
         this.advertisements = advertisements;
         this.location = location;
         sessionsLoaded = true;

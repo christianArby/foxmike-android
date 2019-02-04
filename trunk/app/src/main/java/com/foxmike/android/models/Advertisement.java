@@ -14,44 +14,29 @@ import java.util.HashMap;
 public class Advertisement implements Comparable<Advertisement> {
     private String status;
     private String sessionId;
+    private String sessionName;
+    private String imageUrl;
     private String advertisementId;
-    private String host;
-    private String advertisementName;
-    private String sessionType;
     private String maxParticipants;
-    private double latitude;
-    private double longitude;
     private HashMap<String,String> participantsIds;
     private HashMap<String,Long> participantsTimestamps;
-    private String imageUrl;
-    private String what;
-    private String who;
-    private String whereAt;
     private int durationInMin;
     private String currency;
     private long advertisementTimestamp;
     private int price;
 
-
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String advertisementId, String host, String advertisementName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
+        this.sessionName = sessionName;
+        this.imageUrl = imageUrl;
         this.advertisementId = advertisementId;
-        this.host = host;
-        this.advertisementName = advertisementName;
-        this.sessionType = sessionType;
         this.maxParticipants = maxParticipants;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.participantsIds = participantsIds;
         this.participantsTimestamps = participantsTimestamps;
-        this.imageUrl = imageUrl;
-        this.what = what;
-        this.who = who;
-        this.whereAt = whereAt;
         this.durationInMin = durationInMin;
         this.currency = currency;
         this.advertisementTimestamp = advertisementTimestamp;
@@ -64,46 +49,6 @@ public class Advertisement implements Comparable<Advertisement> {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getWhat() {
-        return what;
-    }
-
-    public void setWhat(String what) {
-        this.what = what;
-    }
-
-    public String getWho() {
-        return who;
-    }
-
-    public void setWho(String who) {
-        this.who = who;
-    }
-
-    public String getWhereAt() {
-        return whereAt;
-    }
-
-    public void setWhereAt(String whereAt) {
-        this.whereAt = whereAt;
     }
 
     public int getDurationInMin() {
@@ -122,13 +67,6 @@ public class Advertisement implements Comparable<Advertisement> {
         this.sessionId = sessionId;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
 
     public String getAdvertisementId() {
         return advertisementId;
@@ -138,12 +76,12 @@ public class Advertisement implements Comparable<Advertisement> {
         this.advertisementId = advertisementId;
     }
 
-    public String getAdvertisementName() {
-        return advertisementName;
+    public String getSessionName() {
+        return sessionName;
     }
 
-    public void setAdvertisementName(String advertisementName) {
-        this.advertisementName = advertisementName;
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
     }
 
     public String getImageUrl() {
@@ -154,12 +92,8 @@ public class Advertisement implements Comparable<Advertisement> {
         this.imageUrl = imageUrl;
     }
 
-    public String getSessionType() {
-        return sessionType;
-    }
-
-    public void setSessionType(String sessionType) {
-        this.sessionType = sessionType;
+    public void setDurationInMin(int durationInMin) {
+        this.durationInMin = durationInMin;
     }
 
     public HashMap<String, String> getParticipantsIds() {

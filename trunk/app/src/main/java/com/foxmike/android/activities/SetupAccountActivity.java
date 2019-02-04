@@ -17,6 +17,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
+import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.google.android.gms.tasks.Continuation;
@@ -239,5 +240,11 @@ public class SetupAccountActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CheckVersion.checkVersion(this);
     }
 }
