@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
+import com.foxmike.android.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,7 +34,7 @@ public class CheckVersion {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()!=null) {
                         if ((Long) dataSnapshot.getValue()>verCode) {
-                            alertDialogs.alertDialogOk("Update needed", "Your version is out of date, please update on Google Play Store.", new AlertDialogs.OnOkPressedListener() {
+                            alertDialogs.alertDialogOk(context.getString(R.string.update_text_1), context.getString(R.string.update_text_2) + version + "." + context.getString(R.string.update_text_3), new AlertDialogs.OnOkPressedListener() {
                                 @Override
                                 public void OnOkPressed() {
                                     Intent homeIntent = new Intent(Intent.ACTION_MAIN);

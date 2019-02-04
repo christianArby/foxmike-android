@@ -520,4 +520,7 @@
     <string name="distance_colon">Distance:\u0020</string>
     <string name="min_price_colon">Min price:\u0020</string>
     <string name="max_price_colon">Max price:\u0020</string>
+    <string name="update_text_1">Update needed</string>
+    <string name="update_text_2">Your version is out of date, please update on Google Play Store. You need a newer version than\u0020</string>
+    <string name="update_text_3">"\n""\n"Please  note that sometimes Google Play Store takes some time to provide the necessary update</string>
 </resources>
