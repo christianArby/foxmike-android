@@ -82,8 +82,12 @@ public class Session implements Comparable<Session>, Serializable {
     }
 
     public HashMap<String, Long> getAdvertisements() {
+        if (this.advertisements==null) {
+            advertisements = new HashMap<String, Long>();
+        }
         return advertisements;
     }
+
 
     public void setAdvertisements(HashMap<String, Long> advertisements) {
         this.advertisements = advertisements;
