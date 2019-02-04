@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class Advertisement implements Comparable<Advertisement> {
     private String status;
     private String sessionId;
+    private String host;
     private String sessionName;
     private String imageUrl;
     private String advertisementId;
@@ -28,9 +29,10 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, String> participantsIds, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
+        this.host = host;
         this.sessionName = sessionName;
         this.imageUrl = imageUrl;
         this.advertisementId = advertisementId;
@@ -67,6 +69,13 @@ public class Advertisement implements Comparable<Advertisement> {
         this.sessionId = sessionId;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
 
     public String getAdvertisementId() {
         return advertisementId;
