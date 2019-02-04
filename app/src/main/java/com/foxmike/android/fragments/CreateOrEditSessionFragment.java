@@ -874,6 +874,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             String advertisementKey = rootDbRef.child("advertisements").push().getKey();
             Advertisement advertisement = new Advertisement("active",
                     (String) sendSession.get("sessionId"),
+                    (String) sendSession.get("host"),
                     (String) sendSession.get("sessionName"),
                     (String) sendSession.get("imageUrl"),
                     advertisementKey,

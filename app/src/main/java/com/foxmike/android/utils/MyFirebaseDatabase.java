@@ -293,26 +293,22 @@ public class MyFirebaseDatabase extends Service {
                                     DateTime currentTime = new DateTime(currentTimestamp);
 
                                     // Download all the near sessions
-                                    if (sessionDistances.size()>0) {
-                                        for (String sessionId : sessionDistances.keySet()) {
+                                    for (String sessionId : sessionDistances.keySet()) {
 
-                                            TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
-                                            Task dbTask = dbSource.getTask();
-                                            DatabaseReference ref = dbRef.child("sessions").child(sessionId);
-                                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    dbSource.setResult(dataSnapshot);
-                                                }
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-                                                    dbSource.setException(databaseError.toException());
-                                                }
-                                            });
-                                            sessionTasks.add(dbTask);
-                                        }
-                                    } else {
-                                        onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
+                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                        Task dbTask = dbSource.getTask();
+                                        DatabaseReference ref = dbRef.child("sessions").child(sessionId);
+                                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                dbSource.setResult(dataSnapshot);
+                                            }
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                dbSource.setException(databaseError.toException());
+                                            }
+                                        });
+                                        sessionTasks.add(dbTask);
                                     }
 
 
@@ -345,8 +341,6 @@ public class MyFirebaseDatabase extends Service {
                                                                 advertisementTasks.add(dbTask);
                                                             }
                                                         }
-                                                    } else {
-                                                        onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
                                                     }
 
                                                 }

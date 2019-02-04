@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -110,6 +111,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadChats = 0;
     private int unreadNotifications = 0;
     private int unreadFriendRequests = 0;
+    private long mLastClickTime = 0;
 
 
     @Override
@@ -278,13 +280,22 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnSessionClicked(String sessionId) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
     }
 
     @Override
     public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
-        // Not applicable in host environment
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
     @Override
