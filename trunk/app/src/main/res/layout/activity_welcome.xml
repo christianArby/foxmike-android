@@ -5,8 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background_light"
     tools:context="com.foxmike.android.activities.WelcomeActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/background_welcome_foxmike"/>
 
     <ImageView
         android:id="@+id/foxmikeIcon"
@@ -14,7 +19,7 @@
         android:layout_height="80dp"
         android:layout_marginTop="60dp"
         android:layout_marginStart="@dimen/margin_left"
-        android:src="@drawable/foxmike_icon_transparent"
+        android:src="@drawable/foxmike_icon_transparent_white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -22,7 +27,7 @@
         android:id="@+id/loginTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/foxmikePrimaryColor"
+        android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:text="@string/login_text"
         android:padding="@dimen/marginVertical"
@@ -36,7 +41,7 @@
         android:padding="@dimen/margin_left"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:text="@string/welcome_to_foxmike_text"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/secondaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/foxmikeIcon"/>
 
@@ -84,7 +89,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="versionName"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:layout_constraintTop_toBottomOf="@id/createAccountBtn"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +104,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginBottom="@dimen/marginVertical"
         android:layout_marginEnd="70dp"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
