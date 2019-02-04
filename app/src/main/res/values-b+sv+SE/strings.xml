@@ -501,6 +501,9 @@
     <string name="distance_colon">Avstånd:\u0020</string>
     <string name="min_price_colon">Min pris:\u0020</string>
     <string name="max_price_colon">Max pris:\u0020</string>
+    <string name="update_text_1">Uppdatera appen</string>
+    <string name="update_text_2">Din version av appen är för gammal. Uppdatera appen på Google Play Butik. Du behöver en nyare version än\u0020</string>
+    <string name="update_text_3">"\n""\n"Observera att det kan ta ett tag innan Google Play Butik tillhandahåller den nödvändiga uppdateringen.</string>
 
 
 </resources>
