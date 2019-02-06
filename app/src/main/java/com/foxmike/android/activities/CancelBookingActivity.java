@@ -17,7 +17,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 
 import org.joda.time.DateTime;
@@ -57,121 +56,57 @@ public class CancelBookingActivity extends AppCompatActivity {
         chargeId = getIntent().getStringExtra("chargeId");
         accountId = getIntent().getStringExtra("accountId");
 
-        if (chargeId.equals("FREE")) {
-            cancelWithoutRefund();
-        } else {
-            getTimestamp().addOnCompleteListener(new OnCompleteListener<Long>() {
-                @Override
-                public void onComplete(@NonNull Task<Long> task) {
-                    // If not succesful, show error
-                    if (!task.isSuccessful()) {
-                        Exception e = task.getException();
-                        if (e instanceof FirebaseFunctionsException) {
-                            FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                        }
-                        Log.w("CancelActivity", "getTimestamp:onFailure", e);
-                        return;
-                    }
-                    progressBarHorizontal.setProgress(40);
-                    Long currentTimestamp = task.getResult();
-                    tryRefund(currentTimestamp);
-                }
-            });
-        }
+        Long currentTimestamp = System.currentTimeMillis();
+        tryRefund(currentTimestamp);
     }
 
     private void tryRefund(Long currentTimestamp) {
-
         // TODO CHECK SO THAT TIMESTAMP IS NOT LOCAL
-
         DateTime currentTime = new DateTime(currentTimestamp);
         DateTime sessionTime = new DateTime(advertisementTimestamp);
         DateTime bookedTime = new DateTime(bookingTimestamp);
         Duration durationCurrentToSession = new Duration(currentTime, sessionTime);
         Duration durationBookedToCurrent = new Duration(bookedTime, currentTime);
-
         if (currentTimestamp> advertisementTimestamp) {
             alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed));
             return;
         }
-
-        if (durationCurrentToSession.getStandardHours()<6 && durationBookedToCurrent.getStandardMinutes()>30) {
-            alertDialogCancelWithoutRefund(getString(R.string.refund_not_possible), getString(R.string.session_is_too_close_to_refund));
-            return;
+        if (!chargeId.equals("FREE")) {
+            if (durationCurrentToSession.getStandardHours()<6 && durationBookedToCurrent.getStandardMinutes()>30) {
+                alertDialogCancelWithoutRefund(getString(R.string.refund_not_possible), getString(R.string.session_is_too_close_to_refund));
+                return;
+            }
         }
 
-        HashMap<String,Object> refundMap = new HashMap<>();
-        refundMap.put("chargeId", chargeId);
-        refundMap.put("accountId", accountId);
-        refundMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        refundMap.put("advertisementId", advertisementId);
-        refundMap.put("hostCancellation", "false");
+        HashMap<String,Object> cancelMap = new HashMap<>();
+        cancelMap.put("chargeId", chargeId);
+        cancelMap.put("accountId", accountId);
+        cancelMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        cancelMap.put("advertisementId", advertisementId);
+        cancelMap.put("hostCancellation", "false");
 
-
-        refundCharge(refundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+        cancelBooking(cancelMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override
             public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-
                 if (!task.isSuccessful()) {
                     Exception e = task.getException();
                     progressBarHorizontal.setProgress(100);
-                    // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
                     Toast.makeText(CancelBookingActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
                     return;
-                    // [END_EXCLUDE]
                 }
-
                 progressBarHorizontal.setProgress(80);
-
                 // If successful, extract
                 HashMap<String, Object> result = task.getResult();
-
                 if (result.get("operationResult").toString().equals("success")) {
                     progressBarHorizontal.setProgress(100);
-                    Map<String,Object> refund = (Map) result.get("refund");
-                    Integer amount = (Integer) refund.get("amount");
-                    alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + amount/100 + " " + refund.get("currency"));
-                } else {
-                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
-                    Toast.makeText(CancelBookingActivity.this, error.get("message").toString(), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-    }
-
-    private void cancelWithoutRefund() {
-
-        HashMap<String,Object> noRefundMap = new HashMap<>();
-        noRefundMap.put("chargeId", chargeId);
-        noRefundMap.put("accountId", accountId);
-        noRefundMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        noRefundMap.put("advertisementId", advertisementId);
-        noRefundMap.put("hostCancellation", "false");
-
-
-        cancelWithoutRefund(noRefundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-            @Override
-            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-
-                if (!task.isSuccessful()) {
-                    Exception e = task.getException();
-                    progressBarHorizontal.setProgress(100);
-                    // [START_EXCLUDE]
-                    Log.w(TAG, "retrieve:onFailure", e);
-                    Toast.makeText(CancelBookingActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
-                    return;
-                    // [END_EXCLUDE]
-                }
-
-                progressBarHorizontal.setProgress(80);
-
-                // If successful, extract
-                HashMap<String, Object> result = task.getResult();
-
-                if (result.get("operationResult").toString().equals("success")) {
-                    progressBarHorizontal.setProgress(100);
-                    alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.cancelled_free_session));
+                    if (result.get("operationType").toString().equals("REFUND")) {
+                        Map<String,Object> refund = (Map) result.get("refund");
+                        Integer amount = (Integer) refund.get("amount");
+                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + amount/100 + " " + refund.get("currency"));
+                    } else {
+                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.cancelled_free_session));
+                    }
                 } else {
                     HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
                     Toast.makeText(CancelBookingActivity.this, error.get("message").toString(), Toast.LENGTH_LONG).show();
@@ -182,31 +117,23 @@ public class CancelBookingActivity extends AppCompatActivity {
 
     private void alertDialogCancelWithoutRefund(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(CancelBookingActivity.this);
-
-        // 2. Chain together various setter methods to set the dialog characteristics
         builder.setMessage(message)
                 .setTitle(title);
-
-        // Add the buttons
         builder.setPositiveButton(R.string.cancel_booking_anyway, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-
-                cancelWithoutRefund();
+                chargeId = "FREE";
+                Long currentTimestamp = System.currentTimeMillis();
+                tryRefund(currentTimestamp);
             }
         });
-
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 setResult(RESULT_OK, null);
                 finish();
             }
         });
-
-        // 3. Get the AlertDialog from create()
         AlertDialog dialog = builder.create();
-
         dialog.show();
-
     }
 
     private void alertDialogOk(String title, String message) {
@@ -231,46 +158,16 @@ public class CancelBookingActivity extends AppCompatActivity {
     }
 
 
-    private Task<HashMap<String, Object>> refundCharge(HashMap<String, Object> refundMap) {
+    private Task<HashMap<String, Object>> cancelBooking(HashMap<String, Object> cancelMap) {
         FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
         return mFunctions
-                .getHttpsCallable("refundCharge")
-                .call(refundMap)
+                .getHttpsCallable("cancelBooking")
+                .call(cancelMap)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override
                     public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
                         HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
                         return result;
-                    }
-                });
-    }
-
-    // Function cancelWithoutRefund
-    private Task<HashMap<String, Object>> cancelWithoutRefund(HashMap<String, Object> freeBookingMap) {
-        FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
-        return mFunctions
-                .getHttpsCallable("cancelWithoutRefund")
-                .call(freeBookingMap)
-                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
-                    @Override
-                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
-                        return result;
-                    }
-                });
-    }
-
-
-
-    private Task<Long> getTimestamp() {
-        return mFunctions
-                .getHttpsCallable("getTimestamp")
-                .call()
-                .continueWith(new Continuation<HttpsCallableResult, Long>() {
-                    @Override
-                    public Long then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        Map<String, Long> result = (Map<String, Long>) task.getResult().getData();
-                        return (Long) result.get("operationResult");
                     }
                 });
     }

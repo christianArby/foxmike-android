@@ -145,6 +145,17 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
         }
 
+        if (model.getType().equals("adminNotification")) {
+            holder.setAdminNotificationImage(context);
+
+            String notificationText = model.getParam1();
+
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+
+            holder.setNotificationText(notificationTextFormatted);
+
+        }
+
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
     }
 
@@ -179,6 +190,11 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         public void setNotificationImage(String thumb_image, android.content.Context context) {
             CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
             Glide.with(context).load(thumb_image).into(notificationImageIV);
+        }
+
+        public void setAdminNotificationImage(android.content.Context context) {
+            CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
+            notificationImageIV.setImageDrawable(context.getResources().getDrawable(R.drawable.foxmike_icon_transparent));
         }
     }
 

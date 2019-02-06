@@ -37,7 +37,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     private Long advertisementTimestamp;
     private String accountId;
     private String currentUserId;
-    private String advertisementName;
+    private String sessionName;
     private HashMap<String,Object> cancelMap = new HashMap<>();
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -50,7 +50,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        advertisementName = getIntent().getStringExtra("advertisementName");
+        sessionName = getIntent().getStringExtra("sessionName");
         advertisementId = getIntent().getStringExtra("advertisementId");
         imageUrl = getIntent().getStringExtra("imageUrl");
         sessionId = getIntent().getStringExtra("sessionId");
@@ -58,7 +58,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         participantsIds = (HashMap) getIntent().getSerializableExtra("participantsIds");
         accountId = getIntent().getStringExtra("accountId");
 
-        cancelMap.put("advertisementName", advertisementName);
+        cancelMap.put("sessionName", sessionName);
         cancelMap.put("participantsIds", participantsIds);
         cancelMap.put("imageUrl", imageUrl);
         cancelMap.put("accountId", accountId);
@@ -73,7 +73,6 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         DateTime adTime = new DateTime(advertisementTimestamp);
 
         Duration durationCurrentToAdvertisement = new Duration(currentTime, adTime);
-
         AlertDialogs alertDialogs = new AlertDialogs(CancelAdvertisementActivity.this);
 
         // If session has already taken place show alert dialog explaining cancellation not possible
