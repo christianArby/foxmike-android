@@ -525,4 +525,5 @@
     <string name="update_text_1">Update needed</string>
     <string name="update_text_2">Your version is out of date, please update on Google Play Store. You need a newer version than\u0020</string>
     <string name="update_text_3">"\n""\n"Please  note that sometimes Google Play Store takes some time to provide the necessary update</string>
+    <string name="has_booked_your_session">\u0020has booked your session\u0020</string>
 </resources>

@@ -84,6 +84,12 @@ public class ExploreFragment extends Fragment{
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setupListAndMapWithSessions();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -120,8 +126,6 @@ public class ExploreFragment extends Fragment{
         /** Setup List and Map with sessions*/
         sortType = "date";
         distanceRadius = DISTANCE_INTEGERS_SE.get("Max");
-        setupListAndMapWithSessions();
-
     }
 
     @Override
