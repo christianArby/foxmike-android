@@ -614,7 +614,7 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, String> participantsIds, String accountId) {
 
         Intent cancelAdIntent = new Intent(MainPlayerActivity.this,CancelAdvertisementActivity.class);
-        cancelAdIntent.putExtra("advertisementName", advertisementName);
+        cancelAdIntent.putExtra("sessionName", advertisementName);
         cancelAdIntent.putExtra("advertisementId", advertisementId);
         cancelAdIntent.putExtra("imageUrl", imageUrl);
         cancelAdIntent.putExtra("sessionId", sessionId);
