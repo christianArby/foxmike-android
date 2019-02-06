@@ -125,9 +125,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = dataSnapshot.getValue(User.class);
                     if (user==null) {
-                        Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
-                        //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(setupAccount);
+                        Intent welcomeIntent = new Intent(MainActivity.this, WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        finish();
+                        /*Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
+                        startActivity(setupAccount);*/
                     } else {
                         //-------------------------THE DOOR OPENS--------------------------------------//
                         if (user.trainerMode) {

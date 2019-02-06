@@ -368,6 +368,7 @@
     <string name="an_hour_ago">en timme sedan</string>
     <string name="hours_ago">\u0020timmar sedan</string>
     <string name="yesterday">igår</string>
+    <string name="days_ago">\u0020dagar sen</string>
     <string name="accept_friend_request">Acceptera vänförfrågan</string>
     <string name="cancel_friend_request">Avbryt vänförfrågan</string>
     <string name="unfriend_this_person">Ta bort vän</string>
@@ -446,6 +447,18 @@
     <string name="type_of_training">Typ av träning</string>
     <string name="create_training_group">Skapa träningsgrupp</string>
     <string name="upcoming_sessions">Kommande pass</string>
+    <string name="please_write_a_longer_description">Skriv en längre beskrivning</string>
+    <string name="please_choose_session_name">Välj ett namn på passet</string>
+    <string name="please_choose_location_for_session">Välj en plats för passet</string>
+    <string name="please_choose_session_type">Välj typ av träning</string>
+    <string name="please_choose_session_date">Välj datum för passet</string>
+    <string name="please_choose_session_time">Välj vilken tid passet startar</string>
+    <string name="please_choose_session_duration">Välj hur lång tid passet kommer pågå</string>
+    <string name="please_choose_maximum_nr_of_participants">Välj maximalt antal deltagare</string>
+    <string name="please_write_longer_session_description">Skriv en längre beskrivning</string>
+    <string name="please_write_session_who">Skriv vem som kan vara med på passet</string>
+    <string name="please_explain_session_where">Förklara var någonstans passet kommer att hållas</string>
+    <string name="please_set_session_price">Välj ett pris för passet</string>
     <string name="no_studios_text">Skapa en träningsgrupp där du kan annonsera ut pass, klicka på plusknappen nedan!.</string>
     <string name="you_must_agree_to_above">Du måste godkänna användarvillkoren för att registrera ett konto.</string>
     <string name="upcoming">Kommande</string>
@@ -478,6 +491,7 @@
     <string name="cancelled">INSTÄLLT</string>
     <string name="show_availability">Visa tillgänglighet</string>
     <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
+    <string name="could_not_find_payment_method">Kunde inte hitta betalningsmetod, försök igen senare.</string>
     <string name="minutes_append">\u0020min</string>
     <string name="search_for_name_or_username">Sök efter namn eller @användarnamn…</string>
     <string name="no_sessions_this_time">Inga pass tillgängliga den här tidsperioden.</string>
@@ -489,6 +503,12 @@
     <string name="you_have_a_new_participant_in">Du har en ny deltagare i\u0020</string>
     <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
     <string name="cancelled_free_session">Du har nu avbokat det här passet.</string>
+    <string name="cancellation">Ställa in pass</string>
+    <string name="cancellation_small_fee_warning">Om du ställer in det här passet kommer det dras en lite avgift på xx, vill du fortsätta?</string>
+    <string name="cancel_session">Ställ in passet</string>
+    <string name="do_not_cancel_session">Ställ inte in passet</string>
+    <string name="session_is_within_24_hours">Passet är inom 24 timmar</string>
+    <string name="cancellation_large_fee_warning">Passet är inom 24 timmmar. Om du ställer in passet kommer det dras en avgift på xx kr.</string>
     <string name="create_free_session_question">Du har inga aktiva utbetalningsmetoder, vill du skapa ett gratispass?</string>
     <string name="create_free_session">Skapa gratispass</string>
     <string name="the_session">Passet\u0020</string>
@@ -497,6 +517,7 @@
     <string name="the_card_could_not_be_added">Det gick inte att lägga till kortet.</string>
     <string name="booking_more_than_2_weeks_ahead">Det är inte möjligt att boka det här passet då det är längre fram än 2 veckor..</string>
     <string name="booking_not_possible">Bokning ej möjlig.</string>
+    <string name="show_profile">Visa profil</string>
     <string name="filter_by_price">Pris</string>
     <string name="distance_colon">Avstånd:\u0020</string>
     <string name="min_price_colon">Min pris:\u0020</string>
@@ -504,6 +525,4 @@
     <string name="update_text_1">Uppdatera appen</string>
     <string name="update_text_2">Din version av appen är för gammal. Uppdatera appen på Google Play Butik. Du behöver en nyare version än\u0020</string>
     <string name="update_text_3">"\n""\n"Observera att det kan ta ett tag innan Google Play Butik tillhandahåller den nödvändiga uppdateringen.</string>
-
-
 </resources>

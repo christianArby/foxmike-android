@@ -74,6 +74,14 @@ public class WriteAdminNotification extends AppCompatActivity {
             }
         });
 
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
+                mFunctions.getHttpsCallable("listAllUsers").call(new HashMap<>());
+            }
+        });
+
 
 
 
