@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Foxmike</string>
     <string name="title_activity_maps">SportsApp</string>
@@ -22,6 +23,7 @@
     </string-array>
 
     <string-array name="price_array_SE">
+        <item>Gratis</item>
         <item>30 kr</item>
         <item>40 kr</item>
         <item>50 kr</item>
