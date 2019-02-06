@@ -478,8 +478,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -----------  set the number of participants ------------
                 long countParticipants;
-                if (model.getParticipantsIds()!=null) {
-                    countParticipants = model.getParticipantsIds().size();
+                if (model.getChargeIds()!=null) {
+                    countParticipants = model.getChargeIds().size();
                 } else {
                     countParticipants = 0;
                 }
@@ -518,8 +518,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     onAsyncTaskFinished();
                 }
                 // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
-                if (model.getParticipantsIds().size()!=0) {
-                    if (model.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                if (model.getChargeIds().size()!=0) {
+                    if (model.getChargeIds().containsKey(currentFirebaseUser.getUid())) {
                         setAdListItemBookedAppearance(holder);
                     }
                 }
@@ -939,8 +939,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         }
                     }
                     // If the ad selected has participants and of the current user is one of them, display show booking
-                    if (adSelected.getParticipantsIds() != null) {
-                        if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
+                    if (adSelected.getChargeIds() != null) {
+                        if (adSelected.getChargeIds().containsKey(currentFirebaseUser.getUid())) {
                             mDisplaySessionBtn.setEnabled(true);
                             snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
                             priceTV.setVisibility(View.VISIBLE);
@@ -1011,9 +1011,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     // If the current user isn´t the host of the session
                     if (!session.getHost().equals(currentFirebaseUser.getUid())) {
                         // If the current user is a participant and already booked this session, button will display cancel booking and click will start cancellation method
-                        if (adSelected.getParticipantsIds()!=null) {
-                            if (adSelected.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(),adSelected.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
+                        if (adSelected.getChargeIds()!=null) {
+                            if (adSelected.getChargeIds().containsKey(currentFirebaseUser.getUid())) {
+                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(),adSelected.getChargeIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                                 return;
                             }
                         }
@@ -1047,7 +1047,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     // If the current user is the session host, button will show cancel session, if clicked start cancellation process
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        advertisementListener.OnCancelAdvertisement(session.getSessionName(), adSelected.getAdvertisementId(), session.getImageUrl(), adSelected.getSessionId(), adSelected.getAdvertisementTimestamp(), adSelected.getParticipantsIds(), session.getStripeAccountId());
+                        advertisementListener.OnCancelAdvertisement(session.getSessionName(), adSelected.getAdvertisementId(), session.getImageUrl(), adSelected.getSessionId(), adSelected.getAdvertisementTimestamp(), adSelected.getChargeIds(), session.getStripeAccountId());
                     }
                 }
             });

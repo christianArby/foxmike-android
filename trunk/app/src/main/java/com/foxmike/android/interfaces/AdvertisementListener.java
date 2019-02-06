@@ -7,5 +7,5 @@ import java.util.HashMap;
  */
 
 public interface AdvertisementListener {
-    void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl,String sessionId, Long advertisementTimestamp, HashMap<String, String> participantsIds, String accountId);
+    void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl,String sessionId, Long advertisementTimestamp, HashMap<String, String> chargeIds, String accountId);
 }
