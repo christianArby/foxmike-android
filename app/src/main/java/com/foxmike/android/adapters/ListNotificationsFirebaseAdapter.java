@@ -101,11 +101,14 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             holder.setNotificationImage(model.getThumbNail(),context);
 
             if (!model.getParam2().equals("none")) {
-                String notificationText = context.getString(R.string.you_have_a_new_participant_in) + model.getParam3();
+                String notificationText = model.getParam1() + context.getString(R.string.has_booked_your_session) + model.getParam3();
 
                 SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
                 StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-                notificationTextFormatted.setSpan(bold1, context.getString(R.string.you_have_a_new_participant_in).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+                notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+                StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+                notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
 
                 holder.setNotificationText(notificationTextFormatted);
             } else {
