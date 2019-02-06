@@ -245,7 +245,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
         }
 
         // Build participant query
-        Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsIds");
+        Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("chargeIds");
         FirebaseRecyclerOptions<UserPublic> participantOptions = new FirebaseRecyclerOptions.Builder<UserPublic>()
                 .setIndexedQuery(participantsQuery, rootDbRef.child("usersPublic"), UserPublic.class)
                 .build();
@@ -525,8 +525,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
 
             // -----------  set the number of participants ------------
             long countParticipants;
-            if (advertisement.getParticipantsIds().size()>0) {
-                countParticipants = advertisement.getParticipantsIds().size();
+            if (advertisement.getChargeIds().size()>0) {
+                countParticipants = advertisement.getChargeIds().size();
             } else {
                 countParticipants = 0;
             }
@@ -565,7 +565,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
             mParticipants.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(advertisement.getParticipantsIds());
+                    ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(advertisement.getChargeIds());
                     FragmentManager fragmentManager = getChildFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     if (participantsFragment!=null) {
@@ -666,7 +666,7 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 *//*
 
                     if (session.getHost().equals(currentFirebaseUser.getUid())) {
-                        advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementName(), advertisement.getAdvertisementId(), advertisement.getImageUrl(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getParticipantsIds(), session.getStripeAccountId());
+                        advertisementListener.OnCancelAdvertisement(advertisement.getAdvertisementName(), advertisement.getAdvertisementId(), advertisement.getImageUrl(), advertisement.getSessionId(), advertisement.getAdvertisementTimestamp(), advertisement.getChargeIds(), session.getStripeAccountId());
                     }
                 */
 /*
@@ -674,8 +674,8 @@ public class DisplayAdvertisementFragment extends Fragment implements OnMapReady
                 remove the current user from that session participant list and go back to main activity.
                 *//*
 
-                    else if (advertisement.getParticipantsIds().containsKey(currentFirebaseUser.getUid())) {
-                        sessionListener.OnCancelBookedSession(advertisement.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),advertisement.getAdvertisementTimestamp(),advertisementId,currentFirebaseUser.getUid(),advertisement.getParticipantsIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
+                    else if (advertisement.getChargeIds().containsKey(currentFirebaseUser.getUid())) {
+                        sessionListener.OnCancelBookedSession(advertisement.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),advertisement.getAdvertisementTimestamp(),advertisementId,currentFirebaseUser.getUid(),advertisement.getChargeIds().get(currentFirebaseUser.getUid()),session.getStripeAccountId());
                     }
                 }
             });
