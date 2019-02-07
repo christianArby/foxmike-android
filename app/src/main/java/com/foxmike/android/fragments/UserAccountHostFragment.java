@@ -34,6 +34,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -263,6 +264,8 @@ public class UserAccountHostFragment extends Fragment {
     }
 
     private void logout() {
+        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+        rootDbRef.child("users").child(currentUserID).child("device_token").child(deviceToken).setValue(null);
         Intent welcomeIntent = new Intent(getActivity(),WelcomeActivity.class);
         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
