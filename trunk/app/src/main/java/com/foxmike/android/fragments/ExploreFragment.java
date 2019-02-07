@@ -215,7 +215,7 @@ public class ExploreFragment extends Fragment{
         myLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 mapsFragment.goToMyLocation();
             }
         });
@@ -252,11 +252,11 @@ public class ExploreFragment extends Fragment{
                 myFirebaseDatabase.filterSessionAndAdvertisements(nearSessions, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
                     @Override
                     public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                         listSessionsFragment.updateSessionListView(sessions, advertisements, locationClosetoSessions);
                         listSessionsFragment.stopSwipeRefreshingSymbol();
 
-                        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                         mapsFragment.addMarkersToMap(sessions);
 
                     }
@@ -278,7 +278,7 @@ public class ExploreFragment extends Fragment{
         if (getView()!=null && locationLoaded && locationAndViewUsed) {
             locationAndViewUsed = true;
             Toast.makeText(getContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
-            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
             listSessionsFragment.emptyListView();
             listSessionsFragment.stopSwipeRefreshingSymbol();
         }
@@ -295,7 +295,7 @@ public class ExploreFragment extends Fragment{
         float Xcontrol2 = width - convertDpToPx(getActivity(),72);
         float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(getActivity(), 144);
 
-        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
 
 
         if (mapIsVisible) {
@@ -360,10 +360,10 @@ public class ExploreFragment extends Fragment{
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 mapsFragment.addMarkersToMap(sessions);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                 listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
 
             }
@@ -403,10 +403,10 @@ public class ExploreFragment extends Fragment{
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 mapsFragment.addMarkersToMap(sessions);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                 listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
@@ -437,10 +437,10 @@ public class ExploreFragment extends Fragment{
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 mapsFragment.addMarkersToMap(sessions);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                 listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
@@ -460,10 +460,10 @@ public class ExploreFragment extends Fragment{
         myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
             @Override
             public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getItem(1);
+                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 mapsFragment.addMarkersToMap(sessions);
 
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(0);
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                 listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }

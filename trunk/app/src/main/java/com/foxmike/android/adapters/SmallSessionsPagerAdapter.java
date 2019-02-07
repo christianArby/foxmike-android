@@ -43,7 +43,6 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
             if (position == 1) {
                 fragment = PlayerListSmallAdvertisementsHistoryFragment.newInstance();
             }
-
         }
         return fragment;
     }
