@@ -251,7 +251,7 @@
     <string name="placeholder_last_seen">Sågs senast</string>
     <string name="CD_choose_session_image_button">Välj sessionsbildsknapp</string>
     <string name="CD_location_icon">Location_icon</string>
-    <string name="advertised_word">Annonser</string>
+    <string name="advertised_word">Tillfällen</string>
     <string name="CD_date_icon">Datum ikon</string>
     <string name="CD_duration_icon">Varaktighetsikonen</string>
     <string name="duration_hint">Varaktighet</string>

@@ -719,25 +719,25 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnRefreshSessions() {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnRefreshSessions();
     }
 
     @Override
     public void OnListSessionsScroll(int dy) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnListSessionsScroll(dy);
     }
 
     @Override
     public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnWeekdayChanged(week, weekdayKey, weekdayBoolean, activity);
     }
 
     @Override
     public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnWeekdayButtonClicked(week, button, toggleHashMap);
     }
 
@@ -755,26 +755,26 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnSortTypeChanged(String sortType) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnChangeSortType(sortType);
     }
 
     @Override
     public void OnDistanceFilterChanged(int filterDistance) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnFilterByDistance(filterDistance);
 
     }
 
     @Override
     public void OnMinPriceChanged(int minPrice) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnMinPriceChanged(minPrice, "SE");
     }
 
     @Override
     public void OnMaxPriceChanged(int maxPrice) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getItem(0);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnMaxPriceChanged(maxPrice, "SE");
     }
 }
