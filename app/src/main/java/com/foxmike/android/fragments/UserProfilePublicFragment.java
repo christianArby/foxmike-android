@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -55,6 +56,7 @@ public class UserProfilePublicFragment extends Fragment {
     private int areFriends;
     private UserPublic otherUser;
     private OnChatClickedListener onChatClickedListener;
+    private long mLastClickTime = 0;
 
 
     public UserProfilePublicFragment() {
@@ -195,6 +197,10 @@ public class UserProfilePublicFragment extends Fragment {
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 // When button is clicked, disable it until results from database so that multiple quires are not possible
                 sendRequestBtn.setEnabled(false);
 
@@ -326,6 +332,10 @@ public class UserProfilePublicFragment extends Fragment {
         declineBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
 
                 declineBtn.setEnabled(false);
                 // -------- DECLINE ---------------
@@ -365,6 +375,10 @@ public class UserProfilePublicFragment extends Fragment {
         sendMessageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 if (otherUser!=null) {
                     onChatClickedListener.OnChatClicked(otherUserID,otherUser.getFirstName(),otherUser.getThumb_image(),null);
                 }

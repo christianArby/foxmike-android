@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +39,7 @@ public class ParticipantsFragment extends DialogFragment {
     private OnUserClickedListener onUserClickedListener;
     private RecyclerView.Adapter<UsersViewHolder> friendsViewHolderAdapter;
     private ArrayList<UserPublic> users = new ArrayList<>();
+    private long mLastClickTime = 0;
 
     public ParticipantsFragment() {
         // Required empty public constructor
@@ -127,6 +129,10 @@ public class ParticipantsFragment extends DialogFragment {
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         onUserClickedListener.OnUserClicked(userIDs.get(position));
                     }
                 });

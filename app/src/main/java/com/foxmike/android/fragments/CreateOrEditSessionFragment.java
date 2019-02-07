@@ -10,6 +10,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -156,6 +157,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private TextView calendarHeadingTV;
     private HashMap<Long, Boolean> advertisementTimestamps = new HashMap<>();
     private HashMap<String, Long> advertisements = new HashMap<>();
+    private long mLastClickTime = 0;
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
     }
@@ -321,6 +323,13 @@ public class CreateOrEditSessionFragment extends Fragment{
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
+
                 if (updateSession) {
                     mProgress.setMessage(getString(R.string.updating_session));
                 } else {
@@ -419,6 +428,11 @@ public class CreateOrEditSessionFragment extends Fragment{
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 imageErrorText.setVisibility(View.GONE);
 
                 Intent galleryIntent = new Intent();
@@ -449,6 +463,11 @@ public class CreateOrEditSessionFragment extends Fragment{
         mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 mLocationTIL.setError(null);
                 if (hasParticipants) {
                 notPossibleHasParticipants(getString(R.string.location_cannot_change));

@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -9,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +34,7 @@ public class LinkWithFacebookFragment extends DialogFragment {
     private static final String ARG_EMAIL= "email";
     private String mEmail;
     private FirebaseAuth mAuth;
+    private long mLastClickTime = 0;
 
 
     public LinkWithFacebookFragment() {
@@ -80,6 +81,10 @@ public class LinkWithFacebookFragment extends DialogFragment {
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 mAuth = FirebaseAuth.getInstance();
                 final WelcomeActivity welcomeActivity = (WelcomeActivity)getActivity();
                 final AuthCredential credential = welcomeActivity.getCredential();
@@ -109,6 +114,10 @@ public class LinkWithFacebookFragment extends DialogFragment {
         resetText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 dismiss();
                 WelcomeActivity welcomeActivity = (WelcomeActivity)getActivity();
                 welcomeActivity.resetPassword(mEmail);

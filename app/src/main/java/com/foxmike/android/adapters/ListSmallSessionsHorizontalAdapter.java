@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
     private Context context;
     private OnSessionClickedListener onSessionClickedListener;
     private Location lastLocation;
+    private long mLastClickTime = 0;
 
     public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation) {
         this.sessionHashMap = sessionHashMap;
@@ -107,6 +109,11 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+
                     onSessionClickedListener.OnSessionClicked(sessionId);
                 }
             });

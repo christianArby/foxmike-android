@@ -1,6 +1,7 @@
 package com.foxmike.android.adapters;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
     private OnChatClickedListener onChatClickedListener;;
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
+    private long mLastClickTime = 0;
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
@@ -76,6 +78,10 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
                     holder.mView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
                             onChatClickedListener.OnChatClicked(finalChatFriend,chatFriendName,chatFriendImage,chatID);
                         }
                     });

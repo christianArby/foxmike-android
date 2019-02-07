@@ -5,6 +5,7 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -68,6 +69,7 @@ public class UserAccountFragment extends Fragment {
     private TextView fullNameTV;
     private TextView userNameTV;
     private TextView switchModeTV;
+    private long mLastClickTime = 0;
 
     public UserAccountFragment() {
         // Required empty public constructor
@@ -145,6 +147,10 @@ public class UserAccountFragment extends Fragment {
         aboutTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent aboutIntent = new Intent(getContext(), AboutActivity.class);
                 startActivity(aboutIntent);
             }
@@ -153,6 +159,11 @@ public class UserAccountFragment extends Fragment {
         editProfileTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 if (mListener != null) {
                     mListener.OnUserAccountFragmentInteraction("edit");
                 }
@@ -162,6 +173,11 @@ public class UserAccountFragment extends Fragment {
         fullNameTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 if (mListener != null) {
                     mListener.OnUserAccountFragmentInteraction("edit");
                 }
@@ -171,6 +187,10 @@ public class UserAccountFragment extends Fragment {
         addPaymentMethod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
                 startActivity(paymentPreferencesIntent);
             }

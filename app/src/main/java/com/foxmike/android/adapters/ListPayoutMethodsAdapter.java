@@ -1,6 +1,7 @@
 package com.foxmike.android.adapters;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
     private ArrayList<HashMap<String,Object>> external_accountsDataList;
     private Context context;
     private OnPayoutMethodClickedListener onPayoutMethodClickedListener;
+    private long mLastClickTime = 0;
 
     public ListPayoutMethodsAdapter(ArrayList<HashMap<String,Object>> external_accountsDataList, Context context, OnPayoutMethodClickedListener onPayoutMethodClickedListener) {
         this.external_accountsDataList = external_accountsDataList;
@@ -78,6 +80,10 @@ public class ListPayoutMethodsAdapter extends RecyclerView.Adapter<ListPayoutMet
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
                     onPayoutMethodClickedListener.OnPayoutMethodClicked(accountId, externalAccountId, last4, currency, isDefault);
                 }
             });

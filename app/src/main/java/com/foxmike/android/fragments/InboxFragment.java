@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,7 @@ public class InboxFragment extends Fragment {
     private InboxPagerAdapter inboxPagerAdapter;
     private TabLayout tabLayout;
     private OnSearchClickedListener onSearchClickedListener;
+    private long mLastClickTime = 0;
 
     public InboxFragment() {
         // Required empty public constructor
@@ -78,6 +80,10 @@ public class InboxFragment extends Fragment {
         searchFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 onSearchClickedListener.OnSearchClicked();
             }
         });

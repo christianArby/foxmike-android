@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -51,6 +52,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     private ProgressBar progressBar;
     private TextView addPayoutMethodTV;
     private String stripeAccountId;
+    private long mLastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,10 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                 addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
 
                         HashMap<String, Object> accountData = new HashMap<>();

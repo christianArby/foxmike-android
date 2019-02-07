@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class WriteAdminNotification extends AppCompatActivity {
     @BindView(R.id.sourceId) EditText sourceId;
     @BindView(R.id.image) CircleImageView image;
     @BindView(R.id.sendNotification) Button sendNotification;
+    private long mLastClickTime = 0;
 
 
     @Override
@@ -43,6 +45,11 @@ public class WriteAdminNotification extends AppCompatActivity {
         sendNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 HashMap<String,Object> notificationMap = new HashMap<>();
                 notificationMap.put("param1", param1.getText().toString());
                 notificationMap.put("param2", param2.getText().toString());

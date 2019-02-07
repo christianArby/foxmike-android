@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
@@ -52,6 +53,7 @@ public class WritePostFragment extends DialogFragment {
     private String postID;
     private Toolbar postToolbar;
     private UserPublic currentUserPublic;
+    private long mLastClickTime = 0;
 
     public WritePostFragment() {
         // Required empty public constructor
@@ -150,6 +152,10 @@ public class WritePostFragment extends DialogFragment {
         sendTW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 if (sendable && currentUserPublic!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
                     Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName(), sourceID, title);

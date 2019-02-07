@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -49,6 +50,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     private Button addPayoutMethodLaterBtn;
     private EditText ibanET;
     private ProgressBar progressBar;
+    private long mLastClickTime = 0;
 
     private OnStripeExternalAccountCreatedListener onStripeExternalAccountCreatedListener;
 
@@ -178,6 +180,10 @@ public class CreateStripeExternalAccountFragment extends Fragment {
         addPayoutMethodLaterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 onStripeExternalAccountCreatedListener.OnStripeExternalAccountCreated();
             }
         });
@@ -185,6 +191,10 @@ public class CreateStripeExternalAccountFragment extends Fragment {
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                 myProgressBar.startProgressBar();
 

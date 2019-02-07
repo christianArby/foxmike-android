@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,6 +60,7 @@ public class FriendsFragment extends Fragment {
     private TextView requestsHeading;
     private TextView friendsHeading;
     private TextView noContent;
+    private long mLastClickTime = 0;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -154,6 +156,10 @@ public class FriendsFragment extends Fragment {
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         onUserClickedListener.OnUserClicked(requestsUserIDs.get(position));
                     }
                 });
@@ -306,6 +312,10 @@ public class FriendsFragment extends Fragment {
                     ((UsersViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
                             onUserClickedListener.OnUserClicked(userBranches.get(posClicked).getUserID());
                         }
                     });

@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,7 @@ public class UserProfileFragment extends Fragment {
     private FirebaseAuth mAuth;
     private LinearLayout list;
     private View profile;
+    private long mLastClickTime = 0;
 
     private OnUserProfileFragmentInteractionListener onUserProfileFragmentInteractionListener;
 
@@ -98,6 +100,10 @@ public class UserProfileFragment extends Fragment {
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 onUserProfileFragmentInteractionListener.onUserProfileFragmentInteraction();
             }
         });

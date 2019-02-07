@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -198,6 +199,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private long nrOfPosts;
     private AdvertisementListener advertisementListener;
     private TextView mAddress;
+    private long mLastClickTime = 0;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -642,6 +644,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         paymentFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
                 startActivity(paymentPreferencesIntent);
             }
@@ -776,6 +782,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
                     }
                 });
@@ -788,6 +798,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         onUserClickedListener.OnUserClicked(session.getHost());
                     }
                 });
@@ -824,6 +838,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             writePostLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     Fragment prev = getFragmentManager().findFragmentByTag("writePostFragment");
                     if (prev != null) {
@@ -964,6 +982,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             editSession.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
                         Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {

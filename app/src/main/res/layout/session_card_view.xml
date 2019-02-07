@@ -37,9 +37,14 @@
                 android:text="@string/session_name_goes_here"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:textSize="26sp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_right"
                 android:textColor="@color/secondaryTextColor"
                 android:textAllCaps="true"
                 android:layout_centerHorizontal="true"
+                android:gravity="center_horizontal"
                 />
             <TextView
                 android:id="@+id/session_address"

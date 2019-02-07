@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -47,6 +48,7 @@ public class UpdateStripeExternalAccountFragment extends Fragment {
     private FirebaseFunctions mFunctions;
     private ProgressBar progressBar;
     private HashMap<String, Object> accountData;
+    private long mLastClickTime = 0;
 
     private OnStripeAccountUpdatedListener onStripeAccountUpdatedListener;
 
@@ -112,6 +114,11 @@ public class UpdateStripeExternalAccountFragment extends Fragment {
         deleteTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 updateAccount("deleteExternalAccountForAccount");
             }
         });
@@ -119,6 +126,10 @@ public class UpdateStripeExternalAccountFragment extends Fragment {
         makeDefaultTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 updateAccount("setDefaultExternalAccountForAccount");
             }
         });

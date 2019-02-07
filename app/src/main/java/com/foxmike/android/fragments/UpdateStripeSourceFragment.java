@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -49,6 +50,7 @@ public class UpdateStripeSourceFragment extends Fragment {
     private FirebaseFunctions mFunctions;
     private ProgressBar progressBar;
     private HashMap<String, Object> customerData;
+    private long mLastClickTime = 0;
 
     private OnStripeCustomerUpdatedListener onStripeCustomerUpdatedListener;
 
@@ -114,6 +116,10 @@ public class UpdateStripeSourceFragment extends Fragment {
         deleteTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 updateSource("deleteCardForCustomer");
             }
         });
@@ -121,6 +127,11 @@ public class UpdateStripeSourceFragment extends Fragment {
         makeDefaultTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 updateSource("setDefaultSourceForCustomer");
             }
         });
