@@ -3,6 +3,7 @@ package com.foxmike.android.adapters;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
     
     private Context context;
     private OnSessionClickedListener onSessionClickedListener;
+    private long mLastClickTime = 0;
   
     
     public ListSmallSessionsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<Session> options, Context context, OnSessionClickedListener onSessionClickedListener) {
@@ -66,6 +68,10 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 onSessionClickedListener.OnSessionClicked(model.getSessionId());
             }
         });

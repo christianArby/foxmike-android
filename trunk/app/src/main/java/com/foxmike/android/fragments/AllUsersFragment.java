@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -51,6 +52,7 @@ public class AllUsersFragment extends Fragment {
     private FirebaseAuth mAuth;
     private String currentUserID;
     PublishProcessor<String> pp;
+    private long mLastClickTime = 0;
 
 
 
@@ -163,6 +165,10 @@ public class AllUsersFragment extends Fragment {
                                 holder.mView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
+                                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                            return;
+                                        }
+                                        mLastClickTime = SystemClock.elapsedRealtime();
                                         if (userId.equals(currentUserID)) {
                                             Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
                                         } else {
@@ -213,6 +219,10 @@ public class AllUsersFragment extends Fragment {
                                 holder.mView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
+                                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                            return;
+                                        }
+                                        mLastClickTime = SystemClock.elapsedRealtime();
                                         if (userId.equals(currentUserID)) {
                                             Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
                                         } else {
@@ -267,6 +277,10 @@ public class AllUsersFragment extends Fragment {
                             holder.mView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
+                                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                        return;
+                                    }
+                                    mLastClickTime = SystemClock.elapsedRealtime();
                                     if (userId.equals(currentUserID)) {
                                         Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
                                     } else {

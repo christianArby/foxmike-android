@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -50,6 +51,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
     private ProgressBar progressBar;
     private TextView addPaymentMethodTV;
     private String stripeCustomerId;
+    private long mLastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,10 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
                             Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
                             HashMap<String, Object> customerData = new HashMap<>();
                             customerData.put("updateWithCustomerId", stripeCustomerId);
@@ -112,6 +118,10 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
                             Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
                             startActivityForResult(createIntent, 1);
                         }

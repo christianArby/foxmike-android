@@ -1,8 +1,8 @@
 package com.foxmike.android.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -29,6 +29,7 @@ public class AboutUserFragment extends Fragment {
     private Button nextBtn;
     private boolean infoIsValid = true;
     private OnAboutMeInteractionListener onAboutMeInteractionListener;
+    private long mLastClickTime = 0;
 
     public AboutUserFragment() {
         // Required empty public constructor
@@ -85,6 +86,10 @@ public class AboutUserFragment extends Fragment {
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
 
                 if (TextUtils.isEmpty(aboutMeET.getText().toString().trim())) {
                     aboutMeTIL.setError(getString(R.string.describe_yourself));

@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 // Checked
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ public class HostSessionsFragment extends Fragment {
     private ViewPager hostSessionsPager;
     private SmallSessionsPagerAdapter hostSessionsPagerAdapter;
     private TabLayout tabLayout;
+    private long mLastClickTime = 0;
 
     public HostSessionsFragment() {
         // Required empty public constructor
@@ -63,6 +65,11 @@ public class HostSessionsFragment extends Fragment {
         createSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
                 rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

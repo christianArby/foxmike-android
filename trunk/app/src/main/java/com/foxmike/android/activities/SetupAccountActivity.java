@@ -4,6 +4,7 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -52,6 +53,8 @@ public class SetupAccountActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String currentUserID;
     private View mainView;
+    private long mLastClickTime = 0;
+
 
     private FirebaseFunctions mFunctions;
     private HashMap<String, Object> friendsData = new HashMap<>();
@@ -81,6 +84,10 @@ public class SetupAccountActivity extends AppCompatActivity {
         mSetupImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
@@ -91,6 +98,10 @@ public class SetupAccountActivity extends AppCompatActivity {
         mSubmitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 startSetupAccount();
             }
         });

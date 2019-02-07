@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -41,6 +42,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     private CardMultilineWidget mCardInputWidget;
     private ProgressBar progressBar;
     private HashMap<String, Object> customerData;
+    private long mLastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,10 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         createStripeCustomerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 onAddButtonClicked();
             }
         });

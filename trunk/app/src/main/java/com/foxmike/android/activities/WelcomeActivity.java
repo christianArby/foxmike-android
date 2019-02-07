@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -84,6 +85,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private View view;
     private TextView versionNameTV;
     String version;
+    private long mLastClickTime = 0;
 
 
     @Override
@@ -118,6 +120,10 @@ public class WelcomeActivity extends AppCompatActivity {
         loginTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent loginIntent = new Intent(WelcomeActivity.this, LoginActivity.class);
                 startActivity(loginIntent);
             }
@@ -128,6 +134,11 @@ public class WelcomeActivity extends AppCompatActivity {
         facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+
                 myProgressBar.startProgressBar();
                 facebookLoginButton.setEnabled(false);
 
@@ -188,6 +199,10 @@ public class WelcomeActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 myProgressBar.startProgressBar();
                 googleSignInButton.setEnabled(false);
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -199,6 +214,10 @@ public class WelcomeActivity extends AppCompatActivity {
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 Intent registerIntent = new Intent(WelcomeActivity.this, RegisterActivity.class);
                 startActivity(registerIntent);
             }

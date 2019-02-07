@@ -1,16 +1,14 @@
 package com.foxmike.android.activities;
 
-import android.app.ActivityOptions;
-import android.content.Intent;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
+import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -25,8 +23,6 @@ import com.foxmike.android.fragments.AboutUserFragment;
 import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -61,6 +57,7 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     private HashMap<String, Object> accountData;
     private String accountId;
     private boolean stripeAccountCreated = false;
+    private long mLastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +204,10 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
         createStripeAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
 
                 String firstName = firstNameET.getText().toString();
                 String lastName = lastNameET.getText().toString();
