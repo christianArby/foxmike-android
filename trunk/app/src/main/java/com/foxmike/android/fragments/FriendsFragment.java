@@ -136,7 +136,7 @@ public class FriendsFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        // save the listener to a map in order to later detach the listener
+        // save the listener to a map in order to later remove the listener
         listenerMap.put(rootDbRef.child("friend_requests").child(currentUserID), friendRequestsListener);
         // Setup the request list with a recycler adapter
         requestsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {

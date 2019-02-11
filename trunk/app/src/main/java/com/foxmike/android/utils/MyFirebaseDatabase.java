@@ -1,22 +1,15 @@
 package com.foxmike.android.utils;
 // Checked
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
-import com.firebase.geofire.GeoQuery;
-import com.firebase.geofire.GeoQueryEventListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
-import com.foxmike.android.interfaces.OnNearSessionsAndAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnSessionBranchesFoundListener;
-import com.foxmike.android.interfaces.OnSessionsAndAdvertisementsFilteredListener;
 import com.foxmike.android.interfaces.OnSessionsFoundListener;
 import com.foxmike.android.interfaces.OnUserFoundListener;
 import com.foxmike.android.models.Advertisement;
@@ -24,13 +17,6 @@ import com.foxmike.android.models.AdvertisementDistanceMap;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.models.User;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,11 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -175,7 +157,7 @@ public class MyFirebaseDatabase extends Service {
         });
     }
 
-    public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, int minPrice, int maxPrice, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
+    /*public void filterSessionAndAdvertisements(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, final HashMap<String, Boolean> firstWeekdayHashMap, final HashMap<String, Boolean> secondWeekdayHashMap, String sortType, int minPrice, int maxPrice, final OnSessionsAndAdvertisementsFilteredListener onSessionsAndAdvertisementsFilteredListener) {
         // sessionArray will be an array of the near sessions filtered
         HashMap<String, Session> sessionsFiltered = new HashMap<>();
         ArrayList<Advertisement> advertisementsFiltered = new ArrayList<>();
@@ -252,136 +234,136 @@ public class MyFirebaseDatabase extends Service {
             return;
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(final Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
 
-                            currentLocation = location;
-                            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
-                            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    currentLocation = location;
+                    GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
+                    geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                        @Override
+                        public void onKeyEntered(String key, GeoLocation location) {
+                            //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
+                            //You can fetch the actual data for this location by creating another firebase query here
+                            String distString = getDistance(location.latitude, location.longitude, currentLocation);
+                            Integer dist = Integer.parseInt(distString);
+
+                            sessionDistances.put(key, dist);
+                        }
+
+                        @Override
+                        public void onKeyExited(String key) {
+                        }
+
+                        @Override
+                        public void onKeyMoved(String key, GeoLocation location) {
+                        }
+
+                        @Override
+                        public void onGeoQueryReady() {
+                            final ArrayList<Session> sessions = new ArrayList<Session>();
+                            final HashMap<String,Advertisement> advertisements = new HashMap<>();
+                            final ArrayList<AdvertisementDistanceMap> advertisementDistanceMapArrayList = new ArrayList<AdvertisementDistanceMap>();
+
+                            ArrayList<Task<?>> sessionTasks = new ArrayList<>();
+                            ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
+
+                            Long currentTimestamp = System.currentTimeMillis();
+                            DateTime currentTime = new DateTime(currentTimestamp);
+
+                            // Download all the near sessions
+                            for (String sessionId : sessionDistances.keySet()) {
+
+                                TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                Task dbTask = dbSource.getTask();
+                                DatabaseReference ref = dbRef.child("sessions").child(sessionId);
+                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        dbSource.setResult(dataSnapshot);
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        dbSource.setException(databaseError.toException());
+                                    }
+                                });
+                                sessionTasks.add(dbTask);
+                            }
+
+
+                            Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onKeyEntered(String key, GeoLocation location) {
-                                    //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
-                                    //You can fetch the actual data for this location by creating another firebase query here
-                                    String distString = getDistance(location.latitude, location.longitude, currentLocation);
-                                    Integer dist = Integer.parseInt(distString);
-
-                                    sessionDistances.put(key, dist);
-                                }
-
-                                @Override
-                                public void onKeyExited(String key) {
-                                }
-
-                                @Override
-                                public void onKeyMoved(String key, GeoLocation location) {
-                                }
-
-                                @Override
-                                public void onGeoQueryReady() {
-                                    final ArrayList<Session> sessions = new ArrayList<Session>();
-                                    final HashMap<String,Advertisement> advertisements = new HashMap<>();
-                                    final ArrayList<AdvertisementDistanceMap> advertisementDistanceMapArrayList = new ArrayList<AdvertisementDistanceMap>();
-
-                                    ArrayList<Task<?>> sessionTasks = new ArrayList<>();
-                                    ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
-
-                                    Long currentTimestamp = System.currentTimeMillis();
-                                    DateTime currentTime = new DateTime(currentTimestamp);
-
-                                    // Download all the near sessions
-                                    for (String sessionId : sessionDistances.keySet()) {
-
-                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
-                                        Task dbTask = dbSource.getTask();
-                                        DatabaseReference ref = dbRef.child("sessions").child(sessionId);
-                                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                dbSource.setResult(dataSnapshot);
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        for (Task finishedTask: sessionTasks) {
+                                            DataSnapshot dataSnapshot = (DataSnapshot) finishedTask.getResult();
+                                            Session session = dataSnapshot.getValue(Session.class);
+                                            sessions.add(session);
+                                            if (!session.getAdvertisements().isEmpty()) {
+                                                for (String advertisementkey: session.getAdvertisements().keySet()) {
+                                                    DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementkey));
+                                                    Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
+                                                    if (durationCurrentToAdvertisment.getStandardDays()<15) {
+                                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                                        Task dbTask = dbSource.getTask();
+                                                        DatabaseReference ref = dbRef.child("advertisements").child(advertisementkey);
+                                                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                dbSource.setResult(dataSnapshot);
+                                                            }
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+                                                                dbSource.setException(databaseError.toException());
+                                                            }
+                                                        });
+                                                        advertisementTasks.add(dbTask);
+                                                    }
+                                                }
                                             }
+
+                                        }
+
+                                        Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                                dbSource.setException(databaseError.toException());
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    for (Task finishedAdTask: advertisementTasks) {
+                                                        DataSnapshot dataSnapshot = (DataSnapshot) finishedAdTask.getResult();
+                                                        Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                                                        AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(advertisement, sessionDistances.get(advertisement.getSessionId()));
+                                                        advertisementDistanceMapArrayList.add(advertisementDistanceMap);
+                                                    }
+                                                    Collections.sort(advertisementDistanceMapArrayList);
+                                                    for (AdvertisementDistanceMap advertisementDistanceMapSorted : advertisementDistanceMapArrayList) {
+                                                        advertisements.put(advertisementDistanceMapSorted.getAdvertisement().getAdvertisementId(), advertisementDistanceMapSorted.getAdvertisement());
+                                                    }
+                                                    onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
+                                                }
                                             }
                                         });
-                                        sessionTasks.add(dbTask);
                                     }
-
-
-                                    Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                for (Task finishedTask: sessionTasks) {
-                                                    DataSnapshot dataSnapshot = (DataSnapshot) finishedTask.getResult();
-                                                    Session session = dataSnapshot.getValue(Session.class);
-                                                    sessions.add(session);
-                                                    if (!session.getAdvertisements().isEmpty()) {
-                                                        for (String advertisementkey: session.getAdvertisements().keySet()) {
-                                                            DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementkey));
-                                                            Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
-                                                            if (durationCurrentToAdvertisment.getStandardDays()<15) {
-                                                                TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
-                                                                Task dbTask = dbSource.getTask();
-                                                                DatabaseReference ref = dbRef.child("advertisements").child(advertisementkey);
-                                                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        dbSource.setResult(dataSnapshot);
-                                                                    }
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-                                                                        dbSource.setException(databaseError.toException());
-                                                                    }
-                                                                });
-                                                                advertisementTasks.add(dbTask);
-                                                            }
-                                                        }
-                                                    }
-
-                                                }
-
-                                                Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            for (Task finishedAdTask: advertisementTasks) {
-                                                                DataSnapshot dataSnapshot = (DataSnapshot) finishedAdTask.getResult();
-                                                                Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                                                                AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(advertisement, sessionDistances.get(advertisement.getSessionId()));
-                                                                advertisementDistanceMapArrayList.add(advertisementDistanceMap);
-                                                            }
-                                                            Collections.sort(advertisementDistanceMapArrayList);
-                                                            for (AdvertisementDistanceMap advertisementDistanceMapSorted : advertisementDistanceMapArrayList) {
-                                                                advertisements.put(advertisementDistanceMapSorted.getAdvertisement().getAdvertisementId(), advertisementDistanceMapSorted.getAdvertisement());
-                                                            }
-                                                            onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    });
-
-                                    if (sessionDistances.size() < 1) {
-                                        onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
-                                    }
-                                }
-
-                                @Override
-                                public void onGeoQueryError(DatabaseError error) {
                                 }
                             });
-                        } else {
-                            onNearSessionsAndAdvertisementsFoundListener.OnLocationNotFound();
+
+                            if (sessionDistances.size() < 1) {
+                                onNearSessionsAndAdvertisementsFoundListener.OnNearSessionsFound(sessions, advertisements, location);
+                            }
                         }
-                    }
-                });
-    }
+
+                        @Override
+                        public void onGeoQueryError(DatabaseError error) {
+                        }
+                    });
+                } else {
+                    onNearSessionsAndAdvertisementsFoundListener.OnLocationNotFound();
+                }
+
+            }
+        });
+    }*/
 
     /*public void getNearStudiosAndSessions(Activity activity, final int distanceRadius, final OnNearSessionsAndAdvertisementsFoundListener onNearSessionsFoundListener) {
         FusedLocationProviderClient mFusedLocationClient;

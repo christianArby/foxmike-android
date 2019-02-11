@@ -94,7 +94,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private Marker selectedMarker;
     int horizontalSessionHeight = 0;
     private int currentSessionInt = 0;
-    private HashMap<String, Session> nearSessions = new HashMap<>();
+    private HashMap<String, Session> sessionHashMap = new HashMap<>();
+    ArrayList<String> sessionIdsFiltered = new ArrayList<>();
     private int leftMargin;
     private boolean nearSessionsLoaded;
     private boolean nearSessionsUsed;
@@ -314,7 +315,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                             // If the corresponding session to the clicked marker is not in focus in recyclerView, scroll to that position
                             mSessionList.smoothScrollToPosition(markerArray.indexOf(marker));
                             // When clicked on marker, show recyclerView
-                            if (nearSessions.size()>0) {
+                            if (sessionIdsFiltered.size()>0) {
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
                                 animation.setDuration(500);
                                 animation.start();
@@ -328,7 +329,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                         @Override
                         public void onMapClick(LatLng latLng) {
                             // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
-                            if (nearSessions.size()>0) {
+                            if (sessionIdsFiltered.size()>0) {
                                 hideList();
                             }
                         }
@@ -356,13 +357,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(HashMap<String, Session> nearSessions) {
-        this.nearSessions = nearSessions;
+    public void addMarkersToMap(ArrayList<String> sessionIdsFiltered, HashMap<String, Session> sessionHashMap) {
+        this.sessionIdsFiltered = sessionIdsFiltered;
+        this.sessionHashMap = sessionHashMap;
         nearSessionsLoaded = true;
         nearSessionsUsed = false;
-
         onAsyncTaskFinished();
+    }
 
+    public void notifySessionChange(String sessionId, HashMap<String, Session> sessionHashMap) {
+        if (listSmallRecyclerViewsAdapter!=null) {
+            listSmallRecyclerViewsAdapter.notifySessionChange(sessionId, sessionHashMap);
+        }
     }
 
     private void onAsyncTaskFinished() {
@@ -391,18 +397,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             currentSessionInt = 0;
             markerArray.clear();
 
-            if (nearSessions.size()==0) {
+            if (sessionIdsFiltered.size()==0) {
                 if (listSmallRecyclerViewsAdapter!=null) {
-                    listSmallRecyclerViewsAdapter.refreshData(nearSessions);
+                    listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
                     mSessionList.smoothScrollToPosition(0);
                     hideList();
                 }
             }
 
-            if (nearSessions.size()>0) {
+            if (sessionIdsFiltered.size()>0) {
                 // Add markers the map
-                for (Session session : nearSessions.values()) {
-                    LatLng loc = new LatLng(session.getLatitude(), session.getLongitude());
+                for (String sessionId : sessionIdsFiltered) {
+                    LatLng loc = new LatLng(sessionHashMap.get(sessionId).getLatitude(), sessionHashMap.get(sessionId).getLongitude());
                     //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
                     Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));
                     markerArray.add(marker);
@@ -410,13 +416,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
                 // Update or create the recyclerView
                 if (listSmallRecyclerViewsAdapter!=null) {
-                    listSmallRecyclerViewsAdapter.refreshData(nearSessions);
+                    listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
                     mSessionList.smoothScrollToPosition(0);
                     markerArray.get(0).setIcon(selectedIcon);
                     selectedMarker = markerArray.get(0);
 
                 } else {
-                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(nearSessions, getActivity(), onSessionClickedListener, mLastLocation);
+                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, getActivity(), onSessionClickedListener, mLastLocation, mLastClickTime);
                     if (mSessionList!=null) {
                         mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
                         markerArray.get(0).setIcon(selectedIcon);
@@ -432,11 +438,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             showRecyclerViewUsed = true;
 
             if (!showRecyclerView) {
-                if (nearSessions.size()>0) {
+                if (sessionIdsFiltered.size()>0) {
                     hideList();
                 }
             } else {
-                if (nearSessions.size()==0) {
+                if (sessionIdsFiltered.size()==0) {
                     hideList();
                 } else {
                     ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
@@ -450,7 +456,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void hideList() {
-        if (nearSessions.size()>0) {
+        if (sessionIdsFiltered.size()>0) {
             ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", horizontalSessionHeight);
             animation.setDuration(500);
             animation.start();
@@ -491,8 +497,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        if (listSmallRecyclerViewsAdapter!=null && nearSessions.size()>0)
-        listSmallRecyclerViewsAdapter.refreshData(nearSessions);
+        if (listSmallRecyclerViewsAdapter!=null && sessionIdsFiltered.size()>0)
+        listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }

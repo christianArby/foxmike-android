@@ -23,20 +23,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.BottomNavigationAdapter;
-import com.foxmike.android.interfaces.OnNearSessionsAndAdvertisementsFoundListener;
-import com.foxmike.android.interfaces.OnSessionsAndAdvertisementsFilteredListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.AdvertisementIdsAndTimestamps;
 import com.foxmike.android.utils.MyFirebaseDatabase;
+import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.utils.WrapContentViewPager;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.rd.PageIndicatorView;
+
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
@@ -56,8 +76,6 @@ public class ExploreFragment extends Fragment{
     private BottomNavigationAdapter exploreFragmentAdapter;
     private int distanceRadius;
     private String sortType;
-    private ArrayList<Session> sessionListArrayList = new ArrayList<>();
-    private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private Location locationClosetoSessions;
     private FragmentManager fragmentManager;
     private FloatingActionButton mapOrListBtn;
@@ -78,6 +96,16 @@ public class ExploreFragment extends Fragment{
     private TextView filteredItem3;
     private ArrayList<TextView> filteredItems = new ArrayList<>();
     private SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener;
+    private GeoFire geoFire;
+    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private Location currentLocation;
+    private HashMap<String,Integer> sessionDistances = new HashMap<>();
+    private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+    private HashMap<DatabaseReference, ValueEventListener> sessionListeners = new HashMap<>();
+    private HashMap<DatabaseReference, ValueEventListener> advertisementListeners = new HashMap<>();
+    private HashMap<String, Session> sessionHashMap = new HashMap<>();
+    private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
+    private HashMap<String, String> advertisementSessionHashMap = new HashMap<>();
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -235,43 +263,250 @@ public class ExploreFragment extends Fragment{
         myFirebaseDatabase= new MyFirebaseDatabase();
         // TODO if new filtersessions int is smaller than previous this function should only filter and not download
 
-        myFirebaseDatabase.getNearSessions(getActivity(), distanceRadius, new OnNearSessionsAndAdvertisementsFoundListener() {
+        FusedLocationProviderClient mFusedLocationClient;
+        geoFire = new GeoFire(mGeofireDbRef);
+        if (getActivity()==null) {
+            locationFound = false;
+            locationAndViewUsed = false;
+            onAsyncTaskFinished();
+            return;
+        }
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
-            public void OnNearSessionsFound(ArrayList<Session> nearSessions, HashMap<String, Advertisement> nearAdvertisements, Location location) {
+            public void onSuccess(Location location) {
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    currentLocation = location;
+                    GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
+                    geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                        @Override
+                        public void onKeyEntered(String key, GeoLocation location) {
+                            //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
+                            //You can fetch the actual data for this location by creating another firebase query here
+                            String distString = getDistance(location.latitude, location.longitude, currentLocation);
+                            Integer dist = Integer.parseInt(distString);
+                            sessionDistances.put(key, dist);
+                        }
 
-                locationFound = true;
-                locationAndViewUsed = false;
-                onAsyncTaskFinished();
+                        @Override
+                        public void onKeyExited(String key) {
+                        }
 
-                sessionListArrayList.clear();
-                sessionListArrayList = nearSessions;
-                advertisementHashMap.clear();
-                advertisementHashMap = nearAdvertisements;
-                locationClosetoSessions = location;
+                        @Override
+                        public void onKeyMoved(String key, GeoLocation location) {
+                        }
 
-                myFirebaseDatabase.filterSessionAndAdvertisements(nearSessions, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
-                    @Override
-                    public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                        listSessionsFragment.updateSessionListView(sessions, advertisements, locationClosetoSessions);
-                        listSessionsFragment.stopSwipeRefreshingSymbol();
+                        @Override
+                        public void onGeoQueryReady() {
+                            // TODO VAD SKA CLEARAS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?????
 
-                        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                        mapsFragment.addMarkersToMap(sessions);
+                            ArrayList<Task<?>> sessionTasks = new ArrayList<>();
+                            sessionTasks.clear();
+                            ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
+                            advertisementTasks.clear();
 
-                    }
-                });
+                            Long currentTimestamp = System.currentTimeMillis();
+                            DateTime currentTime = new DateTime(currentTimestamp);
 
-            }
+                            // Download all the near sessions
+                            for (String sessionId : sessionDistances.keySet()) {
 
-            @Override
-            public void OnLocationNotFound() {
-                locationFound = false;
-                locationAndViewUsed = false;
-                onAsyncTaskFinished();
+                                DatabaseReference sessionRef = dbRef.child("sessions").child(sessionId);
+                                if (!sessionListeners.containsKey(sessionRef)) {
+                                    TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                    Task dbTask = dbSource.getTask();
+                                    ValueEventListener sessionListener = sessionRef.addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            dbSource.trySetResult(dataSnapshot);
+                                            sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
+                                            MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                            mapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
+
+                                            for (String advertisementId: advertisementSessionHashMap.keySet()) {
+                                                if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
+                                                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                    listSessionsFragment.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
+                                                }
+                                            }
+                                        }
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            dbSource.setException(databaseError.toException());
+                                        }
+                                    });
+                                    sessionTasks.add(dbTask);
+                                    sessionListeners.put(sessionRef, sessionListener);
+                                }
+                            }
+
+                            if (sessionTasks.isEmpty()) {
+                                TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+                                Task dummyTask = dummySource.getTask();
+                                sessionTasks.add(dummyTask);
+                                dummySource.setResult("done");
+                            }
+
+
+                            Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+
+                                        for (Session session: sessionHashMap.values()) {
+                                            for (String advertisementKey: session.getAdvertisements().keySet()) {
+                                                DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementKey));
+                                                Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
+                                                if (advertisementTime.isAfter(currentTime) && durationCurrentToAdvertisment.getStandardDays()<15) {
+                                                    DatabaseReference advRef = dbRef.child("advertisements").child(advertisementKey);
+                                                    if (!advertisementListeners.containsKey(advRef)) {
+                                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                                        Task dbTask = dbSource.getTask();
+                                                        ValueEventListener advertisementListener = advRef.addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                dbSource.trySetResult(dataSnapshot);
+                                                                Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                                                                advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                                                                advertisementSessionHashMap.put(advertisement.getAdvertisementId(), advertisement.getSessionId());
+
+                                                                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                                listSessionsFragment.notifyAdvertisementChange(dataSnapshot.getKey(), advertisementHashMap, sessionHashMap);
+                                                            }
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+                                                                dbSource.setException(databaseError.toException());
+                                                            }
+                                                        });
+                                                        advertisementTasks.add(dbTask);
+                                                        advertisementListeners.put(advRef, advertisementListener);
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (advertisementTasks.isEmpty()) {
+                                            TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+                                            Task dummyTask = dummySource.getTask();
+                                            advertisementTasks.add(dummyTask);
+                                            dummySource.setResult("done");
+                                        }
+
+
+                                        Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+
+                                                    /*for (Advertisement ad :advertisementHashMap.values()) {
+                                                        advertisementIdsAndTimestamps.add(new AdvertisementIdsAndTimestamps(ad.getAdvertisementId(), ad.getAdvertisementTimestamp()));
+                                                    }
+
+                                                    Collections.sort(advertisementIdsAndTimestamps);*/
+                                                    locationFound = true;
+                                                    locationAndViewUsed = false;
+                                                    onAsyncTaskFinished();
+
+                                                    filterSessionAndAdvertisements();
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+
+                            if (sessionDistances.size() < 1) {
+                                filterSessionAndAdvertisements();
+                            }
+                        }
+
+                        @Override
+                        public void onGeoQueryError(DatabaseError error) {
+                        }
+                    });
+                } else {
+                    locationFound = false;
+                    locationAndViewUsed = false;
+                    onAsyncTaskFinished();
+                }
 
             }
         });
+    }
+
+    public void filterSessionAndAdvertisements() {
+        // sessionArray will be an array of the near sessions filtered
+        ArrayList<String> sessionIdsFiltered = new ArrayList<>();
+        ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList = new ArrayList<>();
+        // save the current time in a timestamp to compare with the advertisement timestamps
+        Long currentTimestamp = System.currentTimeMillis();
+        // Filter sessions not part of weekdays
+        for (Session nearSession : sessionHashMap.values()) {
+            // create a boolean to keep track if this session has been added to the sessionArray or not
+            boolean sessionAdded = false;
+            if (nearSession.getAdvertisements()!=null) {
+                // loop through all the advertisement timestamps found under session/adIds
+                for (String advertisementKey: nearSession.getAdvertisements().keySet()) {
+                    // If part of weekday filter
+                    long advertisementTimestamp = nearSession.getAdvertisements().get(advertisementKey);
+                    if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                        if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            // if time has not passed
+                            if (advertisementTimestamp > currentTimestamp) {
+                                if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                    // if this session hasn't already been saved to sessionArray save it
+                                    if (!sessionAdded) {
+                                        sessionIdsFiltered.add(nearSession.getSessionId());
+                                        sessionAdded = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // same for secondWeek of the filter (I have one hashmap for each week)
+                    if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                        if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            if (advertisementTimestamp > currentTimestamp) {
+                                if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                    // if this session hasn't already been saved to sessionArray save it
+                                    if (!sessionAdded) {
+                                        sessionIdsFiltered.add(nearSession.getSessionId());
+                                        sessionAdded = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        // If array should be sorted by date sort it by date
+        if (sortType.equals("date")) {
+            Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
+            TextTimestamp prevTextTimestamp = new TextTimestamp();
+            // Throw in a ad dummy containing the dateheader for every new day so that these can be used in the list
+            int i = 0;
+            while (i < advertisementIdsAndTimestampsFilteredArrayList.size()) {
+                if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(advertisementIdsAndTimestampsFilteredArrayList.get(i).getAdTimestamp()))) {
+                    AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", advertisementIdsAndTimestampsFilteredArrayList.get(i).getAdTimestamp());
+                    advertisementIdsAndTimestampsFilteredArrayList.add(i, dummyAdvertisementIdAndTimestamp);
+                    prevTextTimestamp = new TextTimestamp(advertisementIdsAndTimestampsFilteredArrayList.get(i).getAdTimestamp());
+                }
+                i++;
+            }
+        }
+
+        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+        listSessionsFragment.updateSessionListView(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
+        listSessionsFragment.stopSwipeRefreshingSymbol();
+
+        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+        mapsFragment.addMarkersToMap(sessionIdsFiltered, sessionHashMap);
+
     }
 
     private void onAsyncTaskFinished() {
@@ -357,17 +592,7 @@ public class ExploreFragment extends Fragment{
         toggleMap2 = weekdayFilterFragmentB.getAndUpdateToggleMap2();
         weekdayFilterFragment.setToggleMap2(toggleMap2);
 
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
-            @Override
-            public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
-
-            }
-        });
+        filterSessionAndAdvertisements();
 
     }
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
@@ -400,17 +625,7 @@ public class ExploreFragment extends Fragment{
     /** INTERFACE triggered when sort buttons are clicked, SORTS sessions*/
     public void OnChangeSortType(String sortType) {
         this.sortType = sortType;
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
-            @Override
-            public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-            }
-        });
+        filterSessionAndAdvertisements();
 
     }
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
@@ -434,17 +649,7 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("minPrice");
         }
 
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
-            @Override
-            public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-            }
-        });
+        filterSessionAndAdvertisements();
     }
 
     public void OnMaxPriceChanged(int maxPrice, String currencyCountry) {
@@ -457,17 +662,7 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("maxPrice");
         }
 
-        myFirebaseDatabase.filterSessionAndAdvertisements(sessionListArrayList, advertisementHashMap, firstWeekdayHashMap, secondWeekdayHashMap, sortType, minPrice, maxPrice, new OnSessionsAndAdvertisementsFilteredListener() {
-            @Override
-            public void OnSessionsAndAdvertisementsFiltered(HashMap<String, Session> sessions, ArrayList<Advertisement> advertisements) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                mapsFragment.addMarkersToMap(sessions);
-
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                listSessionsFragment.updateSessionListView(sessions, advertisements,locationClosetoSessions);
-                listSessionsFragment.stopSwipeRefreshingSymbol();
-            }
-        });
+        filterSessionAndAdvertisements();
     }
 
     private void showFilteredItem(String filterType, String filterText) {
@@ -502,6 +697,21 @@ public class ExploreFragment extends Fragment{
                 filteredItem.setVisibility(View.GONE);
             }
         }
+    }
+
+    private String getDistance(double latitude, double longitude, Location currentLocation){
+
+        Location locationA = new Location("point A");
+        locationA.setLatitude(currentLocation.getLatitude());
+        locationA.setLongitude(currentLocation.getLongitude());
+        Location locationB = new Location("point B");
+        locationB.setLatitude(latitude);
+        locationB.setLongitude(longitude);
+        float distance = locationA.distanceTo(locationB);
+        float b = (float)Math.round(distance);
+        String distanceString = Float.toString(b).replaceAll("\\.?0*$", "");
+        return  distanceString;
+
     }
 
     public void OnLocationPicked(LatLng latLng, String requestType) {
@@ -553,4 +763,18 @@ public class ExploreFragment extends Fragment{
         onFilterChangedListener = null;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (DatabaseReference sessionListenerRef: sessionListeners.keySet()) {
+            if (sessionListeners.get(sessionListenerRef)!=null) {
+                sessionListenerRef.removeEventListener(sessionListeners.get(sessionListenerRef));
+            }
+        }
+        for (DatabaseReference advertisementListenerRef: advertisementListeners.keySet()) {
+            if (advertisementListeners.get(advertisementListenerRef)!=null) {
+                advertisementListenerRef.removeEventListener(advertisementListeners.get(advertisementListenerRef));
+            }
+        }
+    }
 }

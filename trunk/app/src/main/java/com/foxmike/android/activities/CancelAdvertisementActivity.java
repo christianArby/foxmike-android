@@ -137,7 +137,6 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                 }
                 // If successful, extract
                 HashMap<String, Object> result = task.getResult();
-                Toast.makeText(getApplicationContext(), result.get("operationResult").toString(), Toast.LENGTH_LONG).show();
 
                 if (result.get("operationResult").toString().equals("success")) {
                     progressBar.setVisibility(View.GONE);

@@ -19,6 +19,7 @@ import com.foxmike.android.adapters.sessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.AdvertisementIdsAndTimestamps;
 import com.foxmike.android.utils.HeaderItemDecoration;
 
 import java.util.ArrayList;
@@ -38,10 +39,10 @@ public class  ListSessionsFragment extends Fragment {
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
     private TextView noSessionsFound;
-    private ArrayList<Advertisement> advertisements;
-    private HashMap<String, Session> sessions;
+    private ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList;
+    private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
+    private HashMap<String, Session> sessionHashMap = new HashMap<>();
     private boolean sessionsLoaded;
-    private Location location;
     private boolean locationLoaded;
     private boolean sessionsAndLocationUsed;
 
@@ -119,7 +120,7 @@ public class  ListSessionsFragment extends Fragment {
 
             progressBar.setVisibility(View.GONE);
 
-            if (advertisements.size()>0) {
+            if (advertisementIdsAndTimestampsFilteredArrayList.size()>0) {
                 noContent.setVisibility(View.GONE);
             } else {
                 noContent.setVisibility(View.VISIBLE);
@@ -127,10 +128,10 @@ public class  ListSessionsFragment extends Fragment {
 
             if (sessionsAdapter!=null) {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter.refreshData(sessions, advertisements, location);
+                sessionsAdapter.refreshData(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
             } else {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new sessionsAdapter(sessions, advertisements, getActivity(), location, onSessionClickedListener);
+                sessionsAdapter = new sessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity(), currentLocation, onSessionClickedListener);
                 if (mSessionList!=null) {
                     HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
                     mSessionList.addItemDecoration(headerItemDecoration);
@@ -147,15 +148,24 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     // Function to refresh data in sessionsAdapter
-    public void updateSessionListView(HashMap<String, Session> sessions ,ArrayList<Advertisement> advertisements, Location location) {
-        this.sessions = sessions;
-        this.advertisements = advertisements;
-        this.location = location;
+    public void updateSessionListView(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation) {
+        this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
+        this.advertisementHashMap = advertisementHashMap;
+        this.sessionHashMap = sessionHashMap;
+        this.currentLocation = currentLocation;
         sessionsLoaded = true;
         locationLoaded = true;
         sessionsAndLocationUsed = false;
 
         onAsyncTaskFinished();
+    }
+
+    public void notifyAdvertisementChange(String advertisementId, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap) {
+        if (sessionsAdapter!=null) {
+            this.advertisementHashMap = advertisementHashMap;
+            this.sessionHashMap = sessionHashMap;
+            sessionsAdapter.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
+        }
     }
 
     public void emptyListView() {

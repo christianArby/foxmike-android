@@ -33,20 +33,20 @@ import java.util.Locale;
 public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<ListSmallSessionsHorizontalAdapter.ListSmallSessionsHorizontalViewholder> {
 
     private HashMap<String, Session> sessionHashMap;
-    private ArrayList<Session> sessionArrayList;
+    ArrayList<String> sessionIdsFiltered = new ArrayList<>();
     private Context context;
     private OnSessionClickedListener onSessionClickedListener;
     private Location lastLocation;
     private long mLastClickTime = 0;
 
-    public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation) {
+    public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, ArrayList<String> sessionIdsFiltered, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation, long mLastClickTime) {
         this.sessionHashMap = sessionHashMap;
-        this.sessionArrayList = new ArrayList<>(sessionHashMap.values());
+        this.sessionIdsFiltered = sessionIdsFiltered;
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
         this.lastLocation = lastLocation;
+        this.mLastClickTime = mLastClickTime;
     }
-
 
     @NonNull
     @Override
@@ -60,14 +60,14 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
     @Override
     public void onBindViewHolder(@NonNull ListSmallSessionsHorizontalAdapter.ListSmallSessionsHorizontalViewholder holder, int position) {
 
-        holder.setText0(sessionArrayList.get(position).getSessionType());
-        String sessionName = sessionArrayList.get(position).getSessionName();
+        holder.setText0(sessionHashMap.get(sessionIdsFiltered.get(position)).getSessionType());
+        String sessionName = sessionHashMap.get(sessionIdsFiltered.get(position)).getSessionName();
         holder.setSessionName(sessionName);
 
-        if (sessionArrayList.get(position).getAdvertisements().size()>0) {
+        if (sessionHashMap.get(sessionIdsFiltered.get(position)).getAdvertisements().size()>0) {
             Long currentTimestamp = System.currentTimeMillis();
             Long earliestAd = 0L;
-            for (Long adTimestamp : sessionArrayList.get(position).getAdvertisements().values()) {
+            for (Long adTimestamp : sessionHashMap.get(sessionIdsFiltered.get(position)).getAdvertisements().values()) {
                 if (earliestAd == 0L) {
                     earliestAd = adTimestamp;
                 }
@@ -88,17 +88,17 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
 
 
 
-        String address = getAddress(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude());
+        String address = getAddress(sessionHashMap.get(sessionIdsFiltered.get(position)).getLatitude(), sessionHashMap.get(sessionIdsFiltered.get(position)).getLongitude());
         holder.setText3(address);
-        String distance = getDistance(sessionArrayList.get(position).getLatitude(), sessionArrayList.get(position).getLongitude(), lastLocation);
+        String distance = getDistance(sessionHashMap.get(sessionIdsFiltered.get(position)).getLatitude(), sessionHashMap.get(sessionIdsFiltered.get(position)).getLongitude(), lastLocation);
         holder.setText4(" \u2022 " + distance);
-        holder.setSessionImage(sessionArrayList.get(position).getImageUrl());
-        holder.setSessionClickedListener(sessionArrayList.get(position).getSessionId());
+        holder.setSessionImage(sessionHashMap.get(sessionIdsFiltered.get(position)).getImageUrl());
+        holder.setSessionClickedListener(sessionHashMap.get(sessionIdsFiltered.get(position)).getSessionId());
     }
 
     @Override
     public int getItemCount() {
-        return sessionArrayList.size();
+        return sessionIdsFiltered.size();
     }
 
     public class ListSmallSessionsHorizontalViewholder extends RecyclerView.ViewHolder {
@@ -155,10 +155,17 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         }
     }
 
-    public void refreshData(HashMap<String, Session> sessions) {
-        this.sessionHashMap = sessions;
-        this.sessionArrayList = new ArrayList<>(sessions.values());
+    public void refreshData(HashMap<String, Session> sessionHashMap, ArrayList<String> sessionIdsFiltered) {
+        this.sessionHashMap = sessionHashMap;
+        this.sessionIdsFiltered = sessionIdsFiltered;
         this.notifyDataSetChanged();
+    }
+
+    public void notifySessionChange(String sessionId, HashMap<String, Session> sessionHashMap) {
+        if (sessionIdsFiltered.contains(sessionId)) {
+            this.sessionHashMap = sessionHashMap;
+            this.notifyItemChanged(sessionIdsFiltered.indexOf(sessionId));
+        }
     }
 
     /**Method get distance from current location to a certain point with latitude, longitude */

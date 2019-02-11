@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.adapters;
 
 import android.location.Location;
@@ -16,9 +17,11 @@ import com.foxmike.android.models.Session;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+*/
 /**
  * Created by chris on 2019-02-07.
- */
+ *//*
+
 
 public class ExplorePagerAdapter extends FragmentPagerAdapter {
     private ListSessionsFragment listSessionsFragment;
@@ -79,7 +82,6 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
         if (listSessionsFragment == null) {
             boListSessionsFrament = false;
         }
-        Log.w("EEEEEEEEEEEEEEEE", "listSessionsFragment" + String.valueOf(boListSessionsFrament));
 
         boolean BomapsFragment = true;
         if (mapsFragment == null) {
@@ -122,3 +124,4 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
 
 
 }
+*/
