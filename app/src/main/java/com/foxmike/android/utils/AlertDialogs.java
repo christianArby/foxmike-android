@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
-import com.foxmike.android.R;
-
 /**
  * Created by chris on 2019-01-18.
  */
@@ -49,14 +47,14 @@ public class AlertDialogs {
                 .setTitle(title);
 
         // Add the buttons
-        builder.setPositiveButton(R.string.cancel_booking_anyway, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
                 onPositiveOrNegativeButtonPressedListener.OnPositivePressed();
             }
         });
 
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 onPositiveOrNegativeButtonPressedListener.OnNegativePressed();
             }

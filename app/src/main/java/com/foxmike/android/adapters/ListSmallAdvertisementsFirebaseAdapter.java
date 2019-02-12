@@ -12,8 +12,10 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.SmallAdvertisementViewHolder;
 import com.foxmike.android.utils.TextTimestamp;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Created by chris on 2018-09-22.
@@ -58,7 +60,26 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
+                if (!model.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    if (model.getStatus().equals("cancelled")) {
+                        AlertDialogs alertDialogs = new AlertDialogs(context);
+                        alertDialogs.alertDialogPositiveOrNegative(context.getResources().getString(R.string.occasion_cancelled), context.getResources().getString(R.string.occasion_cancelled_text) + context.getResources().getString(R.string.you_will_be_refunded),
+                                context.getResources().getString(R.string.ok), context.getResources().getString(R.string.show_availability), new AlertDialogs.OnPositiveOrNegativeButtonPressedListener() {
+                                    @Override
+                                    public void OnPositivePressed() {
+
+                                    }
+
+                                    @Override
+                                    public void OnNegativePressed() {
+                                        onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
+                                    }
+                                });
+
+                    }
+                }
+
+
             }
         });
         if (model.getStatus().equals("cancelled")) {

@@ -125,7 +125,15 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         if (model.getType().equals("sessionCancellation")) {
             holder.setNotificationImage(model.getThumbNail(),context);
 
-            String notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled);
+            String notificationText;
+
+            if (!model.getParam1().equals("FREE")) {
+                notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled) +
+                         context.getString(R.string.you_will_be_refunded);
+            } else {
+                notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled);
+            }
+
 
             SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
             StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
