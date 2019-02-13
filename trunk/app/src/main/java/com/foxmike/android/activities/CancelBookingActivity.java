@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -106,9 +107,16 @@ public class CancelBookingActivity extends AppCompatActivity {
                         int amount = (int) refund.get("amount");
                         float sweAmount = amount;
                         String refundAmount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
-                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + refund.get("currency") + ".");
+                        String currency = (String) refund.get("currency");
+                        Intent data = new Intent();
+                        data.putExtra("operationType", "REFUND");
+                        data.putExtra("refundAmount", refundAmount);
+                        data.putExtra("currency", currency);
+                        setResult(RESULT_OK, data);
+                        finish();
                     } else {
-                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.cancelled_free_session));
+                        setResult(RESULT_OK, null);
+                        finish();
                     }
                 } else {
                     HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
@@ -149,8 +157,7 @@ public class CancelBookingActivity extends AppCompatActivity {
         // Add the buttons
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                setResult(RESULT_OK, null);
-                finish();
+
             }
         });
 

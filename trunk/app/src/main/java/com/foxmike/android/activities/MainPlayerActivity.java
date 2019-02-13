@@ -61,7 +61,9 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
+import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.CheckVersion;
+import com.foxmike.android.utils.Price;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -535,11 +537,30 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
             if (requestCode == CANCEL_BOOKING_REQUEST) {
+                AlertDialogs alertDialogs = new AlertDialogs(this);
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                    ps.loadPages(true);
+                if (data!=null) {
+                    if (data.getStringExtra("operationType").equals("REFUND")) {
+                        String refundAmount = data.getStringExtra("refundAmount");
+                        String currency = data.getStringExtra("currency");
+                        alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + ".",
+                                new AlertDialogs.OnOkPressedListener() {
+                                    @Override
+                                    public void OnOkPressed() {
+
+                                    }
+                                });
+                    }
+                } else {
+                    alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session), new AlertDialogs.OnOkPressedListener() {
+                        @Override
+                        public void OnOkPressed() {
+
+                        }
+                    });
+
                 }
+
             }
             if (requestCode == BOOK_SESSION_REQUEST) {
                 if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
@@ -552,9 +573,6 @@ public class MainPlayerActivity extends AppCompatActivity
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
-                    // TODO should not be needed since PlayerSessionsFragment relies on firebaseadapters
-                    PlayerSessionsFragment ps = (PlayerSessionsFragment) fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment");
-                    ps.loadPages(true);
                 }
             }
         }

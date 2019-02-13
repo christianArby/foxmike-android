@@ -10,6 +10,8 @@ public class Price {
     public static HashMap<String, Integer> PRICES_INTEGERS_SE = new HashMap<>();
     public static HashMap<Integer, String> PRICES_STRINGS_SE = new HashMap<>();
 
+    public static HashMap<String, String> CURRENCIES = new HashMap<>();
+
     static {
         PRICES_INTEGERS_SE.put("Min", 0);
         PRICES_INTEGERS_SE.put("Gratis", 0);
@@ -33,6 +35,8 @@ public class Price {
         PRICES_STRINGS_SE.put(90, "90 kr");
         PRICES_STRINGS_SE.put(100, "100 kr");
         PRICES_STRINGS_SE.put(1000000, "Max");
+
+        CURRENCIES.put("sek", "kr");
 
     }
 
