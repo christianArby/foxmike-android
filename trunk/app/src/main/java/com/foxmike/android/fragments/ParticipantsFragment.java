@@ -5,50 +5,53 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import com.google.firebase.database.Query;
 /**
  * This dialog fragment creates a list of participants in session
  */
 public class ParticipantsFragment extends DialogFragment {
 
-    private HashMap<String,String> participants;
-    private RecyclerView participantsList;
-    private DatabaseReference usersDatabase;
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private FirebaseAuth mAuth;
-    private ArrayList<String> userIDs = new ArrayList<String>();
     private OnUserClickedListener onUserClickedListener;
+    private FirebaseRecyclerAdapter<UserPublic, UsersViewHolder> participantsFirebaseRecyclerAdapter;
+    private RecyclerView participantsList;
     private RecyclerView.Adapter<UsersViewHolder> friendsViewHolderAdapter;
-    private ArrayList<UserPublic> users = new ArrayList<>();
     private long mLastClickTime = 0;
+    private String advertisementId;
+    private String heading;
+    private TextView headingTV;
+    private ImageView closeButton;
 
     public ParticipantsFragment() {
         // Required empty public constructor
     }
     // Get hashmap of userIDs (participants) from previous activity/fragment
-    public static ParticipantsFragment newInstance(HashMap<String,String> participants) {
+    public static ParticipantsFragment newInstance(String advertisementId, String heading) {
         ParticipantsFragment fragment = new ParticipantsFragment();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("hashmap",participants);
+        bundle.putString("advertisementId", advertisementId);
+        bundle.putString("heading", heading);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -57,10 +60,12 @@ public class ParticipantsFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.participants = new HashMap<String,String>();
         Bundle b = this.getArguments();
-        if(b.getSerializable("hashmap") != null) {
-            this.participants = (HashMap<String,String>)b.getSerializable("hashmap");
+        if(b.getString("advertisementId") != null) {
+            this.advertisementId = b.getString("advertisementId");
+        }
+        if(b.getString("heading") != null) {
+            this.heading = b.getString("heading");
         }
     }
 
@@ -73,6 +78,7 @@ public class ParticipantsFragment extends DialogFragment {
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
             d.getWindow().setLayout(width, height);
         }
+        participantsFirebaseRecyclerAdapter.startListening();
     }
 
     @Override
@@ -80,52 +86,36 @@ public class ParticipantsFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         View mainView = inflater.inflate(R.layout.fragment_participants, container, false);
 
-        usersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
         mAuth = FirebaseAuth.getInstance();
-        // Clear usersIDs and users since they will exist when onCreateView is recreated
-        userIDs.clear();
-        users.clear();
-        userIDs.addAll(participants.keySet());
+
+        headingTV = mainView.findViewById(R.id.participantsHeading);
+        headingTV.setText(heading);
+
+        closeButton = mainView.findViewById(R.id.closeImageButton);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+
         participantsList = (RecyclerView) mainView.findViewById(R.id.participants_listRV);
-        participantsList.setHasFixedSize(true);
         participantsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Loopa alla userIDs och ladda ner deras user objekt, samla dessa i users på samma position som i userIDs
-        for (String key : participants.keySet()) {
-            usersDatabase.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
-                    // hitta positionen i userIDs
-                    users.add(userPublic);
-                    if (users.size()==userIDs.size()) {
-                        Collections.sort(users);
-                        friendsViewHolderAdapter.notifyDataSetChanged();
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-        }
+        Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsTimestamps").orderByValue();
+        DatabaseReference adDbRef = rootDbRef.child("usersPublic");
+        // Create the firebase recycler adapter which will fill the list with those advertisements specified by the above query
+        FirebaseRecyclerOptions<UserPublic> options = new FirebaseRecyclerOptions.Builder<UserPublic>()
+                .setIndexedQuery(participantsQuery, adDbRef, UserPublic.class)
+                .build();
 
-        // Lista alla användare sparade i users i en lista
-        friendsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {
+        participantsFirebaseRecyclerAdapter = new FirebaseRecyclerAdapter<UserPublic, UsersViewHolder>(options) {
             @Override
-            public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.users_list_single_layout, parent, false);
-                return new UsersViewHolder(view);
-            }
-
-            @Override
-            public void onBindViewHolder(UsersViewHolder holder, final int position) {
-                holder.setText("nothing", true);
-                final UserPublic friend = users.get(position);
-                holder.setHeading(friend.getFirstName() + " " + friend.getLastName());
-                holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-
-                // Vid klick på en user skicka dess user ID genom lyssnaren OnUserClickedListener
+            protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull UserPublic model) {
+                holder.setHeading(model.getFirstName() + " " + model.getLastName());
+                holder.setText(model.getUserName(),true);
+                holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
+                String userId = getRef(position).getKey();
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -133,16 +123,27 @@ public class ParticipantsFragment extends DialogFragment {
                             return;
                         }
                         mLastClickTime = SystemClock.elapsedRealtime();
-                        onUserClickedListener.OnUserClicked(userIDs.get(position));
+                        if (userId.equals(mAuth.getCurrentUser().getUid())) {
+                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                        } else {
+                            onUserClickedListener.OnUserClicked(userId);
+                        }
                     }
                 });
+
             }
+
+            @NonNull
             @Override
-            public int getItemCount() {
-                return users.size();
+            public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.users_list_single_layout, parent, false);
+                return new UsersViewHolder(view);
             }
         };
-        participantsList.setAdapter(friendsViewHolderAdapter);
+
+        participantsList.setAdapter(participantsFirebaseRecyclerAdapter);
+
         return mainView;
     }
 
@@ -160,5 +161,11 @@ public class ParticipantsFragment extends DialogFragment {
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        participantsFirebaseRecyclerAdapter.stopListening();
     }
 }

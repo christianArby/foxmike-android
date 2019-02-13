@@ -527,4 +527,5 @@
     <string name="update_text_3">"\n""\n"Observera att det kan ta ett tag innan Google Play Butik tillhandahåller den nödvändiga uppdateringen.</string>
     <string name="has_booked_your_session">\u0020har bokat ditt pass\u0020</string>
     <string name="you_will_be_refunded">\u0020En återbetalning har gjorts till ditt konto.</string>
+    <string name="participants_on">Deltagare</string>
 </resources>
