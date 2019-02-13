@@ -8,4 +8,5 @@ import android.view.View;
 
 public interface AdvertisementRowClickedListener {
     void OnAdvertisementRowClicked(View view, int position);
+    void OnParticipantsClicked(int position);
 }

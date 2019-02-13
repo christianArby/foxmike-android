@@ -31,6 +31,12 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
 
     public void setParticipantsTV(String numberOfParticipantsText) {
         participantsTV.setText(numberOfParticipantsText);
+        participantsTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                advertisementRowClickedListener.OnParticipantsClicked(getAdapterPosition());
+            }
+        });
     }
 
     @Override

@@ -502,6 +502,32 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         onAsyncTaskFinished();
                         notifyDataSetChanged(); // Made effect on Recycler Views adapter
                     }
+
+                    @Override
+                    public void OnParticipantsClicked(int position) {
+
+                        if (rowIndex==position) {
+                            if (model.getParticipantsTimestamps().size()>0) {
+                                ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(model.getAdvertisementId(),
+                                        getContext().getResources().getString(R.string.participants_on) + " " + TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
+                                FragmentManager fragmentManager = getChildFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                if (participantsFragment!=null) {
+                                    transaction.remove(participantsFragment);
+                                }
+                                participantsFragment.show(transaction,"participantsFragment");
+                            }
+                        }
+
+                        // Save the clicked position by setting the variable rowIndex = position
+                        rowIndex = position;
+                        // update snackbar
+                        adSelected = fbAdDateAndTimeAdapter.getItem(position);
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        adSelectedReady = true;
+                        onAsyncTaskFinished();
+                        notifyDataSetChanged(); // Made effect on Recycler Views adapter
+                    }
                 });
                 // set the row appearance to default (no selection or booked color)
                 setAdListItemDefaultAppearance(holder);
@@ -516,7 +542,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     adSelected=model;
                     paymentMethodAdSelectedAndViewUsed = false;
                     adSelectedReady = true;
-                    setAdListItemSelectedAppearance(holder);
+                    if (model.getChargeIds().size()!=0) {
+                        setAdListItemSelectedAppearance(holder);
+                    } else {
+                        setAdListItemSelectedNoParticipantsAppearance(holder);
+                    }
+
                     onAsyncTaskFinished();
                 }
                 // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
@@ -1109,6 +1140,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
         holder.advertisementRowDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
         holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
+    }
+
+    private void setAdListItemSelectedNoParticipantsAppearance(@NonNull AdvertisementRowViewHolder holder) {
+        holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
+        holder.advertisementRowDateAndTimeText.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
+        holder.participantsTV.setTextColor(getResources().getColor(R.color.primaryTextColor));
     }
 
     private void setPriceText() {

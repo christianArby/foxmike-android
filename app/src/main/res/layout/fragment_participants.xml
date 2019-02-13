@@ -2,11 +2,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background_light"
     tools:context="com.foxmike.android.fragments.ParticipantsFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/participants_listRV"
+    <ImageButton
+        android:padding="@dimen/margin_minimum"
+        android:elevation="1dp"
+        android:id="@+id/closeImageButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background_light"
+        android:outlineProvider="none"
+        android:tint="@color/primaryTextColor"
+        android:src="@drawable/ic_close_black_24dp"/>
+
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_below="@id/closeImageButton"
+                android:layout_margin="@dimen/margin_left"
+                android:id="@+id/participantsHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/primaryTextColor"
+                android:text="@string/participants_on"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_below="@id/participantsHeading"
+                android:id="@+id/participants_listRV"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+
+
 
 </RelativeLayout>
