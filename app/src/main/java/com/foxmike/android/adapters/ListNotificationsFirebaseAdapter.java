@@ -97,29 +97,34 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
             holder.setNotificationText(notificationTextFormatted);
         }
-        if (model.getType().equals("advertisementParticipant")) {
+        if (model.getType().equals("advertisementParticipantNew")) {
             holder.setNotificationImage(model.getThumbNail(),context);
 
-            if (!model.getParam2().equals("none")) {
-                String notificationText = model.getParam1() + context.getString(R.string.has_booked_your_session) + model.getParam3();
+            String notificationText = model.getParam1() + context.getString(R.string.has_booked_your_session) + model.getParam3();
 
-                SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-                StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-                notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-                StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-                notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
 
 
-                holder.setNotificationText(notificationTextFormatted);
-            } else {
-                String notificationText = context.getString(R.string.you_have_a_cancellation_in) + model.getParam3();
+            holder.setNotificationText(notificationTextFormatted);
+        }
 
-                SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-                StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-                notificationTextFormatted.setSpan(bold1, context.getString(R.string.you_have_a_cancellation_in).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+        if (model.getType().equals("advertisementParticipantCancellation")) {
+            holder.setNotificationImage(model.getThumbNail(),context);
 
-                holder.setNotificationText(notificationTextFormatted);
-            }
+            String notificationText = model.getParam1() + context.getString(R.string.has_cancelled_you_session) + model.getParam3();
+
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
+
+            holder.setNotificationText(notificationTextFormatted);
         }
 
         if (model.getType().equals("sessionCancellation")) {

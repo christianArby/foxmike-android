@@ -23,6 +23,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
@@ -102,8 +103,10 @@ public class CancelBookingActivity extends AppCompatActivity {
                     progressBarHorizontal.setProgress(100);
                     if (result.get("operationType").toString().equals("REFUND")) {
                         Map<String,Object> refund = (Map) result.get("refund");
-                        Integer amount = (Integer) refund.get("amount");
-                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + amount/100 + " " + refund.get("currency"));
+                        int amount = (int) refund.get("amount");
+                        float sweAmount = amount;
+                        String refundAmount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
+                        alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + refund.get("currency") + ".");
                     } else {
                         alertDialogOk(getString(R.string.cancellation_confirmation),getString(R.string.cancelled_free_session));
                     }
