@@ -528,4 +528,5 @@
     <string name="has_booked_your_session">\u0020has booked your session\u0020</string>
     <string name="you_will_be_refunded">\u0020A refund has been made to your account.</string>
     <string name="participants_on">Participants</string>
+    <string name="has_cancelled_you_session">\u0020has cancelled your session\u0020</string>
 </resources>
