@@ -293,7 +293,7 @@
     <string name="welcome_to_foxmike_text">Välkommen till Foxmike</string>
     <string name="continue_to_facebook_text">Fortsätt med Facebook</string>
     <string name="create_account_text">Skapa konto</string>
-    <string name="foxmike_policy_text_swe">Genom att klicka på Fortsätt med eller Skapa konto godkänner jag Foxmikes användarvillkor.</string>
+    <string name="foxmike_policy_text">Genom att klicka på Fortsätt med Facebook, Fortsätt med Google eller Skapa konto godkänner jag Foxmikes\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Integritetspolicy</a>.</string>
     <string name="aboutMe_text">Skriv något om dig själv</string>
     <string name="first_name_text">Förnamn</string>
     <string name="last_name_text">Efternamn</string>
@@ -318,7 +318,7 @@
     <string name="menu_explore">Utforska</string>
     <string name="menu_map">Karta</string>
     <string name="menu_profile">Konto</string>
-    <string name="agree_terms_privacy">Genom att registrera ditt konto, godkänner du vårat <a href="https://stripe.com/us/connect-account/legal">Serviceavtal</a> och <a href="https://stripe.com/us/connect-account/legal">Stripe Connected Account Agreement</a></string>
+    <string name="agree_terms_privacy">Genom att registrera ditt konto, godkänner du\u0020<a href="https://stripe.com/us/connect-account/legal">Stripe Connected Account Agreement</a></string>
     <string name="no_first_name_error">Fyll i ditt förnamn.</string>
     <string name="no_last_name_error">Fyll i ditt efternamn.</string>
     <string name="no_street_address_error">Fyll i din gatuaddress.</string>

@@ -98,13 +98,15 @@
         android:layout_marginTop="@dimen/marginVertical"/>
 
     <TextView
+        android:id="@+id/policyAgreement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/foxmike_policy_text_swe"
+        android:text="@string/foxmike_policy_text"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginBottom="@dimen/marginVertical"
         android:layout_marginEnd="70dp"
         android:textColor="@color/secondaryTextColor"
+        android:textColorLink="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
