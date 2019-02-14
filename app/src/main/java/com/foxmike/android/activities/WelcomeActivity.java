@@ -10,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -86,6 +87,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private TextView versionNameTV;
     String version;
     private long mLastClickTime = 0;
+    private TextView policyAgreementTV;
 
 
     @Override
@@ -104,6 +106,8 @@ public class WelcomeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         view = findViewById(R.id.welcomeParentView);
         versionNameTV = findViewById(R.id.versionName);
+        policyAgreementTV = findViewById(R.id.policyAgreement);
+        policyAgreementTV.setMovementMethod(LinkMovementMethod.getInstance());
 
         version = "";
         try {
