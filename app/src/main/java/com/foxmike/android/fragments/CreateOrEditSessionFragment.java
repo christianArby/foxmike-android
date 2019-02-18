@@ -913,7 +913,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 public void onComplete(@NonNull Task<Void> task) {
                     // save the key and ad timestamp under user/advertisementHosting
                     writeReferences.add(rootDbRef.child("advertisements").child(advertisementKey).toString());
-                    rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("advertisementsHosting").child(advertisementKey).setValue(advertisementTimestamp);
+                    rootDbRef.child("advertisementHosts").child(currentFirebaseUser.getUid()).child(advertisementKey).setValue(advertisementTimestamp);
                 }
             });
         }
@@ -922,7 +922,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         // Update the session (with 'updateChildren' so not all child nodes are overwritten)
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
         // Update user object with sessionsHosting
-        rootDbRef.child("users").child(currentFirebaseUser.getUid()).child("sessionsHosting").child(mSessionId).setValue(true);
+        rootDbRef.child("sessionHosts").child(currentFirebaseUser.getUid()).child(mSessionId).setValue(true);
         // create geoFire reference
         geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
         // TODO this listener might not be needed..

@@ -51,7 +51,7 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
 
-        Query pastAdsQuery = rootDbRef.child("users").child(currentUserId).child("sessionsAttending").orderByValue().startAt(0).endAt(currentTimestamp);
+        Query pastAdsQuery = rootDbRef.child("advertisementAttendees").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();

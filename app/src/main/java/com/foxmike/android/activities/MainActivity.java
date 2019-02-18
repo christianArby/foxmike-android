@@ -22,7 +22,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -196,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });*/
 
-            //--------------------- Set presence of current user---------------------------------
+            /*//--------------------- Set presence of current user---------------------------------
             String currentUserID = mAuth.getCurrentUser().getUid();
 
             // since I can connect from multiple devices, we store each connection instance separately
@@ -232,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            // ---------------------------------------------------------------------------------------
+            // ---------------------------------------------------------------------------------------*/
 
         } else {
             //User is signed out

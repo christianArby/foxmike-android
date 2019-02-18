@@ -88,7 +88,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             if (chargeIds.size()==0) {
                 rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
                 rootDbRef.child("sessions").child(sessionId).child("advertisements").child(advertisementId).setValue(0);
-                rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").child(advertisementId).setValue(0);
+                rootDbRef.child("advertisementHosts").child(currentUserId).child(advertisementId).setValue(0);
                 progressBar.setVisibility(View.GONE);
                 finishCancellation();
             } else {

@@ -58,7 +58,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
 
-        Query futureAdsQuery = rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").orderByValue().startAt(currentTimestamp);
+        Query futureAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(currentTimestamp);
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();

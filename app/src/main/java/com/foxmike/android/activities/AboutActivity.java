@@ -10,16 +10,27 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.CheckVersion;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+
+import java.util.HashMap;
+
+import static android.content.ContentValues.TAG;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -79,6 +90,41 @@ public class AboutActivity extends AppCompatActivity {
         });
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mLastAdminClickCounter==8) {
+                    Toast.makeText(AboutActivity.this, "erasing account...", Toast.LENGTH_LONG).show();
+                    eraseAccount(FirebaseAuth.getInstance().getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                            if (!task.isSuccessful()) {
+                                Exception e = task.getException();
+                                Log.w(TAG, "retrieve:onFailure", e);
+                                Toast.makeText(AboutActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            // If successful, extract
+                            HashMap<String, Object> result = task.getResult();
+                            if (result.get("operationResult").toString().equals("success")) {
+                                Toast.makeText(AboutActivity.this, "Notification sent", Toast.LENGTH_LONG).show();
+                                finish();
+                            } else {
+                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
+                                Toast.makeText(AboutActivity.this, error.get("message").toString(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+                }
+                if (SystemClock.elapsedRealtime() - mLastAdminClickTime < 2000) {
+                    mLastAdminClickCounter++;
+                    return;
+                }
+                mLastAdminClickCounter = 0;
+                mLastAdminClickTime = SystemClock.elapsedRealtime();
+            }
+        });
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -95,5 +141,19 @@ public class AboutActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         CheckVersion.checkVersion(this);
+    }
+
+    private Task<HashMap<String, Object>> eraseAccount(String userId) {
+        FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
+        return mFunctions
+                .getHttpsCallable("eraseUser")
+                .call(userId)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
     }
 }
