@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +23,8 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
 import com.foxmike.android.models.Message;
 import com.foxmike.android.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -245,8 +248,18 @@ public class CommentFragment extends Fragment {
             messageMap.put("seen", false);
             messageMap.put("senderUserID", currentUserID);
             messageMap.put("senderName", userName);
-            rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).child(messageID).setValue(messageMap);
-            postMessage.setText("");
+            rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).child(messageID).setValue(messageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Long currentTimestamp = System.currentTimeMillis();
+                    rootDbRef.child("userComments").child(mAuth.getCurrentUser().getUid()).child(sourceID).child(postID).child(messageID).setValue(currentTimestamp).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            postMessage.setText("");
+                        }
+                    });
+                }
+            });
         }
     }
 

@@ -124,7 +124,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private AHBottomNavigation bottomNavigation;
     private String fromUserID;
     private FirebaseAuth mAuth;
-    private DatabaseReference rootDbRef;
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private boolean resumed = false;
     private FirebaseFunctions mFunctions;
@@ -140,6 +140,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadFriendRequests = 0;
     // variable to track event time
     private long mLastClickTime = 0;
+    private ValueEventListener userExistsListener;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -172,7 +173,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
         // get Firebase instances and references
         mAuth = FirebaseAuth.getInstance();
-        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
         /** If friend request is sent by notification, get it through intentExtra. */
         fromUserID = getIntent().getStringExtra("notificationRequest");

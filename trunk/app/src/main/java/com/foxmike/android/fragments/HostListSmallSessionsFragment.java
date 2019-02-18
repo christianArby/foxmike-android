@@ -50,7 +50,7 @@ public class HostListSmallSessionsFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference sessionsDbRef = rootDbRef.child("sessions");
 
-        Query sessionsQuery = rootDbRef.child("users").child(currentUserId).child("sessionsHosting").orderByKey();
+        Query sessionsQuery = rootDbRef.child("sessionHosts").child(currentUserId).orderByKey();
         FirebaseRecyclerOptions<Session> sessionsOptions = new FirebaseRecyclerOptions.Builder<Session>()
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
