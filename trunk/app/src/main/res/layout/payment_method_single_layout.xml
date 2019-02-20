@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/loading"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:textColor="@color/primaryTextColor"
         android:drawableStart="@drawable/ic_visa_card"
         android:drawablePadding="@dimen/margin_left"
@@ -19,14 +19,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
+        android:fontFamily="@font/montserrat_semi_bold"
+        app:fontFamily="@font/montserrat_semi_bold"
         android:id="@+id/paymentMethodStandard"
         android:textAllCaps="true"
         android:background="@color/lightGrayLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/margin_minimum"
-        android:textStyle="bold"
         android:text="@string/loading"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         android:textColor="@color/primaryTextColor"

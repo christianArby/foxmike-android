@@ -299,7 +299,6 @@ public class ExploreFragment extends Fragment{
 
                         @Override
                         public void onGeoQueryReady() {
-                            // TODO VAD SKA CLEARAS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?????
 
                             ArrayList<Task<?>> sessionTasks = new ArrayList<>();
                             sessionTasks.clear();
@@ -366,13 +365,17 @@ public class ExploreFragment extends Fragment{
                                                         ValueEventListener advertisementListener = advRef.addValueEventListener(new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                dbSource.trySetResult(dataSnapshot);
-                                                                Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                                                                advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
-                                                                advertisementSessionHashMap.put(advertisement.getAdvertisementId(), advertisement.getSessionId());
-
                                                                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                                                                listSessionsFragment.notifyAdvertisementChange(dataSnapshot.getKey(), advertisementHashMap, sessionHashMap);
+                                                                dbSource.trySetResult(dataSnapshot);
+                                                                if (dataSnapshot.getValue()==null) {
+                                                                    listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), session.getAdvertisements().get(dataSnapshot.getKey())));
+                                                                } else {
+                                                                    Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                                                                    advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                                                                    advertisementSessionHashMap.put(advertisement.getAdvertisementId(), advertisement.getSessionId());
+                                                                    listSessionsFragment.notifyAdvertisementChange(dataSnapshot.getKey(), advertisementHashMap, sessionHashMap);
+                                                                }
+
                                                             }
                                                             @Override
                                                             public void onCancelled(DatabaseError databaseError) {
@@ -766,6 +769,10 @@ public class ExploreFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        removeListeners();
+    }
+
+    public void removeListeners() {
         for (DatabaseReference sessionListenerRef: sessionListeners.keySet()) {
             if (sessionListeners.get(sessionListenerRef)!=null) {
                 sessionListenerRef.removeEventListener(sessionListeners.get(sessionListenerRef));

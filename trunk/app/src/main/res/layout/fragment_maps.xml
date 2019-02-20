@@ -20,7 +20,9 @@
         android:background="@drawable/square_button_transparent"
         android:text="@string/pick_location_text"/>
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
+        style="@style/FoxmikeSubhead"
+        android:textAllCaps="false"
         android:id="@+id/chooseLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

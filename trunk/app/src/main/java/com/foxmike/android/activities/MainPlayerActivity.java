@@ -684,6 +684,9 @@ public class MainPlayerActivity extends AppCompatActivity
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        exploreFragment.removeListeners();
     }
 
     @Override

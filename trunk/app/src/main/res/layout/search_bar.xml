@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/search_for_name_or_username"
         android:inputType="textCapWords"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:layout_marginRight="@dimen/margin_right"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

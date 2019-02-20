@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/paymentPreferencesHeading"
         android:text="@string/credit_card"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:layout_marginTop="40dp"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
@@ -37,6 +37,7 @@
         android:id="@+id/cardInfoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
         app:layout_constraintTop_toBottomOf="@id/paymentPreferencesHeading"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -45,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/loading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/FoxmikeSubhead"
             android:textColor="@color/primaryTextColor"
             android:drawableStart="@drawable/ic_visa_card"
             android:drawablePadding="@dimen/margin_left"
@@ -56,14 +57,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/paymentMethodStandard"
             android:textAllCaps="true"
             android:background="@color/lightGrayLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_minimum"
-            android:textStyle="bold"
+            android:fontFamily="@font/montserrat_semi_bold"
+            app:fontFamily="@font/montserrat_semi_bold"
             android:text="@string/loading"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textColor="@color/primaryTextColor"
@@ -94,7 +96,7 @@
         android:layout_height="wrap_content"
         android:text="@string/delete"
         android:padding="@dimen/margin_left"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:textColor="@color/foxmikePrimaryColor"
         app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -105,7 +107,7 @@
         android:layout_height="wrap_content"
         android:text="@string/make_default"
         android:padding="@dimen/margin_left"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:textColor="@color/foxmikePrimaryColor"
         app:layout_constraintTop_toBottomOf="@id/cardInfoContainer"
         app:layout_constraintEnd_toEndOf="parent"/>

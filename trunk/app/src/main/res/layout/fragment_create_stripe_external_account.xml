@@ -4,7 +4,6 @@
     android:focusable="true"
     android:id="@+id/mainView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/color_background_dark"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -90,11 +89,12 @@
 
     </android.support.v7.widget.CardView>
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
+        style="@style/FoxmikeSubhead"
+        android:textAllCaps="false"
         android:id="@+id/createStripeAccountBtn"
         android:background="@drawable/square_button_primary"
         android:padding="@dimen/margin_minimum"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
         android:textColor="@color/color_background_light"
         android:layout_width="match_parent"
@@ -102,11 +102,12 @@
         android:layout_below="@id/IBANcard"
         android:text="@string/add_payout_method_text" />
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
+        style="@style/FoxmikeSubhead"
+        android:textAllCaps="false"
         android:id="@+id/addPayoutMethodLaterBtn"
         android:background="@drawable/square_button_transparent"
         android:padding="@dimen/margin_minimum"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
         android:textColor="@color/foxmikePrimaryColor"
         android:layout_width="match_parent"

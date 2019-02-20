@@ -36,4 +36,11 @@ public class AdvertisementIdsAndTimestamps implements Comparable<AdvertisementId
         long comp = this.getAdTimestamp()-advertisementIdsAndTimestamps.getAdTimestamp();
         return (int) comp;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof AdvertisementIdsAndTimestamps)) return false;
+        AdvertisementIdsAndTimestamps other = (AdvertisementIdsAndTimestamps) obj;
+        return (this.advertisementId.equals(other.advertisementId) && this.adTimestamp.equals(other.adTimestamp));
+    }
 }

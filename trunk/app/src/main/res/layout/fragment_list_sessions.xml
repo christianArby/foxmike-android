@@ -42,7 +42,7 @@
                 android:textColor="@color/primaryTextColor"
                 android:paddingTop="100dp"
                 android:layout_margin="@dimen/margin_left"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/FoxmikeSubhead"
                 android:gravity="center_horizontal|center_vertical"
                 android:text="@string/sessions_not_found"/>
 

@@ -24,7 +24,7 @@
         android:ellipsize="end"
         android:text="@string/loading"
         android:textColor="@color/primaryTextColor"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:layout_marginEnd="@dimen/margin_right"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintEnd_toStartOf="@id/arrow"

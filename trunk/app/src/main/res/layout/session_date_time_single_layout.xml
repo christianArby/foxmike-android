@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="@dimen/margin_left"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:textColor="@color/primaryTextColor"
         android:text="Måndag 6 sep kl 18:00"/>
 

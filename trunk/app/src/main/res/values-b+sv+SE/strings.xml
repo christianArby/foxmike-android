@@ -493,7 +493,7 @@
     <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
     <string name="could_not_find_payment_method">Kunde inte hitta betalningsmetod, försök igen senare.</string>
     <string name="minutes_append">\u0020min</string>
-    <string name="search_for_name_or_username">Sök efter namn eller @användarnamn…</string>
+    <string name="search_for_name_or_username">Skriv namn eller @användarnamn</string>
     <string name="no_sessions_this_time">Inga pass tillgängliga den här tidsperioden.</string>
     <string name="you_have_no_notifications_yet">Du har inga notiser än.</string>
     <string name="notifications">Notiser</string>

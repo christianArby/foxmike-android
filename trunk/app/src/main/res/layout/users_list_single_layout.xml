@@ -23,7 +23,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:text="@string/loading"
         android:textColor="@color/primaryTextColor"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         app:layout_constraintTop_toTopOf="@id/user_single_image"
         app:layout_constraintBottom_toTopOf="@id/user_single_status"
         app:layout_constraintStart_toEndOf="@id/user_single_image"/>
