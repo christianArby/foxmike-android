@@ -15,7 +15,7 @@
         android:paddingEnd="@dimen/marginHorizontal"
         android:paddingBottom="@dimen/margin_minimum"
         android:text="@string/friend_requests_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,7 +37,7 @@
         android:paddingEnd="@dimen/marginHorizontal"
         android:paddingBottom="@dimen/margin_minimum"
         android:text="@string/your_friends_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/requests_list"/>
 

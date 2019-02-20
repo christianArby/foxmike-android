@@ -22,10 +22,13 @@
         android:layout_height="match_parent"
         android:layout_alignParentStart="true" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
+        android:fontFamily="@font/montserrat_semi_bold"
+        app:fontFamily="@font/montserrat_semi_bold"
+        android:textColor="@color/primaryTextColor"
         android:id="@+id/paymentPreferencesHeading"
         android:text="@string/edit_your_payment_methods"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         android:layout_marginTop="@dimen/marginVertical"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
@@ -67,7 +70,7 @@
         android:layout_height="wrap_content"
         android:text="@string/add_payment_method"
         android:padding="@dimen/margin_left"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/FoxmikeSubhead"
         android:textColor="@color/foxmikePrimaryColor"
         app:layout_constraintTop_toBottomOf="@id/recyclerViewContainer"
         app:layout_constraintStart_toStartOf="parent"/>

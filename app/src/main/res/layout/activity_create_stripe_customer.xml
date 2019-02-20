@@ -77,11 +77,12 @@
 
     </android.support.v7.widget.CardView>
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
+        style="@style/FoxmikeSubhead"
+        android:textAllCaps="false"
         android:id="@+id/createStripeCustomerBtn"
         android:background="@drawable/square_button_primary"
         android:padding="@dimen/margin_minimum"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
         android:textColor="@color/color_background_light"
         android:layout_width="match_parent"

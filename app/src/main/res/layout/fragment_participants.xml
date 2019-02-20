@@ -33,7 +33,7 @@
                 android:id="@+id/participantsHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/FoxmikeSubhead"
                 android:textColor="@color/primaryTextColor"
                 android:text="@string/participants_on"/>
 

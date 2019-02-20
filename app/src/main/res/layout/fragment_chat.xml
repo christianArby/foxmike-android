@@ -45,7 +45,9 @@
         android:orientation="horizontal"
         android:weightSum="10">
 
-        <EditText
+        <android.support.v7.widget.AppCompatEditText
+            android:fontFamily="@font/roboto_regular"
+            app:fontFamily="@font/roboto_regular"
             android:id="@+id/chat_message_ET"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

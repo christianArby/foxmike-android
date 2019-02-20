@@ -410,4 +410,14 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.sessionHashMap = sessionHashMap;
         this.notifyDataSetChanged();
     }
+
+    public void notifyAdvertisementRemoved(AdvertisementIdsAndTimestamps removedAd) {
+        int removedItem = this.advertisementIdsAndTimestampsFilteredArrayList.indexOf(removedAd);
+        if (removedItem>=0) {
+            this.advertisementIdsAndTimestampsFilteredArrayList.remove(removedItem);
+            this.notifyItemRemoved(removedItem);
+            //this.notifyItemRangeChanged(removedItem, getItemCount());
+            //;
+        }
+    }
 }

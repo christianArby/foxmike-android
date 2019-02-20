@@ -8,6 +8,21 @@
         <item name="colorAccent">@color/color_accent</item>
         <item name="colorPrimary">@color/foxmikePrimaryColor</item>
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
+
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="fontFamily">@font/montserrat_regular</item> <!-- target android sdk versions < 26 and > 14 if theme other than AppCompat -->
+
+    </style>
+
+    <style name="FoxmikeSubhead">
+        <item name="android:lineSpacingMultiplier">1.2</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
+    </style>
+
+    <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
     </style>
 
     <style name="foxmikeActionbar" parent="Theme.AppCompat.Light.DarkActionBar" >

@@ -42,7 +42,6 @@
         android:inputType="textCapSentences|textMultiLine"
         android:background="@null"
         android:singleLine="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintTop_toBottomOf="@id/post_profile_image"
         app:layout_constraintStart_toStartOf="parent"/>
 

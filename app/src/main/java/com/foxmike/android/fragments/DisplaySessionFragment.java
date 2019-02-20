@@ -33,7 +33,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -107,7 +106,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private HashMap<Query, ChildEventListener> childEventListenerMap;
     private ConstraintLayout sessionImageCardView;
     private TextView mDuration;
-    private Button mDisplaySessionBtn;
+    private TextView mDisplaySessionBtn;
     private CircleImageView mHostImage;
     private CircleImageView mCurrentUserPostImage;
     private TextView mHostAboutTV;
@@ -269,6 +268,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 fbSessionListener = mSessionDbRef.child(sessionID).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue()==null) {
+
+                        }
                         session = dataSnapshot.getValue(Session.class);
                         sessionLongitude = session.getLongitude();
                         sessionLatitude = session.getLatitude();

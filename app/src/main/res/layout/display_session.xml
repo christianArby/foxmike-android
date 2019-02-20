@@ -8,13 +8,14 @@
     <include layout="@layout/session_date_time_single_layout_dummy"
         android:id="@+id/adRowDummyToMeasure"/>
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
+        android:fontFamily="@font/montserrat_semi_bold"
+        app:fontFamily="@font/montserrat_semi_bold"
         android:id="@+id/editSession"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/edit_session"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textAllCaps="true"
+        android:textSize="16sp"
         android:textAlignment="center"
         android:padding="@dimen/margin_left"
         android:background="@color/foxmikePrimaryColor"
@@ -28,7 +29,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editSession">
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
+            android:fontFamily="@font/montserrat_semi_bold"
+            app:fontFamily="@font/montserrat_semi_bold"
             android:id="@+id/hostName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +75,7 @@
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
             android:text="@string/loading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/FoxmikeSubhead"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/displaySessionHostImage" />
@@ -96,15 +99,17 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/whatHeadingTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:text="@string/what_heading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/primaryTextColor" />
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+            android:fontFamily="@font/montserrat_semi_bold"
+            app:fontFamily="@font/montserrat_semi_bold"
+            android:textColor="@color/primaryTextColor"
+            android:text="@string/what_heading"/>
 
         <TextView
             android:id="@+id/whatTW"
@@ -113,8 +118,7 @@
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/primaryTextColor" />
+            style="@style/FoxmikeSubhead"/>
 
         <View
             android:layout_width="match_parent"
@@ -125,7 +129,7 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/whoHeadingTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,6 +138,8 @@
             android:layout_marginTop="@dimen/marginVertical"
             android:text="@string/who_heading"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:fontFamily="@font/montserrat_semi_bold"
+            app:fontFamily="@font/montserrat_semi_bold"
             android:textColor="@color/primaryTextColor" />
 
         <TextView
@@ -143,7 +149,8 @@
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textSize="15sp"
+            android:lineSpacingMultiplier="1.2"
             android:textColor="@color/primaryTextColor" />
 
         <View
@@ -155,7 +162,9 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
+            android:fontFamily="@font/montserrat_semi_bold"
+            app:fontFamily="@font/montserrat_semi_bold"
             android:id="@+id/whereHeadingTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -173,7 +182,7 @@
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:lineSpacingMultiplier="1.2"
             android:textColor="@color/primaryTextColor" />
     </LinearLayout>
 
@@ -202,7 +211,9 @@
         android:layout_marginTop="@dimen/dividerDistance"
         app:layout_constraintTop_toBottomOf="@id/novelInfo" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
+        android:fontFamily="@font/montserrat_semi_bold"
+        app:fontFamily="@font/montserrat_semi_bold"
         android:id="@+id/availabilityHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -296,7 +307,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/margin_left"
             android:text="29 omdömen"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/FoxmikeSubhead"
             android:padding="@dimen/marginVertical"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -342,7 +353,7 @@
             android:layout_gravity="center_vertical"
             android:hint="@string/Write_something_hint_text"
             android:padding="@dimen/margin_left"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/FoxmikeSubhead"
             android:textColor="@color/primaryTextColor" />
 
 

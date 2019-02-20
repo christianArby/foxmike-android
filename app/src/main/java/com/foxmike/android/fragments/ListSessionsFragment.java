@@ -168,6 +168,12 @@ public class  ListSessionsFragment extends Fragment {
         }
     }
 
+    public void notifyAdvertisementRemoved(AdvertisementIdsAndTimestamps removedAd) {
+        if (sessionsAdapter!=null) {
+            sessionsAdapter.notifyAdvertisementRemoved(removedAd);
+        }
+    }
+
     public void emptyListView() {
         noSessionsFound.setVisibility(View.VISIBLE);
     }

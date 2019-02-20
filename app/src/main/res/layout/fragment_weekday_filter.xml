@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton0"
         android:layout_width="0dp"
@@ -15,7 +15,7 @@
         android:textAllCaps="false"
         android:textColor="@color/secondaryTextColor" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton1"
@@ -27,7 +27,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton2"
@@ -39,7 +39,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton3"
@@ -51,7 +51,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton4"
@@ -63,7 +63,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton5"
@@ -75,7 +75,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton6"
@@ -87,7 +87,7 @@
         android:textAllCaps="false"
         android:textColor="@color/toggle_color" />
 
-    <ToggleButton
+    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton7"

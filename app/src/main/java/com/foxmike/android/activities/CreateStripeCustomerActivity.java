@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -10,9 +11,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
@@ -57,6 +60,9 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar_cyclic);
         createStripeCustomerBtn = findViewById(R.id.createStripeCustomerBtn);
         mFunctions = FirebaseFunctions.getInstance();
+
+        Typeface tf = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+        setTypeface(tf, mCardInputWidget);
 
         if (getIntent().getSerializableExtra("customerData")!= null) {
             customerData = (HashMap) getIntent().getSerializableExtra("customerData");
@@ -186,5 +192,18 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public static void setTypeface(Typeface tf, View v) {
+        if (v instanceof TextView) {
+            ((TextView) v).setTypeface(tf);
+        }
+        else if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                setTypeface(tf, vg.getChildAt(i));
+            }
+        }
     }
 }
