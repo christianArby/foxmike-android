@@ -34,7 +34,9 @@ public class CheckVersion {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()!=null) {
                         if ((Long) dataSnapshot.getValue()>verCode) {
-                            alertDialogs.alertDialogOk(context.getString(R.string.update_text_1), context.getString(R.string.update_text_2) + version + "." + context.getString(R.string.update_text_3), new AlertDialogs.OnOkPressedListener() {
+                            alertDialogs.alertDialogOk(context.getString(R.string.update_text_1),
+                                    context.getString(R.string.update_text_2) + version + "." + context.getString(R.string.update_text_3), false,
+                                    new AlertDialogs.OnOkPressedListener() {
                                 @Override
                                 public void OnOkPressed() {
                                     Intent homeIntent = new Intent(Intent.ACTION_MAIN);

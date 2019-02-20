@@ -529,6 +529,11 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
+    public void OnDismissDisplaySession() {
+        getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -543,7 +548,8 @@ public class MainPlayerActivity extends AppCompatActivity
                     if (data.getStringExtra("operationType").equals("REFUND")) {
                         String refundAmount = data.getStringExtra("refundAmount");
                         String currency = data.getStringExtra("currency");
-                        alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + ".",
+                        alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation),
+                                getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + ".", true,
                                 new AlertDialogs.OnOkPressedListener() {
                                     @Override
                                     public void OnOkPressed() {
@@ -552,7 +558,8 @@ public class MainPlayerActivity extends AppCompatActivity
                                 });
                     }
                 } else {
-                    alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session), new AlertDialogs.OnOkPressedListener() {
+                    alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session),
+                            true,new AlertDialogs.OnOkPressedListener() {
                         @Override
                         public void OnOkPressed() {
 

@@ -117,6 +117,9 @@ public class FriendsFragment extends Fragment {
                     rootDbRef.child("usersPublic").child(requestUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
                             UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
 
                             // Save the user to the array of users and notify recycler view on data set changed

@@ -30,6 +30,7 @@
 
     <color name="color_big_divider">#F2F2F2</color>
     <color name="color_divider">#EBEBEB</color>
+    <color name="color_border">#E2E2E2</color>
     <color name="color_accent">#00bfa5</color>
 
 

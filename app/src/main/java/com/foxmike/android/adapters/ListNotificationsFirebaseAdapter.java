@@ -221,9 +221,11 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
-                    userPublicHashMap.put(userId, userPublic);
-                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                    if (dataSnapshot.getValue()!=null) {
+                        UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
+                        userPublicHashMap.put(userId, userPublic);
+                        onUsersLoadedListener.OnUsersLoaded(userPublic);
+                    }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {

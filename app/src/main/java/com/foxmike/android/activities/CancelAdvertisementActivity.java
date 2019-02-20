@@ -77,7 +77,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
 
         // If session has already taken place show alert dialog explaining cancellation not possible
         if (currentTime.isAfter(adTime)) {
-            alertDialogs.alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), new AlertDialogs.OnOkPressedListener() {
+            alertDialogs.alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new AlertDialogs.OnOkPressedListener() {
                 @Override
                 public void OnOkPressed() {
                     finishCancellation();

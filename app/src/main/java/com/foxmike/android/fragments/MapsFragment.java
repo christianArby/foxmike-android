@@ -371,6 +371,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
+    public void notifySessionRemoved(String sessionId) {
+        if (listSmallRecyclerViewsAdapter!=null) {
+            listSmallRecyclerViewsAdapter.notifySessionRemoved(sessionId);
+        }
+    }
+
     private void onAsyncTaskFinished() {
 
         if (nearSessionsLoaded && getView()!=null && mMap!=null && !nearSessionsUsed) {

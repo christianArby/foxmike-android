@@ -100,9 +100,11 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(chatFriend).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserPublic friendUserPublic = dataSnapshot.getValue(UserPublic.class);
-                    userPublicHashMap.put(chatFriend,friendUserPublic);
-                    onChatFriendLoadedListener.OnChatFriendLoaded(friendUserPublic);
+                    if (dataSnapshot.getValue()!=null) {
+                        UserPublic friendUserPublic = dataSnapshot.getValue(UserPublic.class);
+                        userPublicHashMap.put(chatFriend,friendUserPublic);
+                        onChatFriendLoadedListener.OnChatFriendLoaded(friendUserPublic);
+                    }
                 }
 
                 @Override

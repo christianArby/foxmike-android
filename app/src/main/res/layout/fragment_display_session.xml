@@ -151,12 +151,21 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.constraint.ConstraintLayout
-        android:elevation="8dp"
+        android:id="@+id/snackBar"
         android:background="@color/color_background_light"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
+
+        <View
+            android:id="@+id/spaceView"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_border"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <LinearLayout
             android:id="@+id/framePayment"

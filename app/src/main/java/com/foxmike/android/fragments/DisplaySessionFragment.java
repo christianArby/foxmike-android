@@ -58,6 +58,7 @@ import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
+import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
@@ -269,19 +270,26 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue()==null) {
-
+                            AlertDialogs.alertDialogOk(getContext(), "Session not found", "We could not find the session at this time. It is possible that this session has been removed.", false, new AlertDialogs.OnOkPressedListener() {
+                                @Override
+                                public void OnOkPressed() {
+                                    sessionListener.OnDismissDisplaySession();
+                                }
+                            });
+                        } else {
+                            session = dataSnapshot.getValue(Session.class);
+                            sessionLongitude = session.getLongitude();
+                            sessionLatitude = session.getLatitude();
+                            sessionID = dataSnapshot.getRef().getKey();
+                            currentUserAndSessionAndViewAndMapUsed = false;
+                            sessionAndPaymentAndViewUsed = false;
+                            sessionUsed = false;
+                            sessionLoaded = true;
+                            onAsyncTaskFinished();
+                            getPosts();
+                            getSessionHost();
                         }
-                        session = dataSnapshot.getValue(Session.class);
-                        sessionLongitude = session.getLongitude();
-                        sessionLatitude = session.getLatitude();
-                        sessionID = dataSnapshot.getRef().getKey();
-                        currentUserAndSessionAndViewAndMapUsed = false;
-                        sessionAndPaymentAndViewUsed = false;
-                        sessionUsed = false;
-                        sessionLoaded = true;
-                        onAsyncTaskFinished();
-                        getPosts();
-                        getSessionHost();
+
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -334,6 +342,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         rootDbRef.child("usersPublic").child(session.getHost()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
                 host = dataSnapshot.getValue(User.class);
                 hostLoaded = true;
                 onAsyncTaskFinished();
@@ -1438,6 +1449,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                     userPublicHashMap.put(userId, userPublic);
                     onUsersLoadedListener.OnUsersLoaded(userPublic);
