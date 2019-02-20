@@ -168,6 +168,13 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         }
     }
 
+    public void notifySessionRemoved(String sessionId) {
+        if (sessionIdsFiltered.contains(sessionId)) {
+            sessionIdsFiltered.remove(sessionId);
+            this.notifyItemRemoved(sessionIdsFiltered.indexOf(sessionId));
+        }
+    }
+
     /**Method get distance from current location to a certain point with latitude, longitude */
     private String getDistance(double latitude, double longitude, Location currentLocation){
 

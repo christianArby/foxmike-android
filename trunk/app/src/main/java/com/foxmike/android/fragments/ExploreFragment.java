@@ -319,16 +319,32 @@ public class ExploreFragment extends Fragment{
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             dbSource.trySetResult(dataSnapshot);
-                                            sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
-                                            MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                                            mapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
+                                            if (dataSnapshot.getValue()!=null) {
+                                                sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
+                                                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                mapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
 
-                                            for (String advertisementId: advertisementSessionHashMap.keySet()) {
-                                                if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
-                                                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                                                    listSessionsFragment.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
+                                                for (String advertisementId: advertisementSessionHashMap.keySet()) {
+                                                    if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
+                                                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                        listSessionsFragment.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
+                                                    }
+                                                }
+                                            } else {
+                                                // SESSION REMOVED
+                                                if (sessionHashMap.get(dataSnapshot.getKey())!=null) {
+                                                    Session removedSession = sessionHashMap.get(dataSnapshot.getKey());
+                                                    for (String removedAd: removedSession.getAdvertisements().keySet()) {
+                                                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                        listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(removedAd, removedSession.getAdvertisements().get(removedAd)));
+                                                        advertisementHashMap.remove(removedAd);
+                                                    }
+                                                    MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                    mapsFragment.notifySessionRemoved(dataSnapshot.getKey());
+                                                    sessionHashMap.remove(dataSnapshot.getKey());
                                                 }
                                             }
+
                                         }
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {

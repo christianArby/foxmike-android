@@ -157,6 +157,9 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                     userPublicHashMap.put(userId, userPublic);
                     onUsersLoadedListener.OnUsersLoaded(userPublic);

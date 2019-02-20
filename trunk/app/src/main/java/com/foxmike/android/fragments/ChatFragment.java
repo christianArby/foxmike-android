@@ -72,11 +72,16 @@ public class ChatFragment extends Fragment {
     private ValueEventListener usersChatUserIDListener;
     private OnUserClickedListener onUserClickedListener;
     private String chatID;
+    private String chatIDfromChatList;
     boolean refreshTriggeredByScroll;
     private int lastVisiblePosition;
     int itemsLoaded;
     int itemsDifference;
     private SwipeRefreshLayout.OnRefreshListener onRefreshListener;
+    private DatabaseReference currentUserChatsRef;
+    private DatabaseReference chatUserChatsRef;
+    private ValueEventListener currentUserChatsListener;
+    private ValueEventListener chatUserChatsListener;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -102,6 +107,7 @@ public class ChatFragment extends Fragment {
             chatUserID = getArguments().getString("userID");
             chatUserName = getArguments().getString("userName");
             chatThumbImage = getArguments().getString("userThumbImage");
+            chatIDfromChatList = getArguments().getString("chatID");
             chatID = getArguments().getString("chatID");
         }
     }
@@ -170,7 +176,7 @@ public class ChatFragment extends Fragment {
                 rootDbRef.child("userChats").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (chatID==null) {
+                        if (chatIDfromChatList==null) {
                             for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                                 if (currentUserChats.hasChild(snapshot.getKey())) {
                                     chatID = snapshot.getKey();
@@ -210,6 +216,9 @@ public class ChatFragment extends Fragment {
                         rootDbRef.child("usersPublic").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getValue()==null) {
+                                    return;
+                                }
                                 UserPublic currentUser = dataSnapshot.getValue(UserPublic.class);
                                 chatSendBtn.setOnClickListener(view1 -> {
                                     refreshTriggeredByScroll = false;
@@ -238,24 +247,26 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        rootDbRef.child("userChats").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+        currentUserChatsRef = rootDbRef.child("userChats").child(currentUserID);
+        currentUserChatsListener = currentUserChatsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DataSnapshot currentUserChatsCnapshot = dataSnapshot;
-                rootDbRef.child("userChats").child(chatUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                chatUserChatsRef = rootDbRef.child("userChats").child(chatUserID);
+                chatUserChatsListener = chatUserChatsRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
-                        if (chatID== null) {
+                        if (chatIDfromChatList==null) {
                             for (DataSnapshot friendSnapshot: dataSnapshot.getChildren()) {
                                 if (currentUserChatsCnapshot.hasChild(friendSnapshot.getKey())) {
                                     chatID = friendSnapshot.getKey();
                                 }
                             }
-                        }
-                        // If chat did not exist between users create a new chatID
-                        if (chatID==null) {
-                            chatID = rootDbRef.child("chats").push().getKey();
+                            // If chat did not exist between users create a new chatID
+                            if (chatID==null) {
+                                chatID = rootDbRef.child("chats").push().getKey();
+                            }
                         }
                     }
                     @Override
@@ -357,6 +368,8 @@ public class ChatFragment extends Fragment {
             chatsMap.put("lastMessage", message);
             // Set current time to the chat object in the dataabce
             chatsMap.put("timestamp", ServerValue.TIMESTAMP);
+
+            chatsMap.put("chatId", chatID);
             // Current users ID is set to true in chats/users since current user has seen the message
             userMap.put(currentUserID, true);
             // Other users ID is set to false in chats/users since other user has not seen the message
@@ -403,6 +416,8 @@ public class ChatFragment extends Fragment {
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+        currentUserChatsRef.removeEventListener(currentUserChatsListener);
+        chatUserChatsRef.removeEventListener(chatUserChatsListener);
         messageFirebaseAdapter.stopListening();
         hideKeyboard(getActivity());
     }

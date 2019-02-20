@@ -447,6 +447,11 @@ public class MainHostActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void OnDismissDisplaySession() {
+        getSupportFragmentManager().popBackStack();
+    }
+
 
     @Override
     public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {

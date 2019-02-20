@@ -19,7 +19,7 @@ public class AlertDialogs {
     public AlertDialogs() {
     }
 
-    public void alertDialogOk(String title, String message, OnOkPressedListener onOkPressedListener) {
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         // 2. Chain together various setter methods to set the dialog characteristics
@@ -35,6 +35,30 @@ public class AlertDialogs {
 
         // 3. Get the AlertDialog from create()
         AlertDialog dialog = builder.create();
+
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+
+        dialog.show();
+    }
+
+    public static void alertDialogOk(Context context, String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onOkPressedListener.OnOkPressed();
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
         dialog.show();
     }

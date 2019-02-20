@@ -128,6 +128,9 @@ public class WritePostFragment extends DialogFragment {
         rootDbRef.child("usersPublic").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
                 currentUserPublic = dataSnapshot.getValue(UserPublic.class);
                 postName.setText(currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName());
                 Glide.with(getActivity()).load(currentUserPublic.getThumb_image()).into(postProfileImage);
