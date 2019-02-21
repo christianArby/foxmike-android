@@ -112,6 +112,8 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadNotifications = 0;
     private int unreadFriendRequests = 0;
     private long mLastClickTime = 0;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
 
     @Override
@@ -485,6 +487,31 @@ public class MainHostActivity extends AppCompatActivity implements
         super.onResume();
         resumed = true;
         CheckVersion.checkVersion(this);
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(MainHostActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 
     @Override

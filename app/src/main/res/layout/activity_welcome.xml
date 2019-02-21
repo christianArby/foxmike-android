@@ -7,6 +7,27 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.WelcomeActivity">
 
+    <LinearLayout
+        android:clickable="true"
+        android:id="@+id/maintenance"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="10dp"
+        android:background="@color/foxmikePrimaryColor">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/secondaryTextColor"
+            style="@style/FoxmikeSubhead"
+            android:layout_margin="@dimen/margin_left"
+            android:text="We are doing some maintenance on the app. It will soon be up running again, please try again later. We are sorry for the inconvinence. /Foxmike"/>
+
+
+    </LinearLayout>
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

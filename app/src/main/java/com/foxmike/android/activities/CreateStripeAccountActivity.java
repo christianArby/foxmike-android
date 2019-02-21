@@ -1,8 +1,10 @@
 package com.foxmike.android.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
@@ -58,6 +60,8 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     private String accountId;
     private boolean stripeAccountCreated = false;
     private long mLastClickTime = 0;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -406,5 +410,35 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
         transaction.add(R.id.container_finalize_fragment, createStripeAccountDobTosFragment, "finalize").addToBackStack(null);
         transaction.commit();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(CreateStripeAccountActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

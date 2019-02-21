@@ -53,6 +53,8 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     private TextView addPayoutMethodTV;
     private String stripeAccountId;
     private long mLastClickTime = 0;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,5 +251,30 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     protected void onResume() {
         super.onResume();
         CheckVersion.checkVersion(this);
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(PayoutPreferencesActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }
