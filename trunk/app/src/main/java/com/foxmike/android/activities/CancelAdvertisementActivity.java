@@ -80,7 +80,8 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             alertDialogs.alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new AlertDialogs.OnOkPressedListener() {
                 @Override
                 public void OnOkPressed() {
-                    finishCancellation();
+                    setResult(RESULT_CANCELED, null);
+                    finish();
                 }
             });
         } else {

@@ -5,65 +5,84 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.fragments.FriendsFragment">
 
-    <TextView
-        android:background="@color/color_background_light"
-        android:id="@+id/friendRequestsHeadingTV"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/marginVertical"
-        android:paddingStart="@dimen/marginHorizontal"
-        android:paddingEnd="@dimen/marginHorizontal"
-        android:paddingBottom="@dimen/margin_minimum"
-        android:text="@string/friend_requests_text"
-        style="@style/FoxmikeSubhead"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:background="@color/color_background_light"
-        android:id="@+id/requests_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/friendRequestsHeadingTV" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <TextView
-        android:background="@color/color_background_light"
-        android:id="@+id/friendsHeadingTV"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/marginVertical"
-        android:paddingStart="@dimen/marginHorizontal"
-        android:paddingEnd="@dimen/marginHorizontal"
-        android:paddingBottom="@dimen/margin_minimum"
-        android:text="@string/your_friends_text"
-        style="@style/FoxmikeSubhead"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/requests_list"/>
+            <TextView
+                android:background="@color/color_background_light"
+                android:id="@+id/friendRequestsHeadingTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/marginVertical"
+                android:paddingStart="@dimen/marginHorizontal"
+                android:paddingEnd="@dimen/marginHorizontal"
+                android:paddingBottom="@dimen/margin_minimum"
+                android:text="@string/friend_requests_text"
+                style="@style/FoxmikeSubhead"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.RecyclerView
-        android:background="@color/color_background_light"
-        android:id="@+id/friends_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/friendsHeadingTV"/>
+            <android.support.v7.widget.RecyclerView
+                android:nestedScrollingEnabled="false"
+                android:background="@color/color_background_light"
+                android:id="@+id/requests_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/friendRequestsHeadingTV" />
 
-    <TextView
-        android:id="@+id/noContent"
-        android:background="@color/color_background_dark"
-        android:textColor="@color/primaryTextColor"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/requests_list"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:gravity="center_vertical"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:padding="@dimen/margin_left"
-        android:text="@string/you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below"/>
+            <TextView
+                android:visibility="gone"
+                android:background="@color/color_background_light"
+                android:id="@+id/friendsHeadingTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/marginVertical"
+                android:paddingStart="@dimen/marginHorizontal"
+                android:paddingEnd="@dimen/marginHorizontal"
+                android:paddingBottom="@dimen/margin_minimum"
+                android:text="@string/your_friends_text"
+                style="@style/FoxmikeSubhead"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/requests_list"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:nestedScrollingEnabled="false"
+                android:background="@color/color_background_light"
+                android:id="@+id/friends_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/friendsHeadingTV"/>
+
+            <TextView
+                android:id="@+id/noContent"
+                android:background="@color/color_background_dark"
+                android:textColor="@color/primaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="0dip"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/requests_list"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:gravity="center_vertical"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:padding="@dimen/margin_left"
+                android:text="@string/you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below"/>
+
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+
 
 </android.support.constraint.ConstraintLayout>
 <!---->

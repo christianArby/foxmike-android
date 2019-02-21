@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText mEmailField;
     private TextInputEditText mPasswordField;
     private CircleImageView mRegisterImageButton;
+    private ImageView mSmallRegisterImageButton;
     private TextView imageErrorTextTV;
     private static final int GALLERY_REQUEST = 1;
     private FirebaseAuth mAuth;
@@ -118,6 +122,11 @@ public class RegisterActivity extends AppCompatActivity {
         mRegisterImageButton = findViewById(R.id.registerImageBtn);
         imageErrorTextTV = findViewById(R.id.imageErrorText);
         mainView = findViewById(R.id.mainView);
+        mSmallRegisterImageButton = findViewById(R.id.smallRegisterImageBtn);
+
+        Typeface customFont = ResourcesCompat.getFont(this, R.font.montserrat_regular);
+        passwordTIL.setTypeface(customFont);
+        mPasswordField.setTypeface(customFont);
 
         imageErrorTextTV.setText(null);
 
@@ -129,6 +138,20 @@ public class RegisterActivity extends AppCompatActivity {
         mRegisterImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+                imageErrorTextTV.setText(null);
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST);
+            }
+        });
+        mSmallRegisterImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                     return;
                 }

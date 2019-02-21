@@ -281,6 +281,8 @@ public class UserProfilePublicFragment extends Fragment {
 
                                 declineBtn.setVisibility(View.GONE);
                                 declineBtn.setEnabled(false);
+                                sendMessageBtn.setVisibility(View.VISIBLE);
+                                sendMessageBtn.setEnabled(true);
                             } else {
 
                                 String error = databaseError.getMessage();

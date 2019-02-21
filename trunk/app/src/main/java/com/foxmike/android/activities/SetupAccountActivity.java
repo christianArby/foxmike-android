@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.foxmike.android.R;
@@ -44,6 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SetupAccountActivity extends AppCompatActivity {
 
     private CircleImageView mSetupImageButton;
+    private ImageView smallSetupImageBtn;
     private EditText mFirstNameField;
     private EditText mLastNameField;
     private Uri mImageUri = null;
@@ -76,6 +78,7 @@ public class SetupAccountActivity extends AppCompatActivity {
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
 
         mSetupImageButton = findViewById(R.id.setupImageButton);
+        smallSetupImageBtn = findViewById(R.id.smallSetupImageBtn);
         mFirstNameField = findViewById(R.id.setupFirstNameField);
         mLastNameField = findViewById(R.id.setupLastNameField);
         mSubmitBtn = findViewById(R.id.setupSubmitBtn);
@@ -86,6 +89,19 @@ public class SetupAccountActivity extends AppCompatActivity {
         mSetupImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST);
+            }
+        });
+        smallSetupImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                     return;
                 }
