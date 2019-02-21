@@ -106,8 +106,10 @@ public class FriendsFragment extends Fragment {
                         }
                         requestsHeading.setVisibility(View.VISIBLE);
                     }
+                    friendsHeading.setVisibility(View.VISIBLE);
                     // if no requests, notify the recycler view to load empty view
                 } else {
+                    friendsHeading.setVisibility(View.GONE);
                     requestsHeading.setVisibility(View.GONE);
                     requestsViewHolderAdapter.notifyDataSetChanged();
                 }
@@ -209,7 +211,6 @@ public class FriendsFragment extends Fragment {
                             if (userBranches.size()==friendUserIDs.size()) {
 
                                 noContent.setVisibility(View.GONE);
-                                friendsHeading.setVisibility(View.VISIBLE);
                                 friendsList.setVisibility(View.VISIBLE);
 
                                 // Sort the userBranches based on user names

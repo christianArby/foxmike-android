@@ -64,6 +64,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private ValueEventListener currentUserListener;
     private CircleImageView profileImageButton;
+    private ImageView smallImageBtn;
     private ProgressBar progressBar;
     private static final int GALLERY_REQUEST = 1;
     private Uri mImageUri = null;
@@ -99,6 +100,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
+        smallImageBtn = profile.findViewById(R.id.smallImageBtn);
 
         // Setup toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -278,11 +280,16 @@ public class UserProfilePublicEditFragment extends Fragment {
                         .setCropShape(CropImageView.CropShape.OVAL)
                         .setAspectRatio(1,1)
                         .start(fragment.getContext(), fragment);
-
-                /*Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image*//*");
-                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);*/
+            }
+        });
+        smallImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setCropShape(CropImageView.CropShape.OVAL)
+                        .setAspectRatio(1,1)
+                        .start(fragment.getContext(), fragment);
             }
         });
 

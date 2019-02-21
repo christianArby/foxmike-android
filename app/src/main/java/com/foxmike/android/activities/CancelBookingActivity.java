@@ -139,7 +139,7 @@ public class CancelBookingActivity extends AppCompatActivity {
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                setResult(RESULT_OK, null);
+                setResult(RESULT_CANCELED, null);
                 finish();
             }
         });
@@ -157,7 +157,8 @@ public class CancelBookingActivity extends AppCompatActivity {
         // Add the buttons
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-
+                setResult(RESULT_CANCELED, null);
+                finish();
             }
         });
 

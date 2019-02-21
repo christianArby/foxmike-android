@@ -36,7 +36,7 @@
             android:layout_height="wrap_content">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:src="@mipmap/profile_picture"
+                android:src="@drawable/avatar"
                 android:id="@+id/registerImageBtn"
                 android:layout_width="@dimen/width_profileImage"
                 android:layout_height="@dimen/height_profileImage"
@@ -47,6 +47,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ImageView
+                android:id="@+id/smallRegisterImageBtn"
+                android:scaleType="centerCrop"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/oval"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="@id/registerImageBtn"
+                app:layout_constraintBottom_toBottomOf="@id/registerImageBtn"
+                android:layout_margin="10dp"
+                android:src="@mipmap/ic_add_a_photo_black_48dp"/>
 
             <TextView
                 android:id="@+id/imageErrorText"
@@ -155,6 +167,7 @@
                 app:errorEnabled="true">
 
                 <android.support.design.widget.TextInputEditText
+                    android:fontFamily="@font/roboto_regular"
                     android:textColor="@color/secondaryTextColor"
                     android:textColorHint="@color/secondaryTextColor"
                     android:backgroundTint="@color/secondaryTextColor"
@@ -175,6 +188,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/register_text"
+                android:textAllCaps="false"
                 app:layout_constraintTop_toBottomOf="@id/passwordTIL"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>

@@ -32,6 +32,7 @@
     <color name="color_divider">#EBEBEB</color>
     <color name="color_border">#E2E2E2</color>
     <color name="color_accent">#00bfa5</color>
+    <color name="fbgrey">#EBEDF0</color>
 
 
 </resources>
