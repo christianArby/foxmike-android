@@ -54,6 +54,8 @@ public class SetupAccountActivity extends AppCompatActivity {
     private String currentUserID;
     private View mainView;
     private long mLastClickTime = 0;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
 
     private FirebaseFunctions mFunctions;
@@ -257,5 +259,28 @@ public class SetupAccountActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         CheckVersion.checkVersion(this);
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
+                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(mainIntent);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

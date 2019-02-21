@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
 import com.foxmike.android.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +40,7 @@ public class CheckVersion {
                                     new AlertDialogs.OnOkPressedListener() {
                                 @Override
                                 public void OnOkPressed() {
+                                    FirebaseAuth.getInstance().signOut();
                                     Intent homeIntent = new Intent(Intent.ACTION_MAIN);
                                     homeIntent.addCategory( Intent.CATEGORY_HOME );
                                     homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -14,6 +14,7 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -88,6 +89,9 @@ public class WelcomeActivity extends AppCompatActivity {
     String version;
     private long mLastClickTime = 0;
     private TextView policyAgreementTV;
+    private LinearLayout maintenanceView;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
 
     @Override
@@ -108,6 +112,7 @@ public class WelcomeActivity extends AppCompatActivity {
         versionNameTV = findViewById(R.id.versionName);
         policyAgreementTV = findViewById(R.id.policyAgreement);
         policyAgreementTV.setMovementMethod(LinkMovementMethod.getInstance());
+        maintenanceView = findViewById(R.id.maintenance);
 
         version = "";
         try {
@@ -459,5 +464,29 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         CheckVersion.checkVersion(this);
+
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        maintenanceView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    maintenanceView.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

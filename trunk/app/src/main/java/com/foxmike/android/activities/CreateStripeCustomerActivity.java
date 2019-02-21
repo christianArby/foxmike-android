@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -24,6 +25,11 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.stripe.android.Stripe;
@@ -46,6 +52,8 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private HashMap<String, Object> customerData;
     private long mLastClickTime = 0;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,5 +213,35 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                 setTypeface(tf, vg.getChildAt(i));
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(CreateStripeCustomerActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

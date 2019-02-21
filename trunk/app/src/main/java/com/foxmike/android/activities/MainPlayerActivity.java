@@ -141,6 +141,8 @@ public class MainPlayerActivity extends AppCompatActivity
     // variable to track event time
     private long mLastClickTime = 0;
     private ValueEventListener userExistsListener;
+    private DatabaseReference maintenanceRef;
+    private ValueEventListener maintenanceListener;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -710,6 +712,25 @@ public class MainPlayerActivity extends AppCompatActivity
         super.onResume();
         resumed=true;
         CheckVersion.checkVersion(this);
+        // check if maintenance
+        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
+        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(MainPlayerActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -743,6 +764,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        maintenanceRef.removeEventListener(maintenanceListener);
     }
 
     @Override
