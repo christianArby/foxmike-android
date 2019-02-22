@@ -78,7 +78,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
             }
         });
 
-        Query pastAdsQuery = rootDbRef.child("users").child(currentUserId).child("advertisementsHosting").orderByValue().startAt(0).endAt(currentTimestamp);
+        Query pastAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
