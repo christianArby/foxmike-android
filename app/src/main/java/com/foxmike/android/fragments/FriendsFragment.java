@@ -60,7 +60,9 @@ public class FriendsFragment extends Fragment {
     private TextView requestsHeading;
     private TextView friendsHeading;
     private TextView noContent;
+    private TextView noFriends;
     private long mLastClickTime = 0;
+    private HashMap<String, Boolean> contentMap = new HashMap<>();
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -76,9 +78,19 @@ public class FriendsFragment extends Fragment {
         currentUserID = mAuth.getCurrentUser().getUid();
         myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
         mainView = inflater.inflate(R.layout.fragment_friends, container, false);
+
         requestsHeading = mainView.findViewById(R.id.friendRequestsHeadingTV);
         friendsHeading = mainView.findViewById(R.id.friendsHeadingTV);
+        noFriends = mainView.findViewById(R.id.noFriends);
         noContent = mainView.findViewById(R.id.noContent);
+
+        noContent.setVisibility(View.VISIBLE);
+        requestsHeading.setVisibility(View.GONE);
+        friendsHeading.setVisibility(View.GONE);
+        noFriends.setVisibility(View.GONE);
+
+        contentMap.put("requests", false);
+        contentMap.put("friends", false);
 
 
         // -------------------------- REQUEST LIST -------------------------
@@ -89,6 +101,10 @@ public class FriendsFragment extends Fragment {
         ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
+                requestsHeading.setVisibility(View.GONE);
+                friendsHeading.setVisibility(View.GONE);
+
                 // if any change under requests to or from current user clear the arrays
                 requestsUserIDs.clear();
                 requestUsers.clear();
@@ -104,14 +120,15 @@ public class FriendsFragment extends Fragment {
                         } else if (requestType.equals("received")) {
                             requests.put(requestSnapshot.getKey(), getString(R.string.friend_request_received));
                         }
-                        requestsHeading.setVisibility(View.VISIBLE);
+
                     }
-                    friendsHeading.setVisibility(View.VISIBLE);
+                    contentMap.put("requests", true);
+                    contentChange();
                     // if no requests, notify the recycler view to load empty view
                 } else {
-                    friendsHeading.setVisibility(View.GONE);
-                    requestsHeading.setVisibility(View.GONE);
                     requestsViewHolderAdapter.notifyDataSetChanged();
+                    contentMap.put("requests", false);
+                    contentChange();
                 }
 
                 // Loop through the user IDs the current user has requests sent to or received from
@@ -188,15 +205,16 @@ public class FriendsFragment extends Fragment {
                 userBranches.clear();
                 // save all the users IDs in an array
                 if (dataSnapshot.hasChildren()) {
+                    contentMap.put("friends", true);
+                    contentChange();
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         friendUserIDs.add(child.getKey());
                     }
                 } else {
                     // if current user does not have any friends, notify recyclerview and load empty list
                     requestsViewHolderAdapter.notifyDataSetChanged();
-                    noContent.setVisibility(View.VISIBLE);
-                    friendsHeading.setVisibility(View.GONE);
-                    friendsList.setVisibility(View.GONE);
+                    contentMap.put("friends", false);
+                    contentChange();
                 }
 
                 // Loop all the current users friends userIDs and download their user objects
@@ -209,9 +227,6 @@ public class FriendsFragment extends Fragment {
                             userBranches.add(new UserBranch(dataSnapshot.getKey(),user));
                             // When this condition has been met all listeners have been triggered and all the user objects have been saved in userBranches
                             if (userBranches.size()==friendUserIDs.size()) {
-
-                                noContent.setVisibility(View.GONE);
-                                friendsList.setVisibility(View.VISIBLE);
 
                                 // Sort the userBranches based on user names
                                 Collections.sort(userBranches);
@@ -371,5 +386,35 @@ public class FriendsFragment extends Fragment {
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }*/
+    }
+
+    public void contentChange() {
+
+        if (!contentMap.get("requests") && !contentMap.get("friends")) {
+            noContent.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            noContent.setVisibility(View.GONE);
+        }
+
+        if (contentMap.get("requests") && contentMap.get("friends")) {
+            requestsHeading.setVisibility(View.VISIBLE);
+            friendsHeading.setVisibility(View.VISIBLE);
+            noFriends.setVisibility(View.GONE);
+            return;
+        }
+
+        if (contentMap.get("requests") && !contentMap.get("friends")) {
+            requestsHeading.setVisibility(View.VISIBLE);
+            friendsHeading.setVisibility(View.GONE);
+            noFriends.setVisibility(View.VISIBLE);
+        }
+
+        if (!contentMap.get("requests") && contentMap.get("friends")) {
+            requestsHeading.setVisibility(View.GONE);
+            friendsHeading.setVisibility(View.GONE);
+            noFriends.setVisibility(View.GONE);
+        }
+
     }
 }

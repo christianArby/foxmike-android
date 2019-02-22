@@ -475,7 +475,7 @@
     <string name="price_colon">Price:</string>
     <string name="per_person">per person</string>
     <string name="cost_colon">Cost:</string>
-    <string name="all">All"\n"dates</string>
+    <string name="all">All</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Click on the calendar below to choose dates and times for your session.</string>
     <string name="show_booking">Show booking</string>
     <string name="show_occasion">Show occasion</string>

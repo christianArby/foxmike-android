@@ -82,8 +82,8 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             if (model.getThumbNail()!=null) {
                 populateUserPublicHashMap(model.getThumbNail(), new MessageFirebaseAdapter.OnUsersLoadedListener() {
                     @Override
-                    public void OnUsersLoaded(UserPublic userPublic) {
-                        holder.setNotificationImage(userPublic.getThumb_image(),context);
+                    public void OnUsersLoaded() {
+                        holder.setNotificationImage(userPublicHashMap.get(model.getThumbNail()).getThumb_image(),context);
                     }
                 });
             }
@@ -224,7 +224,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                     if (dataSnapshot.getValue()!=null) {
                         UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                         userPublicHashMap.put(userId, userPublic);
-                        onUsersLoadedListener.OnUsersLoaded(userPublic);
+                        onUsersLoadedListener.OnUsersLoaded();
                     }
                 }
                 @Override
@@ -232,7 +232,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                 }
             });
         } else {
-            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
+            onUsersLoadedListener.OnUsersLoaded();
         }
     }
 }

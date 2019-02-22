@@ -68,7 +68,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:gravity="center_vertical"
                 android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                style="@style/FoxmikeSubhead"
                 android:padding="@dimen/margin_left"
                 android:text="@string/no_sessions_this_time"/>
         </FrameLayout>

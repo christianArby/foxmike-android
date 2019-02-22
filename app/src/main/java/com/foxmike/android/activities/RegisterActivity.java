@@ -47,7 +47,6 @@ import com.google.firebase.functions.HttpsCallableResult;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -315,10 +314,8 @@ public class RegisterActivity extends AppCompatActivity {
                                                     String foxmikeUID = dataSnapshot.getValue().toString();
                                                     if (!currentUserID.equals(foxmikeUID)) {
 
-                                                        String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
                                                         friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
                                                         friendsData.put("foxmikeUID", foxmikeUID);
-                                                        friendsData.put("currentDate", currentDate);
                                                         makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<String> task) {
