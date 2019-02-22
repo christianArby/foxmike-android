@@ -4,18 +4,6 @@
     android:layout_height="wrap_content">
 
     <com.foxmike.android.utils.CustomToggleButton
-        android:layout_gravity="center_vertical"
-        android:id="@+id/toggleButton0"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_weight="1.2"
-        style="?android:attr/borderlessButtonStyle"
-        android:background="@drawable/all_dates_button"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textAllCaps="false"
-        android:textColor="@color/secondaryTextColor" />
-
-    <com.foxmike.android.utils.CustomToggleButton
         style="?android:attr/borderlessButtonStyle"
         android:layout_gravity="center_vertical"
         android:id="@+id/toggleButton1"

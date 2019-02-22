@@ -32,6 +32,7 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.AdvertisementIdsAndTimestamps;
+import com.foxmike.android.utils.CustomToggleButton;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.utils.WrapContentViewPager;
@@ -106,6 +107,7 @@ public class ExploreFragment extends Fragment{
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private HashMap<String, String> advertisementSessionHashMap = new HashMap<>();
+    private CustomToggleButton allDatesBtn;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -161,6 +163,20 @@ public class ExploreFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_explore, container, false);
+        allDatesBtn = view.findViewById(R.id.allDatesBtn);
+
+        allDatesBtn.setText(R.string.all);
+        allDatesBtn.setTextOn(getResources().getString(R.string.all));
+        allDatesBtn.setTextOff(getResources().getString(R.string.all));
+        allDatesBtn.setChecked(true);
+
+        allDatesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnWeekdayButtonClicked(0,0,new HashMap<>());
+                allDatesBtn.setChecked(true);
+            }
+        });
 
         exploreFragmentViewPager = view.findViewById(R.id.exploreFragmentViewPager);
         exploreFragmentViewPager.setPagingEnabled(false);
