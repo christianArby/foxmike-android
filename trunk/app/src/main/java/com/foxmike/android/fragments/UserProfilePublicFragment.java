@@ -31,7 +31,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -261,11 +260,10 @@ public class UserProfilePublicFragment extends Fragment {
                 // If friend request has been recieved and button is clicked, accept friend request by adding friend in DB and removing friend request structure in DB
                 if (areFriends==2) {
 
-                    final String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-
                     Map friendsMap = new HashMap();
-                    friendsMap.put("friends/" + currentFirebaseUser.getUid() + "/" + otherUserID + "/date", currentDate);
-                    friendsMap.put("friends/" + otherUserID + "/" + currentFirebaseUser.getUid() + "/date", currentDate);
+                    Long currentTimestamp = System.currentTimeMillis();
+                    friendsMap.put("friends/" + currentFirebaseUser.getUid() + "/" + otherUserID, currentTimestamp);
+                    friendsMap.put("friends/" + otherUserID + "/" + currentFirebaseUser.getUid(), currentTimestamp);
 
                     friendsMap.put("friend_requests/" + currentFirebaseUser.getUid() + "/" + otherUserID, null);
                     friendsMap.put("friend_requests/" + otherUserID + "/" + currentFirebaseUser.getUid(), null);

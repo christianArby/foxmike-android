@@ -84,8 +84,8 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
         } else {
             populateUserPublicHashMap(model.getSenderUserID(), new OnUsersLoadedListener() {
                 @Override
-                public void OnUsersLoaded(UserPublic userPublic) {
-                    Glide.with(((OtherMessageViewHolder) holder).profileImage.getContext()).load(userPublic.getThumb_image()).into(((OtherMessageViewHolder) holder).profileImage);
+                public void OnUsersLoaded() {
+                    Glide.with(((OtherMessageViewHolder) holder).profileImage.getContext()).load(userPublicHashMap.get(model.getSenderUserID()).getThumb_image()).into(((OtherMessageViewHolder) holder).profileImage);
                 }
             });
 
@@ -162,17 +162,17 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
                     }
                     UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                     userPublicHashMap.put(userId, userPublic);
-                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                    onUsersLoadedListener.OnUsersLoaded();
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
             });
         } else {
-            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
+            onUsersLoadedListener.OnUsersLoaded();
         }
     }
     public interface OnUsersLoadedListener{
-        void OnUsersLoaded(UserPublic userPublic);
+        void OnUsersLoaded();
     }
 }

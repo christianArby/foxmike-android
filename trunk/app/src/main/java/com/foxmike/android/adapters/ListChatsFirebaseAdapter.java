@@ -3,6 +3,7 @@ package com.foxmike.android.adapters;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,14 +34,17 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     private long mLastClickTime = 0;
+    private String chatFriend;
+    private HashMap<String, Boolean> friendsMap = new HashMap<>();
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, OnChatClickedListener onChatClickedListener) {
+    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, HashMap<String, Boolean> friendsMap, OnChatClickedListener onChatClickedListener) {
         super(options);
         this.context = context;
+        this.friendsMap = friendsMap;
         this.onChatClickedListener = onChatClickedListener;
     }
 
@@ -55,7 +59,7 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
     @Override
     protected void onBindViewHolder(@NonNull UsersViewHolder holder, int position, @NonNull Chats model) {
 
-        String chatFriend = "none";
+        chatFriend = "none";
 
         for (String chatMember : model.getUsers().keySet()) {
             if (!chatMember.equals(currentUserId)) {
@@ -63,17 +67,25 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
             }
         }
 
+        if (!friendsMap.containsKey(chatFriend)) {
+            holder.mView.setVisibility(View.GONE);
+            holder.mView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+        } else {
+            holder.mView.setVisibility(View.VISIBLE);
+            holder.mView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+
         final String finalChatFriend = chatFriend;
         final String chatID = model.getChatId();
 
         if (!chatFriend.equals("none")) {
-            populateUserPublicHashMap(chatFriend, new OnChatFriendLoadedListener() {
+            populateUserPublicHashMap(chatFriend, new OnChatInfoLoadedListener() {
                 @Override
-                public void OnChatFriendLoaded(UserPublic friend) {
+                public void OnChatFriendLoaded() {
                     final String chatFriendName = userPublicHashMap.get(finalChatFriend).getFirstName();
                     holder.setHeading(chatFriendName);
 
-                    final String chatFriendImage = friend.getThumb_image();
+                    final String chatFriendImage = userPublicHashMap.get(finalChatFriend).getThumb_image();
                     holder.setUserImage(chatFriendImage, context);
                     holder.mView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -94,7 +106,7 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
         holder.setText(model.getLastMessage(), isSeen);
     }
 
-    private void populateUserPublicHashMap(String chatFriend, OnChatFriendLoadedListener onChatFriendLoadedListener) {
+    private void populateUserPublicHashMap(String chatFriend, OnChatInfoLoadedListener onChatInfoLoadedListener) {
 
         if (!userPublicHashMap.containsKey(chatFriend)) {
             FirebaseDatabase.getInstance().getReference().child("usersPublic").child(chatFriend).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -103,7 +115,7 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
                     if (dataSnapshot.getValue()!=null) {
                         UserPublic friendUserPublic = dataSnapshot.getValue(UserPublic.class);
                         userPublicHashMap.put(chatFriend,friendUserPublic);
-                        onChatFriendLoadedListener.OnChatFriendLoaded(friendUserPublic);
+                        onChatInfoLoadedListener.OnChatFriendLoaded();
                     }
                 }
 
@@ -113,11 +125,17 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
                 }
             });
         } else {
-            onChatFriendLoadedListener.OnChatFriendLoaded(userPublicHashMap.get(chatFriend));
+            onChatInfoLoadedListener.OnChatFriendLoaded();
         }
+
     }
 
-    public interface OnChatFriendLoadedListener{
-        void OnChatFriendLoaded(UserPublic friend);
+    public void friendsUpdated(HashMap<String, Boolean> friendsMap) {
+        this.friendsMap = friendsMap;
+        notifyDataSetChanged();
+    }
+
+    public interface OnChatInfoLoadedListener {
+        void OnChatFriendLoaded();
     }
 }

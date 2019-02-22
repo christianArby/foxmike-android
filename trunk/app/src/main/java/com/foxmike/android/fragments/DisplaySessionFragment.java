@@ -772,9 +772,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     populateUserPublicHashMap(post.getAuthor(), new OnUsersLoadedListener() {
                         @Override
-                        public void OnUsersLoaded(UserPublic userPublic) {
-                            holder.setUserImage(userPublic.getThumb_image(), getContext());
-                            holder.setCommentClickListener(postID, post.getSenderName(), timeText, post.getMessage(), userPublic.getThumb_image());
+                        public void OnUsersLoaded() {
+                            holder.setUserImage(userPublicHashMap.get(post.getAuthor()).getThumb_image(), getContext());
+                            holder.setCommentClickListener(postID, post.getSenderName(), timeText, post.getMessage(), userPublicHashMap.get(post.getAuthor()).getThumb_image());
                         }
                     });
                     holder.setMessage(post.getMessage());
@@ -1454,7 +1454,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
                     userPublicHashMap.put(userId, userPublic);
-                    onUsersLoadedListener.OnUsersLoaded(userPublic);
+                    onUsersLoadedListener.OnUsersLoaded();
                 }
 
                 @Override
@@ -1463,11 +1463,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 }
             });
         } else {
-            onUsersLoadedListener.OnUsersLoaded(userPublicHashMap.get(userId));
+            onUsersLoadedListener.OnUsersLoaded();
         }
     }
 
     public interface OnUsersLoadedListener{
-        void OnUsersLoaded(UserPublic userPublic);
+        void OnUsersLoaded();
     }
 }
