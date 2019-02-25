@@ -200,6 +200,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private AdvertisementListener advertisementListener;
     private TextView mAddress;
     private long mLastClickTime = 0;
+    private boolean showAvClicked = false;
+    private long lastScrollTime = 0;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -932,6 +934,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     public void onClick(View view) {
                         appBarLayout.setExpanded(false);
                         displaySessionSV.smoothScrollTo(0, upcomingSessionsRV.getRootView().getBottom());
+                        lastScrollTime = SystemClock.elapsedRealtime();
+                        snackNoUpcomingAds.setVisibility(View.GONE);
+                        displaySessionSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+                            @Override
+                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                                if (SystemClock.elapsedRealtime() - lastScrollTime < 1000) {
+                                    return;
+                                }
+                                lastScrollTime = SystemClock.elapsedRealtime();
+                                snackNoUpcomingAds.setVisibility(View.VISIBLE);
+                            }
+                        });
                     }
                 });
                 // If the the current user has clicked a session in the sessionlist which represented an ad which has been cancelled it will show

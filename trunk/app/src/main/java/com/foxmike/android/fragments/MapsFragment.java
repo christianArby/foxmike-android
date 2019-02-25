@@ -297,7 +297,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                                             .latLngBounds
                                             .contains(markerArray.get(currentSessionInt).getPosition());
                                     if(!contains){
-                                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerArray.get(currentSessionInt).getPosition(), 15));
+                                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerArray.get(currentSessionInt).getPosition(), 14));
                                     }
 
                                     break;
@@ -513,7 +513,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         if(moveCamera){
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
             mLocationRequest.setInterval(10 * 1000);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
             moveCamera=false;
         }
     }
@@ -524,7 +524,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             Double latitudeDouble = mLastLocation.getLatitude();
             Double longitudeDouble = mLastLocation.getLongitude();
             LatLng latLng = new LatLng(latitudeDouble, longitudeDouble);
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
             mMap.animateCamera(cameraUpdate);
         }
     }
