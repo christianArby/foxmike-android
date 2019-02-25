@@ -231,7 +231,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/what_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
+                android:inputType="textCapSentences|textMultiLine"
+                android:nextFocusForward="@+id/whoET"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -251,7 +252,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/who_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
+                android:inputType="textCapSentences|textMultiLine"
+                android:nextFocusForward="@+id/whereET"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -271,7 +273,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/where_hint"
-                android:inputType="textCapSentences|textMultiLine"/>
+                android:inputType="textCapSentences|textMultiLine"
+                android:nextFocusForward="@+id/priceET"/>
         </android.support.design.widget.TextInputLayout>
 
         <FrameLayout
