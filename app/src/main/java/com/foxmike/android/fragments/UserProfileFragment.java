@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +40,7 @@ public class UserProfileFragment extends Fragment {
     private LinearLayout list;
     private View profile;
     private long mLastClickTime = 0;
+    private FloatingActionButton editIcon;
 
     private OnUserProfileFragmentInteractionListener onUserProfileFragmentInteractionListener;
 
@@ -68,6 +70,7 @@ public class UserProfileFragment extends Fragment {
         list = view.findViewById(R.id.list_user_profile);
         profile = inflater.inflate(R.layout.user_profile_public_info,list,false);
         list.addView(profile);
+        editIcon = view.findViewById(R.id.editIconIV);
 
         final TextView fullNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
@@ -98,6 +101,16 @@ public class UserProfileFragment extends Fragment {
             }
         });
         list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
+                onUserProfileFragmentInteractionListener.onUserProfileFragmentInteraction();
+            }
+        });
+        editIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
