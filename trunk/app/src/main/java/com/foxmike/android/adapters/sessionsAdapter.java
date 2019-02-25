@@ -117,7 +117,11 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             /**Fill the cardview with information of the session" */
             final LatLng sessionLatLng = new LatLng(session.getLatitude(), session.getLongitude());
-            String address = getAddress(session.getLatitude(),session.getLongitude())+"  |  "+getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
+            String addressName = getAddress(session.getLatitude(),session.getLongitude());
+            if (addressName.length()>40) {
+                addressName = addressName.substring(0,40)+ "...";
+            }
+            String address = addressName +"  |  " + getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
             ((SessionViewHolder) holder).setTitle(session.getSessionName());
             ((SessionViewHolder) holder).setDesc(session.getSessionType());
             ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));

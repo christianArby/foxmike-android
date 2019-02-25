@@ -179,11 +179,11 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
         View mView;
 
-        public void setNotificationClickedListener(FoxmikeNotification FoxmikeNotification) {
+        public void setNotificationClickedListener(FoxmikeNotification foxmikeNotification) {
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onNotificationClickedListener.OnNotificationClicked(FoxmikeNotification);
+                    onNotificationClickedListener.OnNotificationClicked(foxmikeNotification);
                 }
             });
         }

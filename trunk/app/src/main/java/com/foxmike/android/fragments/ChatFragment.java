@@ -75,13 +75,14 @@ public class ChatFragment extends Fragment {
     private String chatIDfromChatList;
     boolean refreshTriggeredByScroll;
     private int lastVisiblePosition;
-    int itemsLoaded;
     int itemsDifference;
     private SwipeRefreshLayout.OnRefreshListener onRefreshListener;
     private DatabaseReference currentUserChatsRef;
     private DatabaseReference chatUserChatsRef;
     private ValueEventListener currentUserChatsListener;
     private ValueEventListener chatUserChatsListener;
+    private int currentItems;
+    private Long totalNumberInQuery;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -140,11 +141,11 @@ public class ChatFragment extends Fragment {
         profileImage = (CircleImageView) view.findViewById(R.id.custom_bar_image);
         //lastSeenView = (TextView) view.findViewById(R.id.custom_bar_lastSeen);
 
-        // Setup meessage recyclerview
+        // Setup message recyclerview
         linearLayoutManager = new LinearLayoutManager(getActivity());
         // Make sure keyboard is not hiding recyclerview
-        linearLayoutManager.setStackFromEnd(true);
-        messagesListRV.setHasFixedSize(true);
+        //linearLayoutManager.setStackFromEnd(true);
+        //messagesListRV.setHasFixedSize(true);
         messagesListRV.setLayoutManager(linearLayoutManager);
 
         valueEventListenerMap = new HashMap<>();
@@ -203,7 +204,9 @@ public class ChatFragment extends Fragment {
                             @Override
                             public void onItemRangeInserted(int positionStart, int itemCount) {
                                 super.onItemRangeInserted(positionStart, itemCount);
-                                messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
+
+                                messagesListRV.scrollToPosition(positionStart);
+
                                 // Set that current user has seen the chat
                                 if (FoxmikeApplication.isActivityVisible()) {
                                     rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
@@ -212,6 +215,7 @@ public class ChatFragment extends Fragment {
                             }
                         });
                         messagesListRV.setAdapter(messageFirebaseAdapter);
+
                         // Setup send button, when button is clicked send message to database
                         rootDbRef.child("usersPublic").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -305,10 +309,8 @@ public class ChatFragment extends Fragment {
             @Override
             public void onRefresh() {
 
-                final int currentItems = messageFirebaseAdapter.getItemCount();
+                currentItems = messageFirebaseAdapter.getItemCount();
                 LinearLayoutManager layoutManager = ((LinearLayoutManager)messagesListRV.getLayoutManager());
-                lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
-                itemsLoaded = 0;
 
                 refreshTriggeredByScroll = true;
                 messageFirebaseAdapter.stopListening();
@@ -316,38 +318,56 @@ public class ChatFragment extends Fragment {
                 // Set query to current messages + 10 more items
                 DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
                 messageQuery = messageRef.limitToLast(currentItems+getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));
-                FirebaseRecyclerOptions<Message> options =
-                        new FirebaseRecyclerOptions.Builder<Message>()
-                                .setQuery(messageQuery, Message.class)
-                                .build();
-                messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
-
-                messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                messageQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                        super.onItemRangeInserted(positionStart, itemCount);
-                        itemsLoaded++;
-                        itemsDifference = itemsLoaded-currentItems;
-                        if (refreshTriggeredByScroll) {
-                            messagesListRV.scrollToPosition(itemsDifference+lastVisiblePosition-1);
-                        } else {
-                            messagesListRV.scrollToPosition(messageFirebaseAdapter.getItemCount()-1);
-                        }
-                        // make sure the above if is only valid for refresh event and not every onItemRangeInserted (for example if a message has been added)
-                        if (positionStart== currentItems + itemsLoaded -1) {
-                            refreshTriggeredByScroll = false;
-                        }
-                        // Set that current user has seen the chat
-                        if (FoxmikeApplication.isActivityVisible()) {
-                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
-                            rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
-                        }
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        totalNumberInQuery = dataSnapshot.getChildrenCount();
+
+                        FirebaseRecyclerOptions<Message> options =
+                                new FirebaseRecyclerOptions.Builder<Message>()
+                                        .setQuery(messageQuery, Message.class)
+                                        .build();
+                        messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
+
+                        messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onItemRangeInserted(int positionStart, int itemCount) {
+                                super.onItemRangeInserted(positionStart, itemCount);
+                                itemsDifference = positionStart-currentItems;
+
+                                // make sure the above if is only valid for refresh event and not every onItemRangeInserted (for example if a message has been added)
+                                /*if (positionStart >= totalNumberInQuery) {
+                                    refreshTriggeredByScroll = false;
+                                }*/
+
+                                if (((LinearLayoutManager) messagesListRV.getLayoutManager()).findLastVisibleItemPosition() == totalNumberInQuery.intValue() - 1) {
+                                    messagesListRV.scrollToPosition(positionStart);
+                                } else {
+                                    ((LinearLayoutManager) messagesListRV.getLayoutManager()).scrollToPositionWithOffset(itemsDifference + 1, 0);
+                                }
+
+                                // Set that current user has seen the chat
+                                if (FoxmikeApplication.isActivityVisible()) {
+                                    rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                                    rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
+                                }
+                            }
+                        });
+
+                        messagesListRV.setAdapter(messageFirebaseAdapter);
+                        messageFirebaseAdapter.startListening();
+                        swipeRefreshLayout.setRefreshing(false);
+
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
 
-                messagesListRV.setAdapter(messageFirebaseAdapter);
-                messageFirebaseAdapter.startListening();
-                swipeRefreshLayout.setRefreshing(false);
 
             }
         };
@@ -364,7 +384,7 @@ public class ChatFragment extends Fragment {
         if (!TextUtils.isEmpty(message)) {
             Map chatsMap = new HashMap();
             Map userMap = new HashMap();
-            // Set the last message in the chat Object to the current message
+            // Set the last message in the chat Object to the current me1ssage
             chatsMap.put("lastMessage", message);
             // Set current time to the chat object in the dataabce
             chatsMap.put("timestamp", ServerValue.TIMESTAMP);
