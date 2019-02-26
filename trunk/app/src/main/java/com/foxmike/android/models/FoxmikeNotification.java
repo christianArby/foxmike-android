@@ -6,25 +6,30 @@ package com.foxmike.android.models;
 
 public class FoxmikeNotification {
 
-    private	String	type;
-    private	String	param1;
-    private	String	param2;
-    private	String	param3;
-    private	String	sourceId;
-    private	String	thumbNail;
+    private String notificatonId;
+    private	String type;
+    private	String sourceId;
+    private	String	p1;
+    private	String	p2;
     private Long timestamp;
 
     public FoxmikeNotification() {
     }
 
-    public FoxmikeNotification(String type, String param1, String param2, String param3, String sourceId, String thumbNail, Long timestamp) {
+    public FoxmikeNotification(String type, String sourceId, String p1, String p2, Long timestamp) {
         this.type = type;
-        this.param1 = param1;
-        this.param2 = param2;
-        this.param3 = param3;
         this.sourceId = sourceId;
-        this.thumbNail = thumbNail;
+        this.p1 = p1;
+        this.p2 = p2;
         this.timestamp = timestamp;
+    }
+
+    public String getNotificatonId() {
+        return notificatonId;
+    }
+
+    public void setNotificatonId(String notificatonId) {
+        this.notificatonId = notificatonId;
     }
 
     public String getType() {
@@ -35,30 +40,6 @@ public class FoxmikeNotification {
         this.type = type;
     }
 
-    public String getParam1() {
-        return param1;
-    }
-
-    public void setParam1(String param1) {
-        this.param1 = param1;
-    }
-
-    public String getParam2() {
-        return param2;
-    }
-
-    public void setParam2(String param2) {
-        this.param2 = param2;
-    }
-
-    public String getParam3() {
-        return param3;
-    }
-
-    public void setParam3(String param3) {
-        this.param3 = param3;
-    }
-
     public String getSourceId() {
         return sourceId;
     }
@@ -67,12 +48,20 @@ public class FoxmikeNotification {
         this.sourceId = sourceId;
     }
 
-    public String getThumbNail() {
-        return thumbNail;
+    public String getP1() {
+        return p1;
     }
 
-    public void setThumbNail(String thumbNail) {
-        this.thumbNail = thumbNail;
+    public void setP1(String p1) {
+        this.p1 = p1;
+    }
+
+    public String getP2() {
+        return p2;
+    }
+
+    public void setP2(String p2) {
+        this.p2 = p2;
     }
 
     public Long getTimestamp() {

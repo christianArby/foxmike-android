@@ -18,13 +18,21 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.models.FoxmikeNotification;
-import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.models.InAppNotification;
+import com.foxmike.android.models.Message;
+import com.foxmike.android.models.Post;
 import com.foxmike.android.utils.TextTimestamp;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -38,7 +46,8 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
     private Context context;
     private NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener;
-    HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+    private HashMap<String, InAppNotification> notificationHashMap = new HashMap<>();
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
@@ -61,117 +70,19 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
     @Override
     protected void onBindViewHolder(@NonNull NotificationsViewHolder holder, int position, @NonNull FoxmikeNotification model) {
 
+        populateNotificationHashMap(model, new OnNotificationLoadedListener() {
+            @Override
+            public void OnNotificationLoaded() {
+                holder.setNotificationClickedListener(model);
+                holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
+
+                InAppNotification inAppNotification = notificationHashMap.get(model.getNotificatonId());
+                holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
+                holder.setNotificationText(inAppNotification.getNotificationText());
+            }
+        });
+
         holder.setNotificationClickedListener(model);
-        if (model.getType().equals("sessionPost") | model.getType().equals("advertisementPost")) {
-            holder.setNotificationImage(model.getThumbNail(),context);
-
-            String notificationText = model.getParam1() + context.getString(R.string.has_made_a_post_in) + model.getParam3();
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_made_a_post_in).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-            holder.setNotificationText(notificationTextFormatted);
-
-        }
-        if (model.getType().equals("sessionPostComment") | model.getType().equals("advertisementPostComment")) {
-
-            // TODO ta bort null när gammal version 0.2.3-beta inte längre används
-            if (model.getThumbNail()!=null) {
-                populateUserPublicHashMap(model.getThumbNail(), new MessageFirebaseAdapter.OnUsersLoadedListener() {
-                    @Override
-                    public void OnUsersLoaded() {
-                        holder.setNotificationImage(userPublicHashMap.get(model.getThumbNail()).getThumb_image(),context);
-                    }
-                });
-            }
-            String notificationText = model.getParam1() + context.getString(R.string.has_made_a_comment_to_your_post_in) + model.getParam3();
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-            holder.setNotificationText(notificationTextFormatted);
-        }
-        if (model.getType().equals("advertisementParticipantNew")) {
-            holder.setNotificationImage(model.getThumbNail(),context);
-
-            String notificationText = model.getParam1() + context.getString(R.string.has_booked_your_session) + model.getParam3();
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-
-            holder.setNotificationText(notificationTextFormatted);
-        }
-
-        if (model.getType().equals("advertisementParticipantCancellation")) {
-            holder.setNotificationImage(model.getThumbNail(),context);
-
-            String notificationText = model.getParam1() + context.getString(R.string.has_cancelled_you_session) + model.getParam3();
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-            StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold2, model.getParam1().length() + context.getString(R.string.has_booked_your_session).length(), notificationText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-
-            holder.setNotificationText(notificationTextFormatted);
-        }
-
-        if (model.getType().equals("sessionCancellation")) {
-            holder.setNotificationImage(model.getThumbNail(),context);
-
-            String notificationText;
-
-            if (!model.getParam1().equals("FREE")) {
-                notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled) +
-                         context.getString(R.string.you_will_be_refunded);
-            } else {
-                notificationText = context.getString(R.string.the_session) + model.getParam3() + context.getString(R.string.on) + TextTimestamp.textSessionDate(Long.parseLong(model.getParam2())) + context.getString(R.string.has_been_cancelled);
-            }
-
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, context.getString(R.string.the_session).length(), context.getString(R.string.the_session).length() + model.getParam3().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-            holder.setNotificationText(notificationTextFormatted);
-
-        }
-
-        if (model.getType().equals("friendRequestAccepted")) {
-            holder.setNotificationImage(model.getThumbNail(),context);
-
-            String notificationText = model.getParam1() + " has accepted your friend request.";
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-            StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
-            notificationTextFormatted.setSpan(bold1, 0, model.getParam1().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
-
-            holder.setNotificationText(notificationTextFormatted);
-
-        }
-
-        if (model.getType().equals("adminNotification")) {
-            holder.setAdminNotificationImage(context);
-
-            String notificationText = model.getParam1();
-
-            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
-
-            holder.setNotificationText(notificationTextFormatted);
-
-        }
-
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
     }
 
@@ -214,25 +125,434 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         }
     }
 
+    private void populateNotificationHashMap(FoxmikeNotification foxmikeNotification, OnNotificationLoadedListener onNotificationLoadedListener) {
+        InAppNotification inAppNotification = new InAppNotification();
 
+        if (foxmikeNotification.getType().equals("sessionPost")) {
 
-    private void populateUserPublicHashMap(String userId, MessageFirebaseAdapter.OnUsersLoadedListener onUsersLoadedListener) {
-        if (!userPublicHashMap.containsKey(userId)) {
-            FirebaseDatabase.getInstance().getReference().child("usersPublic").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+            // GET SESSION IMAGE URL
+            TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
+            Task sessionImageTask = sessionImageSource.getTask();
+            asyncTasks.add(sessionImageTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.getValue()!=null) {
-                        UserPublic userPublic = dataSnapshot.getValue(UserPublic.class);
-                        userPublicHashMap.put(userId, userPublic);
-                        onUsersLoadedListener.OnUsersLoaded();
-                    }
+                    sessionImageSource.trySetResult(dataSnapshot);
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
+
                 }
             });
-        } else {
-            onUsersLoadedListener.OnUsersLoaded();
+
+            // GET SESSION IMAGE NAME
+            TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
+            Task sessionNameTask = sessionNameSource.getTask();
+            asyncTasks.add(sessionNameTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionNameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET POST
+            TaskCompletionSource<DataSnapshot> postSource = new TaskCompletionSource<>();
+            Task postTask = postSource.getTask();
+            asyncTasks.add(postTask);
+            rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    postSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // WHEN LOADED
+            Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (sessionImageTask.isSuccessful() && sessionNameTask.isSuccessful() && postTask.isSuccessful()) {
+                        String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
+                        String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
+                        Post post = ((DataSnapshot) postTask.getResult()).getValue(Post.class);
+                        String postId = ((DataSnapshot) postTask.getResult()).getKey();
+
+                        String notificationText = post.getSenderName() + context.getString(R.string.has_made_a_post_in) + sessionName + ": " + post.getMessage();
+
+                        SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
+                                notificationText,
+                                0,
+                                post.getSenderName().length(),
+                                post.getSenderName().length() + context.getString(R.string.has_made_a_post_in).length(),
+                                post.getSenderName().length() + context.getString(R.string.has_made_a_post_in).length() + sessionName.length());
+
+                        inAppNotification.setNotificationThumbnail(imageUrl);
+                        inAppNotification.setNotificationText(notificationTextFormatted);
+                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        onNotificationLoadedListener.OnNotificationLoaded();
+                    }
+                }
+            });
+
         }
+        if (foxmikeNotification.getType().equals("sessionPostComment")) {
+            ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+            // GET COMMENT
+            TaskCompletionSource<DataSnapshot> messageSource = new TaskCompletionSource<>();
+            Task messageTask = messageSource.getTask();
+            asyncTasks.add(messageTask);
+            rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    messageSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION IMAGE URL
+            TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
+            Task sessionImageTask = sessionImageSource.getTask();
+            asyncTasks.add(sessionImageTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionImageSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION IMAGE NAME
+            TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
+            Task sessionNameTask = sessionNameSource.getTask();
+            asyncTasks.add(sessionNameTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionNameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // WHEN LOADED
+            Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (messageTask.isSuccessful() && sessionImageTask.isSuccessful() && sessionNameTask.isSuccessful()) {
+                        Message message = ((DataSnapshot) messageTask.getResult()).getValue(Message.class);
+                        String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
+                        String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
+                        String commentId = ((DataSnapshot) messageTask.getResult()).getKey();
+
+                        String notificationText = message.getSenderName() + context.getString(R.string.has_made_a_comment_to_your_post_in) + sessionName + ": " + message.getMessage();
+
+                        SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
+                                notificationText,
+                                0,
+                                message.getSenderName().length(),
+                                message.getSenderName().length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length(),
+                                message.getSenderName().length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length() + sessionName.length());
+
+                        inAppNotification.setNotificationThumbnail(imageUrl);
+                        inAppNotification.setNotificationText(notificationTextFormatted);
+                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        onNotificationLoadedListener.OnNotificationLoaded();
+                    }
+                }
+            });
+
+        }
+        if (foxmikeNotification.getType().equals("participantNew") || foxmikeNotification.getType().equals("participantCancellation")) {
+
+            ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+            // GET USER NAME
+            TaskCompletionSource<DataSnapshot> userNameSource = new TaskCompletionSource<>();
+            Task userNameTask = userNameSource.getTask();
+            asyncTasks.add(userNameTask);
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    userNameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION IMAGE URL
+            TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
+            Task sessionImageTask = sessionImageSource.getTask();
+            asyncTasks.add(sessionImageTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionImageSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION NAME
+            TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
+            Task sessionNameTask = sessionNameSource.getTask();
+            asyncTasks.add(sessionNameTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionNameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // WHEN LOADED
+            Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (userNameTask.isSuccessful() && sessionImageTask.isSuccessful() && sessionNameTask.isSuccessful()) {
+                        String participantName = ((DataSnapshot) userNameTask.getResult()).getValue().toString();
+                        String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
+                        String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
+
+                        String text = "";
+
+                        if (foxmikeNotification.getType().equals("participantNew")) {
+                            text = context.getString(R.string.has_booked_your_session);
+                        }
+                        if (foxmikeNotification.getType().equals("participantCancellation")) {
+                            text = context.getString(R.string.has_cancelled_you_session);
+                        }
+
+                        String notificationText = participantName + text + sessionName;
+                        SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
+                                notificationText,
+                                0,
+                                participantName.length(),
+                                participantName.length() + text.length(),
+                                participantName.length() + text.length() + sessionName.length());
+
+                        inAppNotification.setNotificationThumbnail(imageUrl);
+                        inAppNotification.setNotificationText(notificationTextFormatted);
+                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        onNotificationLoadedListener.OnNotificationLoaded();
+                    }
+                }
+            });
+        }
+
+        if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
+
+            ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+            // GET AD Date
+            TaskCompletionSource<DataSnapshot> adDateSource = new TaskCompletionSource<>();
+            Task adDateTask = adDateSource.getTask();
+            asyncTasks.add(adDateTask);
+            rootDbRef.child("advertisements").child(foxmikeNotification.getSourceId()).child("advertisementTimestamp").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    adDateSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION IMAGE URL
+            TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
+            Task sessionImageTask = sessionImageSource.getTask();
+            asyncTasks.add(sessionImageTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionImageSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION NAME
+            TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
+            Task sessionNameTask = sessionNameSource.getTask();
+            asyncTasks.add(sessionNameTask);
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    sessionNameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // WHEN LOADED
+            Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (adDateTask.isSuccessful() && sessionImageTask.isSuccessful() && sessionNameTask.isSuccessful()) {
+                        Long adTimestamp = (Long) ((DataSnapshot) adDateTask.getResult()).getValue();
+                        String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
+                        String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
+
+                        String notificationText = "";
+
+                        if (foxmikeNotification.getType().equals("sessionCancellation")) {
+                            notificationText = context.getString(R.string.the_session) + sessionName + context.getString(R.string.on) + TextTimestamp.textSessionDate(adTimestamp) + context.getString(R.string.has_been_cancelled) +
+                                    context.getString(R.string.you_will_be_refunded);
+                        }
+                        if (foxmikeNotification.getType().equals("freeSessionCancellation")) {
+                            notificationText = context.getString(R.string.the_session) + sessionName + context.getString(R.string.on) + TextTimestamp.textSessionDate(adTimestamp) + context.getString(R.string.has_been_cancelled);
+                        }
+
+                        SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
+                                notificationText,
+                                context.getString(R.string.the_session).length(),
+                                context.getString(R.string.the_session).length() + sessionName.length(),
+                                context.getString(R.string.the_session).length() + sessionName.length() + context.getString(R.string.on).length() +TextTimestamp.textSessionDate(adTimestamp).length(),
+                                context.getString(R.string.the_session).length() + sessionName.length() + context.getString(R.string.on).length() +TextTimestamp.textSessionDate(adTimestamp).length() + context.getString(R.string.has_been_cancelled).length());
+
+                        inAppNotification.setNotificationThumbnail(imageUrl);
+                        inAppNotification.setNotificationText(notificationTextFormatted);
+                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        onNotificationLoadedListener.OnNotificationLoaded();
+                    }
+                }
+            });
+
+        }
+        if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
+
+            ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+            // GET AD Date
+            TaskCompletionSource<DataSnapshot> nameSource = new TaskCompletionSource<>();
+            Task nameTask = nameSource.getTask();
+            asyncTasks.add(nameTask);
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    nameSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // GET SESSION IMAGE URL
+            TaskCompletionSource<DataSnapshot> imageSource = new TaskCompletionSource<>();
+            Task imageTask = imageSource.getTask();
+            asyncTasks.add(imageTask);
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("thumb_image").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    imageSource.trySetResult(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            // WHEN LOADED
+            Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (nameTask.isSuccessful() && imageTask.isSuccessful()) {
+                        String imageUrl = ((DataSnapshot) imageTask.getResult()).getValue().toString();
+                        String name = ((DataSnapshot) nameTask.getResult()).getValue().toString();
+
+                        String notificationText = name + context.getString(R.string.has_accepted_your_friend_request);
+
+                        SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
+                                notificationText,
+                                0,
+                                name.length());
+
+                        inAppNotification.setNotificationThumbnail(imageUrl);
+                        inAppNotification.setNotificationText(notificationTextFormatted);
+                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        onNotificationLoadedListener.OnNotificationLoaded();
+                    }
+                }
+            });
+
+
+        }
+        if (foxmikeNotification.getType().equals("adminNotification")) {
+
+            String notificationText = foxmikeNotification.getP1();
+            SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
+            inAppNotification.setNotificationText(notificationTextFormatted);
+            notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+
+        }
+
+
+    }
+
+    private SpannableStringBuilder mixBoldAndRegular(String text, int boldStart, int boldStop) {
+        SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(text);
+        StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+        notificationTextFormatted.setSpan(bold1, boldStart, boldStop, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
+        return notificationTextFormatted;
+    }
+
+    private SpannableStringBuilder mixBoldAndRegular(String text, int boldStart1, int boldStop1, int boldStart2, int boldStop2) {
+        SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(text);
+        StyleSpan bold1 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+        notificationTextFormatted.setSpan(bold1, boldStart1, boldStop1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // make name bold
+
+        StyleSpan bold2 = new StyleSpan(Typeface.BOLD); // Span to make text bold
+        notificationTextFormatted.setSpan(bold2, boldStart2, boldStop2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return notificationTextFormatted;
+    }
+
+    public interface OnNotificationLoadedListener{
+        void OnNotificationLoaded();
     }
 }
