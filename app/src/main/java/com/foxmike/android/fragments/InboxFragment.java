@@ -91,7 +91,10 @@ public class InboxFragment extends Fragment {
 
         return view;
     }
-    public void cleanInboxListeners() {
+    public void setPage(int page) {
+        if (inboxPager!=null) {
+            inboxPager.setCurrentItem(page);
+        }
 
     }
 
