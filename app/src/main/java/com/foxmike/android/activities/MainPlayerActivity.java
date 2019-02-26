@@ -801,6 +801,14 @@ public class MainPlayerActivity extends AppCompatActivity
             displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
+        if (foxmikeNotification.getType().equals("sessionPostComment")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("sessionPostComment")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        }
     }
 
     @Override
