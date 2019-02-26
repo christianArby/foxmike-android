@@ -113,6 +113,12 @@ public class HostSessionsFragment extends Fragment {
         }
     }
 
+    public void setPage(int page) {
+        if (hostSessionsPager!=null) {
+            hostSessionsPager.setCurrentItem(page);
+        }
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

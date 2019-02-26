@@ -53,6 +53,12 @@ public class PlayerSessionsFragment extends Fragment {
         return view;
     }
 
+    public void setPage(int page) {
+        if (playerSessionsPager!=null) {
+            playerSessionsPager.setCurrentItem(page);
+        }
+    }
+
     // Function which load the tab layout and viewpager
     /*public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch

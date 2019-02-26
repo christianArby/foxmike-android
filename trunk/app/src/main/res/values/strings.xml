@@ -530,4 +530,5 @@
     <string name="participants_on">Participants</string>
     <string name="has_cancelled_you_session">\u0020has cancelled your session\u0020</string>
     <string name="has_accepted_your_friend_request">\u0020has accepted your friend request.</string>
+    <string name="not_possible_in_trainer_mode">Go to participant mode in order to see bookings</string>
 </resources>

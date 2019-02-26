@@ -79,9 +79,9 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
                     } else {
                         onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
                     }
+                } else {
+                    onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
                 }
-
-
             }
         });
         if (model.getStatus().equals("cancelled")) {

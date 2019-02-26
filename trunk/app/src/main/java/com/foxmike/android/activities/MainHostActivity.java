@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -563,6 +564,28 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
-        // TODO
+        if (foxmikeNotification.getType().equals("sessionPost")) {
+            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
+            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("sessionPostComment")) {
+            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("participantNew")) {
+            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("participantCancellation")) {
+            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
+            InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+            inboxFragment.setPage(1);
+        }
+        if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
+            Toast.makeText(MainHostActivity.this, R.string.not_possible_in_trainer_mode, Toast.LENGTH_LONG).show();
+        }
     }
 }

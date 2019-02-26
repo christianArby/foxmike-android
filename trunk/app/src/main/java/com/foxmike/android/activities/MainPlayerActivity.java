@@ -794,20 +794,29 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
-        if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+        if (foxmikeNotification.getType().equals("participantNew")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
-        if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getSourceId());
+        if (foxmikeNotification.getType().equals("participantCancellation")) {
+            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        }
+        if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
+            InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(2);
+            inboxFragment.setPage(1);
+        }
+        if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
+            bottomNavigation.setCurrentItem(1);
+            PlayerSessionsFragment playerSessionsFragment = (PlayerSessionsFragment) bottomNavigationAdapter.getRegisteredFragment(1);
+            playerSessionsFragment.setPage(0);
         }
     }
 

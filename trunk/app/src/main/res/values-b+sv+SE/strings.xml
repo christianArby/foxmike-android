@@ -530,4 +530,5 @@
     <string name="participants_on">Deltagare</string>
     <string name="has_cancelled_you_session">\u0020har avbokat ditt pass\u0020</string>
     <string name="has_accepted_your_friend_request">\u0020har accepterat din vänförfrågan.</string>
+    <string name="not_possible_in_trainer_mode">Gå till deltagarläge för att se bokningar</string>
 </resources>
