@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -202,6 +204,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private long mLastClickTime = 0;
     private boolean showAvClicked = false;
     private long lastScrollTime = 0;
+    private boolean firstLoadOfPosts = true;
+    private boolean firstLoadOfComments;
+    private ProgressBar postProgressBar;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -363,6 +368,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             ValueEventListener postsListener = rootDbRef.child("sessionPosts").child(sessionID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    postsUsed = false;
                     nrOfPosts = dataSnapshot.getChildrenCount();
                     postBranchArrayList.clear();
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -674,6 +680,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         rootLayout = view.findViewById(R.id.rootLayout);
         noSnackAdTV = view.findViewById(R.id.noSnackAdTV);
         mAddress = displaySession.findViewById(R.id.addressTV);
+        postProgressBar = displaySession.findViewById(R.id.postProgressBar);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -865,13 +872,41 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         if (postsLoaded && getView()!=null && !postsUsed) {
             postsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
-            postList.setAdapter(postsViewHolderAdapter);
+            // To make it not disturb transition animation
+            if (firstLoadOfPosts) {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        postsViewHolderAdapter.notifyDataSetChanged();
+                        postList.setAdapter(postsViewHolderAdapter);
+                        firstLoadOfPosts = false;
+                        postProgressBar.setVisibility(View.GONE);
+                    }
+                }, 400);
+            } else {
+                postsViewHolderAdapter.notifyDataSetChanged();
+                postList.setAdapter(postsViewHolderAdapter);
+            }
+
         }
 
         if (postCommentsLoaded && getView()!=null && !postCommentsUsed) {
-            postCommentsUsed = true;
-            postsViewHolderAdapter.notifyDataSetChanged();
+            // To make it not disturb transition animation
+            if (firstLoadOfComments) {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        postCommentsUsed = true;
+                        postsViewHolderAdapter.notifyDataSetChanged();
+                        firstLoadOfComments = false;
+                    }
+                }, 400);
+            } else {
+                postCommentsUsed = true;
+                postsViewHolderAdapter.notifyDataSetChanged();
+            }
         }
 
         // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
