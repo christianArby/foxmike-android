@@ -47,6 +47,9 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
         if (cancelled) {
             cancelledTV.setVisibility(View.VISIBLE);
             sessionIV.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+        } else {
+            cancelledTV.setVisibility(View.GONE);
+            sessionIV.clearColorFilter();
         }
     }
 }

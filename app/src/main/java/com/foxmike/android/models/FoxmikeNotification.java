@@ -6,7 +6,7 @@ package com.foxmike.android.models;
 
 public class FoxmikeNotification {
 
-    private String notificatonId;
+    private String notificationId;
     private	String type;
     private	String sourceId;
     private	String	p1;
@@ -24,12 +24,12 @@ public class FoxmikeNotification {
         this.timestamp = timestamp;
     }
 
-    public String getNotificatonId() {
-        return notificatonId;
+    public String getNotificationId() {
+        return notificationId;
     }
 
-    public void setNotificatonId(String notificatonId) {
-        this.notificatonId = notificatonId;
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 
     public String getType() {

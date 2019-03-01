@@ -1,148 +1,263 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/edit_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center">
+    android:layout_gravity="center"
+    android:background="@color/color_background_dark"
+    android:orientation="vertical">
 
-    <ImageButton
-        android:padding="@dimen/margin_minimum"
-        android:id="@+id/closeImageButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/color_background_light"
-        android:src="@drawable/ic_close_black_24dp"/>
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/sortPriceText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/FoxmikeSubhead"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="@dimen/margin_left"
-        android:text="@string/filter_by_price"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/priceSpinnerMin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/grayTextColor"
-        app:layout_constraintTop_toBottomOf="@id/sortPriceText"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="@dimen/margin_left"/>
+            <ImageButton
+                android:id="@+id/closeImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@color/color_background_dark"
+                android:padding="@dimen/margin_minimum"
+                android:src="@drawable/ic_close_black_24dp" />
 
-    <Spinner
-        android:id="@+id/priceSpinnerMax"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/grayTextColor"
-        app:layout_constraintTop_toBottomOf="@id/sortPriceText"
-        app:layout_constraintStart_toEndOf="@id/priceSpinnerMin"
-        android:layout_margin="@dimen/margin_left"/>
+            <TextView
+                android:id="@+id/timeHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="@string/start_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
 
-    <TextView
-        android:id="@+id/filterText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/FoxmikeSubhead"
-        app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="@dimen/margin_left"
-        android:text="@string/filter_on_distance_text"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="vertical">
 
-    <RadioGroup
-        android:layout_marginTop="@dimen/marginVertical"
-        app:layout_constraintStart_toStartOf="@id/filterText"
-        app:layout_constraintTop_toBottomOf="@id/filterText"
-        app:layout_constraintBottom_toTopOf="@id/sortText"
-        android:layout_marginBottom="@dimen/margin_editText_in_center"
-        android:layout_marginStart="@dimen/margin_left"
-        android:id="@+id/filterDistanceRadioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance1"
-            android:text="@string/distance1_text"/>
+                    <TextView
+                        android:id="@+id/startTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_left"
+                        android:layout_marginTop="@dimen/marginVertical"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/timeHeading" />
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance2"
-            android:text="@string/distance2_text"/>
+                    <TextView
+                        android:id="@+id/to"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/to"
+                        android:layout_marginStart="@dimen/margin_left"
+                        android:layout_marginTop="@dimen/marginVertical"
+                        app:layout_constraintStart_toEndOf="@id/startTime"
+                        app:layout_constraintTop_toBottomOf="@id/timeHeading" />
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance3"
-            android:text="@string/distance3_text"/>
+                    <TextView
+                        android:id="@+id/endTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_left"
+                        android:layout_marginTop="@dimen/marginVertical"
+                        app:layout_constraintStart_toEndOf="@id/to"
+                        app:layout_constraintTop_toBottomOf="@id/timeHeading" />
+                </LinearLayout>
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance4"
-            android:text="@string/distance4_text"/>
+                <com.foxmike.android.utils.PatchedCrystalRangeSeekbar
+                    app:left_thumb_color="@color/foxmikePrimaryColor"
+                    app:right_thumb_color="@color/foxmikePrimaryColor"
+                    app:bar_highlight_color="@color/foxmikePrimaryColor"
+                    app:left_thumb_color_pressed="@color/foxmikePrimaryDarkColor"
+                    app:right_thumb_color_pressed="@color/foxmikePrimaryDarkColor"
+                    android:id="@+id/rangeSeekbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_left"
+                    app:steps="15" />
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance5"
-            android:text="@string/distance5_text"/>
+            </LinearLayout>
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/distance6"
-            android:text="@string/distance6_text"/>
+            <TextView
+                android:id="@+id/sortPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="@string/filter_by_price"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rangeSeekbar" />
 
-    </RadioGroup>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="horizontal">
 
-    <TextView
-        app:layout_constraintTop_toBottomOf="@id/filterDistanceRadioGroup"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="@dimen/margin_editText_in_center"
-        android:layout_marginStart="@dimen/margin_editText_in_center"
-        style="@style/FoxmikeSubhead"
-        android:id="@+id/sortText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Sort_on_text" />
+                <Spinner
+                    android:id="@+id/priceSpinnerMin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_left"
+                    android:backgroundTint="@color/grayTextColor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
 
-    <ToggleButton
-        app:layout_constraintStart_toStartOf="@id/sortText"
-        android:layout_marginTop="@dimen/marginVertical"
-        android:id="@+id/sortDateToggle"
-        app:layout_constraintTop_toBottomOf="@+id/sortText"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="@dimen/marginVertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/color_background_light"
-        android:fontFamily="sans-serif"
-        android:textAllCaps="false"
-        android:textColor="@color/toggle_color"
-        style="?android:attr/borderlessButtonStyle"/>
+                <Spinner
+                    android:id="@+id/priceSpinnerMax"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:backgroundTint="@color/grayTextColor"
+                    app:layout_constraintStart_toEndOf="@id/priceSpinnerMin"
+                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
 
-    <ToggleButton
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/sortDistanceToggle"
-        android:layout_marginEnd="@dimen/margin_editText_in_center"
-        app:layout_constraintStart_toEndOf="@+id/sortDateToggle"
-        app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/color_background_light"
-        android:fontFamily="sans-serif"
-        android:textAllCaps="false"
-        android:textColor="@color/toggle_color"
-        style="?android:attr/borderlessButtonStyle"/>
+            </LinearLayout>
 
 
+            <TextView
+                android:id="@+id/filterText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="@string/filter_on_distance_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin" />
 
-</android.support.constraint.ConstraintLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners">
+
+                <RadioGroup
+                    android:id="@+id/filterDistanceRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_editText_in_center"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    app:layout_constraintBottom_toTopOf="@id/sortText"
+                    app:layout_constraintStart_toStartOf="@id/filterText"
+                    app:layout_constraintTop_toBottomOf="@id/filterText">
+
+                    <RadioButton
+                        android:id="@+id/distance1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance1_text" />
+
+                    <RadioButton
+                        android:id="@+id/distance2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance2_text" />
+
+                    <RadioButton
+                        android:id="@+id/distance3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance3_text" />
+
+                    <RadioButton
+                        android:id="@+id/distance4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance4_text" />
+
+                    <RadioButton
+                        android:id="@+id/distance5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance5_text" />
+
+                    <RadioButton
+                        android:id="@+id/distance6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/distance6_text" />
+
+                </RadioGroup>
+
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/sortText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_editText_in_center"
+                android:layout_marginTop="@dimen/margin_editText_in_center"
+                android:text="@string/Sort_on_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/filterDistanceRadioGroup" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/marginVertical"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="horizontal">
+
+                <ToggleButton
+                    android:id="@+id/sortDateToggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/color_background_light"
+                    android:fontFamily="sans-serif"
+                    android:textAllCaps="false"
+                    android:textColor="@color/toggle_color"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/sortText"
+                    app:layout_constraintTop_toBottomOf="@+id/sortText" />
+
+                <ToggleButton
+                    android:id="@+id/sortDistanceToggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_editText_in_center"
+                    android:background="@color/color_background_light"
+                    android:fontFamily="sans-serif"
+                    android:textAllCaps="false"
+                    android:textColor="@color/toggle_color"
+                    app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/sortDateToggle" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+</LinearLayout>

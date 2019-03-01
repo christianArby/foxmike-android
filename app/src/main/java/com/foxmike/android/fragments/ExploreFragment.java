@@ -108,6 +108,10 @@ public class ExploreFragment extends Fragment{
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private HashMap<String, String> advertisementSessionHashMap = new HashMap<>();
     private CustomToggleButton allDatesBtn;
+    private int minHour = 0;
+    private int minMinute = 0;
+    private int maxHour = 24;
+    private int maxMinute = 60;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -353,7 +357,6 @@ public class ExploreFragment extends Fragment{
                                                     for (String removedAd: removedSession.getAdvertisements().keySet()) {
                                                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                                                         listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(removedAd, removedSession.getAdvertisements().get(removedAd)));
-                                                        advertisementHashMap.remove(removedAd);
                                                     }
                                                     MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                                                     mapsFragment.notifySessionRemoved(dataSnapshot.getKey());
@@ -489,14 +492,22 @@ public class ExploreFragment extends Fragment{
                         if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             // if time has not passed
                             if (advertisementTimestamp > currentTimestamp) {
-                                if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                    // if this session hasn't already been saved to sessionArray save it
-                                    if (!sessionAdded) {
-                                        sessionIdsFiltered.add(nearSession.getSessionId());
-                                        sessionAdded = true;
+                                if (advertisementHashMap.containsKey(advertisementKey)) {
+                                    if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                        DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                        if (adTime.getHourOfDay()>=minHour && adTime.getHourOfDay()<=maxHour && adTime.getMinuteOfHour()>=minMinute && adTime.getMinuteOfHour()<=maxMinute) {
+                                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                            // if this session hasn't already been saved to sessionArray save it
+                                            if (!sessionAdded) {
+                                                sessionIdsFiltered.add(nearSession.getSessionId());
+                                                sessionAdded = true;
+                                            }
+                                        }
+
                                     }
+
                                 }
+
                             }
                         }
                     }
@@ -504,12 +515,17 @@ public class ExploreFragment extends Fragment{
                     if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
                         if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
                             if (advertisementTimestamp > currentTimestamp) {
-                                if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                    // if this session hasn't already been saved to sessionArray save it
-                                    if (!sessionAdded) {
-                                        sessionIdsFiltered.add(nearSession.getSessionId());
-                                        sessionAdded = true;
+                                if (advertisementHashMap.containsKey(advertisementKey)) {
+                                    if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                        DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                        if (adTime.getHourOfDay()>=minHour && adTime.getHourOfDay()<=maxHour && adTime.getMinuteOfHour()>=minMinute && adTime.getMinuteOfHour()<=maxMinute) {
+                                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                            // if this session hasn't already been saved to sessionArray save it
+                                            if (!sessionAdded) {
+                                                sessionIdsFiltered.add(nearSession.getSessionId());
+                                                sessionAdded = true;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -683,6 +699,15 @@ public class ExploreFragment extends Fragment{
         } else {
             removeFilteredItem("minPrice");
         }
+
+        filterSessionAndAdvertisements();
+    }
+
+    public void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute) {
+        this.minHour = minHour;
+        this.minMinute = minMinute;
+        this.maxHour = maxHour;
+        this.maxMinute = maxMinute;
 
         filterSessionAndAdvertisements();
     }

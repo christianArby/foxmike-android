@@ -61,7 +61,7 @@ public class NotificationsFragment extends Fragment {
                             @Override
                             public FoxmikeNotification parseSnapshot(@NonNull DataSnapshot snapshot) {
                                 FoxmikeNotification foxmikeNotification = snapshot.getValue(FoxmikeNotification.class);
-                                foxmikeNotification.setNotificatonId(snapshot.getKey());
+                                foxmikeNotification.setNotificationId(snapshot.getKey());
                                 return foxmikeNotification;
                             }
                         })

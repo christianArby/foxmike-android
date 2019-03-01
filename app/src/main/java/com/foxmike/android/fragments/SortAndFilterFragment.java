@@ -14,9 +14,13 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarFinalValueListener;
 import com.foxmike.android.R;
+import com.foxmike.android.utils.PatchedCrystalRangeSeekbar;
 
 import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
 import static com.foxmike.android.utils.Price.PRICES_INTEGERS_SE;
@@ -41,6 +45,9 @@ public class SortAndFilterFragment extends DialogFragment {
     private int maxClicked = 0;
     private int minPrice;
     private int maxPrice;
+    private PatchedCrystalRangeSeekbar timeSeekbar;
+    private TextView minTime;
+    private TextView maxTime;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
@@ -76,6 +83,39 @@ public class SortAndFilterFragment extends DialogFragment {
         sortDateTB = view.findViewById(R.id.sortDateToggle);
         sortDistanceTB = view.findViewById(R.id.sortDistanceToggle);
         closeButton = view.findViewById(R.id.closeImageButton);
+        timeSeekbar = view.findViewById(R.id.rangeSeekbar);
+        minTime = view.findViewById(R.id.startTime);
+        maxTime = view.findViewById(R.id.endTime);
+
+        timeSeekbar.setMinValue(240);
+        timeSeekbar.setMaxValue(1440);
+
+        timeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
+            @Override
+            public void finalValue(Number minValue, Number maxValue) {
+
+            }
+        });
+
+        timeSeekbar.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
+            @Override
+            public void valueChanged(Number minValue, Number maxValue) {
+
+                int minHour = minValue.intValue()/60; //since both are ints, you get an int
+                int minMinute =minValue.intValue() % 60;
+
+                int maxHour = maxValue.intValue()/60; //since both are ints, you get an int
+                int maxMinute = maxValue.intValue() % 60 ;
+
+
+
+                minTime.setText(String.format("%02d:%02d", minHour, minMinute));
+                maxTime.setText(String.format("%02d:%02d", maxHour, maxMinute));
+
+                onFilterChangedListener.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
+            }
+        });
+
 
         // Setup sort on DATE toggle button
         sortDateTB.setText(getString(R.string.date_text));
@@ -116,7 +156,7 @@ public class SortAndFilterFragment extends DialogFragment {
         // Setup price filter
         Spinner spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
         ArrayAdapter<CharSequence> adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
-                R.array.price_array_filter_min, android.R.layout.simple_spinner_item);
+                R.array.price_array_filter_min, R.layout.spinner_text);
         adapterPriceMin.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMin.setAdapter(adapterPriceMin);
 
@@ -141,7 +181,7 @@ public class SortAndFilterFragment extends DialogFragment {
 
         Spinner spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
         ArrayAdapter<CharSequence> adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
-                R.array.price_array_filter_max, android.R.layout.simple_spinner_item);
+                R.array.price_array_filter_max, R.layout.spinner_text);
         adapterPriceMax.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMax.setAdapter(adapterPriceMax);
         spinnerMax.setSelection(adapterPriceMax.getPosition(PRICES_STRINGS_SE.get(maxPrice)));
@@ -235,5 +275,6 @@ public class SortAndFilterFragment extends DialogFragment {
         void OnDistanceFilterChanged(int filterDistance);
         void OnMinPriceChanged(int minPrice);
         void OnMaxPriceChanged(int maxPrice);
+        void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute);
     }
 }
