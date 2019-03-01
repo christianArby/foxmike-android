@@ -885,6 +885,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                 }, 400);
             } else {
+                postProgressBar.setVisibility(View.GONE);
                 postsViewHolderAdapter.notifyDataSetChanged();
                 postList.setAdapter(postsViewHolderAdapter);
             }

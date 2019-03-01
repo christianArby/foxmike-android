@@ -70,17 +70,20 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
     @Override
     protected void onBindViewHolder(@NonNull NotificationsViewHolder holder, int position, @NonNull FoxmikeNotification model) {
 
-        populateNotificationHashMap(model, new OnNotificationLoadedListener() {
-            @Override
-            public void OnNotificationLoaded() {
-                holder.setNotificationClickedListener(model);
-                holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
-
-                InAppNotification inAppNotification = notificationHashMap.get(model.getNotificatonId());
-                holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
-                holder.setNotificationText(inAppNotification.getNotificationText());
-            }
-        });
+        if (notificationHashMap.containsKey(model.getNotificationId())) {
+            InAppNotification inAppNotification = notificationHashMap.get(model.getNotificationId());
+            holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
+            holder.setNotificationText(inAppNotification.getNotificationText());
+        } else {
+            populateNotificationHashMap(model, new OnNotificationLoadedListener() {
+                @Override
+                public void OnNotificationLoaded() {
+                    InAppNotification inAppNotification = notificationHashMap.get(model.getNotificationId());
+                    holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
+                    holder.setNotificationText(inAppNotification.getNotificationText());
+                }
+            });
+        }
 
         holder.setNotificationClickedListener(model);
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
@@ -129,9 +132,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         InAppNotification inAppNotification = new InAppNotification();
 
         if (foxmikeNotification.getType().equals("sessionPost")) {
-
             ArrayList<Task<?>> asyncTasks = new ArrayList<>();
-
             // GET SESSION IMAGE URL
             TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
             Task sessionImageTask = sessionImageSource.getTask();
@@ -139,15 +140,15 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             });
-
             // GET SESSION IMAGE NAME
             TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
             Task sessionNameTask = sessionNameSource.getTask();
@@ -155,15 +156,15 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             });
-
             // GET POST
             TaskCompletionSource<DataSnapshot> postSource = new TaskCompletionSource<>();
             Task postTask = postSource.getTask();
@@ -171,16 +172,17 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     postSource.trySetResult(dataSnapshot);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
             });
-
-            // WHEN LOADED
+            // WHEN ALL LOADED
             Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -188,8 +190,6 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
                         String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
                         Post post = ((DataSnapshot) postTask.getResult()).getValue(Post.class);
-                        String postId = ((DataSnapshot) postTask.getResult()).getKey();
-
                         String notificationText = post.getSenderName() + context.getString(R.string.has_made_a_post_in) + sessionName + ": " + post.getMessage();
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
@@ -201,12 +201,11 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
-                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
                         onNotificationLoadedListener.OnNotificationLoaded();
                     }
                 }
             });
-
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
             ArrayList<Task<?>> asyncTasks = new ArrayList<>();
@@ -218,6 +217,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     messageSource.trySetResult(dataSnapshot);
                 }
 
@@ -234,6 +236,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -250,6 +255,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -280,7 +288,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
-                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
                         onNotificationLoadedListener.OnNotificationLoaded();
                     }
                 }
@@ -298,6 +306,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     userNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -314,6 +325,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -330,6 +344,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -367,7 +384,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
-                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
                         onNotificationLoadedListener.OnNotificationLoaded();
                     }
                 }
@@ -385,6 +402,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("advertisements").child(foxmikeNotification.getSourceId()).child("advertisementTimestamp").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     adDateSource.trySetResult(dataSnapshot);
                 }
 
@@ -401,6 +421,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -417,6 +440,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -454,7 +480,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
-                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
                         onNotificationLoadedListener.OnNotificationLoaded();
                     }
                 }
@@ -472,6 +498,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     nameSource.trySetResult(dataSnapshot);
                 }
 
@@ -488,6 +517,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("thumb_image").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
                     imageSource.trySetResult(dataSnapshot);
                 }
 
@@ -514,7 +546,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
-                        notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+                        notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
                         onNotificationLoadedListener.OnNotificationLoaded();
                     }
                 }
@@ -527,7 +559,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             String notificationText = foxmikeNotification.getP1();
             SpannableStringBuilder notificationTextFormatted = new SpannableStringBuilder(notificationText);
             inAppNotification.setNotificationText(notificationTextFormatted);
-            notificationHashMap.put(foxmikeNotification.getNotificatonId(), inAppNotification);
+            notificationHashMap.put(foxmikeNotification.getNotificationId(), inAppNotification);
 
         }
 

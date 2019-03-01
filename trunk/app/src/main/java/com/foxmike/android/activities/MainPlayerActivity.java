@@ -844,4 +844,10 @@ public class MainPlayerActivity extends AppCompatActivity
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnMaxPriceChanged(maxPrice, "SE");
     }
+
+    @Override
+    public void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        exploreFragment.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
+    }
 }
