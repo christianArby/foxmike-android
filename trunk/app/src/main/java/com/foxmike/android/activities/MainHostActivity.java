@@ -375,10 +375,42 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void OnEditSession(String sessionID, String type) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        bundle.putString("type", type);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+
+    }
+
+    @Override
     public void OnEditSession(String sessionID, Session session) {
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
         bundle.putSerializable("session", session);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+    }
+
+    @Override
+    public void OnEditSession(String sessionID, Session session, String type) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        bundle.putString("type", type);
+        bundle.putSerializable("session", session);
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        createOrEditSessionFragment.setArguments(bundle);
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+    }
+
+    @Override
+    public void addAdvertisements(String sessionID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("sessionID", sessionID);
+        bundle.putBoolean("addAdvertisements", true);
         createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");

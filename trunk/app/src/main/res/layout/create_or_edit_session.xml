@@ -1,218 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/sessionImageContainer">
-
-        <ImageButton
-            android:id="@+id/sessionImageBtn"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/color_background_light"
-            android:contentDescription="@string/CD_choose_session_image_button"
-            android:scaleType="centerCrop"
-            app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
-
-        <TextView
-            android:id="@+id/imageErrorText"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/margin_left"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            android:layout_below="@id/sessionImageBtn"
-            android:text="@string/please_choose_a_group_image"
-            android:textColor="@color/red"/>
-
-    </RelativeLayout>
-
-    <android.support.design.widget.TextInputLayout
-        app:errorEnabled="true"
-        android:layout_marginTop="@dimen/marginVertical"
-        android:focusedByDefault="false"
-        android:id="@+id/sessionNameTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/primaryTextColor"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageContainer">
-
-        <android.support.design.widget.TextInputEditText
-            style="@style/FoxmikeSubhead"
-            android:textColor="@color/primaryTextColor"
-            android:id="@+id/sessionNameET"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/session_name_goes_here"
-            android:inputType="textCapSentences"
-            app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
-            app:layout_constraintStart_toStartOf="parent"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/locationTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/sessionNameTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/locationTV"
-            android:clickable="true"
-            android:focusable="false"
-            style="@style/FoxmikeSubhead"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@drawable/ic_edit_location_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/location" />
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/sessionTypeTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/locationTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/sessionTypeET"
-            android:clickable="true"
-            android:focusable="false"
-            style="@style/FoxmikeSubhead"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@drawable/ic_filter_list_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/session_type" />
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/dateTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
-
-        <TextView
-            android:id="@+id/calendarExplanationTV"
-            style="@style/FoxmikeSubhead"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
-            android:text="@string/click_on_the_calendar_below_to_choose_dates_and_times_for_your_session"
-            app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
-
-        <TextView
-            android:id="@+id/calendarHeadingTV"
-            style="@style/FoxmikeSubhead"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:text="Aug"
-            app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
-
-        <com.github.sundeepk.compactcalendarview.CompactCalendarView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/compactcalendar_view"
-            android:layout_width="fill_parent"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:layout_height="250dp"
-            android:layout_marginTop="@dimen/marginVertical"
-            app:compactCalendarTargetHeight="250dp"
-            app:compactCalendarTextSize="12sp"
-            app:compactCalendarBackgroundColor="@color/color_background_light"
-            app:compactCalendarTextColor="@color/primaryTextColor"
-            app:compactCalendarCurrentSelectedDayBackgroundColor="@color/grayTextColor"
-            app:compactCalendarCurrentSelectedDayTextColor="@color/secondaryTextColor"
-            app:compactCalendarCurrentDayBackgroundColor="@color/lightGreyBackgroundColor"
-            app:compactCalendarEventIndicatorStyle="fill_large_indicator"
-            app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="false"
-            app:layout_constraintTop_toBottomOf="@id/calendarHeadingTV"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/durationTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/dateTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/durationET"
-            android:clickable="true"
-            android:focusable="false"
-            style="@style/FoxmikeSubhead"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@mipmap/ic_timelapse_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/duration_hint"
-            android:inputType="number" />
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/maxParticipantTIL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        app:hintEnabled="false"
-        app:errorEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/durationTIL">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/maxParticipantsET"
-            android:clickable="true"
-            android:focusable="false"
-            style="@style/FoxmikeSubhead"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/margin_left"
-            android:drawableStart="@mipmap/ic_people_black_24dp"
-            android:drawableTint="@color/primaryTextColor"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/maximum_participants"
-            android:inputType="number" />
-    </android.support.design.widget.TextInputLayout>
-
-
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/allExceptCalendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/marginVertical"
-        app:layout_constraintTop_toBottomOf="@id/maxParticipantTIL">
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/sessionImageContainer">
+
+            <ImageButton
+                android:id="@+id/sessionImageBtn"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/color_background_light"
+                android:contentDescription="@string/CD_choose_session_image_button"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+            <TextView
+                android:id="@+id/imageErrorText"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_left"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_below="@id/sessionImageBtn"
+                android:text="@string/please_choose_a_group_image"
+                android:textColor="@color/red"/>
+
+        </RelativeLayout>
+
+        <android.support.design.widget.TextInputLayout
+            app:errorEnabled="true"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:focusedByDefault="false"
+            android:id="@+id/sessionNameTIL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            app:layout_constraintTop_toBottomOf="@id/sessionImageContainer">
+
+            <android.support.design.widget.TextInputEditText
+                style="@style/FoxmikeSubhead"
+                android:textColor="@color/primaryTextColor"
+                android:id="@+id/sessionNameET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/session_name_goes_here"
+                android:inputType="textCapSentences"
+                app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/locationTIL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/sessionNameTIL">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/locationTV"
+                android:clickable="true"
+                android:focusable="false"
+                style="@style/FoxmikeSubhead"
+                android:textColor="@color/primaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/margin_left"
+                android:drawableStart="@drawable/ic_edit_location_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/location" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/sessionTypeTIL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/locationTIL">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/sessionTypeET"
+                android:clickable="true"
+                android:focusable="false"
+                style="@style/FoxmikeSubhead"
+                android:textColor="@color/primaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/margin_left"
+                android:drawableStart="@drawable/ic_filter_list_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/session_type" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/durationTIL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/sessionTypeTIL">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/durationET"
+                android:clickable="true"
+                android:focusable="false"
+                style="@style/FoxmikeSubhead"
+                android:textColor="@color/primaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/margin_left"
+                android:drawableStart="@mipmap/ic_timelapse_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/duration_hint"
+                android:inputType="number" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/maxParticipantTIL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/durationTIL">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/maxParticipantsET"
+                android:clickable="true"
+                android:focusable="false"
+                style="@style/FoxmikeSubhead"
+                android:textColor="@color/primaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/margin_left"
+                android:drawableStart="@mipmap/ic_people_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/maximum_participants"
+                android:inputType="number" />
+        </android.support.design.widget.TextInputLayout>
+
 
         <android.support.design.widget.TextInputLayout
             app:errorEnabled="true"
@@ -277,57 +228,91 @@
                 android:nextFocusForward="@+id/priceET"/>
         </android.support.design.widget.TextInputLayout>
 
-        <FrameLayout
+        <ProgressBar
+            android:id="@+id/progressBar_cyclic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/height_progressBar"
+            android:minWidth="@dimen/width_progressBar"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:layout_marginTop="20dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/dateTIL"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            android:layout_marginTop="@dimen/marginVertical"
+            app:hintEnabled="false"
+            app:errorEnabled="true">
 
-            <ProgressBar
-                android:id="@+id/progressBar_cyclic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/height_progressBar"
-                android:minWidth="@dimen/width_progressBar"
-                android:layout_gravity="center"
-                android:visibility="invisible"
-                android:layout_marginTop="20dp"/>
-
-            <android.support.design.widget.TextInputLayout
-                app:errorEnabled="true"
-                android:focusedByDefault="false"
-                android:id="@+id/priceTIL"
+            <TextView
+                android:id="@+id/calendarExplanationTV"
+                style="@style/FoxmikeSubhead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
-                app:layout_constraintTop_toBottomOf="@id/durationTIL">
+                android:text="@string/click_on_the_calendar_below_to_choose_dates_and_times_for_your_session"
+                app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
 
-                <android.support.design.widget.TextInputEditText
-                    style="@style/FoxmikeSubhead"
-                    android:textColor="@color/primaryTextColor"
-                    android:id="@+id/priceET"
-                    android:inputType="phone"
-                    android:focusable="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/price_per_person"/>
-            </android.support.design.widget.TextInputLayout>
+            <TextView
+                android:id="@+id/calendarHeadingTV"
+                style="@style/FoxmikeSubhead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primaryTextColor"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="Aug"
+                app:layout_constraintTop_toBottomOf="@id/dateTIL"/>
 
-        </FrameLayout>
+            <com.github.sundeepk.compactcalendarview.CompactCalendarView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/compactcalendar_view"
+                android:layout_width="fill_parent"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:layout_height="250dp"
+                android:layout_marginTop="@dimen/marginVertical"
+                app:compactCalendarTargetHeight="250dp"
+                app:compactCalendarTextSize="12sp"
+                app:compactCalendarBackgroundColor="@color/color_background_light"
+                app:compactCalendarTextColor="@color/primaryTextColor"
+                app:compactCalendarCurrentSelectedDayBackgroundColor="@color/grayTextColor"
+                app:compactCalendarCurrentSelectedDayTextColor="@color/secondaryTextColor"
+                app:compactCalendarCurrentDayBackgroundColor="@color/lightGreyBackgroundColor"
+                app:compactCalendarEventIndicatorStyle="fill_large_indicator"
+                app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="false"
+                app:layout_constraintTop_toBottomOf="@id/calendarHeadingTV"/>
+        </android.support.design.widget.TextInputLayout>
 
-        <android.support.v7.widget.AppCompatButton
-            style="@style/FoxmikeSubhead"
-            android:textAllCaps="false"
-            android:id="@+id/createSessionBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:background="@drawable/rounded_button_primary"
-            android:text="@string/create_session"
-            android:textColor="@color/secondaryTextColor" />
+
+
+
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+
+
+    <android.support.v7.widget.AppCompatButton
+        style="@style/FoxmikeSubhead"
+        android:textAllCaps="false"
+        android:id="@+id/createSessionBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:background="@drawable/rounded_button_primary"
+        android:text="@string/create_session"
+        android:textColor="@color/secondaryTextColor" />
+
+</LinearLayout>

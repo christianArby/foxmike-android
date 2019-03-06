@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:descendantFocusability="blocksDescendants"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,7 +13,7 @@
         android:id="@+id/editSession"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/edit_session"
+        android:text="@string/addDates"
         android:textSize="16sp"
         android:textAlignment="center"
         android:padding="@dimen/margin_left"
@@ -99,17 +98,38 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/whatHeadingTW"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-            android:fontFamily="@font/montserrat_semi_bold"
-            app:fontFamily="@font/montserrat_semi_bold"
-            android:textColor="@color/primaryTextColor"
-            android:text="@string/what_heading"/>
+            android:layout_marginTop="@dimen/marginVertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/whatHeadingTW"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                android:fontFamily="@font/montserrat_semi_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
+                android:textColor="@color/primaryTextColor"
+                android:text="@string/what_heading"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/editWhat"
+                app:layout_constraintTop_toTopOf="@id/whatHeadingTW"
+                app:layout_constraintBottom_toBottomOf="@id/whatHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="@dimen/margin_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="18sp"
+                android:text="@string/edit"
+                android:textColor="@color/foxmikePrimaryColor"/>
+
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
             android:id="@+id/whatTW"
@@ -120,6 +140,8 @@
             android:layout_marginTop="@dimen/marginVertical"
             style="@style/FoxmikeSubhead"/>
 
+
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -129,18 +151,38 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/whoHeadingTW"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_left"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:text="@string/who_heading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:fontFamily="@font/montserrat_semi_bold"
-            app:fontFamily="@font/montserrat_semi_bold"
-            android:textColor="@color/primaryTextColor" />
+            android:layout_marginTop="@dimen/marginVertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/whoHeadingTW"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="@string/who_heading"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:fontFamily="@font/montserrat_semi_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
+                android:textColor="@color/primaryTextColor" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/editWho"
+                app:layout_constraintTop_toTopOf="@id/whoHeadingTW"
+                app:layout_constraintBottom_toBottomOf="@id/whoHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="@dimen/margin_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="18sp"
+                android:text="@string/edit"
+                android:textColor="@color/foxmikePrimaryColor"/>
+
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
             android:id="@+id/whoTW"
@@ -162,18 +204,40 @@
             android:layout_marginTop="@dimen/dividerDistance"
             android:background="@color/color_divider" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:fontFamily="@font/montserrat_semi_bold"
-            app:fontFamily="@font/montserrat_semi_bold"
-            android:id="@+id/whereHeadingTW"
+
+
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_left"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginTop="@dimen/marginVertical"
-            android:text="@string/where_heading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/primaryTextColor" />
+            android:layout_marginTop="@dimen/marginVertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:fontFamily="@font/montserrat_semi_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
+                android:id="@+id/whereHeadingTW"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:text="@string/where_heading"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textColor="@color/primaryTextColor" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/editWhere"
+                app:layout_constraintTop_toTopOf="@id/whereHeadingTW"
+                app:layout_constraintBottom_toBottomOf="@id/whereHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="@dimen/margin_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="18sp"
+                android:text="@string/edit"
+                android:textColor="@color/foxmikePrimaryColor"/>
+
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
             android:id="@+id/whereTW"
@@ -224,6 +288,19 @@
         android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/child_fragment_container" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/editAvailability"
+        app:layout_constraintTop_toTopOf="@id/availabilityHeading"
+        app:layout_constraintBottom_toBottomOf="@id/availabilityHeading"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/margin_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:textSize="18sp"
+        android:text="@string/edit"
+        android:textColor="@color/foxmikePrimaryColor"/>
 
     <View
         android:id="@+id/spaceView01"

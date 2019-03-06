@@ -476,8 +476,25 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
+    public void OnEditSession(String sessionID, String type) {
+        // Not possible in player environment
+
+    }
+
+    @Override
+    public void addAdvertisements(String sessionID) {
+        // Not possible in player environment
+    }
+
+    @Override
     public void OnEditSession(String sessionID, Session session) {
         // Not possible in player environment
+    }
+
+    @Override
+    public void OnEditSession(String sessionID, Session session, String type) {
+        // Not possible in player environment
+
     }
 
     @Override
@@ -534,6 +551,7 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnDismissDisplaySession() {
         getSupportFragmentManager().popBackStack();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

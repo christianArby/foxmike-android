@@ -377,7 +377,7 @@
     <string name="friend_request_sent">Friend request sent</string>
     <string name="friend_request_received">Friend request received</string>
     <string name="book_session">Book session</string>
-    <string name="edit_session">Edit session</string>
+    <string name="addDates">Edit session</string>
     <string name="next">Next</string>
     <string name="describe_yourself">As a Foxmike leader, you need to have a description of yourself.</string>
     <string name="sessions_not_found">Oops! We could not find your position, please try again later. Tip: Update the list by scrolling the list downwards.</string>
@@ -533,4 +533,7 @@
     <string name="not_possible_in_trainer_mode">Go to participant mode in order to see bookings</string>
     <string name="start_time">Start time</string>
     <string name="to">to</string>
+    <string name="edit">Edit</string>
+    <string name="add_more_sessions">Add more sessions</string>
+    <string name="add_sessions">Add sessions</string>
 </resources>
