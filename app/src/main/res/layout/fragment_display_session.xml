@@ -18,20 +18,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:fitsSystemWindows="true"
-        app:layout_behavior="com.foxmike.android.utils.FixAppBarLayoutBehavior">
+        android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            app:titleEnabled="false"
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:title="TEST"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginStart="@dimen/margin_left"
-            app:expandedTitleMarginEnd="@dimen/margin_right"
-            app:expandedTitleGravity="center_vertical|center_horizontal"
+            app:title=" "
+            app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+            app:contentScrim="@color/color_background_light"
             android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/editTop"
+                android:layout_margin="@dimen/margin_left"
+                android:elevation="1dp"
+                app:layout_collapseMode="pin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:textSize="18sp"
+                android:text="@string/edit"
+                android:textColor="@color/foxmikePrimaryColor"/>
 
             <RelativeLayout
                 app:layout_constraintTop_toTopOf="parent"
@@ -58,6 +67,23 @@
                 </android.support.constraint.ConstraintLayout>
 
             </RelativeLayout>
+
+            <TextView
+                android:textColor="@color/secondaryTextColor"
+                android:id="@+id/sessionName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                android:text="test2"
+                android:textAllCaps="true"
+                app:layout_scrollFlags="scroll"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_right"
+                android:textAlignment="center"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
             <TextView
                 android:textColor="@color/secondaryTextColor"
@@ -124,8 +150,12 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseMode="pin"
+                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+                android:paddingEnd="40dp"
+                app:title=" "
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -143,7 +173,6 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:descendantFocusability="blocksDescendants"
             android:orientation="vertical"
             android:id="@+id/display_session_container"
             android:layout_width="match_parent"

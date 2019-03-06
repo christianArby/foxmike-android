@@ -1,6 +1,7 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -40,6 +44,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -53,6 +59,7 @@ import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.Price;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -87,7 +94,6 @@ import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
@@ -107,7 +113,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private TextInputLayout mWhatTIL;
     private TextInputLayout mWhoTIL;
     private TextInputLayout mWhereTIL;
-    private TextInputLayout mPriceTIL;
     private TextInputEditText mSessionName;
     private TextInputEditText mSessionType;
     private TextInputEditText mMaxParticipants;
@@ -115,7 +120,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private EditText mWhat;
     private EditText mWho;
     private EditText mWhere;
-    private EditText mPrice;
     private Button mCreateSessionBtn;
     private final Calendar myCalendar = Calendar.getInstance();
     private ListView lv;
@@ -155,9 +159,18 @@ public class CreateOrEditSessionFragment extends Fragment{
     private TextView imageErrorText;
     private CompactCalendarView compactCalendarView;
     private TextView calendarHeadingTV;
-    private HashMap<Long, Boolean> advertisementTimestamps = new HashMap<>();
+    private HashMap<Long, Integer> advertisementTimestampsAndPrices = new HashMap<>();
     private HashMap<String, Long> advertisements = new HashMap<>();
     private long mLastClickTime = 0;
+    private LinearLayout allExceptCalendar;
+    private boolean addAdvertisements;
+    private int currentPrice = 0;
+    private String type;
+    private NestedScrollView createOrEditSV;
+
+
+
+
     public CreateOrEditSessionFragment() {
         // Required empty public constructor
     }
@@ -171,12 +184,14 @@ public class CreateOrEditSessionFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = this.getArguments();
+        type = "none";
         if (bundle != null) {
             existingSessionID = bundle.getString("sessionID");
+            type = bundle.getString("type");
             clickedLatLng = bundle.getParcelable("LatLng");
             existingSession = (Session) bundle.getSerializable("session");
+            addAdvertisements = bundle.getBoolean("addAdvertisements", false);
         }
-
     }
 
     @Override
@@ -213,14 +228,14 @@ public class CreateOrEditSessionFragment extends Fragment{
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(getActivity());
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
-        mPrice = createSession.findViewById(R.id.priceET);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
-        mPriceTIL = createSession.findViewById(R.id.priceTIL);
         imageErrorText = createSession.findViewById(R.id.imageErrorText);
         compactCalendarView = (CompactCalendarView) createSession.findViewById(R.id.compactcalendar_view);
         calendarHeadingTV = createSession.findViewById(R.id.calendarHeadingTV);
+        allExceptCalendar = createSession.findViewById(R.id.allExceptCalendar);
+        createOrEditSV = view.findViewById(R.id.scrollview_create_session);
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -259,7 +274,6 @@ public class CreateOrEditSessionFragment extends Fragment{
         actionBar.setDisplayShowTitleEnabled(false);
 
         progressBar.setVisibility(View.VISIBLE);
-        mPriceTIL.setVisibility(View.GONE);
         mCreateSessionBtn.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
@@ -289,6 +303,11 @@ public class CreateOrEditSessionFragment extends Fragment{
         // FILL VIEW with the session in bundle or with the session with the sessionID
 
         if (existingSessionID != null | existingSession!=null) {
+            if (addAdvertisements) {
+                allExceptCalendar.setVisibility(View.GONE);
+            } else {
+                mDateTIL.setVisibility(View.GONE);
+            }
             updateSession = true;
             /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
              * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
@@ -369,6 +388,47 @@ public class CreateOrEditSessionFragment extends Fragment{
                 });
             }
         });
+
+        if (type!=null) {
+
+            if (type.equals("what")) {
+                mWhat.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        createOrEditSV.smoothScrollTo(0, mWhatTIL.getBottom());
+                        mWhat.setFocusableInTouchMode(true);
+                        mWhat.requestFocus();
+                        mWhat.setSelection(mWhat.getText().length());
+                        showKeyboard(getContext());
+                    }
+                });
+            }
+            if (type.equals("who")) {
+                mWho.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        createOrEditSV.smoothScrollTo(0, mWhoTIL.getBottom());
+                        mWho.setFocusableInTouchMode(true);
+                        mWho.requestFocus();
+                        mWho.setSelection(mWho.getText().length());
+                        showKeyboard(getContext());
+                    }
+                });
+            }
+
+            if (type.equals("where")) {
+                mWhere.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        createOrEditSV.smoothScrollTo(0, mWhereTIL.getBottom());
+                        mWhere.setFocusableInTouchMode(true);
+                        mWhere.requestFocus();
+                        mWhere.setSelection(mWhere.getText().length());
+                        showKeyboard(getContext());
+                    }
+                });
+            }
+        }
 
         return view;
     }
@@ -695,46 +755,10 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
 
-        // -------------- SET PRICE TEXTVIEW ON CLICK LISTENER ------------------
-        mPrice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPriceTIL.setError(null);
-                if (payoutsEnabled) {
-                    if (accountCountry.equals("SE")) {
-                        mPriceTIL.setError(null);
-                        createDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE,mPrice);
-
-                        if (price!=0) {
-                            mPrice.setText(price + " kr");
-                        }
-                    }
-                    return;
-                }
-                // ---- Payouts not enabled -----
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(R.string.create_free_session_question);
-                builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        mPrice.setText(R.string.free);
-                    }
-                });
-                builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
-                        startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
     }
 
     private void showPriceView() {
         progressBar.setVisibility(View.GONE);
-        mPriceTIL.setVisibility(View.VISIBLE);
         mCreateSessionBtn.setVisibility(View.VISIBLE);
     }
 
@@ -817,18 +841,9 @@ public class CreateOrEditSessionFragment extends Fragment{
         }
 
         if (payoutsEnabled) {
-            if (accountCountry.equals("SE")) {
-                String sPrice = mPrice.getText().toString().replaceAll("[^0-9]", "");
-                if (sPrice.length()>1) {
-                    int intPrice = Integer.parseInt(sPrice);
-                    sessionMap.put("price", intPrice);
-                    sessionMap.put("currency", accountCurrency);
-                } else {
-                    sessionMap.put("price", 0);
-                    sessionMap.put("currency", "free");
-                }
-            }
+            sessionMap.put("price", currentPrice);
         } else {
+            currentPrice = 0;
             sessionMap.put("price", 0);
             sessionMap.put("currency", "free");
         }
@@ -888,7 +903,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         ArrayList<String> writeReferences = new ArrayList<>();
         // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
         // Loop through the timestamps created by clicking and making events in the calendar
-        for (Long advertisementTimestamp: advertisementTimestamps.keySet()) {
+        for (Long advertisementTimestamp: advertisementTimestampsAndPrices.keySet()) {
             // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
             String advertisementKey = rootDbRef.child("advertisements").push().getKey();
             Advertisement advertisement = new Advertisement("active",
@@ -903,7 +918,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (int) sendSession.get("durationInMin"),
                     (String) sendSession.get("currency"),
                     advertisementTimestamp,
-                    (int) sendSession.get("price")
+                    advertisementTimestampsAndPrices.get(advertisementTimestamp)
             );
             // Save the advertisement Id and the ad timestamp in a hashmap to be saved under session
             advertisements.put(advertisementKey, advertisementTimestamp);
@@ -962,13 +977,58 @@ public class CreateOrEditSessionFragment extends Fragment{
                 if (pickedDate.before(currentDate)) {
                     cannotCreateSessionInPastPopUp();
                 } else {
-                    Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
-                    compactCalendarView.addEvent(event);
-                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                    if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
-                        compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+
+                    if (payoutsEnabled) {
+                        if (accountCountry.equals("SE")) {
+                            createPriceDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE, new OnPriceClickedListener() {
+                                @Override
+                                public void OnPriceClicked() {
+                                    Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
+                                    compactCalendarView.addEvent(event);
+                                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                                    if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
+                                        compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                                    }
+                                    advertisementTimestampsAndPrices.put(myCalendar.getTimeInMillis(), currentPrice);
+
+                                }
+                            });
+                        }
+                        return;
                     }
-                    advertisementTimestamps.put(myCalendar.getTimeInMillis(), true);
+                    // ---- Payouts not enabled -----
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage(R.string.create_free_session_question);
+                    builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
+                            compactCalendarView.addEvent(event);
+                            compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                            if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
+                                compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
+                            }
+                            advertisementTimestampsAndPrices.put(myCalendar.getTimeInMillis(), 0);
+                            currentPrice = 0;
+                        }
+                    });
+                    builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                            startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+
+
+
+
+
+
+
+
                 }
             }
         }, 12, 0, true);//Yes 24 hour time
@@ -1020,6 +1080,64 @@ public class CreateOrEditSessionFragment extends Fragment{
                 dlg.dismiss();
             }
         });
+    }
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
+    private void createPriceDialog(String title, int string_array,  OnPriceClickedListener onPriceClickedListener) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getLayoutInflater();
+        View convertView = inflater.inflate(R.layout.dialog_radiogroup, null);
+        alertDialogBuilder.setView(convertView);
+        alertDialogBuilder.setTitle(title);
+
+        RadioGroup currencySettingRadioGroup = (RadioGroup) convertView.findViewById(R.id.dialogRadioGroup);
+        TextView priceOkButton = convertView.findViewById(R.id.priceOK);
+
+        HashMap<String, RadioButton> radioGroup = new HashMap<>();
+
+        String[] prices = getResources().getStringArray(string_array);
+        for (String stringPrice: prices ) {
+            if (!radioGroup.containsKey(stringPrice)) {
+                RadioButton rb = new RadioButton(getContext());
+                rb.setText(stringPrice);
+                rb.setTextAppearance(getContext(), R.style.FoxmikeSubhead);
+                currencySettingRadioGroup.addView(rb);
+                radioGroup.put(stringPrice, rb);
+            }
+        }
+        radioGroup.get(Price.PRICES_STRINGS_SE.get(currentPrice)).setChecked(true);
+
+
+        //lv.getDivider().setAlpha(0);
+        /*String[] values = getResources().getStringArray(string_array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
+        lv.setAdapter(adapter);*/
+        final AlertDialog dlg = alertDialogBuilder.show();
+        currencySettingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                currentPrice = Price.PRICES_INTEGERS_SE.get(prices[i-1]);
+            }
+        });
+
+        priceOkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dlg.dismiss();
+                onPriceClickedListener.OnPriceClicked();
+
+            }
+        });
+
+
+        /*lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int itemPosition = position;
+                String itemValue = (String) lv.getItemAtPosition(position);
+                dlg.dismiss();
+                onPriceClickedListener.OnPriceClicked(itemValue);
+            }
+        });*/
     }
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText, int currentNrOfParticipants) {
@@ -1167,8 +1285,27 @@ public class CreateOrEditSessionFragment extends Fragment{
         }
     }
 
+    public interface OnPriceClickedListener {
+        void OnPriceClicked();
+    }
+
 
     public interface OnSessionUpdatedListener {
         void OnSessionUpdated(Map sessionMap);
      }
+
+    public static void showKeyboard(Context context) {
+        ((InputMethodManager) (context).getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+    public static void hideKeyboard(Context context) {
+        try {
+            ((Activity) context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+            if ((((Activity) context).getCurrentFocus() != null) && (((Activity) context).getCurrentFocus().getWindowToken() != null)) {
+                ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -161,7 +161,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private HashMap defaultSourceMap;
     private boolean mapReady;
     BitmapDescriptor selectedIcon;
-    private TextView editSession;
+    private TextView addDates;
     private TextView snackBarDateAndTimeTV;
     private LinearLayout snackNoUpcomingAds;
     private boolean currentUserAndViewUsed;
@@ -207,6 +207,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean firstLoadOfPosts = true;
     private boolean firstLoadOfComments;
     private ProgressBar postProgressBar;
+    private TextView editTop;
+    private ArrayList<TextView> editTVArrayList=new ArrayList<TextView>();
+    private boolean isHost = false;
+    private TextView sessionName;
+    private TextView editWhat;
+    private TextView editWho;
+    private TextView editWhere;
+    private TextView editAvailability;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -295,6 +303,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             onAsyncTaskFinished();
                             getPosts();
                             getSessionHost();
+
+                            if (session.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                isHost = true;
+                            }
                         }
 
                     }
@@ -668,7 +680,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         upcomingSessionsRV = displaySession.findViewById(R.id.upcomingSessionsList);
         showMore = displaySession.findViewById(R.id.showMoreText);
         snackNoUpcomingAds = view.findViewById(R.id.snackNoUpcomingAds);
-        editSession = displaySession.findViewById(R.id.editSession);
+        addDates = displaySession.findViewById(R.id.editSession);
         fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
         sessionDateAndTimeLLManager = new LinearLayoutManager(getContext());
         upcomingSessionsRV.setHasFixedSize(true);
@@ -681,6 +693,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         noSnackAdTV = view.findViewById(R.id.noSnackAdTV);
         mAddress = displaySession.findViewById(R.id.addressTV);
         postProgressBar = displaySession.findViewById(R.id.postProgressBar);
+        sessionName = view.findViewById(R.id.sessionName);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -706,6 +719,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
+        // Store refs to editTV
+        editTop = (TextView)(view.findViewById(R.id.editTop));
+        editWhat = displaySession.findViewById(R.id.editWhat);
+        editWho = displaySession.findViewById(R.id.editWho);
+        editWhere = displaySession.findViewById(R.id.editWhere);
+        editAvailability = displaySession.findViewById(R.id.editAvailability);
+        editTVArrayList.add(editWhat);
+        editTVArrayList.add(editWho);
+        editTVArrayList.add(editWhere);
+        editTVArrayList.add(editAvailability);
+
         // Setup toolbar
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -715,10 +739,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (verticalOffset!=0) {
-                    mSessionType.setVisibility(View.GONE);
+                if (Math.abs(verticalOffset)>Math.abs(appBarLayout.getTotalScrollRange()/2)) {
+                    toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.primaryTextColor), PorterDuff.Mode.SRC_ATOP);
                 } else {
-                    mSessionType.setVisibility(View.VISIBLE);
+                    toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.secondaryTextColor), PorterDuff.Mode.SRC_ATOP);
                 }
             }
         });
@@ -830,7 +854,16 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             if (session.getHost().equals(currentFirebaseUser.getUid())) {
 
                 // -------------------- HOST -----------------------------
-                editSession.setVisibility(View.VISIBLE);
+                editTop.setVisibility(View.VISIBLE);
+                for (TextView editTV: editTVArrayList) {
+                    editTV.setVisibility(View.VISIBLE);
+                }
+                if (session.getAdvertisements()!=null) {
+                    addDates.setText(R.string.add_more_sessions);
+                } else {
+                    addDates.setText(R.string.add_sessions);
+                }
+                addDates.setVisibility(View.VISIBLE);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -846,7 +879,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             } else {
 
                 // -------------------- PLAYER -----------------------------
-                editSession.setVisibility(View.GONE);
+                editTop.setVisibility(View.GONE);
+                for (TextView editTV: editTVArrayList) {
+                    editTV.setVisibility(View.GONE);
+                }
+                addDates.setVisibility(View.GONE);
                 mSendMessageToHost.setText(R.string.show_profile);
                 mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -940,7 +977,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
 
             // -----------  Set the session information in UI from session object --------------
-            collapsingToolbarLayout.setTitle(session.getSessionName());
+            sessionName.setText(session.getSessionName());
             String address = getAddress(session.getLatitude(),session.getLongitude());
             mAddressAndSessionType.setText(address);
             mWhatTW.setText(session.getWhat());
@@ -1073,7 +1110,35 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         if (currentUserLoaded && sessionLoaded && mapReady && getView()!=null && !currentUserAndSessionAndViewAndMapUsed) {
             currentUserAndSessionAndViewAndMapUsed =true;
 
-            editSession.setOnClickListener(new View.OnClickListener() {
+            addDates.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        sessionListener.addAdvertisements(sessionID);
+                    }
+                }
+            });
+            editAvailability.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        sessionListener.addAdvertisements(sessionID);
+                    }
+                }
+            });
+            editTop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -1085,9 +1150,54 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     } else {
                         sessionListener.OnEditSession(sessionID,session);
                     }
+                }
+            });
+            editWhat.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        sessionListener.OnEditSession(sessionID,session, "what");
+                    }
 
                 }
             });
+            editWho.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        sessionListener.OnEditSession(sessionID,session, "who");
+                    }
+
+                }
+            });
+            editWhere.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                    if (!currentUser.isTrainerMode()) {
+                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                    } else {
+                        sessionListener.OnEditSession(sessionID,session, "where");
+                    }
+
+                }
+            });
+
 
             // SETUP MAP
             LatLng markerLatLng = new LatLng(sessionLatitude, sessionLongitude);
@@ -1108,24 +1218,23 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
 
-                    DateTime currentTime = DateTime.now();
-                    DateTime adTime = new DateTime(adSelected.getAdvertisementTimestamp());
-                    Duration durationCurrentToAd = new Duration(currentTime, adTime);
-
-                    if (durationCurrentToAd.getStandardDays()>13) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setMessage(R.string.booking_more_than_2_weeks_ahead).setTitle(R.string.booking_not_possible);
-                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                            }
-                        });
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                        return;
-                    }
-
                     // If the current user isn´t the host of the session
                     if (!session.getHost().equals(currentFirebaseUser.getUid())) {
+                        DateTime currentTime = DateTime.now();
+                        DateTime adTime = new DateTime(adSelected.getAdvertisementTimestamp());
+                        Duration durationCurrentToAd = new Duration(currentTime, adTime);
+
+                        if (durationCurrentToAd.getStandardDays()>13) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setMessage(R.string.booking_more_than_2_weeks_ahead).setTitle(R.string.booking_not_possible);
+                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                            return;
+                        }
                         // If the current user is a participant and already booked this session, button will display cancel booking and click will start cancellation method
                         if (adSelected.getChargeIds()!=null) {
                             if (adSelected.getChargeIds().containsKey(currentFirebaseUser.getUid())) {

@@ -377,7 +377,7 @@
     <string name="friend_request_sent">Vänförfrågan har skickats</string>
     <string name="friend_request_received">Mottagen vänförfrågan</string>
     <string name="book_session">Boka pass</string>
-    <string name="edit_session">Redigera pass</string>
+    <string name="addDates">Redigera pass</string>
     <string name="next">Nästa</string>
     <string name="describe_yourself">Som Foxmike ledare så behöver du beskriva dig själv.</string>
     <string name="sessions_not_found">Hoppsan! Vi hittade inte din position just nu, försök igen senare. Tips: Du uppdaterar listan genom att scrolla.</string>
@@ -395,7 +395,7 @@
     <string name="you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below">Du har inte lagt till några vänner än, sök efter vänner genom att klicka på sökknappen nedanför!</string>
     <string name="you_have_no_booked_sessions">Du har inga bokade pass.</string>
     <string name="you_have_not_attended_any_sessions_yet">Du har inte varit med på några pass än.</string>
-    <string name="you_have_no_advertised_sessions">Du har inga annonserade pass.</string>
+    <string name="you_have_no_advertised_sessions">Du har inga tillfällen.</string>
     <string name="cancel">Avbryt</string>
     <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver ha en betalningsmetod för att kunna boka passet.</string>
     <string name="booking_failed">Bokningen misslyckades</string>
@@ -462,10 +462,10 @@
     <string name="no_studios_text">Skapa en träningsgrupp där du kan lägga ut pass, klicka på plusknappen nedan!.</string>
     <string name="you_must_agree_to_above">Du måste godkänna användarvillkoren för att registrera ett konto.</string>
     <string name="upcoming">Kommande</string>
-    <string name="avertisements">Annonser</string>
+    <string name="avertisements">Tillfällen</string>
     <string name="advertisement_image">Annons bild</string>
     <string name="you_have_no_advertisements">Du har inga kommande tillfällen.</string>
-    <string name="no_advertisements">Inga annonser</string>
+    <string name="no_advertisements">Inga tillfällen</string>
     <string name="next_session">Nästa pass:\u0020</string>
     <string name="more_than_two_weeks_ahead">Längre fram än två veckor</string>
     <string name="availability">Tillgänglighet</string>
@@ -533,4 +533,7 @@
     <string name="not_possible_in_trainer_mode">Gå till deltagarläge för att se bokningar</string>
     <string name="start_time">Starttid</string>
     <string name="to">till</string>
+    <string name="edit">Ändra</string>
+    <string name="add_more_sessions">Lägg ut fler pass</string>
+    <string name="add_sessions">Lägg ut pass</string>
 </resources>
