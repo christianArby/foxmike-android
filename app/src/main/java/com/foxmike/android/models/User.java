@@ -2,8 +2,6 @@ package com.foxmike.android.models;
 
 import android.support.annotation.NonNull;
 
-import java.util.HashMap;
-
 /**
  * Created by chris on 2017-06-28.
  */
@@ -11,7 +9,8 @@ import java.util.HashMap;
 public class User implements Comparable<User>{
 
     private String userId;
-    private HashMap<String,Object> stripeCustomer;
+    private String stripeCustomerId;
+    private String stripeLastChange;
     public String firstName;
     public String lastName;
     public String aboutMe;
@@ -24,9 +23,10 @@ public class User implements Comparable<User>{
     private boolean dontShowBookingText;
 
 
-    public User(String userId, HashMap<String, Object> stripeCustomer, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
+    public User(String userId, String stripeCustomerId, String stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
         this.userId = userId;
-        this.stripeCustomer = stripeCustomer;
+        this.stripeCustomerId = stripeCustomerId;
+        this.stripeLastChange = stripeLastChange;
         this.firstName = firstName;
         this.lastName = lastName;
         this.aboutMe = aboutMe;
@@ -40,7 +40,7 @@ public class User implements Comparable<User>{
     }
 
     public User() {
-        this.stripeCustomer = new HashMap<String,Object>();
+
     }
 
     public String getImage() {
@@ -128,12 +128,20 @@ public class User implements Comparable<User>{
         this.stripeAccountId = stripeAccountId;
     }
 
-    public HashMap<String, Object> getStripeCustomer() {
-        return stripeCustomer;
+    public String getStripeCustomerId() {
+        return stripeCustomerId;
     }
 
-    public void setStripeCustomer(HashMap<String, Object> stripeCustomer) {
-        this.stripeCustomer = stripeCustomer;
+    public void setStripeCustomerId(String stripeCustomerId) {
+        this.stripeCustomerId = stripeCustomerId;
+    }
+
+    public String getStripeLastChange() {
+        return stripeLastChange;
+    }
+
+    public void setStripeLastChange(String stripeLastChange) {
+        this.stripeLastChange = stripeLastChange;
     }
 
     public boolean isDontShowBookingText() {
