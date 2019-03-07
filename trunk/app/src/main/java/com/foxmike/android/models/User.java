@@ -23,7 +23,7 @@ public class User implements Comparable<User>{
     private boolean dontShowBookingText;
 
 
-    public User(String userId, String stripeCustomerId, String stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -136,11 +136,11 @@ public class User implements Comparable<User>{
         this.stripeCustomerId = stripeCustomerId;
     }
 
-    public String getStripeLastChange() {
+    public Long getStripeLastChange() {
         return stripeLastChange;
     }
 
-    public void setStripeLastChange(String stripeLastChange) {
+    public void setStripeLastChange(Long stripeLastChange) {
         this.stripeLastChange = stripeLastChange;
     }
 
