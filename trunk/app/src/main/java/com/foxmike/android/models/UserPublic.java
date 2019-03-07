@@ -10,15 +10,17 @@ public class UserPublic implements Comparable<UserPublic> {
     public String userId;
     public String firstName;
     public String lastName;
+    public String fullName;
     public String aboutMe;
     public String image;
     public String thumb_image;
     public String userName;
 
-    public UserPublic(String userId, String firstName, String lastName, String aboutMe, String image, String thumb_image, String userName) {
+    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = fullName;
         this.aboutMe = aboutMe;
         this.image = image;
         this.thumb_image = thumb_image;
@@ -26,6 +28,14 @@ public class UserPublic implements Comparable<UserPublic> {
     }
 
     public UserPublic() {
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getImage() {

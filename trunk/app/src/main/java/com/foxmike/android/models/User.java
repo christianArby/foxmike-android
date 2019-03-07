@@ -11,9 +11,6 @@ import java.util.HashMap;
 public class User implements Comparable<User>{
 
     private String userId;
-    public HashMap<String,Long> sessionsAttending;
-    public HashMap<String,Boolean> sessionsHosting;
-    public HashMap<String,Long> advertisementsHosting;
     private HashMap<String,Object> stripeCustomer;
     public String firstName;
     public String lastName;
@@ -27,11 +24,8 @@ public class User implements Comparable<User>{
     private boolean dontShowBookingText;
 
 
-    public User(String userId, HashMap<String, Long> sessionsAttending, HashMap<String, Boolean> sessionsHosting, HashMap<String, Long> advertisementsHosting, HashMap<String, Object> stripeCustomer, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
+    public User(String userId, HashMap<String, Object> stripeCustomer, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
         this.userId = userId;
-        this.sessionsAttending = sessionsAttending;
-        this.sessionsHosting = sessionsHosting;
-        this.advertisementsHosting = advertisementsHosting;
         this.stripeCustomer = stripeCustomer;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,10 +40,7 @@ public class User implements Comparable<User>{
     }
 
     public User() {
-        this.sessionsAttending = new HashMap<String,Long>();
-        this.sessionsHosting = new HashMap<String,Boolean>();
         this.stripeCustomer = new HashMap<String,Object>();
-        this.advertisementsHosting = new HashMap<String, Long>();
     }
 
     public String getImage() {
@@ -74,35 +65,6 @@ public class User implements Comparable<User>{
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public HashMap<String, Long> getAdvertisementsHosting() {
-        if (this.advertisementsHosting==null) {
-            advertisementsHosting = new HashMap<String, Long>();
-        }
-        return advertisementsHosting;
-    }
-
-    public void setAdvertisementsHosting(HashMap<String, Long> advertisementsHosting) {
-        this.advertisementsHosting = advertisementsHosting;
-    }
-
-    public HashMap<String, Long> getSessionsAttending() {
-        return sessionsAttending;
-    }
-
-
-
-    public void setSessionsAttending(HashMap<String, Long> sessionsAttending) {
-        this.sessionsAttending = sessionsAttending;
-    }
-
-    public HashMap<String, Boolean> getSessionsHosting() {
-        return sessionsHosting;
-    }
-
-    public void setSessionsHosting(HashMap<String, Boolean> sessionsHosting) {
-        this.sessionsHosting = sessionsHosting;
     }
 
     public String getAboutMe() {
