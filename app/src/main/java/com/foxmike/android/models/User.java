@@ -10,7 +10,7 @@ public class User implements Comparable<User>{
 
     private String userId;
     private String stripeCustomerId;
-    private String stripeLastChange;
+    private Long stripeLastChange;
     public String firstName;
     public String lastName;
     public String aboutMe;
