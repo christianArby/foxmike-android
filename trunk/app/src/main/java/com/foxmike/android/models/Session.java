@@ -12,11 +12,11 @@ public class Session implements Comparable<Session>, Serializable {
     private String stripeAccountId;
     private String sessionName;
     private String sessionType;
+    private String address;
     private String maxParticipants;
     private double latitude;
     private double longitude;
     private HashMap<String, Long> advertisements;
-    private HashMap<String,String> participants  = new HashMap<String, String>();
     private String imageUrl;
     private String what;
     private String who;
@@ -26,17 +26,17 @@ public class Session implements Comparable<Session>, Serializable {
     private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, HashMap<String, String> participants,  String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
         this.host = host;
         this.stripeAccountId = stripeAccountId;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
+        this.address = address;
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
         this.advertisements = advertisements;
-        this.participants = participants;
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
@@ -56,11 +56,11 @@ public class Session implements Comparable<Session>, Serializable {
         this.stripeAccountId = sessionToCopy.stripeAccountId;
         this.sessionName = sessionToCopy.sessionName;
         this.sessionType = sessionToCopy.sessionType;
+        this.address = sessionToCopy.address;
         this.maxParticipants = sessionToCopy.maxParticipants;
         this.latitude = sessionToCopy.latitude;
         this.longitude = sessionToCopy.longitude;
         this.advertisements = sessionToCopy.advertisements;
-        this.participants = sessionToCopy.participants;
         this.imageUrl = sessionToCopy.imageUrl;
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
@@ -79,6 +79,14 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setRepresentingAdTimestamp(long representingAdTimestamp) {
         this.representingAdTimestamp = representingAdTimestamp;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public HashMap<String, Long> getAdvertisements() {
@@ -195,17 +203,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setDurationInMin(int durationInMin) {
         this.durationInMin = durationInMin;
-    }
-
-    public HashMap<String, String> getParticipants() {
-        if (this.participants==null) {
-            participants = new HashMap<String, String>();
-        }
-        return participants;
-    }
-
-    public void setParticipants(HashMap<String, String> participants) {
-        this.participants = participants;
     }
 
     public String getCurrency() {
