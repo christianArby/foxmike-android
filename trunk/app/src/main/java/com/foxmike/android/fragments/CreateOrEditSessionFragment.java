@@ -167,6 +167,9 @@ public class CreateOrEditSessionFragment extends Fragment{
     private int currentPrice = 0;
     private String type;
     private NestedScrollView createOrEditSV;
+    private String address;
+    private HashMap<String, RadioButton> radioGroupHashMap = new HashMap<>();
+    private RadioGroup currencySettingRadioGroup;
 
 
 
@@ -331,7 +334,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
-            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
             setPrice(0);
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
@@ -448,12 +451,9 @@ public class CreateOrEditSessionFragment extends Fragment{
     private void setupUI() {
 
         if (existingSession!=null) {
-            if (existingSession.getParticipants().size()>0) {
-                hasParticipants = true;
-            }
 
             clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
-            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+            address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
             setImage(existingSession.getImageUrl(),mSessionImageButton);
             mSessionName.setText(existingSession.getSessionName());
@@ -513,9 +513,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mSessionName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.session_name_cannot_change));
-                    return;}
+
             }
         });
 
@@ -529,9 +527,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                 mLastClickTime = SystemClock.elapsedRealtime();
 
                 mLocationTIL.setError(null);
-                if (hasParticipants) {
-                notPossibleHasParticipants(getString(R.string.location_cannot_change));
-                return;}
 
                 Bundle bundle = new Bundle();
                 bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
@@ -552,10 +547,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 mSessionTypeTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
-                    return;
-                }
+
                 Locale current = getResources().getConfiguration().locale;
                 DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
                 sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -577,10 +569,6 @@ public class CreateOrEditSessionFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 mSessionTypeTIL.setError(null);
-                if (hasParticipants) {
-                    notPossibleHasParticipants(getString(R.string.session_type_cannot_change));
-                    return;
-                }
 
                 Locale current = getResources().getConfiguration().locale;
                 DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
@@ -619,11 +607,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 mMaxParticipantsTIL.setError(null);
-                int nrOfParticipants = 0;
-                if (existingSession!=null) {
-                    nrOfParticipants = existingSession.getParticipants().size();
-                }
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,nrOfParticipants);
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
 
             }
         });
@@ -631,11 +615,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 mMaxParticipantsTIL.setError(null);
-                int nrOfParticipants = 0;
-                if (existingSession!=null) {
-                    nrOfParticipants = existingSession.getParticipants().size();
-                }
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants,nrOfParticipants);
+                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
             }
         });
 
@@ -769,7 +749,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         if (updateSession) {
             mSessionId = existingSessionID;
-            sessionMap.put("participants", existingSession.getParticipants());
             if (existingSession.getAdvertisements()!=null) {
                 for (String ad : existingSession.getAdvertisements().keySet()) {
                     advertisements.put(ad, existingSession.getAdvertisements().get(ad));
@@ -786,6 +765,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
         sessionMap.put("maxParticipants", mMaxParticipants.getText().toString());
+        sessionMap.put("address", address);
 
         String sDur = mDuration.getText().toString().replaceAll("[^0-9]", "");
         if (sDur.length()>1) {
@@ -842,6 +822,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         if (payoutsEnabled) {
             sessionMap.put("price", currentPrice);
+            sessionMap.put("currency", accountCurrency);
         } else {
             currentPrice = 0;
             sessionMap.put("price", 0);
@@ -1089,22 +1070,27 @@ public class CreateOrEditSessionFragment extends Fragment{
         alertDialogBuilder.setView(convertView);
         alertDialogBuilder.setTitle(title);
 
-        RadioGroup currencySettingRadioGroup = (RadioGroup) convertView.findViewById(R.id.dialogRadioGroup);
+        currencySettingRadioGroup = (RadioGroup) convertView.findViewById(R.id.dialogRadioGroup);
         TextView priceOkButton = convertView.findViewById(R.id.priceOK);
 
-        HashMap<String, RadioButton> radioGroup = new HashMap<>();
+        radioGroupHashMap.clear();
+        currencySettingRadioGroup.removeAllViews();
+
 
         String[] prices = getResources().getStringArray(string_array);
+        int n=1;
         for (String stringPrice: prices ) {
-            if (!radioGroup.containsKey(stringPrice)) {
+            if (!radioGroupHashMap.containsKey(stringPrice)) {
                 RadioButton rb = new RadioButton(getContext());
                 rb.setText(stringPrice);
-                rb.setTextAppearance(getContext(), R.style.FoxmikeSubhead);
+                rb.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Subhead);
+                rb.setId(n);
+                n++;
                 currencySettingRadioGroup.addView(rb);
-                radioGroup.put(stringPrice, rb);
+                radioGroupHashMap.put(stringPrice, rb);
             }
         }
-        radioGroup.get(Price.PRICES_STRINGS_SE.get(currentPrice)).setChecked(true);
+        radioGroupHashMap.get(Price.PRICES_STRINGS_SE.get(currentPrice)).setChecked(true);
 
 
         //lv.getDivider().setAlpha(0);
@@ -1140,7 +1126,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         });*/
     }
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
-    private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText, int currentNrOfParticipants) {
+    private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
@@ -1149,7 +1135,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1157,10 +1143,6 @@ public class CreateOrEditSessionFragment extends Fragment{
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int itemPosition = position;
                 String itemValue = (String) lv.getItemAtPosition(position);
-                if (Integer.parseInt(itemValue)<currentNrOfParticipants) {
-                    notPossibleHasParticipants(getString(R.string.participants_cannot_change));
-                    return;
-                }
                 mEditText.setText(itemValue);
                 dlg.dismiss();
             }

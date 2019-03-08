@@ -38,7 +38,7 @@
         android:id="@+id/text1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:text="Medium Text"
         android:textColor="@color/primaryTextColor"
         android:ellipsize="end"

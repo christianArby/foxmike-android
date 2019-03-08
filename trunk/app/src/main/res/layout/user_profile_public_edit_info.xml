@@ -38,7 +38,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            style="@style/FoxmikeSubhead"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/firstNameProfilePublicEditET"
@@ -58,7 +58,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            style="@style/FoxmikeSubhead"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/lastNameProfilePublicEditET"
@@ -78,7 +78,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            style="@style/FoxmikeSubhead"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/userNameProfilePublicEditET"
@@ -98,7 +98,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            style="@style/FoxmikeSubhead"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/aboutMeProfilePublicEditET"

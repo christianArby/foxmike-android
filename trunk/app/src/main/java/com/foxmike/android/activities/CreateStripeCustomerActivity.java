@@ -69,7 +69,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         createStripeCustomerBtn = findViewById(R.id.createStripeCustomerBtn);
         mFunctions = FirebaseFunctions.getInstance();
 
-        Typeface tf = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+        Typeface tf = Typeface.create("sans-serif", Typeface.NORMAL);
         setTypeface(tf, mCardInputWidget);
 
         if (getIntent().getSerializableExtra("customerData")!= null) {

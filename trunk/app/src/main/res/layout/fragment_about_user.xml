@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <android.support.design.widget.TextInputEditText
-            style="@style/FoxmikeSubhead"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/aboutMeET"
             android:hint="@string/aboutMe_text"

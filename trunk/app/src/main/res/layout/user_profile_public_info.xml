@@ -16,13 +16,12 @@
 
     <TextView
         android:id="@+id/nameProfilePublicTV"
+        style="@style/FoxmikeHeading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
-        android:textColor="@color/primaryTextColor"
         android:text="@string/loading"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profilePublicIV"/>
 
@@ -45,7 +44,7 @@
         android:layout_marginTop="@dimen/leadDisplay1ToSub"
         android:layout_marginStart="@dimen/marginHorizontal"
         android:layout_marginEnd="@dimen/marginHorizontal"
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:paddingBottom="@dimen/marginVertical"
         app:layout_constraintTop_toBottomOf="@id/userNameProfilePublicTV"
         app:layout_constraintStart_toStartOf="parent"

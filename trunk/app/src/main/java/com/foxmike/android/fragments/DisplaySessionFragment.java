@@ -797,17 +797,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     Post post = postBranchArrayList.get(position).getPost();
                     String postID = postBranchArrayList.get(position).getPostID();
 
-                    holder.setHeading(post.getSenderName());
+
 
                     TextTimestamp textTimestamp = new TextTimestamp((long) post.getTimestamp());
                     String timeText = textTimestamp.textDateAndTime();
                     holder.setTime(timeText);
 
-                    populateUserPublicHashMap(post.getAuthor(), new OnUsersLoadedListener() {
+                    populateUserPublicHashMap(post.getAuthorId(), new OnUsersLoadedListener() {
                         @Override
                         public void OnUsersLoaded() {
-                            holder.setUserImage(userPublicHashMap.get(post.getAuthor()).getThumb_image(), getContext());
-                            holder.setCommentClickListener(postID, post.getSenderName(), timeText, post.getMessage(), userPublicHashMap.get(post.getAuthor()).getThumb_image());
+                            holder.setUserImage(userPublicHashMap.get(post.getAuthorId()).getThumb_image(), getContext());
+                            holder.setHeading(userPublicHashMap.get(post.getAuthorId()).getFirstName());
+                            holder.setCommentClickListener(postID, userPublicHashMap.get(post.getAuthorId()).getFirstName(), timeText, post.getMessage(), userPublicHashMap.get(post.getAuthorId()).getThumb_image());
                         }
                     });
                     holder.setMessage(post.getMessage());
@@ -1016,7 +1017,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     return;
                                 }
                                 lastScrollTime = SystemClock.elapsedRealtime();
-                                snackNoUpcomingAds.setVisibility(View.VISIBLE);
+                                if (adSelected!=null) {
+                                    snackNoUpcomingAds.setVisibility(View.VISIBLE);
+                                }
                             }
                         });
                     }

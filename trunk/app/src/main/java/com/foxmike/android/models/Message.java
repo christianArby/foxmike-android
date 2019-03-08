@@ -10,14 +10,12 @@ public class Message {
     private long time;
     private boolean seen;
     private String senderUserID;
-    private String senderName;
 
-    public Message(String message, long time, boolean seen, String senderUserID, String senderName) {
+    public Message(String message, long time, boolean seen, String senderUserID) {
         this.message = message;
         this.time = time;
         this.seen = seen;
         this.senderUserID = senderUserID;
-        this.senderName = senderName;
     }
 
     public Message() {
@@ -53,13 +51,5 @@ public class Message {
 
     public void setSenderUserID(String senderUserID) {
         this.senderUserID = senderUserID;
-    }
-
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
     }
 }

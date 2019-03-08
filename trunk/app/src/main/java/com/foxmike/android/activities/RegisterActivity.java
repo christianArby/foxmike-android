@@ -30,6 +30,7 @@ import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.CheckVersion;
+import com.foxmike.android.utils.FoxmikeFont;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.google.android.gms.tasks.Continuation;
@@ -123,9 +124,12 @@ public class RegisterActivity extends AppCompatActivity {
         mainView = findViewById(R.id.mainView);
         mSmallRegisterImageButton = findViewById(R.id.smallRegisterImageBtn);
 
-        Typeface customFont = ResourcesCompat.getFont(this, R.font.montserrat_regular);
-        passwordTIL.setTypeface(customFont);
-        mPasswordField.setTypeface(customFont);
+        if (FoxmikeFont.hasCustomFont) {
+            Typeface customFont = ResourcesCompat.getFont(this, FoxmikeFont.customFontRegular);
+            passwordTIL.setTypeface(customFont);
+            mPasswordField.setTypeface(customFont);
+        }
+
 
         imageErrorTextTV.setText(null);
 

@@ -97,7 +97,7 @@
         android:id="@+id/setupSubmitBtn"
         android:background="@drawable/rounded_edittext"
         android:padding="@dimen/margin_minimum"
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
         android:textColor="#00897b"
         android:layout_width="match_parent"

@@ -69,15 +69,14 @@
             </RelativeLayout>
 
             <TextView
+                style="@style/FoxmikeTitle"
                 android:textColor="@color/secondaryTextColor"
                 android:id="@+id/sessionName"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:elevation="4dp"
                 android:text="test2"
-                android:textAllCaps="true"
                 app:layout_scrollFlags="scroll"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_right"
                 android:textAlignment="center"
@@ -173,6 +172,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:descendantFocusability="blocksDescendants"
             android:orientation="vertical"
             android:id="@+id/display_session_container"
             android:layout_width="match_parent"
@@ -210,8 +210,6 @@
             app:layout_constraintBottom_toBottomOf="@id/displaySessionBtn">
 
             <android.support.v7.widget.AppCompatTextView
-                android:fontFamily="@font/roboto_regular"
-                app:fontFamily="@font/roboto_regular"
                 android:id="@+id/snackBarDateAndTimeTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -223,8 +221,7 @@
                 android:textStyle="bold" />
 
             <android.support.v7.widget.AppCompatTextView
-                android:fontFamily="@font/roboto_bold"
-                app:fontFamily="@font/roboto_bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:id="@+id/priceTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -246,8 +243,6 @@
                 />
 
             <android.support.v7.widget.AppCompatTextView
-                android:fontFamily="@font/roboto_regular"
-                app:fontFamily="@font/roboto_regular"
                 android:visibility="gone"
                 android:id="@+id/paymentMethod"
                 android:layout_width="match_parent"
@@ -259,8 +254,6 @@
                 android:drawableStart="@drawable/ic_visa_card" />
 
             <android.support.v7.widget.AppCompatTextView
-                android:fontFamily="@font/roboto_regular"
-                app:fontFamily="@font/roboto_regular"
                 android:visibility="gone"
                 android:textColor="@color/foxmikePrimaryColor"
                 android:id="@+id/addPaymentMethodTV"
@@ -274,8 +267,7 @@
         </LinearLayout>
 
         <android.support.v7.widget.AppCompatTextView
-            android:fontFamily="@font/montserrat_semi_bold"
-            app:fontFamily="@font/montserrat_semi_bold"
+            android:textStyle="bold"
             android:textSize="16sp"
             android:enabled="false"
             app:layout_constraintEnd_toEndOf="parent"
@@ -311,7 +303,7 @@
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_right"
                 android:textAlignment="center"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textAllCaps="true"
                 android:textColor="@color/primaryTextColor"
                 android:text="@string/no_upcoming_sessions"/>

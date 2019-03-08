@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -31,20 +31,16 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <android.support.v7.widget.AppCompatTextView
-                android:fontFamily="@font/montserrat_semi_bold"
-                app:fontFamily="@font/montserrat_semi_bold"
+                style="@style/FoxmikeTitle"
                 android:id="@+id/session_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/session_name_goes_here"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textSize="26sp"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_right"
                 android:textColor="@color/secondaryTextColor"
-                android:textAllCaps="true"
                 android:layout_centerHorizontal="true"
                 android:gravity="center_horizontal"
                 />
@@ -99,4 +95,4 @@
             app:layout_constraintEnd_toEndOf="parent"/>
     </android.support.constraint.ConstraintLayout>
 
-</android.support.v7.widget.CardView>
+</FrameLayout>
