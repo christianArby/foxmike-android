@@ -42,7 +42,7 @@
                 android:textColor="@color/primaryTextColor"
                 android:paddingTop="100dp"
                 android:layout_margin="@dimen/margin_left"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:gravity="center_horizontal|center_vertical"
                 android:text="@string/sessions_not_found"/>
 
@@ -68,7 +68,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:gravity="center_vertical"
                 android:textAlignment="center"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:padding="@dimen/margin_left"
                 android:text="@string/no_sessions_this_time"/>
         </FrameLayout>

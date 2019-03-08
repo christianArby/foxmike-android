@@ -169,6 +169,12 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             TaskCompletionSource<DataSnapshot> postSource = new TaskCompletionSource<>();
             Task postTask = postSource.getTask();
             asyncTasks.add(postTask);
+
+            TaskCompletionSource<DataSnapshot> senderNameSource = new TaskCompletionSource<>();
+            Task senderNameTask = senderNameSource.getTask();
+            asyncTasks.add(senderNameTask);
+
+
             rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -176,6 +182,20 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         return;
                     }
                     postSource.trySetResult(dataSnapshot);
+                    Post post = dataSnapshot.getValue(Post.class);
+                    rootDbRef.child("usersPublic").child(post.getAuthorId()).child("firstName").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            senderNameSource.trySetResult(dataSnapshot);
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -190,14 +210,15 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
                         String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
                         Post post = ((DataSnapshot) postTask.getResult()).getValue(Post.class);
-                        String notificationText = post.getSenderName() + context.getString(R.string.has_made_a_post_in) + sessionName + ": " + post.getMessage();
+                        String authorName = ((DataSnapshot) senderNameTask.getResult()).getValue().toString();
+                        String notificationText = authorName + context.getString(R.string.has_made_a_post_in) + sessionName + ": " + post.getMessage();
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,
                                 0,
-                                post.getSenderName().length(),
-                                post.getSenderName().length() + context.getString(R.string.has_made_a_post_in).length(),
-                                post.getSenderName().length() + context.getString(R.string.has_made_a_post_in).length() + sessionName.length());
+                                authorName.length(),
+                                authorName.length() + context.getString(R.string.has_made_a_post_in).length(),
+                                authorName.length() + context.getString(R.string.has_made_a_post_in).length() + sessionName.length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
@@ -214,13 +235,34 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             TaskCompletionSource<DataSnapshot> messageSource = new TaskCompletionSource<>();
             Task messageTask = messageSource.getTask();
             asyncTasks.add(messageTask);
+
+            TaskCompletionSource<DataSnapshot> senderNameSource = new TaskCompletionSource<>();
+            Task senderNameTask = senderNameSource.getTask();
+            asyncTasks.add(senderNameTask);
+
             rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
                     messageSource.trySetResult(dataSnapshot);
+                    Message comment = dataSnapshot.getValue(Message.class);
+                    rootDbRef.child("usersPublic").child(comment.getSenderUserID()).child("firstName").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            senderNameSource.trySetResult(dataSnapshot);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -276,15 +318,16 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String imageUrl = ((DataSnapshot) sessionImageTask.getResult()).getValue().toString();
                         String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
                         String commentId = ((DataSnapshot) messageTask.getResult()).getKey();
+                        String senderName = ((DataSnapshot) senderNameTask.getResult()).getValue().toString();
 
-                        String notificationText = message.getSenderName() + context.getString(R.string.has_made_a_comment_to_your_post_in) + sessionName + ": " + message.getMessage();
+                        String notificationText = senderName + context.getString(R.string.has_made_a_comment_to_your_post_in) + sessionName + ": " + message.getMessage();
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,
                                 0,
-                                message.getSenderName().length(),
-                                message.getSenderName().length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length(),
-                                message.getSenderName().length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length() + sessionName.length());
+                                senderName.length(),
+                                senderName.length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length(),
+                                senderName.length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length() + sessionName.length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);

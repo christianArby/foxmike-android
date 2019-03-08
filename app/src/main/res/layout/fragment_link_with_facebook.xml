@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/login_text"
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:layout_margin="@dimen/margin_left"
         android:nextFocusUp="@id/loginText"
         android:nextFocusLeft="@id/loginText"

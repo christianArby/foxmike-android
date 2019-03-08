@@ -168,7 +168,7 @@ public class WritePostFragment extends DialogFragment {
                 mLastClickTime = SystemClock.elapsedRealtime();
                 if (sendable && currentUserPublic!=null) {
                     postID = rootDbRef.child("posts").push().getKey();
-                    Post post = new Post(mAuth.getCurrentUser().getUid(), postTextET.getText().toString(), currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName(), sourceID, title);
+                    Post post = new Post(mAuth.getCurrentUser().getUid(),postTextET.getText().toString(), sourceID);
 
                     String postRef;
 

@@ -51,7 +51,7 @@
             app:layout_constraintTop_toBottomOf="@id/sessionImageContainer">
 
             <android.support.design.widget.TextInputEditText
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:id="@+id/sessionNameET"
                 android:layout_width="match_parent"
@@ -75,7 +75,7 @@
                 android:id="@+id/locationTV"
                 android:clickable="true"
                 android:focusable="false"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                 android:id="@+id/sessionTypeET"
                 android:clickable="true"
                 android:focusable="false"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                 android:id="@+id/durationET"
                 android:clickable="true"
                 android:focusable="false"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                 android:id="@+id/maxParticipantsET"
                 android:clickable="true"
                 android:focusable="false"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
             android:layout_marginEnd="@dimen/margin_right">
 
             <android.support.design.widget.TextInputEditText
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:id="@+id/whatET"
                 android:layout_width="match_parent"
@@ -197,7 +197,7 @@
             android:layout_marginEnd="@dimen/margin_right">
 
             <android.support.design.widget.TextInputEditText
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:id="@+id/whoET"
                 android:layout_width="match_parent"
@@ -218,7 +218,7 @@
             android:layout_marginEnd="@dimen/margin_right">
 
             <android.support.design.widget.TextInputEditText
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/primaryTextColor"
                 android:id="@+id/whereET"
                 android:layout_width="match_parent"
@@ -257,7 +257,7 @@
 
             <TextView
                 android:id="@+id/calendarExplanationTV"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primaryTextColor"
@@ -266,7 +266,7 @@
 
             <TextView
                 android:id="@+id/calendarHeadingTV"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primaryTextColor"
@@ -302,7 +302,7 @@
 
 
     <android.support.v7.widget.AppCompatButton
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textAllCaps="false"
         android:id="@+id/createSessionBtn"
         android:layout_width="match_parent"

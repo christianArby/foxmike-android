@@ -57,7 +57,6 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
 
     @Override
     protected void onBindViewHolder(RecyclerView.ViewHolder holder, int position, Message model) {
-        long hej = model.getTime();
         FirebaseAuth mAuth;
         String currentUserID;
         String fromUser = model.getSenderUserID();
@@ -86,6 +85,10 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
                 @Override
                 public void OnUsersLoaded() {
                     Glide.with(((OtherMessageViewHolder) holder).profileImage.getContext()).load(userPublicHashMap.get(model.getSenderUserID()).getThumb_image()).into(((OtherMessageViewHolder) holder).profileImage);
+                    if (!slalom) {
+                        ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.VISIBLE);
+                        ((OtherMessageViewHolder) holder).messageUser.setText(userPublicHashMap.get(model.getSenderUserID()).getFirstName());
+                    }
                 }
             });
 
@@ -100,10 +103,7 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((OtherMessageViewHolder) holder).messageTime.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageTime.setText(timeText);
 
-            if (!slalom) {
-                ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.VISIBLE);
-                ((OtherMessageViewHolder) holder).messageUser.setText(model.getSenderName());
-            }
+
 
             if (position>0) {
                 if (Math.abs(model.getTime()-getItem(position-1).getTime())<300000){

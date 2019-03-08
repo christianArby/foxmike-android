@@ -404,15 +404,10 @@ public class ChatFragment extends Fragment {
                     // create a message ID in database under messages/chatID/
                     String messageID = rootDbRef.child("messages").child(chatID).push().getKey();
                     // Create a message map which is used to write all this data to the database at once
-                    Map messageMap = new HashMap();
-                    messageMap.put("message", message);
-                    messageMap.put("time", ServerValue.TIMESTAMP);
-                    messageMap.put("seen", false);
-                    messageMap.put("senderUserID", currentUserID);
-                    messageMap.put("senderName", userName);
-                    messageMap.put("senderThumbImage", userThumbImage);
+                    Long currentTimestamp = System.currentTimeMillis();
+                    Message sendMessage = new Message(message, currentTimestamp, false, currentUserID);
                     // Write the message map to the database
-                    rootDbRef.child("messages").child(chatID).child(messageID).setValue(messageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    rootDbRef.child("messages").child(chatID).child(messageID).setValue(sendMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (messageFirebaseAdapter.getItemCount()==0) {

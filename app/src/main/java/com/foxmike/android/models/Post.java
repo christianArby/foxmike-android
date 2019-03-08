@@ -10,31 +10,19 @@ import com.google.firebase.database.ServerValue;
 
 public class Post implements Comparable<Post> {
 
-    private String author;
+    private String authorId;
     private Object timestamp;
     private String message;
-    private String senderName;
     private String sourceId;
-    private String sourceName;
 
-    public Post(String author, String message, String senderName, String sourceId, String sourceName) {
-        this.author = author;
+    public Post(String authorId, String message, String sourceId) {
+        this.authorId = authorId;
         this.timestamp = ServerValue.TIMESTAMP;
         this.message = message;
-        this.senderName = senderName;
         this.sourceId = sourceId;
-        this.sourceName = sourceName;
     }
 
     public Post() {
-    }
-
-    public String getsourceName() {
-        return sourceName;
-    }
-
-    public void setsourceName(String sourceName) {
-        this.sourceName = sourceName;
     }
 
     public String getSourceId() {
@@ -45,12 +33,12 @@ public class Post implements Comparable<Post> {
         this.sourceId = sourceId;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public Object getTimestamp() {
@@ -69,13 +57,6 @@ public class Post implements Comparable<Post> {
         this.message = message;
     }
 
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
-    }
 
     @Override
     public int compareTo(@NonNull Post post) {

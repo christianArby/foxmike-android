@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class  ListSessionsFragment extends Fragment {
 
     private RecyclerView mSessionList;
-    private com.foxmike.android.adapters.sessionsAdapter sessionsAdapter;
+    private sessionsAdapter sessionsAdapter;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
     private OnRefreshSessionsListener onRefreshSessionsListener;
@@ -126,7 +126,7 @@ public class  ListSessionsFragment extends Fragment {
                 noContent.setVisibility(View.VISIBLE);
             }
 
-            if (sessionsAdapter!=null) {
+            if (sessionsAdapter !=null) {
                 noSessionsFound.setVisibility(View.GONE);
                 sessionsAdapter.refreshData(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
             } else {
@@ -161,7 +161,7 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public void notifyAdvertisementChange(String advertisementId, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap) {
-        if (sessionsAdapter!=null) {
+        if (sessionsAdapter !=null) {
             this.advertisementHashMap = advertisementHashMap;
             this.sessionHashMap = sessionHashMap;
             sessionsAdapter.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
@@ -169,7 +169,7 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public void notifyAdvertisementRemoved(AdvertisementIdsAndTimestamps removedAd) {
-        if (sessionsAdapter!=null) {
+        if (sessionsAdapter !=null) {
             sessionsAdapter.notifyAdvertisementRemoved(removedAd);
         }
     }

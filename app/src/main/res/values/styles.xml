@@ -9,20 +9,35 @@
         <item name="colorPrimary">@color/foxmikePrimaryColor</item>
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
 
-        <item name="android:fontFamily">@font/montserrat_regular</item>
-        <item name="fontFamily">@font/montserrat_regular</item> <!-- target android sdk versions < 26 and > 14 if theme other than AppCompat -->
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/open_sans_regular</item>
+        <item name="fontFamily">@font/open_sans_regular</item>-->
 
     </style>
 
-    <style name="FoxmikeSubhead">
-        <item name="android:lineSpacingMultiplier">1.2</item>
-        <item name="android:textSize">15sp</item>
+    <style name="FoxmikeHeading">
         <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">20sp</item>
+
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
+        <item name="fontFamily">@font/montserrat_semi_bold</item>-->
+
+        <!-- Default font -->
+        <!--<item name="android:textStyle">bold</item>-->
     </style>
 
-    <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="fontFamily">sans-serif</item>
+    <style name="FoxmikeTitle">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textAllCaps">true</item>
+
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
+        <item name="fontFamily">@font/montserrat_semi_bold</item>-->
+
+        <!-- Default font -->
+        <!--<item name="android:textStyle">bold</item>-->
     </style>
 
     <style name="foxmikeActionbar" parent="Theme.AppCompat.Light.DarkActionBar" >

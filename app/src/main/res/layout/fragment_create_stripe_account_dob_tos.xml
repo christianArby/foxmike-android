@@ -118,7 +118,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textAllCaps="false"
         android:id="@+id/createStripeAccountBtn"
         android:background="@drawable/square_button_primary"

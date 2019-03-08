@@ -6,8 +6,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.widget.ToggleButton;
 
-import com.foxmike.android.R;
-
 /**
  * Created by chris on 2019-02-19.
  */
@@ -35,7 +33,10 @@ public class CustomToggleButton extends ToggleButton {
     }
 
     private void applyCustomFont(Context context) {
-        Typeface customFont = ResourcesCompat.getFont(context, R.font.montserrat_regular);
-        setTypeface(customFont);
+        if (FoxmikeFont.hasCustomFont) {
+            Typeface customFont = ResourcesCompat.getFont(context, FoxmikeFont.customFontRegular);
+            setTypeface(customFont);
+        }
+
     }
 }

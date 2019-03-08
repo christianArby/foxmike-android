@@ -31,7 +31,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -242,13 +241,9 @@ public class CommentFragment extends Fragment {
         String message = postMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
             String messageID = rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).push().getKey();
-            Map messageMap = new HashMap();
-            messageMap.put("message", message);
-            messageMap.put("time", ServerValue.TIMESTAMP);
-            messageMap.put("seen", false);
-            messageMap.put("senderUserID", currentUserID);
-            messageMap.put("senderName", userName);
-            rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).child(messageID).setValue(messageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            Long currentTimestamp = System.currentTimeMillis();
+            Message comment = new Message(message, currentTimestamp, false, currentUserID);
+            rootDbRef.child(postCommentsDatabaseRef).child(sourceID).child(postID).child(messageID).setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     Long currentTimestamp = System.currentTimeMillis();

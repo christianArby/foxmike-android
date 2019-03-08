@@ -25,7 +25,7 @@
                 android:paddingEnd="@dimen/marginHorizontal"
                 android:paddingBottom="@dimen/margin_minimum"
                 android:text="@string/friend_requests_text"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,7 +48,7 @@
                 android:paddingEnd="@dimen/marginHorizontal"
                 android:paddingBottom="@dimen/margin_minimum"
                 android:text="@string/your_friends_text"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/requests_list"/>
 
@@ -72,7 +72,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:gravity="center_vertical"
                 android:textAlignment="center"
-                style="@style/FoxmikeSubhead"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:padding="@dimen/margin_left"
                 android:text="@string/you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below"/>
 
@@ -94,7 +94,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:gravity="center_vertical"
         android:textAlignment="center"
-        style="@style/FoxmikeSubhead"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:padding="@dimen/margin_left"
         android:text="@string/you_have_not_added_any_friends_search_and_add_friends_by_clicking_on_search_button_below"/>
 
