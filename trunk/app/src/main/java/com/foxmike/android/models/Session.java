@@ -9,7 +9,6 @@ import java.util.HashMap;
 public class Session implements Comparable<Session>, Serializable {
     private String sessionId;
     private String host;
-    private String stripeAccountId;
     private String sessionName;
     private String sessionType;
     private String address;
@@ -26,10 +25,9 @@ public class Session implements Comparable<Session>, Serializable {
     private long representingAdTimestamp;
     private int price;
 
-    public Session(String sessionId, String host, String stripeAccountId, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
         this.sessionId = sessionId;
         this.host = host;
-        this.stripeAccountId = stripeAccountId;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.address = address;
@@ -53,7 +51,6 @@ public class Session implements Comparable<Session>, Serializable {
     public Session(Session sessionToCopy) {
         this.sessionId = sessionToCopy.sessionId;
         this.host = sessionToCopy.host;
-        this.stripeAccountId = sessionToCopy.stripeAccountId;
         this.sessionName = sessionToCopy.sessionName;
         this.sessionType = sessionToCopy.sessionType;
         this.address = sessionToCopy.address;
@@ -115,14 +112,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setHost(String host) {
         this.host = host;
-    }
-
-    public String getStripeAccountId() {
-        return stripeAccountId;
-    }
-
-    public void setStripeAccountId(String stripeAccountId) {
-        this.stripeAccountId = stripeAccountId;
     }
 
     public String getSessionName() {

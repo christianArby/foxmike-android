@@ -894,7 +894,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                     (String) sendSession.get("imageUrl"),
                     advertisementKey,
                     (String) sendSession.get("maxParticipants"),
-                    new HashMap<String, String>(),
                     new HashMap<String, Long>(),
                     (int) sendSession.get("durationInMin"),
                     (String) sendSession.get("currency"),

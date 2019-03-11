@@ -38,8 +38,8 @@ public class CancelBookingActivity extends AppCompatActivity {
     private Long advertisementTimestamp;
     private String advertisementId;
     private String participantId;
-    private String chargeId;
-    private String accountId;
+    private String hostId;
+    private int adPrice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +54,9 @@ public class CancelBookingActivity extends AppCompatActivity {
         bookingTimestamp = getIntent().getLongExtra("bookingTimestamp",0);
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
         advertisementId = getIntent().getStringExtra("advertisementId");
+        adPrice = getIntent().getIntExtra("adPrice", 0);
         participantId = getIntent().getStringExtra("participantId");
-        chargeId = getIntent().getStringExtra("chargeId");
-        accountId = getIntent().getStringExtra("accountId");
+        hostId = getIntent().getStringExtra("hostId");
 
         Long currentTimestamp = System.currentTimeMillis();
         tryRefund(currentTimestamp);
@@ -73,7 +73,7 @@ public class CancelBookingActivity extends AppCompatActivity {
             alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed));
             return;
         }
-        if (!chargeId.equals("FREE")) {
+        if (adPrice>0) {
             if (durationCurrentToSession.getStandardHours()<6 && durationBookedToCurrent.getStandardMinutes()>30) {
                 alertDialogCancelWithoutRefund(getString(R.string.refund_not_possible), getString(R.string.session_is_too_close_to_refund));
                 return;
@@ -81,8 +81,7 @@ public class CancelBookingActivity extends AppCompatActivity {
         }
 
         HashMap<String,Object> cancelMap = new HashMap<>();
-        cancelMap.put("chargeId", chargeId);
-        cancelMap.put("accountId", accountId);
+        cancelMap.put("hostId", hostId);
         cancelMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
         cancelMap.put("advertisementId", advertisementId);
         cancelMap.put("hostCancellation", "false");
@@ -132,7 +131,7 @@ public class CancelBookingActivity extends AppCompatActivity {
                 .setTitle(title);
         builder.setPositiveButton(R.string.cancel_booking_anyway, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                chargeId = "FREE";
+                adPrice = 0;
                 Long currentTimestamp = System.currentTimeMillis();
                 tryRefund(currentTimestamp);
             }
