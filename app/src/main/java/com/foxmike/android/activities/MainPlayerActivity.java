@@ -606,15 +606,15 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, String chargeId, String accountId) {
+    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, int adPRice, String hostId) {
 
         Intent cancelIntent = new Intent(MainPlayerActivity.this,CancelBookingActivity.class);
         cancelIntent.putExtra("bookingTimestamp", bookingTimestamp);
         cancelIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
         cancelIntent.putExtra("advertisementId", advertisementId);
         cancelIntent.putExtra("participantId",participantId);
-        cancelIntent.putExtra("chargeId",chargeId);
-        cancelIntent.putExtra("accountId",accountId);
+        cancelIntent.putExtra("adPRice",adPRice);
+        cancelIntent.putExtra("hostId",hostId);
         startActivityForResult(cancelIntent, CANCEL_BOOKING_REQUEST);
 
     }
@@ -656,17 +656,17 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, String> chargeIds, String accountId) {
-
+    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, Long> participantsTimestamps, String accountId) {
         Intent cancelAdIntent = new Intent(MainPlayerActivity.this,CancelAdvertisementActivity.class);
         cancelAdIntent.putExtra("sessionName", advertisementName);
         cancelAdIntent.putExtra("advertisementId", advertisementId);
         cancelAdIntent.putExtra("imageUrl", imageUrl);
         cancelAdIntent.putExtra("sessionId", sessionId);
         cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
-        cancelAdIntent.putExtra("chargeIds", chargeIds);
+        cancelAdIntent.putExtra("participantsTimestamps", participantsTimestamps);
         cancelAdIntent.putExtra("accountId",accountId);
         startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
+
     }
 
     // Makes a fragemnt name to fragments created by pager
@@ -868,4 +868,6 @@ public class MainPlayerActivity extends AppCompatActivity
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
     }
+
+
 }

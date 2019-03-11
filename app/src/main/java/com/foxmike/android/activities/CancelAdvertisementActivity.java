@@ -33,7 +33,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     private String advertisementId;
     private String sessionId;
     private String imageUrl;
-    private HashMap<String,String> chargeIds;
+    private HashMap<String,String> participantsTimestamps;
     private Long advertisementTimestamp;
     private String accountId;
     private String currentUserId;
@@ -55,11 +55,11 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         imageUrl = getIntent().getStringExtra("imageUrl");
         sessionId = getIntent().getStringExtra("sessionId");
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
-        chargeIds = (HashMap) getIntent().getSerializableExtra("chargeIds");
+        participantsTimestamps = (HashMap) getIntent().getSerializableExtra("participantsTimestamps");
         accountId = getIntent().getStringExtra("accountId");
 
         cancelMap.put("sessionName", sessionName);
-        cancelMap.put("chargeIds", chargeIds);
+        cancelMap.put("participantsTimestamps", participantsTimestamps);
         cancelMap.put("imageUrl", imageUrl);
         cancelMap.put("accountId", accountId);
         cancelMap.put("advertisementId", advertisementId);
@@ -86,7 +86,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             });
         } else {
             // If no participants, cancel advertisement without cloud function
-            if (chargeIds.size()==0) {
+            if (participantsTimestamps.size()==0) {
                 rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
                 rootDbRef.child("sessions").child(sessionId).child("advertisements").child(advertisementId).setValue(0);
                 rootDbRef.child("advertisementHosts").child(currentUserId).child(advertisementId).setValue(0);

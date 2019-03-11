@@ -19,7 +19,6 @@ public class Advertisement implements Comparable<Advertisement> {
     private String imageUrl;
     private String advertisementId;
     private String maxParticipants;
-    private HashMap<String,String> chargeIds;
     private HashMap<String,Long> participantsTimestamps;
     private int durationInMin;
     private String currency;
@@ -29,7 +28,7 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, String> chargeIds, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
         this.host = host;
@@ -37,7 +36,6 @@ public class Advertisement implements Comparable<Advertisement> {
         this.imageUrl = imageUrl;
         this.advertisementId = advertisementId;
         this.maxParticipants = maxParticipants;
-        this.chargeIds = chargeIds;
         this.participantsTimestamps = participantsTimestamps;
         this.durationInMin = durationInMin;
         this.currency = currency;
@@ -103,17 +101,6 @@ public class Advertisement implements Comparable<Advertisement> {
 
     public void setDurationInMin(int durationInMin) {
         this.durationInMin = durationInMin;
-    }
-
-    public HashMap<String, String> getChargeIds() {
-        if (this.chargeIds ==null) {
-            chargeIds = new HashMap<String, String>();
-        }
-        return chargeIds;
-    }
-
-    public void setChargeIds(HashMap<String, String> chargeIds) {
-        this.chargeIds = chargeIds;
     }
 
 
