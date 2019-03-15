@@ -15,7 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
-import com.foxmike.android.adapters.sessionsAdapter;
+import com.foxmike.android.adapters.ListSessionsAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class  ListSessionsFragment extends Fragment {
 
     private RecyclerView mSessionList;
-    private sessionsAdapter sessionsAdapter;
+    private ListSessionsAdapter sessionsAdapter;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
     private OnRefreshSessionsListener onRefreshSessionsListener;
@@ -131,7 +131,7 @@ public class  ListSessionsFragment extends Fragment {
                 sessionsAdapter.refreshData(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
             } else {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new sessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity(), currentLocation, onSessionClickedListener);
+                sessionsAdapter = new ListSessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity(), currentLocation, onSessionClickedListener);
                 if (mSessionList!=null) {
                     HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
                     mSessionList.addItemDecoration(headerItemDecoration);
