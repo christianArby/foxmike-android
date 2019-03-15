@@ -27,6 +27,17 @@
         <!--<item name="android:textStyle">bold</item>-->
     </style>
 
+    <style name="FoxmikeHeadingSemiBold">
+        <item name="android:textColor">@color/primaryTextColor</item>
+
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
+        <item name="fontFamily">@font/montserrat_semi_bold</item>-->
+
+        <!-- Default font -->
+        <!--<item name="android:textStyle">bold</item>-->
+    </style>
+
     <style name="FoxmikeTitle">
         <item name="android:textColor">@color/primaryTextColor</item>
         <item name="android:textSize">24sp</item>
@@ -35,6 +46,17 @@
         <!-- Custom font -->
         <item name="android:fontFamily">@font/montserrat_semi_bold</item>
         <item name="fontFamily">@font/montserrat_semi_bold</item>-->
+
+        <!-- Default font -->
+        <!--<item name="android:textStyle">bold</item>-->
+    </style>
+
+    <style name="FoxmikeBodySemiBold">
+        <item name="android:textColor">@color/primaryTextColor</item>
+
+        <!-- Custom font -->
+        <item name="android:fontFamily">@font/open_sans_semi_bold</item>
+        <item name="fontFamily">@font/open_sans_semi_bold</item>-->
 
         <!-- Default font -->
         <!--<item name="android:textStyle">bold</item>-->

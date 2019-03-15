@@ -240,7 +240,7 @@
     <string name="failed">misslyckades</string>
     <string name="Session_not_found_please_try_again_later">Passet hittades inte, försök igen senare.</string>
     <string name="meet_your_session_leader">Möt din passledare,</string>
-    <string name="upcoming_advertisements">Kommande tillfällen</string>
+    <string name="upcoming_advertisements">Kommande passtillfällen</string>
     <string name="date_text">Datum</string>
     <string name="distance_word">Avstånd till pass</string>
     <string name="switch_to_participant_mode_text">Byt till deltagarläge</string>
@@ -358,7 +358,7 @@
     <string name="invalid_expiry_year">Utgångsdatumet är ogiltigt.</string>
     <string name="invalid_cvc">Säkerhetskoden är ogiltig.</string>
     <string name="credit_card_information">Kortinformation</string>
-    <string name="you_have_no_stripe_account">Du behöver en lägga till en utbetalningsmetod för att kunna skapa ett pass. Lägg till utbetalningsmetod i ditt konto.</string>
+    <string name="you_have_no_stripe_account">Du behöver lägga till en utbetalningsmetod för att kunna skapa ett pass. Lägg till utbetalningsmetod i ditt konto.</string>
     <string name="become_trainer">Bli Foxmikeledare</string>
     <string name="not_possible_to_edit_as_participant">Det är inte möjligt att ändra passet i deltagarläge. Ändra till ledare under kontoinställningar.</string>
     <string name="about">Om</string>
@@ -397,17 +397,17 @@
     <string name="you_have_not_attended_any_sessions_yet">Du har inte varit med på några pass än.</string>
     <string name="you_have_no_advertised_sessions">Du har inga tillfällen.</string>
     <string name="cancel">Avbryt</string>
-    <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver ha en betalningsmetod för att kunna boka passet.</string>
+    <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver lägga till en betalningsmetod för att kunna boka pass som inte är gratis.</string>
     <string name="booking_failed">Bokningen misslyckades</string>
     <string name="choose_location">Välj plats</string>
     <string name="booking_session">Bokar pass…</string>
-    <string name="booking_text_policy">Bokningar äldre än 30 min och inom 6 timmar från passets starttid är inte återbetalningsbara. För mer information läs våra användarvillkor.</string>
+    <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="http://foxmike.se/anvandarvillkor/">användarvillkor</a>.</string>
     <string name="cancellation_not_possible">Passet går ej att avboka</string>
     <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
     <string name="refund_not_possible">Återbetalning ej möjlig</string>
     <string name="session_is_too_close_to_refund">Passets starttid är inom 6 timmar och bokningen gjordes för mer än 30 minuter sedan vilket innebär att återbetalning ej är möjlig.</string>
     <string name="cancellation_confirmation">Avbokning bekräftad</string>
-    <string name="your_cancellation_has_been_confirmed">Passet är nu avbokat. En återbetalning kommer göras till ditt konto på passets pris på\u0020</string>
+    <string name="your_cancellation_has_been_confirmed">Du har avbokats från passet och\u0020</string>
     <string name="cancel_booking_anyway">Avboka passet ändå</string>
     <string name="confirm_booking">Bekräfta bokning</string>
     <string name="your_booking_has_been_cancelled">Passet är nu avbokat.</string>
@@ -433,7 +433,7 @@
     <string name="no_sessions">Inga pass</string>
     <string name="no_sessions_explanation">Du har inga kommande pass. Skapa ett pass så kommer det dyka upp i sökresultat och deltagare kan boka det.</string>
     <string name="add_session">Skapa pass</string>
-    <string name="past_sessions">Tidigare pass</string>
+    <string name="past_sessions">Tidigare passtillfällen</string>
     <string name="description">Beskrivning</string>
     <string name="training_groups">Träningsgrupper</string>
     <string name="location">Plats</string>
@@ -446,7 +446,7 @@
     <string name="group_name">Gruppnamn</string>
     <string name="type_of_training">Typ av träning</string>
     <string name="create_training_group">Skapa träningsgrupp</string>
-    <string name="upcoming_sessions">Kommande pass</string>
+    <string name="upcoming_sessions">Kommande passtillfällen</string>
     <string name="please_write_a_longer_description">Skriv en längre beskrivning</string>
     <string name="please_choose_session_name">Välj ett namn på passet</string>
     <string name="please_choose_location_for_session">Välj en plats för passet</string>
@@ -460,7 +460,7 @@
     <string name="please_explain_session_where">Förklara var någonstans passet kommer att hållas</string>
     <string name="please_set_session_price">Välj ett pris för passet</string>
     <string name="no_studios_text">Skapa en träningsgrupp där du kan lägga ut pass, klicka på plusknappen nedan!.</string>
-    <string name="you_must_agree_to_above">Du måste godkänna användarvillkoren för att registrera ett konto.</string>
+    <string name="you_must_agree_to_above">Du måste godkänna Stripe Connected Account Agreement för att registrera ett konto.</string>
     <string name="upcoming">Kommande</string>
     <string name="avertisements">Tillfällen</string>
     <string name="advertisement_image">Annons bild</string>
@@ -493,7 +493,7 @@
     <string name="you_have_no_sessions">Du har inga pass än, starta genom att klicka på plusknappen!</string>
     <string name="could_not_find_payment_method">Kunde inte hitta betalningsmetod, försök igen senare.</string>
     <string name="minutes_append">\u0020min</string>
-    <string name="search_for_name_or_username">Skriv namn eller @användarnamn</string>
+    <string name="search_for_name_or_username">Sök namn eller @användarnamn</string>
     <string name="no_sessions_this_time">Inga pass tillgängliga den här tidsperioden.</string>
     <string name="you_have_no_notifications_yet">Du har inga notiser än.</string>
     <string name="notifications">Notiser</string>
@@ -536,4 +536,6 @@
     <string name="edit">Ändra</string>
     <string name="add_more_sessions">Lägg ut fler pass</string>
     <string name="add_sessions">Lägg ut pass</string>
+    <string name="will_be_refunded_to_your_account">kommer att betalas tillbaka till ditt konto.</string>
+    <string name="share">Dela</string>
 </resources>

@@ -83,7 +83,7 @@ public class ExploreFragment extends Fragment{
     private FloatingActionButton sortAndFilterFAB;
     private FloatingActionButton myLocationBtn;
     private SortAndFilterFragment sortAndFilterFragment;
-    private View view;
+    private View mainView;
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
     private Boolean started = false;
@@ -110,8 +110,8 @@ public class ExploreFragment extends Fragment{
     private CustomToggleButton allDatesBtn;
     private int minHour = 0;
     private int minMinute = 0;
-    private int maxHour = 24;
-    private int maxMinute = 60;
+    private int maxHour = 23;
+    private int maxMinute = 45;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -166,8 +166,8 @@ public class ExploreFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_explore, container, false);
-        allDatesBtn = view.findViewById(R.id.allDatesBtn);
+        mainView = inflater.inflate(R.layout.fragment_explore, container, false);
+        allDatesBtn = mainView.findViewById(R.id.allDatesBtn);
 
         allDatesBtn.setText(R.string.all);
         allDatesBtn.setTextOn(getResources().getString(R.string.all));
@@ -182,17 +182,17 @@ public class ExploreFragment extends Fragment{
             }
         });
 
-        exploreFragmentViewPager = view.findViewById(R.id.exploreFragmentViewPager);
+        exploreFragmentViewPager = mainView.findViewById(R.id.exploreFragmentViewPager);
         exploreFragmentViewPager.setPagingEnabled(false);
         exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
 
-        WrapContentViewPager weekdayViewpager = view.findViewById(R.id.weekdayPager);
-        PageIndicatorView pageIndicatorView = view.findViewById(R.id.pageIndicatorView);
+        WrapContentViewPager weekdayViewpager = mainView.findViewById(R.id.weekdayPager);
+        PageIndicatorView pageIndicatorView = mainView.findViewById(R.id.pageIndicatorView);
 
         // filter buttons
-        filteredItem1 = view.findViewById(R.id.filteredItem1);
-        filteredItem2 = view.findViewById(R.id.filteredItem2);
-        filteredItem3 = view.findViewById(R.id.filteredItem3);
+        filteredItem1 = mainView.findViewById(R.id.filteredItem1);
+        filteredItem2 = mainView.findViewById(R.id.filteredItem2);
+        filteredItem3 = mainView.findViewById(R.id.filteredItem3);
 
         filteredItems.add(filteredItem1);
         filteredItem1.setHint("");
@@ -226,10 +226,10 @@ public class ExploreFragment extends Fragment{
         weekdayViewpager.setAdapter(new WeekdayViewpagerAdapter(fragmentManager));
         pageIndicatorView.setViewPager(weekdayViewpager);
 
-        mapOrListBtn = view.findViewById(R.id.map_or_list_button);
+        mapOrListBtn = mainView.findViewById(R.id.map_or_list_button);
         mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-        sortAndFilterFAB = view.findViewById(R.id.sort_button);
-        myLocationBtn = view.findViewById(R.id.my_location_button);
+        sortAndFilterFAB = mainView.findViewById(R.id.sort_button);
+        myLocationBtn = mainView.findViewById(R.id.my_location_button);
         myLocationBtn.setVisibility(View.GONE);
 
         /** Setup mapOrList FAB*/
@@ -254,7 +254,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute);
                 sortAndFilterFragment.show(transaction,"sortAndFilterFragment");
             }
         });
@@ -269,7 +269,7 @@ public class ExploreFragment extends Fragment{
         });
 
 
-        return view;
+        return mainView;
     }
 
     @Override
@@ -495,7 +495,9 @@ public class ExploreFragment extends Fragment{
                                 if (advertisementHashMap.containsKey(advertisementKey)) {
                                     if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
                                         DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                        if (adTime.getHourOfDay()>=minHour && adTime.getHourOfDay()<=maxHour && adTime.getMinuteOfHour()>=minMinute && adTime.getMinuteOfHour()<=maxMinute) {
+                                        DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                        DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                        if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
                                             advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
                                             // if this session hasn't already been saved to sessionArray save it
                                             if (!sessionAdded) {
@@ -518,7 +520,9 @@ public class ExploreFragment extends Fragment{
                                 if (advertisementHashMap.containsKey(advertisementKey)) {
                                     if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
                                         DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                        if (adTime.getHourOfDay()>=minHour && adTime.getHourOfDay()<=maxHour && adTime.getMinuteOfHour()>=minMinute && adTime.getMinuteOfHour()<=maxMinute) {
+                                        DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                        DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                        if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
                                             advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
                                             // if this session hasn't already been saved to sessionArray save it
                                             if (!sessionAdded) {
@@ -572,8 +576,8 @@ public class ExploreFragment extends Fragment{
 
     private void switchMapOrListUI(boolean mapIsVisible) {
 
-        int width = view.getRight();
-        int height = view.getBottom();
+        int width = mainView.getRight();
+        int height = mainView.getBottom();
         float fabDiameter = convertDpToPx(getActivity(), 56);
 
         mapOrListBtnStartX = width/2 - fabDiameter/2;

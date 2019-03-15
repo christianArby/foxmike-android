@@ -20,6 +20,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public ImageView sessionIV;
     public TextView text1TV;
     public TextView text2TV;
+    public TextView text3TV;
     public TextView cancelledTV;
 
 
@@ -28,6 +29,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
         sessionIV = (ImageView) itemView.findViewById(R.id.icon);
         text1TV = (TextView) itemView.findViewById(R.id.text1);
         text2TV = (TextView) itemView.findViewById(R.id.text2);
+        text3TV = (TextView) itemView.findViewById(R.id.text3);
         cancelledTV = (TextView) itemView.findViewById(R.id.cancelledCaption);
     }
 
@@ -42,6 +44,11 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public void setText2(String text2) {
         text2TV.setText(text2);
     }
+
+    public void setText3(String text3) {
+        text3TV.setText(text3);
+    }
+
 
     public void setCancelled(boolean cancelled) {
         if (cancelled) {

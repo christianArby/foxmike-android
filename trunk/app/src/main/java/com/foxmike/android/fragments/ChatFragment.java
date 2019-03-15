@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -83,6 +84,7 @@ public class ChatFragment extends Fragment {
     private ValueEventListener chatUserChatsListener;
     private int currentItems;
     private Long totalNumberInQuery;
+    private long mLastClickTime = 0;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -225,6 +227,11 @@ public class ChatFragment extends Fragment {
                                 }
                                 UserPublic currentUser = dataSnapshot.getValue(UserPublic.class);
                                 chatSendBtn.setOnClickListener(view1 -> {
+                                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                        return;
+                                    }
+                                    mLastClickTime = SystemClock.elapsedRealtime();
+
                                     refreshTriggeredByScroll = false;
                                     sendMessage(currentUser.getFirstName(), currentUser.getImage());
                                 });

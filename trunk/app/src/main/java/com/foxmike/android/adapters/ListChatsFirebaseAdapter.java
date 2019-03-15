@@ -36,16 +36,19 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
     private long mLastClickTime = 0;
     private String chatFriend;
     private HashMap<String, Boolean> friendsMap = new HashMap<>();
+    public HashMap<String, Boolean> chatsVisible = new HashMap<String, Boolean>();
+    private OnNoContentListener onNoContentListener;
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, HashMap<String, Boolean> friendsMap, OnChatClickedListener onChatClickedListener) {
+    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, HashMap<String, Boolean> friendsMap, OnChatClickedListener onChatClickedListener, OnNoContentListener onNoContentListener) {
         super(options);
         this.context = context;
         this.friendsMap = friendsMap;
         this.onChatClickedListener = onChatClickedListener;
+        this.onNoContentListener = onNoContentListener;
     }
 
     @NonNull
@@ -68,9 +71,15 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
         }
 
         if (!friendsMap.containsKey(chatFriend)) {
+            this.chatsVisible.put(model.getChatId(), false);
+            if (!this.chatsVisible.containsValue(true)) {
+                onNoContentListener.OnNoContentVisible(true);
+            }
             holder.mView.setVisibility(View.GONE);
             holder.mView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         } else {
+            this.chatsVisible.put(model.getChatId(), true);
+            onNoContentListener.OnNoContentVisible(false);
             holder.mView.setVisibility(View.VISIBLE);
             holder.mView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
@@ -138,4 +147,11 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
     public interface OnChatInfoLoadedListener {
         void OnChatFriendLoaded();
     }
+
+
+
+    public interface OnNoContentListener {
+        void OnNoContentVisible(Boolean noContentVisible);
+    }
+
 }

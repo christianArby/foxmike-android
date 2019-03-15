@@ -33,6 +33,7 @@ public class BookingActivity extends AppCompatActivity {
     private DatabaseReference rootDbRef;
     private View mainView;
     private int amount;
+    private int advertisementDurationInMin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class BookingActivity extends AppCompatActivity {
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp", 0L);
         hostId = getIntent().getStringExtra("hostId");
         amount = getIntent().getIntExtra("amount", 0);
+        advertisementDurationInMin = getIntent().getIntExtra("advertisementDurationInMin", 0);
         // If advertisement is free, just add the participant to the participant list
         if (amount==0) {
             addCurrentUserToSessionParticipantList();
@@ -59,6 +61,7 @@ public class BookingActivity extends AppCompatActivity {
             bookMap.put("customerFirebaseId", mAuth.getCurrentUser().getUid());
             bookMap.put("advertisementId", advertisementId);
             bookMap.put("email", mAuth.getCurrentUser().getEmail());
+            bookMap.put("advertisementDurationInMin", advertisementDurationInMin);
 
             bookSession(bookMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                 @Override
@@ -96,6 +99,7 @@ public class BookingActivity extends AppCompatActivity {
         freeChargeMap.put("userID", mAuth.getCurrentUser().getUid());
         freeChargeMap.put("advertisementId", advertisementId);
         freeChargeMap.put("advertisementTimestamp", advertisementTimestamp);
+        freeChargeMap.put("advertisementDurationInMin", advertisementDurationInMin);
         createFreeCharge(freeChargeMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override
             public void onComplete(@NonNull Task<HashMap<String, Object>> task) {

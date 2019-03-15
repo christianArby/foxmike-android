@@ -78,10 +78,10 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
             if (earliestAd!= 0L) {
                 holder.setText2(TextTimestamp.textSessionDate(earliestAd));
             } else {
-                holder.setText2("No upcoming sessions");
+                holder.setText2(context.getString(R.string.no_upcoming_sessions));
             }
         } else {
-            holder.setText2("No upcoming sessions");
+            holder.setText2(context.getString(R.string.no_upcoming_sessions));
         }
 
 

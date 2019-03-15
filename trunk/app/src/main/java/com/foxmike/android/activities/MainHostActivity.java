@@ -477,9 +477,8 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnBookSession(String sessionId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin) {
         // Not applicable in Host environment
-
     }
 
     @Override

@@ -66,46 +66,33 @@ public class ChatsFragment extends Fragment {
         friendsListener = friendsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String, Boolean> friendsMap = new HashMap<>();
                 if (dataSnapshot.getValue()!=null) {
-                    HashMap<String, Boolean> friendsMap = new HashMap<>();
                     for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                         friendsMap.put(snapshot.getKey(), true);
                     }
-                    if (!listChatsFirebaseAdapterCreated) {
-                        FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
-                                .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
-                                .build();
-                        listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getContext(), friendsMap, onChatClickedListener);
-
-                        listChatsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                            @Override
-                            public void onItemRangeChanged(int positionStart, int itemCount) {
-                                super.onItemRangeChanged(positionStart, itemCount);
-                                if (listChatsFirebaseAdapter.getItemCount()>0) {
-                                    noContent.setVisibility(View.GONE);
-                                } else {
-                                    noContent.setVisibility(View.VISIBLE);
-                                }
+                }
+                if (!listChatsFirebaseAdapterCreated) {
+                    FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
+                            .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
+                            .build();
+                    listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getContext(), friendsMap, onChatClickedListener, new ListChatsFirebaseAdapter.OnNoContentListener() {
+                        @Override
+                        public void OnNoContentVisible(Boolean noContentVisible) {
+                            if (noContentVisible) {
+                                noContent.setVisibility(View.VISIBLE);
+                            } else {
+                                noContent.setVisibility(View.GONE);
                             }
-
-                            @Override
-                            public void onItemRangeInserted(int positionStart, int itemCount) {
-                                super.onItemRangeInserted(positionStart, itemCount);
-                                if (listChatsFirebaseAdapter.getItemCount()>0) {
-                                    noContent.setVisibility(View.GONE);
-                                } else {
-                                    noContent.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        });
-                        listChatsFirebaseAdapter.startListening();
-                        if (getView()!=null) {
-                            chatListRV.setAdapter(listChatsFirebaseAdapter);
                         }
-                        listChatsFirebaseAdapterCreated = true;
-                    } else {
-                        listChatsFirebaseAdapter.friendsUpdated(friendsMap);
+                    });
+                    listChatsFirebaseAdapter.startListening();
+                    if (getView()!=null) {
+                        chatListRV.setAdapter(listChatsFirebaseAdapter);
                     }
+                    listChatsFirebaseAdapterCreated = true;
+                } else {
+                    listChatsFirebaseAdapter.friendsUpdated(friendsMap);
                 }
             }
 
