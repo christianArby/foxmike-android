@@ -208,7 +208,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/next"
                 app:layout_constraintTop_toBottomOf="@id/cardForm"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <ProgressBar
                 android:id="@+id/progressBar_cyclic"

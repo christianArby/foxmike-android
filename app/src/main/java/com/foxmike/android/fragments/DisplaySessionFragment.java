@@ -1267,10 +1267,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // Payment method has been checked above (method return if no payment method)
                         // Now user will book session if button is pressed, if free send parameters to book session with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), true);
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), true, session.getDurationInMin());
                         } else {
                             // session costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), session.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), session.getDurationInMin());
                         }
                     }
                     // If the current user is the session host, button will show cancel session, if clicked start cancellation process

@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -63,6 +64,7 @@ public class CommentFragment extends Fragment {
     private String postCommentsDatabaseRef;
     private Toolbar commentToolbar;
     private boolean refreshTriggeredByScroll;
+    private long mLastClickTime = 0;
 
     public CommentFragment() {
         // Required empty public constructor
@@ -172,6 +174,10 @@ public class CommentFragment extends Fragment {
                 postSendBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         refreshTriggeredByScroll = false;
                         sendMessage(currentUser.getFirstName());
                     }

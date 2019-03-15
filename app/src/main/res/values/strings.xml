@@ -493,7 +493,7 @@
     <string name="you_have_no_sessions">You have no sessions yet, start by clicking on plus button below!</string>
     <string name="could_not_find_payment_method">Could not find payment method, please try again later.</string>
     <string name="minutes_append">\u0020min</string>
-    <string name="search_for_name_or_username">Search for name or @username...</string>
+    <string name="search_for_name_or_username">Search name or @username</string>
     <string name="no_sessions_this_time">No sessions available during this time period.</string>
     <string name="you_have_no_notifications_yet">You have no notifications yet.</string>
     <string name="notifications">Notifications</string>
@@ -536,4 +536,7 @@
     <string name="edit">Edit</string>
     <string name="add_more_sessions">Add more sessions</string>
     <string name="add_sessions">Add sessions</string>
+    <string name="write_something_optional">Write something (optional)</string>
+    <string name="will_be_refunded_to_your_account">will be refunded to your account.</string>
+    <string name="share">Share</string>
 </resources>

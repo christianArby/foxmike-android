@@ -534,7 +534,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
             ArrayList<Task<?>> asyncTasks = new ArrayList<>();
 
-            // GET AD Date
+            // GET fullName
             TaskCompletionSource<DataSnapshot> nameSource = new TaskCompletionSource<>();
             Task nameTask = nameSource.getTask();
             asyncTasks.add(nameTask);
@@ -553,7 +553,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                 }
             });
 
-            // GET SESSION IMAGE URL
+            // Get user image
             TaskCompletionSource<DataSnapshot> imageSource = new TaskCompletionSource<>();
             Task imageTask = imageSource.getTask();
             asyncTasks.add(imageTask);

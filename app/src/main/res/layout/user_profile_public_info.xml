@@ -59,6 +59,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:visibility="gone"
             android:background="@drawable/rounded_button_primary"
             android:layout_width="match_parent"
@@ -70,6 +71,7 @@
             android:layout_gravity="center_horizontal"/>
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:visibility="gone"
             android:background="@drawable/rounded_button_primary"
             android:layout_width="match_parent"
@@ -81,6 +83,7 @@
             android:layout_gravity="center_horizontal"/>
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:visibility="gone"
             android:background="@drawable/rounded_button_primary"
             android:layout_width="match_parent"

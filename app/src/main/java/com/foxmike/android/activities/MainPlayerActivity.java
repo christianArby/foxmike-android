@@ -7,8 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -45,6 +47,7 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -70,6 +73,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -362,6 +366,80 @@ public class MainPlayerActivity extends AppCompatActivity
             });
             listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
         }
+
+        checkReviewsPending();
+
+    }
+
+    private void checkReviewsPending() {
+        rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(dataSnapshot.getKey());
+                } else {
+                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        @Override
+                        public void onTick(long l) {
+
+                        }
+                        @Override
+                        public void onFinish() {
+                            presentReview(dataSnapshot.getKey());
+                        }
+                    }.start();
+                }
+            }
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                // TODO BARA FÖR TEST
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(dataSnapshot.getKey());
+                } else {
+                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        @Override
+                        public void onTick(long l) {
+
+                        }
+                        @Override
+                        public void onFinish() {
+                            presentReview(dataSnapshot.getKey());
+                        }
+                    }.start();
+                }
+            }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void presentReview(String advertisementId) {
+
+        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
+
+        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();
     }
 
     private void updateStripeCustomerInfo() {
@@ -503,7 +581,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp,String hostId, int amount, boolean dontShowBookingText) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -526,6 +604,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
                             bookIntent.putExtra("hostId", hostId);
                             bookIntent.putExtra("amount",amount);
+                            bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
                             startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
                         }
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -545,6 +624,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("hostId", hostId);
         bookIntent.putExtra("amount",amount);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
+
     }
 
     @Override
@@ -569,7 +649,7 @@ public class MainPlayerActivity extends AppCompatActivity
                         String refundAmount = data.getStringExtra("refundAmount");
                         String currency = data.getStringExtra("currency");
                         alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation),
-                                getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + ".", true,
+                                getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + getString(R.string.will_be_refunded_to_your_account), true,
                                 new AlertDialogs.OnOkPressedListener() {
                                     @Override
                                     public void OnOkPressed() {

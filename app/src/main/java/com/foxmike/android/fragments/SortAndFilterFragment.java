@@ -45,6 +45,10 @@ public class SortAndFilterFragment extends DialogFragment {
     private int maxClicked = 0;
     private int minPrice;
     private int maxPrice;
+    private int minHour = 4;
+    private int minMinute = 0;
+    private int maxHour = 23;
+    private int maxMinute = 45;
     private PatchedCrystalRangeSeekbar timeSeekbar;
     private TextView minTime;
     private TextView maxTime;
@@ -53,13 +57,17 @@ public class SortAndFilterFragment extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice) {
+    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute) {
         SortAndFilterFragment fragment = new SortAndFilterFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT, sort);
         args.putInt(ARG_FILTER, filter);
         args.putInt("minPrice", minPrice);
         args.putInt("maxPrice", maxPrice);
+        args.putInt("minHour", minHour);
+        args.putInt("minMinute", minMinute);
+        args.putInt("maxHour", maxHour);
+        args.putInt("maxMinute", maxMinute);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,6 +80,10 @@ public class SortAndFilterFragment extends DialogFragment {
             mFilterDistance = getArguments().getInt(ARG_FILTER);
             minPrice = getArguments().getInt("minPrice");
             maxPrice = getArguments().getInt("maxPrice");
+            minHour = getArguments().getInt("minHour");
+            minMinute = getArguments().getInt("minMinute");
+            maxHour = getArguments().getInt("maxHour");
+            maxMinute = getArguments().getInt("maxMinute");
         }
     }
 
@@ -88,7 +100,12 @@ public class SortAndFilterFragment extends DialogFragment {
         maxTime = view.findViewById(R.id.endTime);
 
         timeSeekbar.setMinValue(240);
-        timeSeekbar.setMaxValue(1440);
+        timeSeekbar.setMaxValue(1425);
+
+        timeSeekbar.setMinStartValue(minHour*60+minMinute);
+        timeSeekbar.setMaxStartValue(maxHour*60+maxMinute);
+        timeSeekbar.apply();
+
 
         timeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
             @Override
