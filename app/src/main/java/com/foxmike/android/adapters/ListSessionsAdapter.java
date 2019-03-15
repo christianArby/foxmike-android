@@ -1,5 +1,4 @@
 package com.foxmike.android.adapters;
-//Checked
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -35,9 +34,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * This adapter retrieves the data ArrayList<Session>, context and currentLocation as input, given in the constructor, and generates the view in layout.fragment_list_sessions
+ * Created by chris on 2019-03-15.
  */
-public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface {
+
+public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface {
 
     private ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList;
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
@@ -46,7 +46,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
 
-    public sessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener) {
+    public ListSessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener) {
         this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
         this.advertisementHashMap = advertisementHashMap;
         this.sessionHashMap = sessionHashMap;
@@ -69,7 +69,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (viewType==1) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_list_date_header,parent,false);
-            return  new sessionsAdapter.SessionListHeaderViewHolder(v);
+            return  new ListSessionsAdapter.SessionListHeaderViewHolder(v);
         } else {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
             final ImageView session_image = v.findViewById(R.id.session_image);
@@ -85,7 +85,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             });
 
-            return  new sessionsAdapter.SessionViewHolder(v);
+            return new ListSessionsAdapter.SessionViewHolder(v);
         }
     }
 
@@ -102,14 +102,14 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
                     ) {
-                ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.today_text));
+                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.today_text));
             } else if (tomorrowTime.getYear()==sessionTime.getYear() &&
                     tomorrowTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
                     tomorrowTime.getDayOfMonth()==sessionTime.getDayOfMonth()
                     ) {
-                ((SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
+                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
             } else {
-                ((SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp()));
+                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp()));
             }
         } else {
             Advertisement advertisement = advertisementHashMap.get(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId());
@@ -122,19 +122,19 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 addressName = addressName.substring(0,40)+ "...";
             }
             String address = addressName +"  |  " + getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
-            ((SessionViewHolder) holder).setTitle(session.getSessionName());
-            ((SessionViewHolder) holder).setDesc(session.getSessionType());
-            ((SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
-            ((SessionViewHolder) holder).setAddress(address);
-            ((SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
+            ((ListSessionsAdapter.SessionViewHolder) holder).setTitle(session.getSessionName());
+            ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(session.getSessionType());
+            ((ListSessionsAdapter.SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+            ((ListSessionsAdapter.SessionViewHolder) holder).setAddress(address);
+            ((ListSessionsAdapter.SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
             if (position > 0 && !advertisementIdsAndTimestampsFilteredArrayList.get(position-1).getAdvertisementId().equals("dateHeader")) {
-                ((SessionViewHolder) holder).setMargin();
+                ((ListSessionsAdapter.SessionViewHolder) holder).setMargin();
             } else {
-                ((SessionViewHolder) holder).resetMargin();
+                ((ListSessionsAdapter.SessionViewHolder) holder).resetMargin();
             }
             /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
-            ((SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
+            ((ListSessionsAdapter.SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     onSessionClickedListener.OnSessionClicked(advertisement.getSessionId(), advertisement.getAdvertisementTimestamp());
@@ -152,7 +152,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             } else {
                 priceText = advertisement.getPrice() + " " + currencyString;
             }
-            ((SessionViewHolder) holder).setPrice(priceText);
+            ((ListSessionsAdapter.SessionViewHolder) holder).setPrice(priceText);
         }
     }
 
@@ -164,7 +164,7 @@ public class sessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
-    /**Change getItemCount to return the number of items this sessionsAdapter should adapt*/
+    /**Change getItemCount to return the number of items this ListSessionsAdapter should adapt*/
     @Override
     public int getItemCount() {
         return advertisementIdsAndTimestampsFilteredArrayList.size();
