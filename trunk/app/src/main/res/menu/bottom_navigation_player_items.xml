@@ -11,7 +11,7 @@
         android:id="@+id/menuPlayerSessions"
         android:enabled="true"
         android:icon="@mipmap/ic_list_black_24dp"
-        android:title="@string/menu_my_sessions"
+        android:title="@string/menu_my_bookings"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuInbox"

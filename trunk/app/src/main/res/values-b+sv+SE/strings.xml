@@ -315,6 +315,7 @@
     <string name="continue_with_google_text">Fortsätt med Google</string>
     <string name="menu_inbox">Inkorg</string>
     <string name="menu_my_sessions">Mina pass</string>
+    <string name="menu_my_bookings">Mina bokningar</string>
     <string name="menu_explore">Utforska</string>
     <string name="menu_map">Karta</string>
     <string name="menu_profile">Konto</string>
@@ -538,4 +539,5 @@
     <string name="add_sessions">Lägg ut pass</string>
     <string name="will_be_refunded_to_your_account">kommer att betalas tillbaka till ditt konto.</string>
     <string name="share">Dela</string>
+    <string name="rating_and_reviews">Ömdömen</string>
 </resources>

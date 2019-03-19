@@ -56,7 +56,8 @@
         android:layout_toEndOf="@+id/message_profile_image"
         android:background="@drawable/message_text_background"
         android:text="Message Text"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead" />
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:autoLink="web"/>
 
 
 </RelativeLayout>

@@ -315,6 +315,7 @@
     <string name="continue_with_google_text">Continue with Google</string>
     <string name="menu_inbox">Inbox</string>
     <string name="menu_my_sessions">My sessions</string>
+    <string name="menu_my_bookings">My bookings</string>
     <string name="menu_explore">Explore</string>
     <string name="menu_map">Map</string>
     <string name="menu_profile">Account</string>
@@ -539,4 +540,5 @@
     <string name="write_something_optional">Write something (optional)</string>
     <string name="will_be_refunded_to_your_account">will be refunded to your account.</string>
     <string name="share">Share</string>
+    <string name="rating_and_reviews">Rating and reviews</string>
 </resources>

@@ -147,6 +147,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private ValueEventListener userExistsListener;
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
+    private ChildEventListener reviewListener;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -372,7 +373,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     private void checkReviewsPending() {
-        rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        reviewListener = rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.getValue()==null) {
@@ -791,6 +792,8 @@ public class MainPlayerActivity extends AppCompatActivity
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+
+        rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).removeEventListener(reviewListener);
 
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.removeListeners();
