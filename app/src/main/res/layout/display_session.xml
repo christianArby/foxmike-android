@@ -72,7 +72,8 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/displaySessionHostImage" />
+            app:layout_constraintTop_toBottomOf="@id/displaySessionHostImage"
+            android:autoLink="web"/>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -130,7 +131,8 @@
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"/>
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:autoLink="web"/>
 
 
 
@@ -182,7 +184,8 @@
             android:layout_marginTop="@dimen/marginVertical"
             android:textSize="15sp"
             android:lineSpacingMultiplier="1.2"
-            android:textColor="@color/primaryTextColor" />
+            android:textColor="@color/primaryTextColor"
+            android:autoLink="web"/>
 
         <View
             android:layout_width="match_parent"
@@ -233,7 +236,8 @@
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
             android:lineSpacingMultiplier="1.2"
-            android:textColor="@color/primaryTextColor" />
+            android:textColor="@color/primaryTextColor"
+            android:autoLink="web"/>
     </LinearLayout>
 
     <TextView

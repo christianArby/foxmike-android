@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 ext.versionMajor = 0
-ext.versionMinor = 13
-ext.versionPatch = 0
+ext.versionMinor = 12
+ext.versionPatch = 3
 ext.versionClassifier = null
 ext.isSnapshot = true
 ext.minimumSdkVersion = 21
@@ -30,7 +30,7 @@ android {
             disable 'MissingTranslation'
         }
         // If debuggable true
-        // signingConfig signingConfigs.config
+        //signingConfig signingConfigs.config
     }
     buildTypes {
         release {
@@ -129,7 +129,7 @@ private Integer generateVersionCode() {
 private String generateVersionName() {
     String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
     if (ext.versionClassifier == null && ext.isSnapshot) {
-        ext.versionClassifier = "alpha"
+        ext.versionClassifier = "beta"
     }
 
     if (ext.versionClassifier != null) {

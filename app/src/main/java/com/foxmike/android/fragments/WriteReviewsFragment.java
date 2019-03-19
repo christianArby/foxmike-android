@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
-import com.foxmike.android.models.RatingAndReview;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -107,13 +106,13 @@ public class WriteReviewsFragment extends DialogFragment {
                             if (b) {
                                 float rating = (float)Math.ceil(v);
                                 ratingBar.setRating(rating);
-                                RatingAndReview ratingAndReview = new RatingAndReview(rating, reviewText.getText().toString(), currentUserId, advertisementId);
+                                /*RatingAndReview ratingAndReview = new RatingAndReview(rating, reviewText.getText().toString(), currentUserId, advertisementId);
                                 String reviewId = rootDbRef.child("ratingAndReviews").push().getKey();
                                 rootDbRef.child("ratingAndReviews").child(reviewId).setValue(ratingAndReview);
                                 rootDbRef.child("userReviews").child(currentUserId).child(reviewId).setValue(true);
                                 rootDbRef.child("sessionReviews").child(advertisement.getSessionId()).child(reviewId).setValue(true);
                                 rootDbRef.child("trainerReviews").child(advertisement.getHost()).child(reviewId).setValue(true);
-                                rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();
+                                rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();*/
                             }
                             hideKeyboard(getActivity());
                             dismiss();

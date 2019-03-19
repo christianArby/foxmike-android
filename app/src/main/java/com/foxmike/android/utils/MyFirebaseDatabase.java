@@ -180,7 +180,7 @@ public class MyFirebaseDatabase extends Service {
                                     advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                     // if this session hasn't already been saved to sessionArray save it
                                     if (!sessionAdded) {
-                                        sessionsFiltered.put(nearSession.getSessionId(), nearSession);
+                                        sessionsFiltered.put(nearSession.getAdvertisementId(), nearSession);
                                         sessionAdded = true;
                                     }
                                 }
@@ -195,7 +195,7 @@ public class MyFirebaseDatabase extends Service {
                                     advertisementsFiltered.add(nearAdvertisements.get(advertisementKey));
                                     // if this session hasn't already been saved to sessionArray save it
                                     if (!sessionAdded) {
-                                        sessionsFiltered.put(nearSession.getSessionId(), nearSession);
+                                        sessionsFiltered.put(nearSession.getAdvertisementId(), nearSession);
                                         sessionAdded = true;
                                     }
                                 }
@@ -333,7 +333,7 @@ public class MyFirebaseDatabase extends Service {
                                                     for (Task finishedAdTask: advertisementTasks) {
                                                         DataSnapshot dataSnapshot = (DataSnapshot) finishedAdTask.getResult();
                                                         Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                                                        AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(advertisement, sessionDistances.get(advertisement.getSessionId()));
+                                                        AdvertisementDistanceMap advertisementDistanceMap = new AdvertisementDistanceMap(advertisement, sessionDistances.get(advertisement.getAdvertisementId()));
                                                         advertisementDistanceMapArrayList.add(advertisementDistanceMap);
                                                     }
                                                     Collections.sort(advertisementDistanceMapArrayList);
