@@ -66,6 +66,7 @@ public class CommentFragment extends Fragment {
     private boolean refreshTriggeredByScroll;
     private long mLastClickTime = 0;
 
+
     public CommentFragment() {
         // Required empty public constructor
     }
