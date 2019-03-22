@@ -142,9 +142,13 @@
         <activity
             android:name=".activities.SwitchModeActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.TestActivity" />
         <activity android:name=".activities.CancelAdvertisementActivity" />
-        <activity android:name=".activities.WriteAdminNotification"></activity>
+        <activity android:name=".activities.WriteAdminNotification" />
+        <activity
+            android:name=".activities.RatingsAndReviewsActivity">
+
+
+        </activity>
     </application>
 
 </manifest>

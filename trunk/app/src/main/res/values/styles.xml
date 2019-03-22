@@ -27,7 +27,7 @@
         <!--<item name="android:textStyle">bold</item>-->
     </style>
 
-    <style name="FoxmikeHeadingSemiBold">
+    <style name="FoxmikeSemiBold">
         <item name="android:textColor">@color/primaryTextColor</item>
 
         <!-- Custom font -->
@@ -119,6 +119,17 @@
     <style name="foxmikeTabsTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="CustomProgressBarHorizontal" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/rating_progress_bar</item>
+        <item name="android:minHeight">22dp</item>
+        <item name="android:maxHeight">22dp</item>
+    </style>
+
+    <style name="CustomRatingBar" parent="android:Widget.RatingBar">
+        <item name="android:minHeight">24dip</item>
+        <item name="android:maxHeight">24dip</item>
     </style>
 
 

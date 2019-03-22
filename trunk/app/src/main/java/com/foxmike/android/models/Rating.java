@@ -7,12 +7,14 @@ package com.foxmike.android.models;
 public class Rating {
     private String authorId;
     private String advertisementId;
+    private String sessionId;
     private int rating;
     private Long timestamp;
 
-    public Rating(String authorId, String advertisementId, int rating, Long timestamp) {
+    public Rating(String authorId, String advertisementId, String sessionId, int rating, Long timestamp) {
         this.authorId = authorId;
         this.advertisementId = advertisementId;
+        this.sessionId = sessionId;
         this.rating = rating;
         this.timestamp = timestamp;
     }
@@ -34,6 +36,14 @@ public class Rating {
 
     public void setAdvertisementId(String advertisementId) {
         this.advertisementId = advertisementId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     public int getRating() {

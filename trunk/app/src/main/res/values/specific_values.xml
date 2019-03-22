@@ -5,6 +5,7 @@
     <integer name="card_flip_time_full">400</integer>
 
     <integer name="TOTAL_ITEMS_TO_LOAD">50</integer>
+    <integer name="TOTAL_REVIEWS_TO_LOAD">5</integer>
 
     <integer name="heightOfSessionImageNumerator">12</integer>
     <integer name="heightOfSessionImageDenominator">20</integer>

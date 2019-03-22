@@ -9,27 +9,33 @@
     <color name="primaryBackgroundColor">#fafafa</color>
     <color name="secondaryBackgroundColor">#ffffff</color>
 
-    <color name="color_background_dark">#FAFAFA</color>
-    <color name="color_background_light">#FFFFFF</color>
 
     <color name="darkIconColor">#8d8d8d</color>
     <color name="red">#FF0000</color>
     <color name="lightGrayLine">#eeeeee</color>
 
+
+
+    <color name="foxmikePrimaryColor">#00bfa5</color>
     <color name="primaryTextColor">#484848</color>
     <color name="secondaryTextColor">#ffffff</color>
+    <color name="color_divider">#EBEBEB</color>
+    <color name="color_big_divider">#F2F2F2</color>
+    <color name="color_background_dark">#FAFAFA</color>
+    <color name="color_background_light">#FFFFFF</color>
     <color name="grayTextColor">#787878</color>
+
+
 
     <color name="grayButtonColor">#e0e0e0</color>
 
     <color name="unselectedGreyColor">#c7c7c7</color>
-    <color name="foxmikePrimaryColor">#00bfa5</color>
+
     <color name="foxmikePrimaryDarkColor">#00897b</color>
     <color name="primaryDarkColor">#c7c7c7</color>
-    <color name="secondaryColor">#cabf45</color>
 
-    <color name="color_big_divider">#F2F2F2</color>
-    <color name="color_divider">#EBEBEB</color>
+
+
     <color name="color_border">#E2E2E2</color>
     <color name="color_accent">#00bfa5</color>
     <color name="fbgrey">#EBEDF0</color>

@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
+import com.foxmike.android.models.Rating;
+import com.foxmike.android.models.Review;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,6 +37,7 @@ import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 public class WriteReviewsFragment extends DialogFragment {
 
     @BindView(R.id.closeImageButton) ImageButton closeIcon;
+    @BindView(R.id.ratingTitle) TextView ratingTitle;
     @BindView(R.id.reviewTitle) TextView reviewTitle;
     @BindView(R.id.ratingBar) RatingBar ratingBar;
     @BindView(R.id.reviewText) EditText reviewText;
@@ -98,21 +101,37 @@ public class WriteReviewsFragment extends DialogFragment {
                     }
 
                     Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                    reviewTitle.setText(advertisement.getSessionName());
+                    reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + getString(R.string.leave_your_review_below));
+                    ratingTitle.setText(R.string.Rate);
 
                     ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                         @Override
                         public void onRatingChanged(RatingBar ratingBar, final float v, boolean b) {
                             if (b) {
-                                float rating = (float)Math.ceil(v);
-                                ratingBar.setRating(rating);
-                                /*RatingAndReview ratingAndReview = new RatingAndReview(rating, reviewText.getText().toString(), currentUserId, advertisementId);
-                                String reviewId = rootDbRef.child("ratingAndReviews").push().getKey();
-                                rootDbRef.child("ratingAndReviews").child(reviewId).setValue(ratingAndReview);
-                                rootDbRef.child("userReviews").child(currentUserId).child(reviewId).setValue(true);
-                                rootDbRef.child("sessionReviews").child(advertisement.getSessionId()).child(reviewId).setValue(true);
-                                rootDbRef.child("trainerReviews").child(advertisement.getHost()).child(reviewId).setValue(true);
-                                rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();*/
+                                float thisRating = (float)Math.ceil(v);
+                                ratingBar.setRating(thisRating);
+                                Long currentTimestamp = System.currentTimeMillis();
+
+
+                                Rating rating = new Rating(currentUserId, advertisementId, advertisement.getSessionId(), (int)thisRating, currentTimestamp);
+                                String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
+
+
+
+                                rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
+                                rootDbRef.child("userRatings").child(currentUserId).child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
+                                rootDbRef.child("sessionRatings").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
+                                rootDbRef.child("trainerRatings").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
+
+                                if (reviewText.getText().toString().length()>0) {
+                                    Review review = new Review(currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), thisRating, currentTimestamp);
+                                    rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
+                                    rootDbRef.child("userReviews").child(currentUserId).child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
+                                    rootDbRef.child("sessionReviews").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(currentTimestamp);
+                                    rootDbRef.child("trainerReviews").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
+                                }
+
+                                rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();
                             }
                             hideKeyboard(getActivity());
                             dismiss();

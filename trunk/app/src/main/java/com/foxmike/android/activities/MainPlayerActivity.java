@@ -130,6 +130,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
+    private HashMap<DatabaseReference, ChildEventListener> childListenerMap = new HashMap<DatabaseReference, ChildEventListener>();
     private boolean resumed = false;
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -148,6 +149,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
     private ChildEventListener reviewListener;
+    private String currentUserId;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -172,6 +174,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fragmentManager = getSupportFragmentManager();
 
@@ -242,55 +246,10 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.getValue().toString();
-                }
-
-                // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
-                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        if (stripeCustomerId==null) {
-                            rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getValue()==null) {
-                                        return;
-                                    }
-                                    stripeCustomerId = dataSnapshot.getValue().toString();
-                                    updateStripeCustomerInfo();
-
-                                }
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                }
-                            });
-                        } else {
-                            updateStripeCustomerInfo();
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange"), stripeCustomerListener);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
         if (!listenerMap.containsKey(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener chatsListener = rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener chatsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     unreadChats = 0;
@@ -312,12 +271,12 @@ public class MainPlayerActivity extends AppCompatActivity
                 public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()), chatsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener notificationsListener = rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener notificationsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     unreadNotifications = 0;
@@ -337,12 +296,12 @@ public class MainPlayerActivity extends AppCompatActivity
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener friendRequestsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     unreadFriendRequests = 0;
@@ -364,7 +323,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
         }
 
@@ -373,7 +332,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     private void checkReviewsPending() {
-        reviewListener = rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        reviewListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.getValue()==null) {
@@ -430,7 +389,8 @@ public class MainPlayerActivity extends AppCompatActivity
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
-        });
+        };
+        childListenerMap.put(rootDbRef.child("reviewsToWrite").child(currentUserId), reviewListener);
     }
 
     private void presentReview(String advertisementId) {
@@ -781,22 +741,94 @@ public class MainPlayerActivity extends AppCompatActivity
             finish();
         }
 
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.addValueEventListener(listener);
+        }
+        listenerMap.clear();
+
+        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
+            DatabaseReference ref = childEntry.getKey();
+            ChildEventListener childListener = childEntry.getValue();
+            ref.addChildEventListener(childListener);
+        }
+        childListenerMap.clear();
+
+        // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
+        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue()!=null) {
+                    stripeCustomerId = dataSnapshot.getValue().toString();
+                }
+
+                // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
+                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (stripeCustomerId==null) {
+                            rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue()==null) {
+                                        return;
+                                    }
+                                    stripeCustomerId = dataSnapshot.getValue().toString();
+                                    updateStripeCustomerInfo();
+
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                }
+                            });
+                        } else {
+                            updateStripeCustomerInfo();
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange"), stripeCustomerListener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
-    // When activity is destroyed, remove all listeners
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
+        listenerMap.clear();
 
-        rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).removeEventListener(reviewListener);
+        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
+            DatabaseReference ref = childEntry.getKey();
+            ChildEventListener childListener = childEntry.getValue();
+            ref.removeEventListener(childListener);
+        }
+        childListenerMap.clear();
 
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.removeListeners();
+    }
+
+    // When activity is destroyed, remove all listeners
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -815,7 +847,7 @@ public class MainPlayerActivity extends AppCompatActivity
         CheckVersion.checkVersion(this);
         // check if maintenance
         maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        maintenanceListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
@@ -831,7 +863,8 @@ public class MainPlayerActivity extends AppCompatActivity
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
-        });
+        };
+        listenerMap.put(maintenanceRef, maintenanceListener);
     }
 
     public static void hideKeyboard(Activity activity) {

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    tools:context="com.foxmike.android.activities.RatingsAndReviewsActivity">
+
+    <com.foxmike.android.utils.CustomConstraintLayout
+        android:id="@+id/reviewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/app_bar_layout"
+            android:id="@+id/post_app_bar"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="@id/fiveStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/oneStarBar"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/margin_left">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/ratingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_semi_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
+                android:textColor="@color/primaryTextColor"
+                android:text=""
+                />
+
+            <TextView
+                android:id="@+id/ratingNrText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primaryTextColor"
+                android:text="Inga omdömen"/>
+
+
+
+        </LinearLayout>
+
+
+        <ProgressBar
+            android:id="@+id/fiveStarBar"
+            app:layout_constraintTop_toBottomOf="@id/post_app_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/CustomProgressBarHorizontal"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/fourStarBar"
+            app:layout_constraintTop_toBottomOf="@id/fiveStarBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/CustomProgressBarHorizontal"
+            android:layout_marginTop="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/threeStarBar"
+            app:layout_constraintTop_toBottomOf="@id/fourStarBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/CustomProgressBarHorizontal"
+            android:layout_marginTop="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/twoStarBar"
+            app:layout_constraintTop_toBottomOf="@id/threeStarBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/CustomProgressBarHorizontal"
+            android:layout_marginTop="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/oneStarBar"
+            app:layout_constraintTop_toBottomOf="@id/twoStarBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/CustomProgressBarHorizontal"
+            android:layout_marginTop="@dimen/margin_minimum"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_5_stars"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/fiveStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/fiveStarBar"
+            app:layout_constraintEnd_toStartOf="@id/fiveStarBar"
+            android:layout_marginEnd="@dimen/margin_minimum"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_4_stars"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/fourStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/fourStarBar"
+            app:layout_constraintEnd_toStartOf="@id/fourStarBar"
+            android:layout_marginEnd="@dimen/margin_minimum"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_3_stars"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/threeStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/threeStarBar"
+            app:layout_constraintEnd_toStartOf="@id/threeStarBar"
+            android:layout_marginEnd="@dimen/margin_minimum"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_2_stars"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/twoStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/twoStarBar"
+            app:layout_constraintEnd_toStartOf="@id/twoStarBar"
+            android:layout_marginEnd="@dimen/margin_minimum"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_1_star"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/oneStarBar"
+            app:layout_constraintBottom_toBottomOf="@id/oneStarBar"
+            app:layout_constraintEnd_toStartOf="@id/oneStarBar"
+            android:layout_marginEnd="@dimen/margin_minimum"/>
+
+        <View
+            android:id="@+id/spaceView01"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:background="@color/color_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/oneStarBar" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/reviewList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/spaceView01" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/reviewList"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+    </com.foxmike.android.utils.CustomConstraintLayout>
+
+
+
+
+</android.support.v4.widget.NestedScrollView>

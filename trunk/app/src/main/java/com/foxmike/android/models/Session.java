@@ -24,8 +24,11 @@ public class Session implements Comparable<Session>, Serializable {
     private String currency;
     private long representingAdTimestamp;
     private int price;
+    private float rating;
+    private int nrOfRatings;
+    private int nrOfReviews;
 
-    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price) {
+    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
         this.sessionId = sessionId;
         this.host = host;
         this.sessionName = sessionName;
@@ -43,6 +46,9 @@ public class Session implements Comparable<Session>, Serializable {
         this.currency = currency;
         this.representingAdTimestamp = representingAdTimestamp;
         this.price = price;
+        this.rating = rating;
+        this.nrOfRatings = nrOfRatings;
+        this.nrOfReviews = nrOfReviews;
     }
 
     public Session() {
@@ -66,6 +72,9 @@ public class Session implements Comparable<Session>, Serializable {
         this.currency = sessionToCopy.currency;
         this.representingAdTimestamp = sessionToCopy.representingAdTimestamp;
         this.price = sessionToCopy.price;
+        this.rating = sessionToCopy.rating;
+        this.nrOfRatings = sessionToCopy.nrOfRatings;
+        this.nrOfReviews = sessionToCopy.nrOfReviews;
     }
 
 
@@ -96,6 +105,30 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setAdvertisements(HashMap<String, Long> advertisements) {
         this.advertisements = advertisements;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public int getNrOfRatings() {
+        return nrOfRatings;
+    }
+
+    public void setNrOfRatings(int nrOfRatings) {
+        this.nrOfRatings = nrOfRatings;
+    }
+
+    public int getNrOfReviews() {
+        return nrOfReviews;
+    }
+
+    public void setNrOfReviews(int nrOfReviews) {
+        this.nrOfReviews = nrOfReviews;
     }
 
     public String getSessionId() {

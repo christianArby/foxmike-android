@@ -541,4 +541,21 @@
     <string name="will_be_refunded_to_your_account">will be refunded to your account.</string>
     <string name="share">Share</string>
     <string name="rating_and_reviews">Rating and reviews</string>
+    <string name="based_on_nr_ratings_text_1">/5,0 based on\u0020</string>
+    <string name="based_on_nr_ratings_text_2">\u0020ratings</string>
+    <string name="based_on_nr_ratings_text_2_single">\u0020rating</string>
+    <string name="new_session_no_reviews_yet">New session, no reviews yet</string>
+    <string name="show_all_reviews">Show all reviews</string>
+    <string name="_5_stars">5 stars</string>
+    <string name="_4_stars">4 stars</string>
+    <string name="_3_stars">3 stars</string>
+    <string name="_2_stars">2 stars</string>
+    <string name="_1_star">1 star</string>
+    <string name="new_session_no_reviews_linebreak">New session,  no reviews yet</string>
+    <string name="based_on">based on</string>
+    <string name="ratings">ratings</string>
+    <string name="rating">rating</string>
+    <string name="you_have_been_on_the_session">You have been on the session\u0020</string>
+    <string name="leave_your_review_below">, leave your review below.</string>
+    <string name="Rate">Rate</string>
 </resources>
