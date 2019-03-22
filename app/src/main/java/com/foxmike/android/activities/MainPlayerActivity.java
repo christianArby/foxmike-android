@@ -2,6 +2,9 @@ package com.foxmike.android.activities;
 //Checked
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,13 +70,19 @@ import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.Price;
+import com.foxmike.android.viewmodels.FriendRequestsUserIdViewHolder;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
+import com.foxmike.android.viewmodels.ReviewsToWriteUserIdViewModel;
+import com.foxmike.android.viewmodels.StripeCustomerIdViewModel;
+import com.foxmike.android.viewmodels.StripeLastChangeViewModel;
+import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
+import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -84,7 +93,6 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import io.reactivex.subjects.BehaviorSubject;
@@ -129,8 +137,6 @@ public class MainPlayerActivity extends AppCompatActivity
     private String fromUserID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
-    private HashMap<DatabaseReference, ChildEventListener> childListenerMap = new HashMap<DatabaseReference, ChildEventListener>();
     private boolean resumed = false;
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -145,11 +151,6 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadFriendRequests = 0;
     // variable to track event time
     private long mLastClickTime = 0;
-    private ValueEventListener userExistsListener;
-    private DatabaseReference maintenanceRef;
-    private ValueEventListener maintenanceListener;
-    private ChildEventListener reviewListener;
-    private String currentUserId;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -174,8 +175,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         fragmentManager = getSupportFragmentManager();
 
@@ -248,10 +247,13 @@ public class MainPlayerActivity extends AppCompatActivity
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
-        if (!listenerMap.containsKey(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener chatsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+
+        UserChatsUserIdViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(UserChatsUserIdViewModel.class);
+        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData();
+        liveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadChats = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot chatID: dataSnapshot.getChildren()) {
@@ -267,18 +269,55 @@ public class MainPlayerActivity extends AppCompatActivity
                         bottomNavigation.setNotification("",2);
                     }
                 }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+            }
+        });
 
+        // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
+        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    stripeCustomerId = dataSnapshot.getValue().toString();
                 }
-            };
-            listenerMap.put(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()), chatsListener);
-        }
+                StripeLastChangeViewModel stripeLastChangeViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(StripeLastChangeViewModel.class);
+                LiveData<DataSnapshot> StripeLastChangeLiveData = stripeLastChangeViewModel.getDataSnapshotLiveData();
+                StripeLastChangeLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+                    @Override
+                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                        if (stripeCustomerId==null) {
 
-        if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener notificationsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            StripeCustomerIdViewModel stripeCustomerIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(StripeCustomerIdViewModel.class);
+                            LiveData<DataSnapshot> stripeCustomerIdLiveData = stripeCustomerIdViewModel.getDataSnapshotLiveData();
+                            stripeCustomerIdLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+                                @Override
+                                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot!=null) {
+                                        stripeCustomerId = dataSnapshot.getValue().toString();
+                                        updateStripeCustomerInfo();
+                                    }
+                                }
+                            });
+                        } else {
+                            updateStripeCustomerInfo();
+                        }
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        UnreadNotificationsUserIdViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(UnreadNotificationsUserIdViewModel.class);
+        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData();
+        unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadNotifications = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -292,18 +331,15 @@ public class MainPlayerActivity extends AppCompatActivity
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 
-                }
-            };
-            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
-        }
-
-        if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener friendRequestsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        FriendRequestsUserIdViewHolder friendRequestsUserIdViewHolder = ViewModelProviders.of(this).get(FriendRequestsUserIdViewHolder.class);
+        LiveData<DataSnapshot> friendRequestsLiveData = friendRequestsUserIdViewHolder.getDataSnapshotLiveData();
+        friendRequestsLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadFriendRequests = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -318,79 +354,55 @@ public class MainPlayerActivity extends AppCompatActivity
                         bottomNavigation.setNotification("",2);
                     }
                 }
+            }
+        });
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            };
-            listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
-        }
-
-        checkReviewsPending();
-
-    }
-
-    private void checkReviewsPending() {
-        reviewListener = new ChildEventListener() {
+        ReviewsToWriteUserIdViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(ReviewsToWriteUserIdViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData();
+        reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (dataSnapshot.getValue()==null) {
-                    return;
-                }
-                Long currentTimestamp = System.currentTimeMillis();
-                Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                if (reviewTimestamp<currentTimestamp) {
-                    presentReview(dataSnapshot.getKey());
-                } else {
-                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                        @Override
-                        public void onTick(long l) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
+                    Long currentTimestamp = System.currentTimeMillis();
+                    Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                    if (reviewTimestamp<currentTimestamp) {
+                        presentReview(dataSnapshot.getKey());
+                    } else {
+                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                            @Override
+                            public void onTick(long l) {
 
-                        }
-                        @Override
-                        public void onFinish() {
-                            presentReview(dataSnapshot.getKey());
-                        }
-                    }.start();
+                            }
+                            @Override
+                            public void onFinish() {
+                                presentReview(dataSnapshot.getKey());
+                            }
+                        }.start();
+                    }
                 }
             }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                // TODO BARA FÖR TEST
-                if (dataSnapshot.getValue()==null) {
-                    return;
-                }
-                Long currentTimestamp = System.currentTimeMillis();
-                Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                if (reviewTimestamp<currentTimestamp) {
-                    presentReview(dataSnapshot.getKey());
-                } else {
-                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                        @Override
-                        public void onTick(long l) {
+        });
 
-                        }
-                        @Override
-                        public void onFinish() {
-                            presentReview(dataSnapshot.getKey());
-                        }
-                    }.start();
+        // check if maintenance
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(MainPlayerActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
                 }
             }
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        childListenerMap.put(rootDbRef.child("reviewsToWrite").child(currentUserId), reviewListener);
+        });
     }
 
     private void presentReview(String advertisementId) {
@@ -740,86 +752,11 @@ public class MainPlayerActivity extends AppCompatActivity
             startActivity(welcomeIntent);
             finish();
         }
-
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.addValueEventListener(listener);
-        }
-        listenerMap.clear();
-
-        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
-            DatabaseReference ref = childEntry.getKey();
-            ChildEventListener childListener = childEntry.getValue();
-            ref.addChildEventListener(childListener);
-        }
-        childListenerMap.clear();
-
-        // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.getValue().toString();
-                }
-
-                // --------------------------  LISTEN TO STRIPE CUSTOMER -------------------------------------
-                ValueEventListener stripeCustomerListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        if (stripeCustomerId==null) {
-                            rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getValue()==null) {
-                                        return;
-                                    }
-                                    stripeCustomerId = dataSnapshot.getValue().toString();
-                                    updateStripeCustomerInfo();
-
-                                }
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                }
-                            });
-                        } else {
-                            updateStripeCustomerInfo();
-                        }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-                listenerMap.put(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeLastChange"), stripeCustomerListener);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
-        listenerMap.clear();
-
-        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
-            DatabaseReference ref = childEntry.getKey();
-            ChildEventListener childListener = childEntry.getValue();
-            ref.removeEventListener(childListener);
-        }
-        childListenerMap.clear();
 
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.removeListeners();
@@ -845,26 +782,6 @@ public class MainPlayerActivity extends AppCompatActivity
         super.onResume();
         resumed=true;
         CheckVersion.checkVersion(this);
-        // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    if ((boolean) dataSnapshot.getValue()) {
-                        Intent welcomeIntent = new Intent(MainPlayerActivity.this,WelcomeActivity.class);
-                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(welcomeIntent);
-                        FirebaseAuth.getInstance().signOut();
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        listenerMap.put(maintenanceRef, maintenanceListener);
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -893,12 +810,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
     private void showSnackbar(String message) {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 
     @Override

@@ -2,13 +2,15 @@ package com.foxmike.android.activities;
 //Checked
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -57,19 +59,20 @@ import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.CheckVersion;
+import com.foxmike.android.viewmodels.FriendRequestsUserIdViewHolder;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
+import com.foxmike.android.viewmodels.ReviewsToWriteUserIdViewModel;
+import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
+import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
 
@@ -107,7 +110,6 @@ public class MainHostActivity extends AppCompatActivity implements
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef;
-    private HashMap<DatabaseReference, ValueEventListener> listenerMap = new HashMap<DatabaseReference, ValueEventListener>();
     private Session editedSession;
     private String editedSessionID;
     private boolean resumed = false;
@@ -117,11 +119,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadNotifications = 0;
     private int unreadFriendRequests = 0;
     private long mLastClickTime = 0;
-    private DatabaseReference maintenanceRef;
-    private ValueEventListener maintenanceListener;
-    private ChildEventListener reviewListener;
     private String currentUserId;
-    private HashMap<DatabaseReference, ChildEventListener> childListenerMap = new HashMap<DatabaseReference, ChildEventListener>();
 
 
     @Override
@@ -187,10 +185,13 @@ public class MainHostActivity extends AppCompatActivity implements
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
-        if (!listenerMap.containsKey(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener chatsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+
+        UserChatsUserIdViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(UserChatsUserIdViewModel.class);
+        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData();
+        liveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadChats = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot chatID: dataSnapshot.getChildren()) {
@@ -201,23 +202,20 @@ public class MainHostActivity extends AppCompatActivity implements
                         }
                     }
                     if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
                     } else {
-                        bottomNavigation.setNotification("",0);
+                        bottomNavigation.setNotification("",2);
                     }
                 }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+            }
+        });
 
-                }
-            };
-            listenerMap.put(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()), chatsListener);
-        }
-
-        if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener notificationsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        UnreadNotificationsUserIdViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(UnreadNotificationsUserIdViewModel.class);
+        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData();
+        unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadNotifications = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -225,44 +223,37 @@ public class MainHostActivity extends AppCompatActivity implements
                         }
                     }
                     if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
                     } else {
-                        bottomNavigation.setNotification("",0);
+                        bottomNavigation.setNotification("",2);
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 
-                }
-            };
-            listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
-        }
-
-        if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener friendRequestsListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        FriendRequestsUserIdViewHolder friendRequestsUserIdViewHolder = ViewModelProviders.of(this).get(FriendRequestsUserIdViewHolder.class);
+        LiveData<DataSnapshot> friendRequestsLiveData = friendRequestsUserIdViewHolder.getDataSnapshotLiveData();
+        friendRequestsLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
                     unreadFriendRequests = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            unreadFriendRequests++;
+                            if (!child.child("request_type").getValue().toString().equals("sent")) {
+                                unreadFriendRequests++;
+                            }
                         }
                     }
                     if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
                     } else {
-                        bottomNavigation.setNotification("",0);
+                        bottomNavigation.setNotification("",2);
                     }
                 }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            };
-            listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
-        }
+            }
+        });
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -273,69 +264,52 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        checkReviewsPending();
-    }
-
-    private void checkReviewsPending() {
-        reviewListener = rootDbRef.child("reviewsToWrite").child(currentUserId).addChildEventListener(new ChildEventListener() {
+        ReviewsToWriteUserIdViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(ReviewsToWriteUserIdViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData();
+        reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (dataSnapshot.getValue()==null) {
-                    return;
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
+                    Long currentTimestamp = System.currentTimeMillis();
+                    Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                    if (reviewTimestamp<currentTimestamp) {
+                        presentReview(dataSnapshot.getKey());
+                    } else {
+                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                            @Override
+                            public void onTick(long l) {
+
+                            }
+                            @Override
+                            public void onFinish() {
+                                presentReview(dataSnapshot.getKey());
+                            }
+                        }.start();
+                    }
                 }
-                Long currentTimestamp = System.currentTimeMillis();
-                Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                if (reviewTimestamp<currentTimestamp) {
-                    presentReview(dataSnapshot.getKey());
-                } else {
-                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                        @Override
-                        public void onTick(long l) {
-
-                        }
-                        @Override
-                        public void onFinish() {
-                            presentReview(dataSnapshot.getKey());
-                        }
-                    }.start();
-                }
-            }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                // TODO BARA FÖR TEST
-                if (dataSnapshot.getValue()==null) {
-                    return;
-                }
-                Long currentTimestamp = System.currentTimeMillis();
-                Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                if (reviewTimestamp<currentTimestamp) {
-                    presentReview(dataSnapshot.getKey());
-                } else {
-                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                        @Override
-                        public void onTick(long l) {
-
-                        }
-                        @Override
-                        public void onFinish() {
-                            presentReview(dataSnapshot.getKey());
-                        }
-                    }.start();
-                }
-            }
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-        childListenerMap.put(rootDbRef.child("reviewsToWrite").child(currentUserId), reviewListener);
+
+        // check if maintenance
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    if ((boolean) dataSnapshot.getValue()) {
+                        Intent welcomeIntent = new Intent(MainHostActivity.this,WelcomeActivity.class);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(welcomeIntent);
+                        FirebaseAuth.getInstance().signOut();
+                    }
+                }
+            }
+        });
     }
 
     private void presentReview(String advertisementId) {
@@ -538,39 +512,6 @@ public class MainHostActivity extends AppCompatActivity implements
             startActivity(welcomeIntent);
             finish();
         }
-
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.addValueEventListener(listener);
-        }
-        listenerMap.clear();
-
-        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
-            DatabaseReference ref = childEntry.getKey();
-            ChildEventListener childListener = childEntry.getValue();
-            ref.addChildEventListener(childListener);
-        }
-        childListenerMap.clear();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
-            DatabaseReference ref = entry.getKey();
-            ValueEventListener listener = entry.getValue();
-            ref.removeEventListener(listener);
-        }
-        listenerMap.clear();
-
-        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
-            DatabaseReference ref = childEntry.getKey();
-            ChildEventListener childListener = childEntry.getValue();
-            ref.removeEventListener(childListener);
-        }
-        childListenerMap.clear();
     }
 
     @Override
@@ -621,32 +562,6 @@ public class MainHostActivity extends AppCompatActivity implements
         super.onResume();
         resumed = true;
         CheckVersion.checkVersion(this);
-        // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    if ((boolean) dataSnapshot.getValue()) {
-                        Intent welcomeIntent = new Intent(MainHostActivity.this,WelcomeActivity.class);
-                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(welcomeIntent);
-                        FirebaseAuth.getInstance().signOut();
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        listenerMap.put(maintenanceRef, maintenanceListener);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 
     @Override
