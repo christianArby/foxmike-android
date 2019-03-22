@@ -537,7 +537,25 @@
     <string name="edit">Ändra</string>
     <string name="add_more_sessions">Lägg ut fler pass</string>
     <string name="add_sessions">Lägg ut pass</string>
+    <string name="write_something_optional">Skriv något (valfritt)</string>
     <string name="will_be_refunded_to_your_account">kommer att betalas tillbaka till ditt konto.</string>
     <string name="share">Dela</string>
-    <string name="rating_and_reviews">Ömdömen</string>
+    <string name="rating_and_reviews">Omdömen</string>
+    <string name="based_on_nr_ratings_text_1">/5,0 baserat på\u0020</string>
+    <string name="based_on_nr_ratings_text_2">\u0020omdömen</string>
+    <string name="based_on_nr_ratings_text_2_single">\u0020omdöme</string>
+    <string name="new_session_no_reviews_yet">Nytt pass, inga omdömen än</string>
+    <string name="show_all_reviews">Visa alla ömdömen</string>
+    <string name="_5_stars">5 stars</string>
+    <string name="_4_stars">4 stars</string>
+    <string name="_3_stars">3 stars</string>
+    <string name="_2_stars">2 stars</string>
+    <string name="_1_star">1 star</string>
+    <string name="new_session_no_reviews_linebreak">Nytt pass,  inga omdömen än</string>
+    <string name="based_on">baserat på\u0020</string>
+    <string name="ratings">omdömen</string>
+    <string name="rating">omdöme</string>
+    <string name="you_have_been_on_the_session">Du har varit på passet</string>
+    <string name="leave_your_review_below">, lämna ditt omdöme nedan.</string>
+    <string name="Rate">Betygsätt</string>
 </resources>

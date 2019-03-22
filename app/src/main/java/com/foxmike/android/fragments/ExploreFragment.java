@@ -112,6 +112,7 @@ public class ExploreFragment extends Fragment{
     private int minMinute = 0;
     private int maxHour = 23;
     private int maxMinute = 45;
+    MapsFragment mapsFragment;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -121,6 +122,12 @@ public class ExploreFragment extends Fragment{
     public void onResume() {
         super.onResume();
         setupListAndMapWithSessions();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        removeListeners();
     }
 
     @Override
@@ -151,7 +158,11 @@ public class ExploreFragment extends Fragment{
         ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance();
         exploreFragmentAdapter.addFragments(listSessionsFragment);
 
-        MapsFragment mapsFragment = MapsFragment.newInstance();
+        mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
+        if (mapsFragment == null) {
+            mapsFragment = MapsFragment.newInstance();
+        }
+
         Bundle bundle = new Bundle();
         bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
         mapsFragment.setArguments(bundle);

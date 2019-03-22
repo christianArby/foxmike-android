@@ -104,9 +104,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private boolean showRecyclerViewLoaded;
     private boolean showRecyclerViewUsed;
 
+
     BitmapDescriptor defaultIcon;
     BitmapDescriptor selectedIcon;
     private long mLastClickTime = 0;
+
+    public static String TAG = "FOXMIKEMAP";
 
 
     private Marker tempMarker;

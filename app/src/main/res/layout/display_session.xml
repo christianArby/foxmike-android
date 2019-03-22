@@ -182,8 +182,7 @@
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textSize="15sp"
-            android:lineSpacingMultiplier="1.2"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:textColor="@color/primaryTextColor"
             android:autoLink="web"/>
 
@@ -235,8 +234,8 @@
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:lineSpacingMultiplier="1.2"
             android:textColor="@color/primaryTextColor"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:autoLink="web"/>
     </LinearLayout>
 
@@ -308,11 +307,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/upcomingSessionsList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintTop_toBottomOf="@id/spaceView01"
-            app:layout_constraintBottom_toTopOf="@id/write_post_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_height="match_parent"/>
     </FrameLayout>
 
     <LinearLayout
@@ -321,9 +316,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/firebaseRVContainer"
-        app:layout_constraintBottom_toTopOf="@id/spaceView05">
+        app:layout_constraintTop_toBottomOf="@id/firebaseRVContainer">
 
         <TextView
             android:id="@+id/showMoreTV"
@@ -334,35 +327,45 @@
             android:text="@string/show_more"
             />
 
-        <View
-            android:id="@+id/spaceView02"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/color_divider"/>
-
-
     </LinearLayout>
 
-    <!--<android.support.constraint.ConstraintLayout
+    <View
+        android:id="@+id/spaceView02"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_view__big_height"
+        android:background="@color/color_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showMoreText"/>
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/ratingsAndReviews"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/noUpcomingAdsText">
+        app:layout_constraintTop_toBottomOf="@id/spaceView02">
+
+        <TextView
+            android:id="@+id/ratingsAndReviewsHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rating_and_reviews"
+            style="@style/FoxmikeHeading"
+            android:layout_margin="@dimen/margin_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <android.support.v7.widget.AppCompatRatingBar
             android:id="@+id/ratingBar"
-            style="@style/Base.Widget.AppCompat.RatingBar.Indicator"
+            style="@style/Base.Widget.AppCompat.RatingBar.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_left"
+            android:layout_margin="@dimen/margin_left"
             android:numStars="5"
-            android:rating="4"
+            android:rating="4.6"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/ratingsAndReviewsText"
-            app:layout_constraintBottom_toBottomOf="@id/ratingsAndReviewsText"/>
+            app:layout_constraintTop_toBottomOf="@id/ratingsAndReviewsHeading" />
 
         <TextView
             android:id="@+id/ratingsAndReviewsText"
@@ -370,21 +373,25 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/margin_left"
-            android:text="29 omdömen"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:text="4.6/5.0 baserat på 60 omdömen"
             android:padding="@dimen/marginVertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ratingBar"
+            app:layout_constraintBottom_toBottomOf="@id/ratingBar"
             app:layout_constraintStart_toEndOf="@id/ratingBar"/>
 
-        <View
-            android:id="@+id/spaceView04"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/color_divider"
-            app:layout_constraintBottom_toBottomOf="@id/ratingsAndReviewsText"/>
+        <TextView
+            android:id="@+id/showAllReviews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/foxmikePrimaryColor"
+            app:layout_constraintTop_toBottomOf="@id/ratingsAndReviewsText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/marginVertical"
+            android:text="@string/show_all_reviews"/>
 
-    </android.support.constraint.ConstraintLayout>-->
+    </android.support.constraint.ConstraintLayout>
 
     <View
         android:id="@+id/spaceView05"
@@ -392,7 +399,7 @@
         android:layout_height="@dimen/space_view__big_height"
         android:background="@color/color_divider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/showMoreText"/>
+        app:layout_constraintTop_toBottomOf="@id/ratingsAndReviews"/>
 
     <LinearLayout
         android:id="@+id/write_post_layout"

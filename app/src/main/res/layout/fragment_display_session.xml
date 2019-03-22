@@ -102,6 +102,62 @@
                 android:ellipsize="end"
                 android:maxLines="1"/>
 
+            <TextView
+                android:id="@+id/newFlag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/small_rounded_textview"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                android:padding="4dp"
+                android:textAllCaps="true"
+                android:text="NEW"
+                android:textStyle="bold"
+                android:textColor="@color/primaryTextColor"
+                android:layout_marginTop="@dimen/marginVertical"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_gravity="end|top"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/reviewContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginEnd="@dimen/margin_right"
+                android:layout_gravity="end|top">
+
+                <android.support.v7.widget.AppCompatRatingBar
+                    android:id="@+id/ratingBar"
+                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:progressTint="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="1"
+                    android:rating="1"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/ratingsAndReviewsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/margin_minimum"
+                    android:textColor="@color/secondaryTextColor"
+                    android:text="60 omdömen"
+                    app:layout_constraintTop_toTopOf="@id/ratingBar"
+                    app:layout_constraintBottom_toBottomOf="@id/ratingBar"
+                    app:layout_constraintStart_toEndOf="@id/ratingBar"
+                    />
+
+            </android.support.constraint.ConstraintLayout>
+
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/infoBlock"
                 android:layout_gravity="bottom"

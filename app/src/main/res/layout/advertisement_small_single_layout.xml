@@ -49,7 +49,7 @@
 
     <TextView
         android:id="@+id/text1"
-        style="@style/FoxmikeHeadingSemiBold"
+        style="@style/FoxmikeSemiBold"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Medium Text"

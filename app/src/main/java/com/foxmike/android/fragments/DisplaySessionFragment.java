@@ -27,6 +27,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -48,6 +49,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
+import com.foxmike.android.activities.RatingsAndReviewsActivity;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -215,6 +217,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView editWho;
     private TextView editWhere;
     private TextView editAvailability;
+    private AppCompatRatingBar ratingBar;
+    private TextView ratingsAndReviewsText;
+    private TextView showAllReviews;
+    private TextView ratingText;
+    private ConstraintLayout ratingContainer;
+    private TextView newFlag;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -321,6 +329,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
+
     }
 
     private void getDefaultSourceMap () {
@@ -642,7 +651,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_display_session, container, false);
-
         setRetainInstance(true);
 
         LinearLayout displaySessionContainer;
@@ -694,6 +702,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mAddress = displaySession.findViewById(R.id.addressTV);
         postProgressBar = displaySession.findViewById(R.id.postProgressBar);
         sessionName = view.findViewById(R.id.sessionName);
+        ratingBar = displaySession.findViewById(R.id.ratingBar);
+        ratingsAndReviewsText = displaySession.findViewById(R.id.ratingsAndReviewsText);
+        showAllReviews = displaySession.findViewById(R.id.showAllReviews);
+
+        ratingText = view.findViewById(R.id.ratingsAndReviewsText);
+        ratingContainer = view.findViewById(R.id.reviewContainer);
+        newFlag = view.findViewById(R.id.newFlag);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -986,6 +1001,35 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mWhereTW.setText(session.getWhereAt());
             mSessionType.setText(session.getSessionType());
             mDuration.setText(session.getDurationInMin() + getString(R.string.minutes_append));
+            ratingBar.setRating(session.getRating());
+            String ratingTextFormatted = String.format("%.1f", session.getRating());
+            if (session.getNrOfRatings()==0) {
+                ratingsAndReviewsText.setText(R.string.new_session_no_reviews_yet);
+                ratingContainer.setVisibility(View.GONE);
+                newFlag.setVisibility(View.VISIBLE);
+            } else if (session.getNrOfRatings()==1) {
+                ratingContainer.setVisibility(View.VISIBLE);
+                newFlag.setVisibility(View.GONE);
+                String rating = String.format("%.1f", session.getRating());
+                ratingText.setText(rating + " (" + session.getNrOfReviews() + ")");
+                ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + session.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2_single));
+            } else {
+                String rating = String.format("%.1f", session.getRating());
+                ratingText.setText(rating + " (" + session.getNrOfReviews() + ")");
+                ratingContainer.setVisibility(View.VISIBLE);
+                newFlag.setVisibility(View.GONE);
+                ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + session.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2));
+            }
+            showAllReviews.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent ratingAndReviewsIntet = new Intent(getActivity(), RatingsAndReviewsActivity.class);
+                    ratingAndReviewsIntet.putExtra("sessionId", sessionID);
+                    ratingAndReviewsIntet.putExtra("sessionName", session.getSessionName());
+                    startActivity(ratingAndReviewsIntet);
+
+                }
+            });
         }
 
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---

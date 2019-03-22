@@ -21,9 +21,12 @@ public class User implements Comparable<User>{
     public boolean trainerMode;
     private String stripeAccountId;
     private boolean dontShowBookingText;
+    private float rating;
+    private int nrOfRatings;
+    private int nrOfReviews;
 
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -37,10 +40,37 @@ public class User implements Comparable<User>{
         this.trainerMode = trainerMode;
         this.stripeAccountId = stripeAccountId;
         this.dontShowBookingText = dontShowBookingText;
+        this.rating = rating;
+        this.nrOfRatings = nrOfRatings;
+        this.nrOfReviews = nrOfReviews;
     }
 
     public User() {
 
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public int getNrOfRatings() {
+        return nrOfRatings;
+    }
+
+    public void setNrOfRatings(int nrOfRatings) {
+        this.nrOfRatings = nrOfRatings;
+    }
+
+    public int getNrOfReviews() {
+        return nrOfReviews;
+    }
+
+    public void setNrOfReviews(int nrOfReviews) {
+        this.nrOfReviews = nrOfReviews;
     }
 
     public String getImage() {

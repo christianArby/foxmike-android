@@ -50,7 +50,6 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textSize="10sp"
                 android:textAllCaps="true"
                 android:textColor="@color/grayTextColor"
                 android:layout_marginStart="@dimen/margin_left"

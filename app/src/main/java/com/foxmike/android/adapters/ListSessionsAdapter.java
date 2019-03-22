@@ -153,6 +153,19 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 priceText = advertisement.getPrice() + " " + currencyString;
             }
             ((ListSessionsAdapter.SessionViewHolder) holder).setPrice(priceText);
+
+            ((ListSessionsAdapter.SessionViewHolder) holder).setRating(session.getRating());
+            if (session.getNrOfRatings()==0) {
+                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(false);
+            } else if ((session.getNrOfRatings()==1)) {
+                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
+                String rating = String.format("%.1f", session.getRating());
+                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfReviews() + ")");
+            } else {
+                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
+                String rating = String.format("%.1f", session.getRating());
+                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfReviews() + ")");
+            }
         }
     }
 
@@ -337,6 +350,27 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             constraintLayout.setLayoutParams(params);
         }
 
+        public void setRating(float rating) {
+            /*AppCompatRatingBar ratingBar = mView.findViewById(R.id.ratingBar);
+            ratingBar.setRating(rating);*/
+        }
+
+        public void setRatingAndReviewText(String ratingAndReviewText) {
+            TextView ratingAndReviewTV = mView.findViewById(R.id.ratingsAndReviewsText);
+            ratingAndReviewTV.setText(ratingAndReviewText);
+        }
+
+        public void displayRating(boolean displayRating) {
+            ConstraintLayout ratingContainer = mView.findViewById(R.id.reviewContainer);
+            TextView newFlag = mView.findViewById(R.id.newFlag);
+            if (displayRating) {
+                ratingContainer.setVisibility(View.VISIBLE);
+                newFlag.setVisibility(View.GONE);
+            } else {
+                ratingContainer.setVisibility(View.GONE);
+                newFlag.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     /**Method get address from latitude and longitude" */

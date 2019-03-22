@@ -24,6 +24,8 @@ public class FoxmikeApplication extends Application implements LifecycleObserver
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+
     }
     private static boolean activityVisible;
 

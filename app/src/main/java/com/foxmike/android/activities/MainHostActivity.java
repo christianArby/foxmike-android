@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +40,7 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -57,6 +60,7 @@ import com.foxmike.android.utils.CheckVersion;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -115,6 +119,9 @@ public class MainHostActivity extends AppCompatActivity implements
     private long mLastClickTime = 0;
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
+    private ChildEventListener reviewListener;
+    private String currentUserId;
+    private HashMap<DatabaseReference, ChildEventListener> childListenerMap = new HashMap<DatabaseReference, ChildEventListener>();
 
 
     @Override
@@ -133,6 +140,7 @@ public class MainHostActivity extends AppCompatActivity implements
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         mAuth = FirebaseAuth.getInstance();
+        currentUserId = mAuth.getCurrentUser().getUid();
         userDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
         rootDbRef = FirebaseDatabase.getInstance().getReference();
         fragmentManager = getSupportFragmentManager();
@@ -180,7 +188,7 @@ public class MainHostActivity extends AppCompatActivity implements
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
         if (!listenerMap.containsKey(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener chatsListener = rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener chatsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     unreadChats = 0;
@@ -202,12 +210,12 @@ public class MainHostActivity extends AppCompatActivity implements
                 public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("userChats").child(mAuth.getCurrentUser().getUid()), chatsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener notificationsListener = rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener notificationsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     unreadNotifications = 0;
@@ -227,12 +235,12 @@ public class MainHostActivity extends AppCompatActivity implements
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("unreadNotifications").child(mAuth.getCurrentUser().getUid()), notificationsListener);
         }
 
         if (!listenerMap.containsKey(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()))) {
-            ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            ValueEventListener friendRequestsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     unreadFriendRequests = 0;
@@ -252,7 +260,7 @@ public class MainHostActivity extends AppCompatActivity implements
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
+            };
             listenerMap.put(rootDbRef.child("friend_requests").child(mAuth.getCurrentUser().getUid()), friendRequestsListener);
         }
 
@@ -264,6 +272,80 @@ public class MainHostActivity extends AppCompatActivity implements
                 }
             }
         });
+
+        checkReviewsPending();
+    }
+
+    private void checkReviewsPending() {
+        reviewListener = rootDbRef.child("reviewsToWrite").child(currentUserId).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(dataSnapshot.getKey());
+                } else {
+                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        @Override
+                        public void onTick(long l) {
+
+                        }
+                        @Override
+                        public void onFinish() {
+                            presentReview(dataSnapshot.getKey());
+                        }
+                    }.start();
+                }
+            }
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                // TODO BARA FÖR TEST
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)dataSnapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(dataSnapshot.getKey());
+                } else {
+                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        @Override
+                        public void onTick(long l) {
+
+                        }
+                        @Override
+                        public void onFinish() {
+                            presentReview(dataSnapshot.getKey());
+                        }
+                    }.start();
+                }
+            }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+        childListenerMap.put(rootDbRef.child("reviewsToWrite").child(currentUserId), reviewListener);
+    }
+
+    private void presentReview(String advertisementId) {
+
+        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
+
+        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
@@ -456,12 +538,25 @@ public class MainHostActivity extends AppCompatActivity implements
             startActivity(welcomeIntent);
             finish();
         }
+
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
+            DatabaseReference ref = entry.getKey();
+            ValueEventListener listener = entry.getValue();
+            ref.addValueEventListener(listener);
+        }
+        listenerMap.clear();
+
+        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
+            DatabaseReference ref = childEntry.getKey();
+            ChildEventListener childListener = childEntry.getValue();
+            ref.addChildEventListener(childListener);
+        }
+        childListenerMap.clear();
     }
 
-    // When activity is destroyed, remove all listeners
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : listenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
@@ -469,6 +564,13 @@ public class MainHostActivity extends AppCompatActivity implements
             ref.removeEventListener(listener);
         }
         listenerMap.clear();
+
+        for (Map.Entry<DatabaseReference, ChildEventListener> childEntry : childListenerMap.entrySet()) {
+            DatabaseReference ref = childEntry.getKey();
+            ChildEventListener childListener = childEntry.getValue();
+            ref.removeEventListener(childListener);
+        }
+        childListenerMap.clear();
     }
 
     @Override
@@ -521,7 +623,7 @@ public class MainHostActivity extends AppCompatActivity implements
         CheckVersion.checkVersion(this);
         // check if maintenance
         maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        maintenanceListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
@@ -537,7 +639,8 @@ public class MainHostActivity extends AppCompatActivity implements
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
-        });
+        };
+        listenerMap.put(maintenanceRef, maintenanceListener);
     }
 
     @Override

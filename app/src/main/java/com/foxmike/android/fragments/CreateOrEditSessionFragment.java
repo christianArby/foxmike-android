@@ -531,12 +531,14 @@ public class CreateOrEditSessionFragment extends Fragment{
                 Bundle bundle = new Bundle();
                 bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
                 bundle.putString("requestType", "updateSession");
-                mapsFragment = MapsFragment.newInstance();
-                mapsFragment.setArguments(bundle);
+
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                if (null == fragmentManager.findFragmentByTag("sessionMapsFragment")) {
-                    transaction.add(R.id.container_maps_fragment, mapsFragment,"sessionMapsFragment").addToBackStack(null);
+                mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
+                if (mapsFragment == null) {
+                    mapsFragment = MapsFragment.newInstance();
+                    mapsFragment.setArguments(bundle);
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.add(R.id.container_maps_fragment, mapsFragment, MapsFragment.TAG).addToBackStack(null);
                     transaction.commit();
                 }
             }
