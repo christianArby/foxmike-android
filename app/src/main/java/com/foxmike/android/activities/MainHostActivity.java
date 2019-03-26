@@ -93,14 +93,6 @@ public class MainHostActivity extends AppCompatActivity implements
         NotificationsFragment.OnNotificationClickedListener {
 
     private FragmentManager fragmentManager;
-    private UserAccountHostFragment hostUserAccountFragment;
-    private DisplaySessionFragment hostDisplaySessionFragment;
-    private InboxFragment hostInboxFragment;
-    private HostSessionsFragment hostSessionsFragment;
-    private UserProfileFragment hostUserProfileFragment;
-    private UserProfilePublicFragment hostUserProfilePublicFragment;
-    private UserProfilePublicEditFragment hostUserProfilePublicEditFragment;
-    private CreateOrEditSessionFragment createOrEditSessionFragment;
     private AHBottomNavigation bottomNavigation;
     private DatabaseReference userDbRef;
     private FirebaseAuth mAuth;
@@ -157,13 +149,13 @@ public class MainHostActivity extends AppCompatActivity implements
 
         // Add fragments to container and hide them
 
-        hostInboxFragment = InboxFragment.newInstance();
+        InboxFragment hostInboxFragment = InboxFragment.newInstance();
         bottomNavigationAdapter.addFragments(hostInboxFragment);
 
-        hostSessionsFragment = HostSessionsFragment.newInstance();
+        HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance();
         bottomNavigationAdapter.addFragments(hostSessionsFragment);
 
-        hostUserAccountFragment = UserAccountHostFragment.newInstance();
+        UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
         bottomNavigationAdapter.addFragments(hostUserAccountFragment);
 
         mainPager.setAdapter(bottomNavigationAdapter);
@@ -354,7 +346,7 @@ public class MainHostActivity extends AppCompatActivity implements
     public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
 
         if (request.equals("displaySession")) {
-            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
 
@@ -362,7 +354,7 @@ public class MainHostActivity extends AppCompatActivity implements
             Bundle bundle = new Bundle();
             bundle.putBoolean("template", true);
             bundle.putSerializable("session", sessionBranch.getSession());
-            createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+            CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
             createOrEditSessionFragment.setArguments(bundle);
             cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "");
         }
@@ -372,7 +364,7 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
-            hostUserProfileFragment = UserProfileFragment.newInstance();
+            UserProfileFragment hostUserProfileFragment = UserProfileFragment.newInstance();
             cleanMainFullscreenActivityAndSwitch(hostUserProfileFragment,true,"");
         }
     }
@@ -380,7 +372,7 @@ public class MainHostActivity extends AppCompatActivity implements
     /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
-        hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
+        UserProfilePublicEditFragment hostUserProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
         cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicEditFragment,true,"");
     }
     /* Listener, when finished editing restart this activity */
@@ -393,7 +385,7 @@ public class MainHostActivity extends AppCompatActivity implements
     public void OnUserClicked(String otherUserID) {
         Bundle bundle = new Bundle();
         bundle.putString("otherUserID", otherUserID);
-        hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        UserProfilePublicFragment hostUserProfilePublicFragment = UserProfilePublicFragment.newInstance();
         hostUserProfilePublicFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(hostUserProfilePublicFragment, true,"");
     }
@@ -405,7 +397,7 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnCreateSessionClicked() {
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
 
@@ -414,7 +406,7 @@ public class MainHostActivity extends AppCompatActivity implements
     public void OnEditSession(String sessionID) {
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
@@ -424,7 +416,7 @@ public class MainHostActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
         bundle.putString("type", type);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
 
@@ -435,7 +427,7 @@ public class MainHostActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
         bundle.putSerializable("session", session);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
@@ -446,7 +438,7 @@ public class MainHostActivity extends AppCompatActivity implements
         bundle.putString("sessionID", sessionID);
         bundle.putString("type", type);
         bundle.putSerializable("session", session);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
@@ -456,7 +448,7 @@ public class MainHostActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString("sessionID", sessionID);
         bundle.putBoolean("addAdvertisements", true);
-        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
         createOrEditSessionFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
@@ -480,11 +472,9 @@ public class MainHostActivity extends AppCompatActivity implements
             // /super.onBackPressed();
             //additional code
         } else {
-            // TODO Add Newsfeed fragment here later when exist
-            getSupportFragmentManager().popBackStack();
-            if (!hostUserAccountFragment.isVisible()&&!hostSessionsFragment.isVisible()&&!hostInboxFragment.isVisible()){
 
-            }
+            getSupportFragmentManager().popBackStack();
+
         }
     }
 
@@ -586,19 +576,19 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
