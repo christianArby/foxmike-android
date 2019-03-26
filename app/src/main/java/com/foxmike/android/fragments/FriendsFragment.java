@@ -1,9 +1,13 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +24,7 @@ import com.foxmike.android.models.UserBranch;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.HeaderViewHolder;
 import com.foxmike.android.utils.UsersViewHolder;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -100,10 +105,11 @@ public class FriendsFragment extends Fragment {
         requestsList.setHasFixedSize(true);
         requestsList.setLayoutManager(new LinearLayoutManager(getContext()));
         // Listen to changes at the current users request database reference
-        ValueEventListener friendRequestsListener = rootDbRef.child("friend_requests").child(currentUserID).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("friend_requests").child(currentUserID));
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 requestsHeading.setVisibility(View.GONE);
                 friendsHeading.setVisibility(View.GONE);
 
@@ -155,13 +161,10 @@ public class FriendsFragment extends Fragment {
                         }
                     });
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
-        // save the listener to a map in order to later remove the listener
-        listenerMap.put(rootDbRef.child("friend_requests").child(currentUserID), friendRequestsListener);
+
         // Setup the request list with a recycler adapter
         requestsViewHolderAdapter = new RecyclerView.Adapter<UsersViewHolder>() {
             @Override
@@ -200,9 +203,11 @@ public class FriendsFragment extends Fragment {
         friendsList.setHasFixedSize(true);
         friendsList.setLayoutManager(new LinearLayoutManager(getContext()));
         // Listen to changes at the current users friends database reference
-        ValueEventListener friendsListener = myFriendsDbRef.addValueEventListener(new ValueEventListener() {
+        FirebaseDatabaseViewModel friendFirebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> friendFirebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(myFriendsDbRef);
+        friendFirebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 friendUserIDs.clear();
                 userBranches.clear();
                 // save all the users IDs in an array
@@ -282,13 +287,9 @@ public class FriendsFragment extends Fragment {
                         }
                     });
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-        listenerMap.put(myFriendsDbRef,friendsListener);
         // Setup the friends list with a recycler adapter alternating between two layouts, one for heading and one for a user object
         friendsViewHolderAdapter = new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             @Override

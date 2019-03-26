@@ -1,5 +1,8 @@
 package com.foxmike.android.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -7,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.CheckVersion;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -146,10 +151,11 @@ public class AboutActivity extends AppCompatActivity {
         CheckVersion.checkVersion(this);
 
         // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     if ((boolean) dataSnapshot.getValue()) {
                         Intent welcomeIntent = new Intent(AboutActivity.this,WelcomeActivity.class);
@@ -160,16 +166,7 @@ public class AboutActivity extends AppCompatActivity {
                     }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 
     private Task<HashMap<String, Object>> eraseAccount(String userId) {

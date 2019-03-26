@@ -53,6 +53,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.activities.MainPlayerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.RatingsAndReviewsActivity;
+import com.foxmike.android.activities.WritePostActivity;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -963,14 +964,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                    Fragment prev = getFragmentManager().findFragmentByTag(WritePostFragment.TAG);
-                    if (prev != null) {
-                        ft.remove(prev);
-                    }
-                    ft.addToBackStack(null);
-                    WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, mSession.getSessionName());
-                    writePostFragment.show(ft, WritePostFragment.TAG);
+
+                    Intent writePostIntent = new Intent(getActivity().getApplicationContext(), WritePostActivity.class);
+                    writePostIntent.putExtra("dbParent", "sessions");
+                    writePostIntent.putExtra("sourceID", sessionID);
+                    writePostIntent.putExtra("title", mSession.getSessionName());
+                    startActivity(writePostIntent);
                 }
             });
 

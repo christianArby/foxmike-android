@@ -2,10 +2,14 @@ package com.foxmike.android.fragments;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -30,6 +34,7 @@ import com.foxmike.android.adapters.MessageFirebaseAdapter;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
 import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -261,14 +266,19 @@ public class ChatFragment extends Fragment {
         });
 
         currentUserChatsRef = rootDbRef.child("userChats").child(currentUserID);
-        currentUserChatsListener = currentUserChatsRef.addValueEventListener(new ValueEventListener() {
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(currentUserChatsRef);
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 DataSnapshot currentUserChatsCnapshot = dataSnapshot;
                 chatUserChatsRef = rootDbRef.child("userChats").child(chatUserID);
-                chatUserChatsListener = chatUserChatsRef.addValueEventListener(new ValueEventListener() {
+                FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ChatFragment.this).get(FirebaseDatabaseViewModel.class);
+                LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(chatUserChatsRef);
+                firebaseDatabaseLiveData.observe(ChatFragment.this, new Observer<DataSnapshot>() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                         // If chatID is null it means that the activity was started by clicking on friend (and not on a chat), check if chat with friend exists
                         if (chatIDfromChatList==null) {
                             for (DataSnapshot friendSnapshot: dataSnapshot.getChildren()) {
@@ -281,14 +291,10 @@ public class ChatFragment extends Fragment {
                                 chatID = rootDbRef.child("chats").push().getKey();
                             }
                         }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
         /*// Listen to Online change of friend and change status in toolbar

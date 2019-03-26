@@ -1,11 +1,15 @@
 package com.foxmike.android.activities;
 //Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,6 +26,7 @@ import com.foxmike.android.utils.AddUserToDatabase;
 import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -276,10 +281,11 @@ public class SetupAccountActivity extends AppCompatActivity {
         super.onResume();
         CheckVersion.checkVersion(this);
         // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     if ((boolean) dataSnapshot.getValue()) {
                         Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
@@ -288,15 +294,6 @@ public class SetupAccountActivity extends AppCompatActivity {
                     }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

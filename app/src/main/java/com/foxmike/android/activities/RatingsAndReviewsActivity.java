@@ -1,8 +1,12 @@
 package com.foxmike.android.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +28,7 @@ import com.foxmike.android.adapters.ListReviewsAdapter;
 import com.foxmike.android.models.Review;
 import com.foxmike.android.models.SessionStars;
 import com.foxmike.android.utils.CustomConstraintLayout;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
@@ -98,9 +103,11 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
 
         actionBar.setTitle(sessionName);
 
-        sessionStarsListener = rootDbRef.child("sessionStars").child(sessionId).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionStars").child(sessionId));
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
                     return;
                 }
@@ -141,12 +148,6 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
                 } else {
                     ratingNrTextView.setText(getString(R.string.based_on) + total + "\n" + getString(R.string.ratings));
                 }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
 
@@ -257,11 +258,5 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        rootDbRef.child("sessionStars").child(sessionId).removeEventListener(sessionStarsListener);
     }
 }

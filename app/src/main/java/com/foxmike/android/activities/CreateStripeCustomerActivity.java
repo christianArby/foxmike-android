@@ -1,12 +1,16 @@
 package com.foxmike.android.activities;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,14 +25,13 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -219,10 +222,11 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     if ((boolean) dataSnapshot.getValue()) {
                         Intent welcomeIntent = new Intent(CreateStripeCustomerActivity.this,WelcomeActivity.class);
@@ -233,15 +237,6 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                     }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }
