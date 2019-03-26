@@ -84,7 +84,6 @@ public class ExploreFragment extends Fragment{
     private FloatingActionButton mapOrListBtn;
     private FloatingActionButton sortAndFilterFAB;
     private FloatingActionButton myLocationBtn;
-    private SortAndFilterFragment sortAndFilterFragment;
     private View mainView;
     private float mapOrListBtnStartX;
     private float mapOrListBtnStartY;
@@ -260,12 +259,13 @@ public class ExploreFragment extends Fragment{
         sortAndFilterFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SortAndFilterFragment sortAndFilterFragment = (SortAndFilterFragment) fragmentManager.findFragmentByTag(SortAndFilterFragment.TAG);
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
                 sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute);
-                sortAndFilterFragment.show(transaction,"sortAndFilterFragment");
+                sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
 

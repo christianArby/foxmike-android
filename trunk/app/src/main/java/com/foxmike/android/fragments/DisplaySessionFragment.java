@@ -964,13 +964,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                    Fragment prev = getFragmentManager().findFragmentByTag("writePostFragment");
+                    Fragment prev = getFragmentManager().findFragmentByTag(WritePostFragment.TAG);
                     if (prev != null) {
                         ft.remove(prev);
                     }
                     ft.addToBackStack(null);
                     WritePostFragment writePostFragment = WritePostFragment.newInstance("sessions", sessionID, mSession.getSessionName());
-                    writePostFragment.show(ft, "writePostFragment");
+                    writePostFragment.show(ft, WritePostFragment.TAG);
                 }
             });
 
@@ -1518,8 +1518,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        mMap.clear();
-        mMap=null;
         selectedIcon=null;
         sessionAndViewUsed = false;
         currentUserAndViewUsed = false;

@@ -187,6 +187,7 @@ public class WritePostFragment extends DialogFragment {
                             rootDbRef.child("userPosts").child(mAuth.getCurrentUser().getUid()).child(sourceID).child(postID).setValue(currentTimestamp).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
+                                    postTextET.setCursorVisible(false);
                                     dismiss();
                                 }
                             });

@@ -120,13 +120,6 @@ public class MainPlayerActivity extends AppCompatActivity
         SortAndFilterFragment.OnFilterChangedListener{
 
     private FragmentManager fragmentManager;
-    private UserAccountFragment userAccountFragment;
-    private UserProfileFragment userProfileFragment;
-    private PlayerSessionsFragment playerSessionsFragment;
-    private DisplaySessionFragment displaySessionFragment;
-    private InboxFragment inboxFragment;
-    private UserProfilePublicFragment userProfilePublicFragment;
-    private UserProfilePublicEditFragment userProfilePublicEditFragment;
     private AHBottomNavigation bottomNavigation;
     private String fromUserID;
     private FirebaseAuth mAuth;
@@ -203,13 +196,13 @@ public class MainPlayerActivity extends AppCompatActivity
         ExploreFragment exploreFragment = new ExploreFragment();
         bottomNavigationAdapter.addFragments(exploreFragment);
 
-        playerSessionsFragment = PlayerSessionsFragment.newInstance();
+        PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance();
         bottomNavigationAdapter.addFragments(playerSessionsFragment);
 
-        inboxFragment = InboxFragment.newInstance();
+        InboxFragment inboxFragment = InboxFragment.newInstance();
         bottomNavigationAdapter.addFragments(inboxFragment);
 
-        userAccountFragment = new UserAccountFragment();
+        UserAccountFragment userAccountFragment = new UserAccountFragment();
         bottomNavigationAdapter.addFragments(userAccountFragment);
 
         mainPager.setAdapter(bottomNavigationAdapter);
@@ -219,7 +212,7 @@ public class MainPlayerActivity extends AppCompatActivity
         if (fromUserID!=null) {
             Bundle fromUserbundle = new Bundle();
             fromUserbundle.putString("otherUserID", fromUserID);
-            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            UserProfilePublicFragment userProfilePublicFragment = UserProfilePublicFragment.newInstance();
             userProfilePublicFragment.setArguments(fromUserbundle);
             cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
         } else {
@@ -473,7 +466,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);
     }
 
@@ -483,7 +476,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
@@ -491,7 +484,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
-            userProfileFragment = (UserProfileFragment) fragmentManager.findFragmentByTag(UserProfileFragment.TAG);
+            UserProfileFragment userProfileFragment = (UserProfileFragment) fragmentManager.findFragmentByTag(UserProfileFragment.TAG);
             if (userProfileFragment==null) {
                 userProfileFragment = UserProfileFragment.newInstance();
             }
@@ -501,7 +494,7 @@ public class MainPlayerActivity extends AppCompatActivity
     /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
-        userProfilePublicEditFragment = (UserProfilePublicEditFragment) fragmentManager.findFragmentByTag(UserProfilePublicEditFragment.TAG);
+        UserProfilePublicEditFragment userProfilePublicEditFragment = (UserProfilePublicEditFragment) fragmentManager.findFragmentByTag(UserProfilePublicEditFragment.TAG);
         if (userProfilePublicEditFragment==null) {
             userProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
         }
@@ -518,7 +511,7 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnUserClicked(String otherUserID) {
         Bundle bundle = new Bundle();
         bundle.putString("otherUserID", otherUserID);
-        userProfilePublicFragment = (UserProfilePublicFragment) fragmentManager.findFragmentByTag(UserProfilePublicFragment.TAG);
+        UserProfilePublicFragment userProfilePublicFragment = (UserProfilePublicFragment) fragmentManager.findFragmentByTag(UserProfilePublicFragment.TAG);
         if (userProfilePublicFragment==null) {
             userProfilePublicFragment = UserProfilePublicFragment.newInstance();
         }
@@ -763,6 +756,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //displaySessionFragment = null;
         reviewPending.cancel();
     }
 
@@ -837,19 +831,19 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {

@@ -296,4 +296,10 @@ public class SortAndFilterFragment extends DialogFragment {
         void OnMaxPriceChanged(int maxPrice);
         void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        radioGroup.setOnCheckedChangeListener(null);
+    }
 }
