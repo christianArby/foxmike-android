@@ -2,6 +2,9 @@ package com.foxmike.android.fragments;
 // Checked
 
 import android.app.ActivityOptions;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,9 +31,10 @@ import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.viewmodels.CurrentUserViewModel;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -93,30 +97,31 @@ public class UserAccountHostFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
-        connectedRef.addValueEventListener(new ValueEventListener() {
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(connectedRef);
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                connected = snapshot.getValue(Boolean.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot!=null) {
+                    connected = dataSnapshot.getValue(Boolean.class);
+                }
             }
         });
 
         rootDbRef = FirebaseDatabase.getInstance().getReference();
 
-        currentUserListener = rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        // GET CURRENT USER FROM DATABASE
+        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
+        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
+        userLiveData.observe(this, new Observer<User>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
+            public void onChanged(@Nullable User user) {
+                currentUser = user;
                 userLoaded = true;
                 userAndViewUsed = false;
                 onAsyncTaskFinished();
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -273,14 +278,6 @@ public class UserAccountHostFragment extends Fragment {
         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(welcomeIntent);
         mAuth.signOut();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (currentUserListener!=null) {
-            rootDbRef.child("users").child(currentUserID).removeEventListener(currentUserListener);
-        }
     }
 
     @Override

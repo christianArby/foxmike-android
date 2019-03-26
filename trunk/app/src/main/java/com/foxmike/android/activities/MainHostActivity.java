@@ -107,6 +107,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadFriendRequests = 0;
     private long mLastClickTime = 0;
     private String currentUserId;
+    private CountDownTimer reviewPending;
 
 
     @Override
@@ -189,9 +190,9 @@ public class MainHostActivity extends AppCompatActivity implements
                         }
                     }
                     if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
                     } else {
-                        bottomNavigation.setNotification("",2);
+                        bottomNavigation.setNotification("",0);
                     }
                 }
             }
@@ -265,7 +266,7 @@ public class MainHostActivity extends AppCompatActivity implements
                     if (reviewTimestamp<currentTimestamp) {
                         presentReview(dataSnapshot.getKey());
                     } else {
-                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
                             @Override
                             public void onTick(long l) {
 
@@ -475,6 +476,14 @@ public class MainHostActivity extends AppCompatActivity implements
 
             getSupportFragmentManager().popBackStack();
 
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (reviewPending!=null) {
+            reviewPending.cancel();
         }
     }
 

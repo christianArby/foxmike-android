@@ -75,6 +75,10 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
             if (!this.chatsVisible.containsValue(true)) {
                 onNoContentListener.OnNoContentVisible(true);
             }
+            if (model.getChatId()!=null) {
+                FirebaseDatabase.getInstance().getReference().child("userChats").child(currentUserId).child(model.getChatId()).setValue(true);
+            }
+
             holder.mView.setVisibility(View.GONE);
             holder.mView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         } else {

@@ -748,6 +748,10 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
+        if (reviewPending!=null) {
+            reviewPending.cancel();
+        }
+
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.removeListeners();
     }
@@ -756,8 +760,9 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //displaySessionFragment = null;
-        reviewPending.cancel();
+        if (reviewPending!=null) {
+            reviewPending.cancel();
+        }
     }
 
     @Override

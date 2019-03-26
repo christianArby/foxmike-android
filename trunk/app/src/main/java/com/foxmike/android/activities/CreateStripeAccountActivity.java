@@ -1,10 +1,13 @@
 package com.foxmike.android.activities;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
@@ -25,6 +28,7 @@ import com.foxmike.android.fragments.AboutUserFragment;
 import com.foxmike.android.fragments.CreateStripeAccountDobTosFragment;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.models.User;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -416,10 +420,12 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        // check if maintenance
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     if ((boolean) dataSnapshot.getValue()) {
                         Intent welcomeIntent = new Intent(CreateStripeAccountActivity.this,WelcomeActivity.class);
@@ -430,15 +436,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
                     }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

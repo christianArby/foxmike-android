@@ -1,10 +1,14 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +24,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
+import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
+import com.foxmike.android.viewmodels.CurrentUserViewModel;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -122,9 +129,21 @@ public class UserProfilePublicFragment extends Fragment {
         declineBtn.setEnabled(false);
 
         // get data of the otherUserID clicked in previous activity
-        currentUserListener = usersDbRef.child(otherUserID).addValueEventListener(new ValueEventListener() {
+        // GET CURRENT USER FROM DATABASE
+        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
+        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
+        userLiveData.observe(this, new Observer<User>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable User user) {
+
+            }
+        });
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(usersDbRef.child(otherUserID));
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 // Fill the user profile page with the info from otherUser
                 otherUser = dataSnapshot.getValue(UserPublic.class);
                 fullNameTV.setText(otherUser.getFirstName() + " " + otherUser.getLastName());
@@ -185,10 +204,6 @@ public class UserProfilePublicFragment extends Fragment {
 
                     }
                 });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
@@ -417,8 +432,5 @@ public class UserProfilePublicFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        if (currentUserListener!=null) {
-            usersDbRef.child(otherUserID).removeEventListener(currentUserListener);;
-        }
     }
 }

@@ -1,9 +1,12 @@
 package com.foxmike.android.fragments;
 
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,13 +21,12 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListChatsFirebaseAdapter;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.models.Chats;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -38,7 +40,6 @@ public class ChatsFragment extends Fragment {
     private ListChatsFirebaseAdapter listChatsFirebaseAdapter;
     private boolean listChatsFirebaseAdapterCreated;
     private DatabaseReference friendsRef;
-    private ValueEventListener friendsListener;
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -65,9 +66,12 @@ public class ChatsFragment extends Fragment {
         Query chatsQuery = rootDbRef.child("userChats").child(currentUserId).orderByKey();
 
         friendsRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserId);
-        friendsListener = friendsRef.addValueEventListener(new ValueEventListener() {
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(friendsRef);
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 HashMap<String, Boolean> friendsMap = new HashMap<>();
                 if (dataSnapshot.getValue()!=null) {
                     for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
@@ -96,17 +100,9 @@ public class ChatsFragment extends Fragment {
                 } else {
                     listChatsFirebaseAdapter.friendsUpdated(friendsMap);
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-
-
-
-
     }
 
     @Override
@@ -162,6 +158,5 @@ public class ChatsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         listChatsFirebaseAdapterCreated = false;
-        friendsRef.removeEventListener(friendsListener);
     }
 }

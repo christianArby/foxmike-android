@@ -1,0 +1,48 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clickable="true"
+    android:focusable="true"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_background_light"
+    tools:context="com.foxmike.android.fragments.WritePostFragment">
+
+    <include layout="@layout/app_bar_layout"
+        android:id="@+id/post_app_bar"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/post_profile_image"
+        android:layout_below="@+id/post_app_bar"
+        android:layout_width="@dimen/profileImage_inText_width"
+        android:layout_height="@dimen/profileImage_inText_height"
+        android:layout_margin="@dimen/margin_left"
+        android:src="@mipmap/profile_picture"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/post_app_bar"/>
+
+    <TextView
+        android:id="@+id/post_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_marginStart="@dimen/marginHorizontal"
+        app:layout_constraintStart_toEndOf="@id/post_profile_image"
+        app:layout_constraintTop_toTopOf="@id/post_profile_image"
+        app:layout_constraintBottom_toBottomOf="@id/post_profile_image"/>
+
+    <EditText
+        android:id="@+id/postText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/post_profile_image"
+        android:padding="@dimen/margin_left"
+        android:hint="@string/Write_something_hint_text"
+        android:inputType="textCapSentences|textMultiLine"
+        android:background="@null"
+        android:singleLine="false"
+        app:layout_constraintTop_toBottomOf="@id/post_profile_image"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

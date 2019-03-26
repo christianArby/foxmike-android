@@ -1,11 +1,15 @@
 package com.foxmike.android.activities;
 //Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -26,6 +30,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -194,10 +199,11 @@ public class LoginActivity extends AppCompatActivity {
         CheckVersion.checkVersion(this);
 
         // check if maintenance
-        maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
-        maintenanceListener = maintenanceRef.addValueEventListener(new ValueEventListener() {
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
+        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     if ((boolean) dataSnapshot.getValue()) {
                         Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
@@ -206,15 +212,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        maintenanceRef.removeEventListener(maintenanceListener);
     }
 }

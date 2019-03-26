@@ -1,9 +1,13 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -19,10 +23,9 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
+import com.foxmike.android.viewmodels.CurrentUserViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -87,18 +90,17 @@ public class UserProfileFragment extends Fragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        // GET CURRENT USER FROM DATABASE
+        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
+        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
+        userLiveData.observe(this, new Observer<User>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User userDb = dataSnapshot.getValue(User.class);
-                fullNameTV.setText(userDb.getFullName());
-                userAboutMeTV.setText(userDb.getAboutMe());
-                userNameTV.setText(userDb.getUserName());
+            public void onChanged(@Nullable User user) {
+                fullNameTV.setText(user.getFullName());
+                userAboutMeTV.setText(user.getAboutMe());
+                userNameTV.setText(user.getUserName());
 
-                setCircleImage(userDb.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                setCircleImage(user.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
 
             }
         });
@@ -156,8 +158,5 @@ public class UserProfileFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        if (currentUserListener!=null) {
-            usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
-        }
     }
 }

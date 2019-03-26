@@ -1,11 +1,15 @@
 package com.foxmike.android.fragments;
 // Checked
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +34,7 @@ import com.foxmike.android.models.UserImageUrlMap;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
+import com.foxmike.android.viewmodels.CurrentUserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -113,21 +118,17 @@ public class UserProfilePublicEditFragment extends Fragment {
 
 
         // setup the imagebutton with the users profile image
-
-        currentUserListener = usersDbRef.child(currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        // GET CURRENT USER FROM DATABASE
+        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
+        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
+        userLiveData.observe(this, new Observer<User>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(User.class);
+            public void onChanged(@Nullable User user) {
                 userFirstNameET.setText(user.getFirstName());
                 userLastNameET.setText(user.getLastName());
                 userAboutMeET.setText(user.getAboutMe());
                 userNameET.setText(user.getUserName());
                 setImageButton(user.getImage(), profileImageButton);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
             }
         });
 

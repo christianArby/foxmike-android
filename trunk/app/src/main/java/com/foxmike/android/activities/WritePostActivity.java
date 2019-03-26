@@ -1,22 +1,17 @@
-package com.foxmike.android.fragments;
-// Checked
+package com.foxmike.android.activities;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -36,21 +31,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-/**
- * This dialog fragment lets the user write a post to the session
- */
-public class WritePostFragment extends DialogFragment {
+public class WritePostActivity extends AppCompatActivity {
 
-    public static final String TAG = WritePostFragment.class.getSimpleName();
-
-    DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    EditText postTextET;
-    ImageView postProfileImage;
-    TextView sendTW;
-    TextView postName;
-    TextView postTitle;
-    Boolean sendable = false;
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private EditText postTextET;
+    private ImageView postProfileImage;
+    private TextView sendTW;
+    private TextView postName;
+    private TextView postTitle;
+    private Boolean sendable = false;
     private static final String SOURCE_ID = "sourceID";
     private static final String DB_PARENT = "dbParent";
     private static final String TITLE = "title";
@@ -62,71 +52,38 @@ public class WritePostFragment extends DialogFragment {
     private UserPublic currentUserPublic;
     private long mLastClickTime = 0;
 
-    public WritePostFragment() {
-        // Required empty public constructor
-    }
-
-    public static WritePostFragment newInstance(String dbParent, String sourceID, String title) {
-        WritePostFragment fragment = new WritePostFragment();
-        Bundle args = new Bundle();
-        args.putString(SOURCE_ID, sourceID);
-        args.putString(DB_PARENT, dbParent);
-        args.putString(TITLE, title);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.fullscreenDialog);
-    }
+        setContentView(R.layout.activity_write_post);
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Dialog d = getDialog();
-        if (d!=null){
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = ViewGroup.LayoutParams.MATCH_PARENT;
-            d.getWindow().setLayout(width, height);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_write_post, container, false);
-        postToolbar = (Toolbar)  view.findViewById(R.id.post_app_bar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(postToolbar);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        postToolbar = (Toolbar)  findViewById(R.id.post_app_bar);
+        setSupportActionBar(postToolbar);
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        sourceID = getArguments().getString(SOURCE_ID);
-        dbParent = getArguments().getString(DB_PARENT);
-        title = getArguments().getString(TITLE);
-        View action_bar_view = inflater.inflate(R.layout.write_post_custom_bar, null);
+        sourceID = getIntent().getStringExtra(SOURCE_ID);
+        dbParent = getIntent().getStringExtra(DB_PARENT);
+        title = getIntent().getStringExtra(TITLE);
+
+        View action_bar_view = getLayoutInflater().inflate(R.layout.write_post_custom_bar, null);
 
         // make sure the whole action bar is filled with the custom view
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
         actionBar.setCustomView(action_bar_view, layoutParams);
 
-        sendTW = view.findViewById(R.id.post_custom_bar_send);
-        postTextET = view.findViewById(R.id.postText);
-        postTextET.setCursorVisible(false);
-        postProfileImage = view.findViewById(R.id.post_profile_image);
-        postName = view.findViewById(R.id.post_user_name);
+        sendTW = findViewById(R.id.post_custom_bar_send);
+        postTextET = findViewById(R.id.postText);
+        postProfileImage = findViewById(R.id.post_profile_image);
+        postName = findViewById(R.id.post_user_name);
         sendTW.setTextColor(Color.GRAY);
-        postTitle = view.findViewById(R.id.post_custom_bar_name);
+        postTitle = findViewById(R.id.post_custom_bar_name);
         postTitle.setText(title);
 
-        showKeyboard(getActivity());
+        showKeyboard(this);
 
         rootDbRef.child("usersPublic").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -136,7 +93,7 @@ public class WritePostFragment extends DialogFragment {
                 }
                 currentUserPublic = dataSnapshot.getValue(UserPublic.class);
                 postName.setText(currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName());
-                Glide.with(getActivity()).load(currentUserPublic.getThumb_image()).into(postProfileImage);
+                Glide.with(WritePostActivity.this).load(currentUserPublic.getThumb_image()).into(postProfileImage);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -188,8 +145,8 @@ public class WritePostFragment extends DialogFragment {
                             rootDbRef.child("userPosts").child(mAuth.getCurrentUser().getUid()).child(sourceID).child(postID).setValue(currentTimestamp).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    postTextET.setCursorVisible(false);
-                                    dismiss();
+                                    hideKeyboard(WritePostActivity.this);
+                                    finish();
                                 }
                             });
                         }
@@ -197,15 +154,8 @@ public class WritePostFragment extends DialogFragment {
                 }
             }
         });
-        return view;
-    }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        postTextET.setCursorVisible(false);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        hideKeyboard(getActivity());
+
     }
 
     public static void hideKeyboard(Context context) {

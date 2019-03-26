@@ -3,6 +3,9 @@ package com.foxmike.android.fragments;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Path;
 import android.location.Location;
@@ -36,6 +39,7 @@ import com.foxmike.android.utils.CustomToggleButton;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.utils.WrapContentViewPager;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
@@ -347,9 +351,12 @@ public class ExploreFragment extends Fragment{
                                 if (!sessionListeners.containsKey(sessionRef)) {
                                     TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
                                     Task dbTask = dbSource.getTask();
-                                    ValueEventListener sessionListener = sessionRef.addValueEventListener(new ValueEventListener() {
+
+                                    FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
+                                    LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(sessionRef);
+                                    firebaseDatabaseLiveData.observe(ExploreFragment.this, new Observer<DataSnapshot>() {
                                         @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                        public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                                             dbSource.trySetResult(dataSnapshot);
                                             if (dataSnapshot.getValue()!=null) {
                                                 sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
@@ -375,15 +382,9 @@ public class ExploreFragment extends Fragment{
                                                     sessionHashMap.remove(dataSnapshot.getKey());
                                                 }
                                             }
-
-                                        }
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            dbSource.setException(databaseError.toException());
                                         }
                                     });
                                     sessionTasks.add(dbTask);
-                                    sessionListeners.put(sessionRef, sessionListener);
                                 }
                             }
 
@@ -409,9 +410,12 @@ public class ExploreFragment extends Fragment{
                                                     if (!advertisementListeners.containsKey(advRef)) {
                                                         TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
                                                         Task dbTask = dbSource.getTask();
-                                                        ValueEventListener advertisementListener = advRef.addValueEventListener(new ValueEventListener() {
+
+                                                        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
+                                                        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(advRef);
+                                                        firebaseDatabaseLiveData.observe(ExploreFragment.this, new Observer<DataSnapshot>() {
                                                             @Override
-                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                                                                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                                                                 dbSource.trySetResult(dataSnapshot);
                                                                 if (dataSnapshot.getValue()==null) {
@@ -424,13 +428,8 @@ public class ExploreFragment extends Fragment{
                                                                 }
 
                                                             }
-                                                            @Override
-                                                            public void onCancelled(DatabaseError databaseError) {
-                                                                dbSource.setException(databaseError.toException());
-                                                            }
                                                         });
                                                         advertisementTasks.add(dbTask);
-                                                        advertisementListeners.put(advRef, advertisementListener);
                                                     }
                                                 }
                                             }
