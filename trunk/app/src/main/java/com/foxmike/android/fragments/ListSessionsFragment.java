@@ -31,6 +31,8 @@ import java.util.HashMap;
  */
 public class  ListSessionsFragment extends Fragment {
 
+    public static final String TAG = ListSessionsFragment.class.getSimpleName();
+
     private RecyclerView mSessionList;
     private ListSessionsAdapter sessionsAdapter;
     private Location currentLocation;

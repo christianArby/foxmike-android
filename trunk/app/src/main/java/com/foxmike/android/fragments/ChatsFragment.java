@@ -30,6 +30,8 @@ import java.util.HashMap;
 
 public class ChatsFragment extends Fragment {
 
+    public static final String TAG = ChatsFragment.class.getSimpleName();
+
     private OnChatClickedListener onChatClickedListener;
     private RecyclerView chatListRV;
     private TextView noContent;

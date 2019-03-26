@@ -70,6 +70,7 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
             @Override
             public void OnSessionsLoaded() {
                 Session session = sessionHashMap.get(model.getSessionId());
+                holder.setSessionImage(session.getImageUrl(), context);
                 holder.setText3(session.getSessionType().toUpperCase() + " | " + getAddress(session.getLatitude(), session.getLongitude()));
             }
         });

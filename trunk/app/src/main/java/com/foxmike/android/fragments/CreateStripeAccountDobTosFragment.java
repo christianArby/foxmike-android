@@ -23,10 +23,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyProgressBar;
@@ -36,21 +34,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
-import com.stripe.android.Stripe;
-import com.stripe.android.TokenCallback;
-import com.stripe.android.model.BankAccount;
-import com.stripe.android.model.Token;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class CreateStripeAccountDobTosFragment extends Fragment {
+
+    public static final String TAG = CreateStripeAccountDobTosFragment.class.getSimpleName();
 
     private FirebaseFunctions mFunctions;
     private View view;
@@ -257,6 +252,7 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         hideKeyboard(getActivity());
     }
 

@@ -51,6 +51,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatFragment extends Fragment {
 
+    public static final String TAG = ChatFragment.class.getSimpleName();
+
     private String chatUserID;
     private String chatUserName;
     private String chatThumbImage;
@@ -433,6 +435,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();

@@ -41,6 +41,8 @@ import io.reactivex.processors.PublishProcessor;
 
 public class AllUsersFragment extends Fragment {
 
+    public static final String TAG = AllUsersFragment.class.getSimpleName();
+
     private EditText searchFieldET;
     private RecyclerView allUsersList;
     private DatabaseReference mUsersDatabase;
@@ -320,6 +322,7 @@ public class AllUsersFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }

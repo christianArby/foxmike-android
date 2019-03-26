@@ -27,6 +27,8 @@ import com.google.firebase.database.ValueEventListener;
  */
 public class HostSessionsFragment extends Fragment {
 
+    public static final String TAG = HostSessionsFragment.class.getSimpleName();
+
     private OnCreateSessionClickedListener onCreateSessionClickedListener;
     private FloatingActionButton createSessionBtn;
     private ViewPager hostSessionsPager;

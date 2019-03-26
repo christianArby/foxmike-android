@@ -23,6 +23,8 @@ import com.google.firebase.auth.FirebaseAuth;
  */
 public class PasswordResetFragment extends DialogFragment {
 
+    public static final String TAG = PasswordResetFragment.class.getSimpleName();
+
     private EditText mLoginEmailField;
     private static final String ARG_EMAIL= "email";
     private String mEmail;

@@ -22,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
  */
 public class InboxFragment extends Fragment {
 
+    public static final String TAG = InboxFragment.class.getSimpleName();
+
     private FloatingActionButton searchFab;
     private ViewPager inboxPager;
     private InboxPagerAdapter inboxPagerAdapter;

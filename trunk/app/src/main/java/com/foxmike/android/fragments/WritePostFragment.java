@@ -41,6 +41,8 @@ import com.google.firebase.database.ValueEventListener;
  */
 public class WritePostFragment extends DialogFragment {
 
+    public static final String TAG = WritePostFragment.class.getSimpleName();
+
     DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     EditText postTextET;
@@ -199,6 +201,7 @@ public class WritePostFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         hideKeyboard(getActivity());
     }
 

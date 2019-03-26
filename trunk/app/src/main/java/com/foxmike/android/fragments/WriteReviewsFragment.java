@@ -36,6 +36,8 @@ import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
  */
 public class WriteReviewsFragment extends DialogFragment {
 
+    public static final String TAG = WriteReviewsFragment.class.getSimpleName();
+
     @BindView(R.id.closeImageButton) ImageButton closeIcon;
     @BindView(R.id.ratingTitle) TextView ratingTitle;
     @BindView(R.id.reviewTitle) TextView reviewTitle;

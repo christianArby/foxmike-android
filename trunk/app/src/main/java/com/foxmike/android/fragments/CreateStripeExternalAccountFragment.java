@@ -38,10 +38,11 @@ import com.stripe.android.model.Token;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 public class CreateStripeExternalAccountFragment extends Fragment {
+
+    public static final String TAG = CreateStripeExternalAccountFragment.class.getSimpleName();
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -297,6 +298,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         hideKeyboard(getActivity());
     }
 

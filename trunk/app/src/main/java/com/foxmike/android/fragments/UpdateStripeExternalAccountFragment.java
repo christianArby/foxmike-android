@@ -27,12 +27,12 @@ import com.google.firebase.functions.HttpsCallableResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * A simple {@link Fragment} subclass.
  */
 public class UpdateStripeExternalAccountFragment extends Fragment {
+
+    public static final String TAG = UpdateStripeExternalAccountFragment.class.getSimpleName();
 
     private String accountId;
     private String externalAccountId;

@@ -25,6 +25,8 @@ import com.google.firebase.database.Query;
 
 public class HostListSmallAdvertisementsFragment extends Fragment {
 
+    public static final String TAG = HostListSmallAdvertisementsFragment.class.getSimpleName();
+
     private OnSessionClickedListener onSessionClickedListener;
     private RecyclerView comingAdvertisementsRV;
     private RecyclerView pastAdvertisementsRV;

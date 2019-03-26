@@ -33,6 +33,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class UserProfileFragment extends Fragment {
 
+    public static final String TAG = UserProfileFragment.class.getSimpleName();
+
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private ValueEventListener currentUserListener;
@@ -153,6 +155,7 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         if (currentUserListener!=null) {
             usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
         }

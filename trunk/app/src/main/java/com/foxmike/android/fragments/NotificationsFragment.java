@@ -26,6 +26,8 @@ import com.google.firebase.database.Query;
 
 public class NotificationsFragment extends Fragment {
 
+    public static final String TAG = NotificationsFragment.class.getSimpleName();
+
     private OnNotificationClickedListener onNotificationClickedListener;
     private RecyclerView notificationsListRV;
     private TextView noContent;

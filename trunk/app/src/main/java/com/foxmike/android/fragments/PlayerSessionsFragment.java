@@ -16,6 +16,8 @@ import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
  */
 public class PlayerSessionsFragment extends Fragment {
 
+    public static final String TAG = PlayerSessionsFragment.class.getSimpleName();
+
     private ViewPager playerSessionsPager;
     private SmallSessionsPagerAdapter playerSessionsPagerAdapter;
     private TabLayout tabLayout;
