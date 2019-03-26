@@ -23,6 +23,8 @@ import com.google.firebase.database.Query;
 
 public class HostListSmallSessionsFragment extends Fragment {
 
+    public static final String TAG = HostListSmallSessionsFragment.class.getSimpleName();
+
     private OnSessionClickedListener onSessionClickedListener;
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsFirebaseAdapter listSmallSessionsFirebaseAdapter;

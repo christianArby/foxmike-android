@@ -35,14 +35,12 @@ import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
-import com.foxmike.android.fragments.MapsFragment;
 import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.fragments.UserAccountFragment;
 import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
-import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -64,7 +62,6 @@ import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.foxmike.android.viewmodels.ReviewsToWriteUserIdViewModel;
 import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
 import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -90,7 +87,6 @@ public class MainHostActivity extends AppCompatActivity implements
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
-        MapsFragment.OnLocationPickedListener,
         OnCreateSessionClickedListener,
         OnAdvertisementsFoundListener,
         AdvertisementListener,
@@ -98,7 +94,6 @@ public class MainHostActivity extends AppCompatActivity implements
 
     private FragmentManager fragmentManager;
     private UserAccountHostFragment hostUserAccountFragment;
-    private MapsFragment hostMapsFragment;
     private DisplaySessionFragment hostDisplaySessionFragment;
     private InboxFragment hostInboxFragment;
     private HostSessionsFragment hostSessionsFragment;
@@ -314,12 +309,10 @@ public class MainHostActivity extends AppCompatActivity implements
 
     private void presentReview(String advertisementId) {
 
-        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-
+        /*WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-
-        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();
+        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();*/
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
@@ -412,12 +405,8 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnCreateSessionClicked() {
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        bundle.putString("requestType", "createSession");
-        hostMapsFragment = MapsFragment.newInstance();
-        hostMapsFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(hostMapsFragment, true,"editSession");
+        createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
+        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
     }
 
 
@@ -564,24 +553,6 @@ public class MainHostActivity extends AppCompatActivity implements
         CheckVersion.checkVersion(this);
     }
 
-    @Override
-    public void OnLocationPicked(LatLng latLng, String requestType) {
-        if (requestType.equals("updateSession")) {
-            if (createOrEditSessionFragment!=null) {
-                createOrEditSessionFragment.updateLocation(latLng);
-                getSupportFragmentManager().popBackStack();
-            }
-            return;
-        }
-        if (requestType.equals("createSession")) {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("LatLng", latLng);
-            createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-            createOrEditSessionFragment.setArguments(bundle);
-            cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true,"");
-            return;
-        }
-    }
     public static void hideKeyboard(Activity activity) {
         InputMethodManager inputManager = (InputMethodManager) activity
                 .getSystemService(Context.INPUT_METHOD_SERVICE);

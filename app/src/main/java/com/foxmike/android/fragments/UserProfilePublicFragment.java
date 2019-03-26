@@ -40,6 +40,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class UserProfilePublicFragment extends Fragment {
 
+    public static final String TAG = UserProfilePublicFragment.class.getSimpleName();
+
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("usersPublic");
     private DatabaseReference friendReqDbRef = FirebaseDatabase.getInstance().getReference().child("friend_requests");
     private DatabaseReference friendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends");
@@ -414,6 +416,7 @@ public class UserProfilePublicFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         if (currentUserListener!=null) {
             usersDbRef.child(otherUserID).removeEventListener(currentUserListener);;
         }

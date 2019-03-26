@@ -31,6 +31,8 @@ import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
  */
 public class SortAndFilterFragment extends DialogFragment {
 
+    public static final String TAG = SortAndFilterFragment.class.getSimpleName();
+
     private RadioGroup radioGroup;
     private RadioButton distance1, distance2;
     private ToggleButton sortDateTB;

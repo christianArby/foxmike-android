@@ -24,6 +24,8 @@ import java.util.HashMap;
  */
 public class WeekdayFilterFragment extends Fragment{
 
+    public static final String TAG = WeekdayFilterFragment.class.getSimpleName();
+
     public WeekdayFilterFragment() {
         // Required empty public constructor
     }

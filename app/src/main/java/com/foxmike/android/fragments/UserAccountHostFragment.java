@@ -48,6 +48,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserAccountHostFragment extends Fragment {
 
+    public static final String TAG = AboutUserFragment.class.getSimpleName();
+
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
     private ValueEventListener currentUserListener;

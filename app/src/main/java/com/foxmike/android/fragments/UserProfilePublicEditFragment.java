@@ -57,6 +57,8 @@ import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
  */
 public class UserProfilePublicEditFragment extends Fragment {
 
+    public static final String TAG = UserProfilePublicEditFragment.class.getSimpleName();
+
     private OnUserProfilePublicEditFragmentInteractionListener mListener;
 
     private final DatabaseReference usersDbRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -352,6 +354,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         if (currentUserListener!=null) {
             usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
         }

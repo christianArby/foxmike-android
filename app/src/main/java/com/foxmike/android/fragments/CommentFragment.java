@@ -41,6 +41,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentFragment extends Fragment {
 
+    public static final String TAG = CommentFragment.class.getSimpleName();
+
     private FirebaseAuth mAuth;
     private String currentUserID;
     private EditText postMessage;

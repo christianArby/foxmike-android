@@ -41,7 +41,6 @@ import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
-import com.foxmike.android.fragments.MapsFragment;
 import com.foxmike.android.fragments.NotificationsFragment;
 import com.foxmike.android.fragments.PlayerSessionsFragment;
 import com.foxmike.android.fragments.SortAndFilterFragment;
@@ -57,7 +56,6 @@ import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
-import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
@@ -66,7 +64,6 @@ import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionBranch;
 import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.Price;
@@ -77,7 +74,6 @@ import com.foxmike.android.viewmodels.StripeCustomerIdViewModel;
 import com.foxmike.android.viewmodels.StripeLastChangeViewModel;
 import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
 import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -111,11 +107,9 @@ public class MainPlayerActivity extends AppCompatActivity
         OnUserClickedListener,
         SessionListener,
         OnHostSessionChangedListener,
-        OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
-        MapsFragment.OnLocationPickedListener,
         OnAdvertisementsFoundListener,
         AdvertisementListener,
         ListSessionsFragment.OnRefreshSessionsListener,
@@ -151,6 +145,8 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadFriendRequests = 0;
     // variable to track event time
     private long mLastClickTime = 0;
+
+    private CountDownTimer reviewPending;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -371,7 +367,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     if (reviewTimestamp<currentTimestamp) {
                         presentReview(dataSnapshot.getKey());
                     } else {
-                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                        reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
                             @Override
                             public void onTick(long l) {
 
@@ -407,12 +403,13 @@ public class MainPlayerActivity extends AppCompatActivity
 
     private void presentReview(String advertisementId) {
 
-        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-
+        WriteReviewsFragment writeReviewsFragment = (WriteReviewsFragment) fragmentManager.findFragmentByTag(WriteReviewsFragment.TAG);
+        if (writeReviewsFragment==null) {
+            writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+        }
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-
-        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();
+        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment, WriteReviewsFragment.TAG).addToBackStack("").commit();
     }
 
     private void updateStripeCustomerInfo() {
@@ -457,6 +454,10 @@ public class MainPlayerActivity extends AppCompatActivity
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
+        if (fragmentManager.findFragmentByTag(tag)!=null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(fragmentManager.findFragmentByTag(DisplaySessionFragment.TAG)).commit();
+        };
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
         if (addToBackStack) {
@@ -473,12 +474,12 @@ public class MainPlayerActivity extends AppCompatActivity
         }
         mLastClickTime = SystemClock.elapsedRealtime();
         displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);
     }
 
     @Override
     public void OnSessionClicked(String sessionId, Long representingAdTimestamp) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+     if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -490,15 +491,21 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnUserAccountFragmentInteraction(String type) {
         if (type.equals("edit")) {
-            userProfileFragment = UserProfileFragment.newInstance();
-            cleanMainFullscreenActivityAndSwitch(userProfileFragment, true,"");
+            userProfileFragment = (UserProfileFragment) fragmentManager.findFragmentByTag(UserProfileFragment.TAG);
+            if (userProfileFragment==null) {
+                userProfileFragment = UserProfileFragment.newInstance();
+            }
+            cleanMainFullscreenActivityAndSwitch(userProfileFragment, true,UserProfileFragment.TAG);
         }
     }
     /* Listener, when edit "button" in user profile is clicked show edit user profile */
     @Override
     public void onUserProfileFragmentInteraction() {
-        userProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(userProfilePublicEditFragment,true,"");
+        userProfilePublicEditFragment = (UserProfilePublicEditFragment) fragmentManager.findFragmentByTag(UserProfilePublicEditFragment.TAG);
+        if (userProfilePublicEditFragment==null) {
+            userProfilePublicEditFragment = UserProfilePublicEditFragment.newInstance();
+        }
+        cleanMainFullscreenActivityAndSwitch(userProfilePublicEditFragment,true,UserProfilePublicEditFragment.TAG);
     }
     /* Listener, when finished editing restart this activity */
     @Override
@@ -511,7 +518,10 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnUserClicked(String otherUserID) {
         Bundle bundle = new Bundle();
         bundle.putString("otherUserID", otherUserID);
-        userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        userProfilePublicFragment = (UserProfilePublicFragment) fragmentManager.findFragmentByTag(UserProfilePublicFragment.TAG);
+        if (userProfilePublicFragment==null) {
+            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        }
         userProfilePublicFragment.setArguments(bundle);
         cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
     }
@@ -673,34 +683,21 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
-        if (request.equals("displaySession")) {
-            displaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
-        }
-    }
-
-    @Override
     public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
         ChatFragment chatFragment = ChatFragment.newInstance(userID,userName,userThumbImage,chatID);
-        cleanMainFullscreenActivityAndSwitch(chatFragment,true,"");
+        cleanMainFullscreenActivityAndSwitch(chatFragment,true,ChatFragment.TAG);
     }
 
     @Override
     public void OnCommentClicked(String sourceID, String postID, String heading, String time, String message, String thumb_image, String wallType) {
         CommentFragment commentFragment = CommentFragment.newInstance(sourceID, postID, heading, time, message, thumb_image, wallType);
-        cleanMainFullscreenActivityAndSwitch(commentFragment,true,"");
+        cleanMainFullscreenActivityAndSwitch(commentFragment,true, CommentFragment.TAG);
     }
 
     @Override
     public void OnSearchClicked() {
         AllUsersFragment allUsersFragment = AllUsersFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true,"");
-    }
-
-    @Override
-    public void OnLocationPicked(LatLng latLng, String requestType) {
-
+        cleanMainFullscreenActivityAndSwitch(allUsersFragment,true, AllUsersFragment.TAG);
     }
 
     @Override
@@ -766,6 +763,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        reviewPending.cancel();
     }
 
     @Override

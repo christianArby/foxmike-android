@@ -28,13 +28,14 @@ import com.google.firebase.functions.HttpsCallableResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class UpdateStripeSourceFragment extends Fragment {
+
+    public static final String TAG = UpdateStripeSourceFragment.class.getSimpleName();
 
     private String customerId;
     private String sourceId;

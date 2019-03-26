@@ -49,6 +49,8 @@ import static android.app.Activity.RESULT_OK;
 
 public class UserAccountFragment extends Fragment {
 
+    public static final String TAG = UserAccountFragment.class.getSimpleName();
+
     private FirebaseAuth mAuth;
     private OnUserAccountFragmentInteractionListener mListener;
     private ValueEventListener currentUserListener;

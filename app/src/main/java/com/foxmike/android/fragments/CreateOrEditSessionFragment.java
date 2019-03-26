@@ -18,7 +18,6 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -55,6 +54,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
+import com.foxmike.android.activities.ChooseLocationActivity;
 import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.models.Advertisement;
@@ -93,13 +93,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.ContentValues.TAG;
 
 /**
  * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
  * It also updates existing sessions.
  */
 public class CreateOrEditSessionFragment extends Fragment{
+
+    public static final String TAG = CreateOrEditSessionFragment.class.getSimpleName();
+
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
@@ -130,6 +132,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private ImageButton mSessionImageButton;
     private static final int GALLERY_REQUEST = 1;
     private static final int PAYOUT_METHOD_REQUEST = 2;
+    private static final int UPDATE_SESSION_LOCATION_REQUEST = 3;
     private Uri mImageUri = null;
     private ProgressDialog mProgress;
     private LatLng clickedLatLng;
@@ -142,7 +145,6 @@ public class CreateOrEditSessionFragment extends Fragment{
     private GeoFire geoFire;
     private DatabaseReference currentUserDbRef;
     private FirebaseAuth mAuth;
-    private MapsFragment mapsFragment;
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
     private OnHostSessionChangedListener onHostSessionChangedListener;
@@ -334,8 +336,13 @@ public class CreateOrEditSessionFragment extends Fragment{
         } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
-            address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-            mLocation.setText(address);
+            if (clickedLatLng==null) {
+                mLocation.setText(getString(R.string.choose_location));
+            } else {
+                address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+                mLocation.setText(address);
+            }
+
             setPrice(0);
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
             setupUI();
@@ -528,19 +535,21 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                 mLocationTIL.setError(null);
 
-                Bundle bundle = new Bundle();
-                bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-                bundle.putString("requestType", "updateSession");
+                /*FragmentManager fragmentManager = getChildFragmentManager();
 
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
-                if (mapsFragment == null) {
-                    mapsFragment = MapsFragment.newInstance();
-                    mapsFragment.setArguments(bundle);
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.add(R.id.container_maps_fragment, mapsFragment, MapsFragment.TAG).addToBackStack(null);
-                    transaction.commit();
-                }
+                if (fragmentManager.findFragmentByTag(ChooseLocationFragment.TAG)!=null) {
+                    FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+                    removeTransaction.remove(fragmentManager.findFragmentByTag(ChooseLocationFragment.TAG)).commit();
+                };
+
+                chooseLocationFragment = ChooseLocationFragment.newInstance("updateSession");
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.add(R.id.container_maps_fragment, chooseLocationFragment, ChooseLocationFragment.TAG).addToBackStack(null);
+                transaction.commit();*/
+
+                Intent chooseLocatonIntent = new Intent(getActivity(),ChooseLocationActivity.class);
+                startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
+
             }
         });
 
@@ -1153,6 +1162,10 @@ public class CreateOrEditSessionFragment extends Fragment{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if(requestCode == UPDATE_SESSION_LOCATION_REQUEST && resultCode==Activity.RESULT_OK) {
+            updateLocation(data.getDoubleExtra("latitude", 0), data.getDoubleExtra("longitude", 0));
+        }
+
         // TODO Change with RxJava instead listening to variable hasPaymentin MainHostAc
         if(requestCode == PAYOUT_METHOD_REQUEST) {
             if (existingSession!=null) {
@@ -1257,12 +1270,13 @@ public class CreateOrEditSessionFragment extends Fragment{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
         hideKeyboard(getActivity());
     }
 
-    public void updateLocation(LatLng latLng) {
+    public void updateLocation(Double latitude, Double longitude) {
         if (getView()!=null) {
-            clickedLatLng = new LatLng(latLng.latitude, latLng.longitude);
+            clickedLatLng = new LatLng(latitude, longitude);
             String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
         }

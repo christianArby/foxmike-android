@@ -24,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class AboutUserFragment extends Fragment {
 
+    public static final String TAG = AboutUserFragment.class.getSimpleName();
+
     private TextInputLayout aboutMeTIL;
     private TextInputEditText aboutMeET;
     private Button nextBtn;

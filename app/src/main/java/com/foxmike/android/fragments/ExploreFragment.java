@@ -70,6 +70,8 @@ import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
  */
 public class ExploreFragment extends Fragment{
 
+    public static final String TAG = ExploreFragment.class.getSimpleName();
+
     private MyFirebaseDatabase myFirebaseDatabase;
     public HashMap<String,Boolean> firstWeekdayHashMap;
     public HashMap<String,Boolean> secondWeekdayHashMap;
@@ -112,7 +114,7 @@ public class ExploreFragment extends Fragment{
     private int minMinute = 0;
     private int maxHour = 23;
     private int maxMinute = 45;
-    MapsFragment mapsFragment;
+    private ExploreMapsFragment exploreMapsFragment;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -158,15 +160,12 @@ public class ExploreFragment extends Fragment{
         ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance();
         exploreFragmentAdapter.addFragments(listSessionsFragment);
 
-        mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
-        if (mapsFragment == null) {
-            mapsFragment = MapsFragment.newInstance();
+        exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag(ExploreMapsFragment.TAG);
+        if (exploreMapsFragment == null) {
+            exploreMapsFragment = ExploreMapsFragment.newInstance();
         }
 
-        Bundle bundle = new Bundle();
-        bundle.putInt("MY_PERMISSIONS_REQUEST_LOCATION",99);
-        mapsFragment.setArguments(bundle);
-        exploreFragmentAdapter.addFragments(mapsFragment);
+        exploreFragmentAdapter.addFragments(exploreMapsFragment);
 
         /** Setup List and Map with sessions*/
         sortType = "date";
@@ -274,8 +273,10 @@ public class ExploreFragment extends Fragment{
         myLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                mapsFragment.goToMyLocation();
+                if (exploreMapsFragment==null) {
+                    exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                }
+                exploreMapsFragment.goToMyLocation();
             }
         });
 
@@ -352,8 +353,8 @@ public class ExploreFragment extends Fragment{
                                             dbSource.trySetResult(dataSnapshot);
                                             if (dataSnapshot.getValue()!=null) {
                                                 sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
-                                                MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                                                mapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
+                                                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                exploreMapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
 
                                                 for (String advertisementId: advertisementSessionHashMap.keySet()) {
                                                     if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
@@ -369,8 +370,8 @@ public class ExploreFragment extends Fragment{
                                                         ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
                                                         listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(removedAd, removedSession.getAdvertisements().get(removedAd)));
                                                     }
-                                                    MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                                                    mapsFragment.notifySessionRemoved(dataSnapshot.getKey());
+                                                    ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                    exploreMapsFragment.notifySessionRemoved(dataSnapshot.getKey());
                                                     sessionHashMap.remove(dataSnapshot.getKey());
                                                 }
                                             }
@@ -570,8 +571,8 @@ public class ExploreFragment extends Fragment{
         listSessionsFragment.updateSessionListView(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
         listSessionsFragment.stopSwipeRefreshingSymbol();
 
-        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-        mapsFragment.addMarkersToMap(sessionIdsFiltered, sessionHashMap);
+        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+        exploreMapsFragment.addMarkersToMap(sessionIdsFiltered, sessionHashMap);
 
     }
 
@@ -596,11 +597,11 @@ public class ExploreFragment extends Fragment{
         float Xcontrol2 = width - convertDpToPx(getActivity(),72);
         float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(getActivity(), 144);
 
-        MapsFragment mapsFragment = (MapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
 
 
         if (mapIsVisible) {
-            mapsFragment.showRecylerView(true);
+            exploreMapsFragment.showRecylerView(true);
             mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
             myLocationBtn.show();
 
@@ -612,7 +613,7 @@ public class ExploreFragment extends Fragment{
             objectAnimator1.setInterpolator(new LinearOutSlowInInterpolator());
             objectAnimator1.start();
         } else {
-            mapsFragment.showRecylerView(false);
+            exploreMapsFragment.showRecylerView(false);
             mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
             myLocationBtn.hide();
 

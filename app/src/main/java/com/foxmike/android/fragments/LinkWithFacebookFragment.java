@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth;
  */
 public class LinkWithFacebookFragment extends DialogFragment {
 
+    public static final String TAG = LinkWithFacebookFragment.class.getSimpleName();
+
     private TextView mLinkAccountText;
     private EditText mLoginEmailField;
     private EditText mLoginPasswordField;

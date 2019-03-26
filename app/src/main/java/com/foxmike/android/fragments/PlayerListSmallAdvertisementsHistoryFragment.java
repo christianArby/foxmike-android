@@ -24,6 +24,8 @@ import com.google.firebase.database.Query;
 
 public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
 
+    public static final String TAG = PlayerListSmallAdvertisementsHistoryFragment.class.getSimpleName();
+
     private OnSessionClickedListener onSessionClickedListener;
     private RecyclerView smallAdvertisementsListRV;
     private TextView noContent;

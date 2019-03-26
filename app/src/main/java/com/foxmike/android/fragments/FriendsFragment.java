@@ -37,6 +37,8 @@ import java.util.Map;
  */
 public class FriendsFragment extends Fragment {
 
+    public static final String TAG = FriendsFragment.class.getSimpleName();
+
     private RecyclerView friendsList;
     private DatabaseReference myFriendsDbRef;
     private DatabaseReference usersDatabase;

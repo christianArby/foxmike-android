@@ -31,6 +31,8 @@ import com.google.firebase.database.Query;
  */
 public class ParticipantsFragment extends DialogFragment {
 
+    public static final String TAG = ParticipantsFragment.class.getSimpleName();
+
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private FirebaseAuth mAuth;
     private OnUserClickedListener onUserClickedListener;
