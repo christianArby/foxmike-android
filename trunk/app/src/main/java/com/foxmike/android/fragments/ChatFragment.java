@@ -1,7 +1,6 @@
 package com.foxmike.android.fragments;
 
 
-import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -92,6 +91,7 @@ public class ChatFragment extends Fragment {
     private int currentItems;
     private Long totalNumberInQuery;
     private long mLastClickTime = 0;
+    private InputMethodManager imm;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -447,10 +447,8 @@ public class ChatFragment extends Fragment {
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
-        currentUserChatsRef.removeEventListener(currentUserChatsListener);
-        chatUserChatsRef.removeEventListener(chatUserChatsListener);
         messageFirebaseAdapter.stopListening();
-        hideKeyboard(getActivity());
+        hideKeyboard();
     }
 
     @Override
@@ -465,19 +463,19 @@ public class ChatFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         onUserClickedListener = null;
+        imm = null;
     }
 
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager inputManager = (InputMethodManager) activity
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        // check if no view has focus:
-        View currentFocusedView = activity.getCurrentFocus();
-        if (currentFocusedView != null) {
-            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 }

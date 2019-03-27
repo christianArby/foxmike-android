@@ -53,59 +53,6 @@ public class ChatsFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-
-        Long currentTimestamp = System.currentTimeMillis();
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference chatsRef = rootDbRef.child("chats");
-
-        Query chatsQuery = rootDbRef.child("userChats").child(currentUserId).orderByKey();
-
-        friendsRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserId);
-
-        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(friendsRef);
-        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                HashMap<String, Boolean> friendsMap = new HashMap<>();
-                if (dataSnapshot.getValue()!=null) {
-                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        friendsMap.put(snapshot.getKey(), true);
-                    }
-                }
-                if (!listChatsFirebaseAdapterCreated) {
-                    FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
-                            .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
-                            .build();
-                    listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getContext(), friendsMap, onChatClickedListener, new ListChatsFirebaseAdapter.OnNoContentListener() {
-                        @Override
-                        public void OnNoContentVisible(Boolean noContentVisible) {
-                            if (noContentVisible) {
-                                noContent.setVisibility(View.VISIBLE);
-                            } else {
-                                noContent.setVisibility(View.GONE);
-                            }
-                        }
-                    });
-                    listChatsFirebaseAdapter.startListening();
-                    if (getView()!=null) {
-                        chatListRV.setAdapter(listChatsFirebaseAdapter);
-                    }
-                    listChatsFirebaseAdapterCreated = true;
-                } else {
-                    listChatsFirebaseAdapter.friendsUpdated(friendsMap);
-                }
-
-            }
-        });
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         if (listChatsFirebaseAdapter!=null) {
@@ -127,13 +74,60 @@ public class ChatsFragment extends Fragment {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_chats, container, false);
         chatListRV = (RecyclerView) view.findViewById(R.id.chatsRV);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         chatListRV.setLayoutManager(linearLayoutManager);
         ((SimpleItemAnimator) chatListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         chatListRV.setAdapter(listChatsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
+
+        Long currentTimestamp = System.currentTimeMillis();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference chatsRef = rootDbRef.child("chats");
+
+        Query chatsQuery = rootDbRef.child("userChats").child(currentUserId).orderByKey();
+        friendsRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserId);
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(friendsRef);
+        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                HashMap<String, Boolean> friendsMap = new HashMap<>();
+                if (dataSnapshot.getValue()!=null) {
+                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                        friendsMap.put(snapshot.getKey(), true);
+                    }
+                }
+                if (!listChatsFirebaseAdapterCreated) {
+                    FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
+                            .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
+                            .build();
+                    listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getActivity().getApplicationContext(), friendsMap, onChatClickedListener, new ListChatsFirebaseAdapter.OnNoContentListener() {
+                        @Override
+                        public void OnNoContentVisible(Boolean noContentVisible) {
+                            if (noContentVisible) {
+                                noContent.setVisibility(View.VISIBLE);
+                            } else {
+                                noContent.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+                    listChatsFirebaseAdapter.startListening();
+                    if (getView()!=null) {
+                        chatListRV.setAdapter(listChatsFirebaseAdapter);
+                    }
+                    listChatsFirebaseAdapterCreated = true;
+                } else {
+                    listChatsFirebaseAdapter.friendsUpdated(friendsMap);
+                }
+
+            }
+        });
+
+
         return view;
     }
 

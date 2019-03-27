@@ -105,7 +105,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
 
         View mView;
 
-        public void setSessionClickedListener(final String sessionId) {
+        public void setSessionClickedListener(String sessionId) {
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

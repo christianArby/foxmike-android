@@ -7,16 +7,19 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Path;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.firebase.geofire.GeoFire;
@@ -35,7 +39,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.AdvertisementIdsAndTimestamps;
-import com.foxmike.android.utils.CustomToggleButton;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.utils.WrapContentViewPager;
@@ -44,7 +47,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -103,7 +105,7 @@ public class ExploreFragment extends Fragment{
     private ArrayList<TextView> filteredItems = new ArrayList<>();
     private SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener;
     private GeoFire geoFire;
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
+    private DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private Location currentLocation;
     private HashMap<String,Integer> sessionDistances = new HashMap<>();
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -112,12 +114,15 @@ public class ExploreFragment extends Fragment{
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private HashMap<String, String> advertisementSessionHashMap = new HashMap<>();
-    private CustomToggleButton allDatesBtn;
+    private ToggleButton allDatesBtn;
     private int minHour = 0;
     private int minMinute = 0;
     private int maxHour = 23;
     private int maxMinute = 45;
-    private ExploreMapsFragment exploreMapsFragment;
+    private boolean mLocationPermissionGranted;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private GeoQuery geoQuery;
+    private GeoQueryEventListener geoQueryEventListener;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -126,13 +131,15 @@ public class ExploreFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        setupListAndMapWithSessions();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         removeListeners();
+        if (geoQuery!=null && geoQueryEventListener!=null) {
+            geoQuery.removeGeoQueryEventListener(geoQueryEventListener);
+        }
     }
 
     @Override
@@ -163,11 +170,7 @@ public class ExploreFragment extends Fragment{
         ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance();
         exploreFragmentAdapter.addFragments(listSessionsFragment);
 
-        exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag(ExploreMapsFragment.TAG);
-        if (exploreMapsFragment == null) {
-            exploreMapsFragment = ExploreMapsFragment.newInstance();
-        }
-
+        ExploreMapsFragment exploreMapsFragment = ExploreMapsFragment.newInstance();
         exploreFragmentAdapter.addFragments(exploreMapsFragment);
 
         /** Setup List and Map with sessions*/
@@ -243,7 +246,7 @@ public class ExploreFragment extends Fragment{
         mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
         sortAndFilterFAB = mainView.findViewById(R.id.sort_button);
         myLocationBtn = mainView.findViewById(R.id.my_location_button);
-        myLocationBtn.setVisibility(View.GONE);
+        myLocationBtn.hide();
 
         /** Setup mapOrList FAB*/
         mapOrListBtn.setOnClickListener(new View.OnClickListener() {
@@ -277,12 +280,13 @@ public class ExploreFragment extends Fragment{
         myLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (exploreMapsFragment==null) {
-                    exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                }
+
+                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
                 exploreMapsFragment.goToMyLocation();
             }
         });
+
+        setupListAndMapWithSessions();
 
 
         return mainView;
@@ -293,6 +297,28 @@ public class ExploreFragment extends Fragment{
         super.onViewCreated(view, savedInstanceState);
         locationAndViewUsed = false;
         onAsyncTaskFinished();
+    }
+
+    /**
+     * Prompts the user for permission to use the device location.
+     */
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+
+
     }
 
     private void setupListAndMapWithSessions() {
@@ -307,181 +333,192 @@ public class ExploreFragment extends Fragment{
             onAsyncTaskFinished();
             return;
         }
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                // Got last known location. In some rare situations this can be null.
-                if (location != null) {
-                    currentLocation = location;
-                    GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
-                    geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                        @Override
-                        public void onKeyEntered(String key, GeoLocation location) {
-                            //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
-                            //You can fetch the actual data for this location by creating another firebase query here
-                            String distString = getDistance(location.latitude, location.longitude, currentLocation);
-                            Integer dist = Integer.parseInt(distString);
-                            sessionDistances.put(key, dist);
-                        }
-
-                        @Override
-                        public void onKeyExited(String key) {
-                        }
-
-                        @Override
-                        public void onKeyMoved(String key, GeoLocation location) {
-                        }
-
-                        @Override
-                        public void onGeoQueryReady() {
-
-                            ArrayList<Task<?>> sessionTasks = new ArrayList<>();
-                            sessionTasks.clear();
-                            ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
-                            advertisementTasks.clear();
-
-                            Long currentTimestamp = System.currentTimeMillis();
-                            DateTime currentTime = new DateTime(currentTimestamp);
-
-                            // Download all the near sessions
-                            for (String sessionId : sessionDistances.keySet()) {
-
-                                DatabaseReference sessionRef = dbRef.child("sessions").child(sessionId);
-                                if (!sessionListeners.containsKey(sessionRef)) {
-                                    TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
-                                    Task dbTask = dbSource.getTask();
-
-                                    FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
-                                    LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(sessionRef);
-                                    firebaseDatabaseLiveData.observe(ExploreFragment.this, new Observer<DataSnapshot>() {
-                                        @Override
-                                        public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                                            dbSource.trySetResult(dataSnapshot);
-                                            if (dataSnapshot.getValue()!=null) {
-                                                sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
-                                                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                                                exploreMapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
-
-                                                for (String advertisementId: advertisementSessionHashMap.keySet()) {
-                                                    if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
-                                                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                                                        listSessionsFragment.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
-                                                    }
-                                                }
-                                            } else {
-                                                // SESSION REMOVED
-                                                if (sessionHashMap.get(dataSnapshot.getKey())!=null) {
-                                                    Session removedSession = sessionHashMap.get(dataSnapshot.getKey());
-                                                    for (String removedAd: removedSession.getAdvertisements().keySet()) {
-                                                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                                                        listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(removedAd, removedSession.getAdvertisements().get(removedAd)));
-                                                    }
-                                                    ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
-                                                    exploreMapsFragment.notifySessionRemoved(dataSnapshot.getKey());
-                                                    sessionHashMap.remove(dataSnapshot.getKey());
-                                                }
-                                            }
-                                        }
-                                    });
-                                    sessionTasks.add(dbTask);
-                                }
-                            }
-
-                            if (sessionTasks.isEmpty()) {
-                                TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
-                                Task dummyTask = dummySource.getTask();
-                                sessionTasks.add(dummyTask);
-                                dummySource.setResult("done");
-                            }
-
-
-                            Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+        getLocationPermission();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
+        try {
+            if (mLocationPermissionGranted) {
+                Task<Location> locationResult = mFusedLocationClient.getLastLocation();
+                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
+                            currentLocation = task.getResult();
+                            geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
+                            geoQueryEventListener = new GeoQueryEventListener() {
                                 @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
+                                public void onKeyEntered(String key, GeoLocation location) {
+                                    //Any location key which is within distanceRadius from the user's location will show up here as the key parameter in this method
+                                    //You can fetch the actual data for this location by creating another firebase query here
+                                    String distString = getDistance(location.latitude, location.longitude, currentLocation);
+                                    Integer dist = Integer.parseInt(distString);
+                                    sessionDistances.put(key, dist);
+                                }
 
-                                        for (Session session: sessionHashMap.values()) {
-                                            for (String advertisementKey: session.getAdvertisements().keySet()) {
-                                                DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementKey));
-                                                Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
-                                                if (advertisementTime.isAfter(currentTime) && durationCurrentToAdvertisment.getStandardDays()<15) {
-                                                    DatabaseReference advRef = dbRef.child("advertisements").child(advertisementKey);
-                                                    if (!advertisementListeners.containsKey(advRef)) {
-                                                        TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
-                                                        Task dbTask = dbSource.getTask();
+                                @Override
+                                public void onKeyExited(String key) {
+                                }
 
-                                                        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
-                                                        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(advRef);
-                                                        firebaseDatabaseLiveData.observe(ExploreFragment.this, new Observer<DataSnapshot>() {
-                                                            @Override
-                                                            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                                @Override
+                                public void onKeyMoved(String key, GeoLocation location) {
+                                }
+
+                                @Override
+                                public void onGeoQueryReady() {
+
+                                    ArrayList<Task<?>> sessionTasks = new ArrayList<>();
+                                    sessionTasks.clear();
+                                    ArrayList<Task<?>> advertisementTasks = new ArrayList<>();
+                                    advertisementTasks.clear();
+
+                                    Long currentTimestamp = System.currentTimeMillis();
+                                    DateTime currentTime = new DateTime(currentTimestamp);
+
+                                    // Download all the near sessions
+                                    for (String sessionId : sessionDistances.keySet()) {
+
+                                        DatabaseReference sessionRef = dbRef.child("sessions").child(sessionId);
+                                        if (!sessionListeners.containsKey(sessionRef)) {
+                                            TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                            Task dbTask = dbSource.getTask();
+
+                                            FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
+                                            LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(sessionRef);
+                                            firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                                                @Override
+                                                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                                                    dbSource.trySetResult(dataSnapshot);
+                                                    if (dataSnapshot.getValue()!=null) {
+                                                        sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
+                                                        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                        exploreMapsFragment.notifySessionChange(dataSnapshot.getKey(), sessionHashMap);
+
+                                                        for (String advertisementId: advertisementSessionHashMap.keySet()) {
+                                                            if (advertisementSessionHashMap.get(advertisementId).equals(dataSnapshot.getKey())) {
                                                                 ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
-                                                                dbSource.trySetResult(dataSnapshot);
-                                                                if (dataSnapshot.getValue()==null) {
-                                                                    listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), session.getAdvertisements().get(dataSnapshot.getKey())));
-                                                                } else {
-                                                                    Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                                                                    advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
-                                                                    advertisementSessionHashMap.put(advertisement.getAdvertisementId(), advertisement.getSessionId());
-                                                                    listSessionsFragment.notifyAdvertisementChange(dataSnapshot.getKey(), advertisementHashMap, sessionHashMap);
-                                                                }
-
+                                                                listSessionsFragment.notifyAdvertisementChange(advertisementId, advertisementHashMap, sessionHashMap);
                                                             }
-                                                        });
-                                                        advertisementTasks.add(dbTask);
+                                                        }
+                                                    } else {
+                                                        // SESSION REMOVED
+                                                        if (sessionHashMap.get(dataSnapshot.getKey())!=null) {
+                                                            Session removedSession = sessionHashMap.get(dataSnapshot.getKey());
+                                                            for (String removedAd: removedSession.getAdvertisements().keySet()) {
+                                                                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                                listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(removedAd, removedSession.getAdvertisements().get(removedAd)));
+                                                            }
+                                                            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+                                                            exploreMapsFragment.notifySessionRemoved(dataSnapshot.getKey());
+                                                            sessionHashMap.remove(dataSnapshot.getKey());
+                                                        }
                                                     }
                                                 }
-                                            }
+                                            });
+                                            sessionTasks.add(dbTask);
                                         }
+                                    }
 
-                                        if (advertisementTasks.isEmpty()) {
-                                            TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
-                                            Task dummyTask = dummySource.getTask();
-                                            advertisementTasks.add(dummyTask);
-                                            dummySource.setResult("done");
-                                        }
+                                    if (sessionTasks.isEmpty()) {
+                                        TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+                                        Task dummyTask = dummySource.getTask();
+                                        sessionTasks.add(dummyTask);
+                                        dummySource.setResult("done");
+                                    }
 
 
-                                        Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
+                                    Tasks.whenAll(sessionTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+
+                                                for (Session session: sessionHashMap.values()) {
+                                                    for (String advertisementKey: session.getAdvertisements().keySet()) {
+                                                        DateTime advertisementTime = new DateTime(session.getAdvertisements().get(advertisementKey));
+                                                        Duration durationCurrentToAdvertisment = new Duration(currentTime, advertisementTime);
+                                                        if (advertisementTime.isAfter(currentTime) && durationCurrentToAdvertisment.getStandardDays()<15) {
+                                                            DatabaseReference advRef = dbRef.child("advertisements").child(advertisementKey);
+                                                            if (!advertisementListeners.containsKey(advRef)) {
+                                                                TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                                                                Task dbTask = dbSource.getTask();
+
+                                                                FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(ExploreFragment.this).get(FirebaseDatabaseViewModel.class);
+                                                                LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(advRef);
+                                                                firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                                                                    @Override
+                                                                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                                                                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
+                                                                        dbSource.trySetResult(dataSnapshot);
+                                                                        if (dataSnapshot.getValue()==null) {
+                                                                            listSessionsFragment.notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), session.getAdvertisements().get(dataSnapshot.getKey())));
+                                                                        } else {
+                                                                            Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                                                                            advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                                                                            advertisementSessionHashMap.put(advertisement.getAdvertisementId(), advertisement.getSessionId());
+                                                                            listSessionsFragment.notifyAdvertisementChange(dataSnapshot.getKey(), advertisementHashMap, sessionHashMap);
+                                                                        }
+
+                                                                    }
+                                                                });
+                                                                advertisementTasks.add(dbTask);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                if (advertisementTasks.isEmpty()) {
+                                                    TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+                                                    Task dummyTask = dummySource.getTask();
+                                                    advertisementTasks.add(dummyTask);
+                                                    dummySource.setResult("done");
+                                                }
+
+
+                                                Tasks.whenAll(advertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
 
                                                     /*for (Advertisement ad :advertisementHashMap.values()) {
                                                         advertisementIdsAndTimestamps.add(new AdvertisementIdsAndTimestamps(ad.getAdvertisementId(), ad.getAdvertisementTimestamp()));
                                                     }
 
                                                     Collections.sort(advertisementIdsAndTimestamps);*/
-                                                    locationFound = true;
-                                                    locationAndViewUsed = false;
-                                                    onAsyncTaskFinished();
+                                                            locationFound = true;
+                                                            locationAndViewUsed = false;
+                                                            onAsyncTaskFinished();
 
-                                                    filterSessionAndAdvertisements();
-                                                }
+                                                            filterSessionAndAdvertisements();
+                                                        }
+                                                    }
+                                                });
                                             }
-                                        });
+                                        }
+                                    });
+
+                                    if (sessionDistances.size() < 1) {
+                                        filterSessionAndAdvertisements();
                                     }
                                 }
-                            });
 
-                            if (sessionDistances.size() < 1) {
-                                filterSessionAndAdvertisements();
-                            }
+                                @Override
+                                public void onGeoQueryError(DatabaseError error) {
+                                }
+                            };
+
+                            geoQuery.addGeoQueryEventListener(geoQueryEventListener);
+
+                        } else {
+                            // no location
+                            locationFound = false;
+                            locationAndViewUsed = false;
+                            onAsyncTaskFinished();
                         }
-
-                        @Override
-                        public void onGeoQueryError(DatabaseError error) {
-                        }
-                    });
-                } else {
-                    locationFound = false;
-                    locationAndViewUsed = false;
-                    onAsyncTaskFinished();
-                }
-
+                    }
+                });
             }
-        });
+        } catch (SecurityException e)  {
+
+        }
     }
 
     public void filterSessionAndAdvertisements() {
@@ -578,7 +615,7 @@ public class ExploreFragment extends Fragment{
     private void onAsyncTaskFinished() {
         if (getView()!=null && locationLoaded && locationAndViewUsed) {
             locationAndViewUsed = true;
-            Toast.makeText(getContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity().getApplicationContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
             ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(0);
             listSessionsFragment.emptyListView();
             listSessionsFragment.stopSwipeRefreshingSymbol();
@@ -839,9 +876,22 @@ public class ExploreFragment extends Fragment{
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        allDatesBtn = null;
+        if (exploreFragmentViewPager!=null) {
+            exploreFragmentViewPager.setAdapter(null);
+        }
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         removeListeners();
+        if (exploreFragmentAdapter!=null) {
+            exploreFragmentAdapter = null;
+        }
     }
 
     public void removeListeners() {

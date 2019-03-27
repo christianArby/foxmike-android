@@ -57,7 +57,7 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        pastAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getContext(), onSessionClickedListener);
+        pastAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), onSessionClickedListener);
 
         pastAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -101,7 +101,7 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_player_list_small_advertisements_history, container, false);
         smallAdvertisementsListRV = (RecyclerView) view.findViewById(R.id.small_advertisement_list_RV);
-        smallAdvertisementsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        smallAdvertisementsListRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         ((SimpleItemAnimator) smallAdvertisementsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         smallAdvertisementsListRV.setAdapter(pastAdvertisementsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);

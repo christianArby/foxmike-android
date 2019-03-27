@@ -18,7 +18,7 @@
             android:orientation="horizontal"
             android:id="@+id/weekdayFilterFragmentContainer">
 
-            <com.foxmike.android.utils.CustomToggleButton
+            <ToggleButton
                 style="?android:attr/borderlessButtonStyle"
                 android:background="@drawable/all_dates_button"
                 android:layout_gravity="center_vertical"

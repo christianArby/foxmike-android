@@ -81,7 +81,7 @@ public class HostSessionsFragment extends Fragment {
                         if (userHasStripeAccount) {
                             onCreateSessionClickedListener.OnCreateSessionClicked();
                         } else {
-                            Toast.makeText(getContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity().getApplicationContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
                         }
                     }
                     @Override
@@ -101,6 +101,22 @@ public class HostSessionsFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (hostSessionsPager!=null) {
+            hostSessionsPager.setAdapter(null);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (hostSessionsPagerAdapter!=null) {
+            hostSessionsPagerAdapter=null;
+        }
     }
 
     // Function which load the tab layout and viewpager

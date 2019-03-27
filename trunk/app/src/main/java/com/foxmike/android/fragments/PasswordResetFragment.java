@@ -82,15 +82,15 @@ public class PasswordResetFragment extends DialogFragment {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(getContext(), R.string.a_link_has_been_sent_to_the_email_above_text, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity().getApplicationContext(), R.string.a_link_has_been_sent_to_the_email_above_text, Toast.LENGTH_LONG).show();
                                         dismiss();
                                     } else {
-                                        Toast.makeText(getContext(), "We failed sending a mail to the mail address above.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity().getApplicationContext(), "We failed sending a mail to the mail address above.", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
                 } else {
-                    Toast.makeText(getContext(), "Please type in your mail address", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity().getApplicationContext(), "Please type in your mail address", Toast.LENGTH_LONG).show();
                 }
 
 

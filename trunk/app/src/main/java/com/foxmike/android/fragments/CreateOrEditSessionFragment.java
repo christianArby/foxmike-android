@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -31,7 +32,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -172,6 +172,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private String address;
     private HashMap<String, RadioButton> radioGroupHashMap = new HashMap<>();
     private RadioGroup currencySettingRadioGroup;
+    private InputMethodManager imm;
 
 
 
@@ -231,7 +232,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
-        mProgress = new ProgressDialog(getActivity());
+        mProgress = new ProgressDialog(getActivity().getApplicationContext());
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
@@ -374,9 +375,9 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                         if (!payoutsEnabled && (int) sessionMap.get("price")!=0) {
 
-                            LayoutInflater factory = LayoutInflater.from(getContext());
+                            LayoutInflater factory = LayoutInflater.from(getActivity().getApplicationContext());
                             final View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
-                            final AlertDialog okDialog = new AlertDialog.Builder(getContext()).create();
+                            final AlertDialog okDialog = new AlertDialog.Builder(getActivity().getApplicationContext()).create();
                             okDialog.setView(okDialogView);
                             TextView tv = okDialogView.findViewById(R.id.textTV);
                             tv.setText(R.string.no_active_payout_method);
@@ -391,7 +392,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                         } else {
                             if (infoIsValid) {sendSession(sessionMap);} else {
-                                Toast.makeText(getContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -409,7 +410,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         mWhat.setFocusableInTouchMode(true);
                         mWhat.requestFocus();
                         mWhat.setSelection(mWhat.getText().length());
-                        showKeyboard(getContext());
+                        showKeyboard();
                     }
                 });
             }
@@ -421,7 +422,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         mWho.setFocusableInTouchMode(true);
                         mWho.requestFocus();
                         mWho.setSelection(mWho.getText().length());
-                        showKeyboard(getContext());
+                        showKeyboard();
                     }
                 });
             }
@@ -434,7 +435,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         mWhere.setFocusableInTouchMode(true);
                         mWhere.requestFocus();
                         mWhere.setSelection(mWhere.getText().length());
-                        showKeyboard(getContext());
+                        showKeyboard();
                     }
                 });
             }
@@ -444,7 +445,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     private void cannotCreateSessionInPastPopUp() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
         builder.setMessage("Cannot create a session in the past.");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -547,7 +548,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 transaction.add(R.id.container_maps_fragment, chooseLocationFragment, ChooseLocationFragment.TAG).addToBackStack(null);
                 transaction.commit();*/
 
-                Intent chooseLocatonIntent = new Intent(getActivity(),ChooseLocationActivity.class);
+                Intent chooseLocatonIntent = new Intent(getActivity().getApplicationContext(),ChooseLocationActivity.class);
                 startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
 
             }
@@ -672,7 +673,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     private void notPossibleHasParticipants(String text) {
         // 1. Instantiate an AlertDialog.Builder with its constructor
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
         // 2. Chain together various setter methods to set the dialog characteristics
         builder.setMessage(text);
         // Add the buttons
@@ -956,7 +957,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     private void pickTime() {
         TimePickerDialog mTimePicker;
-        mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+        mTimePicker = new TimePickerDialog(getActivity().getApplicationContext(), new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
@@ -988,7 +989,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         return;
                     }
                     // ---- Payouts not enabled -----
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
                     builder.setMessage(R.string.create_free_session_question);
                     builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -1005,7 +1006,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent paymentPreferencesIntent = new Intent(getActivity(),PayoutPreferencesActivity.class);
+                            Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PayoutPreferencesActivity.class);
                             startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
                         }
                     });
@@ -1029,14 +1030,14 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialogWithArray(String title, ArrayList<String> string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
         alertDialogBuilder.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,string_array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),android.R.layout.simple_list_item_1,string_array);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1051,7 +1052,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
@@ -1059,7 +1060,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1074,7 +1075,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createPriceDialog(String title, int string_array,  OnPriceClickedListener onPriceClickedListener) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_radiogroup, null);
         alertDialogBuilder.setView(convertView);
@@ -1091,9 +1092,9 @@ public class CreateOrEditSessionFragment extends Fragment{
         int n=1;
         for (String stringPrice: prices ) {
             if (!radioGroupHashMap.containsKey(stringPrice)) {
-                RadioButton rb = new RadioButton(getContext());
+                RadioButton rb = new RadioButton(getActivity().getApplicationContext());
                 rb.setText(stringPrice);
-                rb.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Subhead);
+                rb.setTextAppearance(getActivity().getApplicationContext(), android.R.style.TextAppearance_Material_Subhead);
                 rb.setId(n);
                 n++;
                 currencySettingRadioGroup.addView(rb);
@@ -1137,7 +1138,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
@@ -1145,7 +1146,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1182,7 +1183,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageDenominator), getResources().getInteger(R.integer.heightOfSessionImageNumerator))
-                    .start(fragment.getContext(), fragment);
+                    .start(getActivity().getApplicationContext(), fragment);
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -1210,7 +1211,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;
-        geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
@@ -1271,7 +1272,8 @@ public class CreateOrEditSessionFragment extends Fragment{
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        hideKeyboard(getActivity());
+        hideKeyboard();
+        imm = null;
     }
 
     public void updateLocation(Double latitude, Double longitude) {
@@ -1291,18 +1293,18 @@ public class CreateOrEditSessionFragment extends Fragment{
         void OnSessionUpdated(Map sessionMap);
      }
 
-    public static void showKeyboard(Context context) {
-        ((InputMethodManager) (context).getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
-    public static void hideKeyboard(Context context) {
-        try {
-            ((Activity) context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-            if ((((Activity) context).getCurrentFocus() != null) && (((Activity) context).getCurrentFocus().getWindowToken() != null)) {
-                ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+
+
+    public void showKeyboard() {
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 }

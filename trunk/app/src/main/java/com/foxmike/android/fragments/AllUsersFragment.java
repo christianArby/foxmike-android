@@ -101,7 +101,7 @@ public class AllUsersFragment extends Fragment {
         allUsersList = (RecyclerView) view.findViewById(R.id.allUsersList);
         allUsersList.setHasFixedSize(true);
 
-        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setStackFromEnd(false);
         allUsersList.setLayoutManager(linearLayoutManager);
 
@@ -172,7 +172,7 @@ public class AllUsersFragment extends Fragment {
                                         }
                                         mLastClickTime = SystemClock.elapsedRealtime();
                                         if (userId.equals(currentUserID)) {
-                                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getActivity().getApplicationContext(), "This is you", Toast.LENGTH_SHORT).show();
                                         } else {
                                             onUserClickedListener.OnUserClicked(userId);
                                         }
@@ -226,7 +226,7 @@ public class AllUsersFragment extends Fragment {
                                         }
                                         mLastClickTime = SystemClock.elapsedRealtime();
                                         if (userId.equals(currentUserID)) {
-                                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getActivity().getApplicationContext(), "This is you", Toast.LENGTH_SHORT).show();
                                         } else {
                                             onUserClickedListener.OnUserClicked(userId);
                                         }
@@ -284,7 +284,7 @@ public class AllUsersFragment extends Fragment {
                                     }
                                     mLastClickTime = SystemClock.elapsedRealtime();
                                     if (userId.equals(currentUserID)) {
-                                        Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getActivity().getApplicationContext(), "This is you", Toast.LENGTH_SHORT).show();
                                     } else {
                                         onUserClickedListener.OnUserClicked(userId);
                                     }

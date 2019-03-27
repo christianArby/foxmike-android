@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -38,7 +39,6 @@ import com.stripe.android.model.Token;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 public class CreateStripeExternalAccountFragment extends Fragment {
 
@@ -52,6 +52,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     private EditText ibanET;
     private ProgressBar progressBar;
     private long mLastClickTime = 0;
+    private InputMethodManager imm;
 
     private OnStripeExternalAccountCreatedListener onStripeExternalAccountCreatedListener;
 
@@ -216,13 +217,13 @@ public class CreateStripeExternalAccountFragment extends Fragment {
 
                 }
 
-                Stripe stripe = new Stripe(getContext(), getString(R.string.stripe_publishable_key));
+                Stripe stripe = new Stripe(getActivity().getApplicationContext(), getString(R.string.stripe_publishable_key));
                 // Create Bank Account token
                 stripe.createBankAccountToken(bankAccount, new TokenCallback() {
                     @Override
                     public void onError(Exception error) {
                         // Show localized error message
-                        Toast.makeText(getContext(),
+                        Toast.makeText(getActivity().getApplicationContext(),
                                 error.getLocalizedMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
@@ -299,7 +300,18 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        hideKeyboard(getActivity());
+        hideKeyboard();
+        imm = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
     @Override

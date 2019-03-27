@@ -1,6 +1,5 @@
 package com.foxmike.android.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -145,7 +143,7 @@ public class WritePostActivity extends AppCompatActivity {
                             rootDbRef.child("userPosts").child(mAuth.getCurrentUser().getUid()).child(sourceID).child(postID).setValue(currentTimestamp).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    hideKeyboard(WritePostActivity.this);
+                                    hideKeyboard();
                                     finish();
                                 }
                             });
@@ -158,14 +156,14 @@ public class WritePostActivity extends AppCompatActivity {
 
     }
 
-    public static void hideKeyboard(Context context) {
-        try {
-            ((Activity) context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-            if ((((Activity) context).getCurrentFocus() != null) && (((Activity) context).getCurrentFocus().getWindowToken() != null)) {
-                ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 

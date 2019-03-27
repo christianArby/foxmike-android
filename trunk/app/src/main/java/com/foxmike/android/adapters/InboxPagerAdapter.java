@@ -1,11 +1,10 @@
 package com.foxmike.android.adapters;
 //Checked
-import android.content.Context;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.foxmike.android.R;
 import com.foxmike.android.fragments.ChatsFragment;
 import com.foxmike.android.fragments.FriendsFragment;
 import com.foxmike.android.fragments.NotificationsFragment;
@@ -15,11 +14,17 @@ import com.foxmike.android.fragments.NotificationsFragment;
  */
 
 public class InboxPagerAdapter extends FragmentPagerAdapter{
-    Context context;
+    private String tab1;
+    private String tab2;
+    private String tab3;
 
-    public InboxPagerAdapter(FragmentManager fm, Context context) {
+    public InboxPagerAdapter(FragmentManager fm, String tab1, String tab2, String tab3) {
         super(fm);
-        this.context = context;
+        this.tab1 = tab1;
+        this.tab2 = tab2;
+        this.tab3 = tab3;
+
+
     }
 
     @Override
@@ -49,11 +54,11 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                return context.getResources().getString(R.string.tab_messages);
+                return tab1;
             case 1:
-                return context.getString(R.string.tab_friends);
+                return tab2;
             case 2:
-                return context.getString(R.string.notifications);
+                return tab3;
             default:
                 return null;
         }

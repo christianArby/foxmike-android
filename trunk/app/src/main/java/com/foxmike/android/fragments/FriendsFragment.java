@@ -103,11 +103,11 @@ public class FriendsFragment extends Fragment {
         // -------------------------- REQUEST LIST -------------------------
         requestsList = (RecyclerView) mainView.findViewById(R.id.requests_list);
         requestsList.setHasFixedSize(true);
-        requestsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        requestsList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         // Listen to changes at the current users request database reference
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("friend_requests").child(currentUserID));
-        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
+        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 requestsHeading.setVisibility(View.GONE);
@@ -201,11 +201,11 @@ public class FriendsFragment extends Fragment {
         // -------------------------- FRIENDS LIST -------------------------
         friendsList = (RecyclerView) mainView.findViewById(R.id.friends_list);
         friendsList.setHasFixedSize(true);
-        friendsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        friendsList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         // Listen to changes at the current users friends database reference
         FirebaseDatabaseViewModel friendFirebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> friendFirebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(myFriendsDbRef);
-        friendFirebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
+        friendFirebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 friendUserIDs.clear();

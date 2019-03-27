@@ -56,7 +56,7 @@ public class HostListSmallSessionsFragment extends Fragment {
         FirebaseRecyclerOptions<Session> sessionsOptions = new FirebaseRecyclerOptions.Builder<Session>()
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
-        listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getContext(), onSessionClickedListener);
+        listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getActivity().getApplicationContext(), onSessionClickedListener);
         listSmallSessionsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
@@ -98,7 +98,7 @@ public class HostListSmallSessionsFragment extends Fragment {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view =  inflater.inflate(R.layout.fragment_host_list_small_sessions, container, false);
         smallSessionsListRV = (RecyclerView) view.findViewById(R.id.small_sessions_list_RV);
-        smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        smallSessionsListRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         smallSessionsListRV.setAdapter(listSmallSessionsFirebaseAdapter);
         ((SimpleItemAnimator) smallSessionsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         noContent = view.findViewById(R.id.noContent);

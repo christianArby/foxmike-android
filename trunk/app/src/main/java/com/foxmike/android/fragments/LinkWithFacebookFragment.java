@@ -60,6 +60,10 @@ public class LinkWithFacebookFragment extends DialogFragment {
         setStyle(DialogFragment.STYLE_NORMAL,R.style.partscreenDialog);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

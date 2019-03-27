@@ -1,13 +1,13 @@
 package com.foxmike.android.fragments;
 // Checked
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +17,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -61,6 +60,7 @@ public class WritePostFragment extends DialogFragment {
     private Toolbar postToolbar;
     private UserPublic currentUserPublic;
     private long mLastClickTime = 0;
+    private InputMethodManager imm;
 
     public WritePostFragment() {
         // Required empty public constructor
@@ -126,7 +126,7 @@ public class WritePostFragment extends DialogFragment {
         postTitle = view.findViewById(R.id.post_custom_bar_name);
         postTitle.setText(title);
 
-        showKeyboard(getActivity());
+        showKeyboard();
 
         rootDbRef.child("usersPublic").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -136,7 +136,7 @@ public class WritePostFragment extends DialogFragment {
                 }
                 currentUserPublic = dataSnapshot.getValue(UserPublic.class);
                 postName.setText(currentUserPublic.getFirstName() + " " + currentUserPublic.getLastName());
-                Glide.with(getActivity()).load(currentUserPublic.getThumb_image()).into(postProfileImage);
+                Glide.with(getActivity().getApplicationContext()).load(currentUserPublic.getThumb_image()).into(postProfileImage);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -205,21 +205,24 @@ public class WritePostFragment extends DialogFragment {
         super.onDestroyView();
         postTextET.setCursorVisible(false);
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        hideKeyboard(getActivity());
+        hideKeyboard();
+        imm = null;
     }
 
-    public static void hideKeyboard(Context context) {
-        try {
-            ((Activity) context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-            if ((((Activity) context).getCurrentFocus() != null) && (((Activity) context).getCurrentFocus().getWindowToken() != null)) {
-                ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
-    public static void showKeyboard(Context context) {
-        ((InputMethodManager) (context).getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
+
+
+    public void showKeyboard() {
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+
 }

@@ -55,7 +55,7 @@ public class InboxFragment extends Fragment {
 
         inboxPager = (ViewPager) view.findViewById(R.id.inboxPager);
         inboxPager.setOffscreenPageLimit(2);
-        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getContext());
+        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getResources().getString(R.string.tab_messages), getResources().getString(R.string.tab_friends), getResources().getString(R.string.tab_notifications));
         inboxPager.setAdapter(inboxPagerAdapter);
 
         inboxPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -102,6 +102,18 @@ public class InboxFragment extends Fragment {
 
     public interface OnSearchClickedListener{
         void OnSearchClicked();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if(inboxPager!=null) {
+            inboxPager.setAdapter(null);
+            inboxPager=null;
+        }
+        tabLayout = null;
+        inboxPagerAdapter = null;
+        searchFab = null;
     }
 
     @Override

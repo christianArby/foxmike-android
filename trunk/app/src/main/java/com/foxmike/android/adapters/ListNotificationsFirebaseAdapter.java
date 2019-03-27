@@ -1,6 +1,4 @@
 package com.foxmike.android.adapters;
-
-import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -44,19 +42,19 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<FoxmikeNotification, ListNotificationsFirebaseAdapter.NotificationsViewHolder> {
 
-    private Context context;
     private NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener;
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<String, InAppNotification> notificationHashMap = new HashMap<>();
+    private HashMap<String, String> stringHashMap = new HashMap<>();
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListNotificationsFirebaseAdapter(FirebaseRecyclerOptions<FoxmikeNotification> options, Context context, NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener) {
+    public ListNotificationsFirebaseAdapter(FirebaseRecyclerOptions<FoxmikeNotification> options, HashMap<String, String> stringHashMap, NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener) {
         super(options);
-        this.context = context;
         this.onNotificationClickedListener = onNotificationClickedListener;
+        this.stringHashMap = stringHashMap;
     }
 
     @NonNull
@@ -70,16 +68,17 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
     @Override
     protected void onBindViewHolder(@NonNull NotificationsViewHolder holder, int position, @NonNull FoxmikeNotification model) {
 
+
         if (notificationHashMap.containsKey(model.getNotificationId())) {
             InAppNotification inAppNotification = notificationHashMap.get(model.getNotificationId());
-            holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
+            holder.setNotificationImage(inAppNotification.getNotificationThumbnail());
             holder.setNotificationText(inAppNotification.getNotificationText());
         } else {
             populateNotificationHashMap(model, new OnNotificationLoadedListener() {
                 @Override
                 public void OnNotificationLoaded() {
                     InAppNotification inAppNotification = notificationHashMap.get(model.getNotificationId());
-                    holder.setNotificationImage(inAppNotification.getNotificationThumbnail(), context);
+                    holder.setNotificationImage(inAppNotification.getNotificationThumbnail());
                     holder.setNotificationText(inAppNotification.getNotificationText());
                 }
             });
@@ -117,14 +116,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
             notificationTimeTV.setText(notificationTime);
         }
 
-        public void setNotificationImage(String thumb_image, android.content.Context context) {
+        public void setNotificationImage(String thumb_image) {
             CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
-            Glide.with(context).load(thumb_image).into(notificationImageIV);
-        }
-
-        public void setAdminNotificationImage(android.content.Context context) {
-            CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
-            notificationImageIV.setImageDrawable(context.getResources().getDrawable(R.drawable.foxmike_icon_transparent));
+            Glide.with(notificationImageIV.getContext()).load(thumb_image).into(notificationImageIV);
         }
     }
 
@@ -211,14 +205,14 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String sessionName = ((DataSnapshot) sessionNameTask.getResult()).getValue().toString();
                         Post post = ((DataSnapshot) postTask.getResult()).getValue(Post.class);
                         String authorName = ((DataSnapshot) senderNameTask.getResult()).getValue().toString();
-                        String notificationText = authorName + context.getString(R.string.has_made_a_post_in) + sessionName + ": " + post.getMessage();
+                        String notificationText = authorName + stringHashMap.get("has_made_a_post_in") + sessionName + ": " + post.getMessage();
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,
                                 0,
                                 authorName.length(),
-                                authorName.length() + context.getString(R.string.has_made_a_post_in).length(),
-                                authorName.length() + context.getString(R.string.has_made_a_post_in).length() + sessionName.length());
+                                authorName.length() + stringHashMap.get("has_made_a_post_in").length(),
+                                authorName.length() + stringHashMap.get("has_made_a_post_in").length() + sessionName.length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
@@ -320,14 +314,14 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String commentId = ((DataSnapshot) messageTask.getResult()).getKey();
                         String senderName = ((DataSnapshot) senderNameTask.getResult()).getValue().toString();
 
-                        String notificationText = senderName + context.getString(R.string.has_made_a_comment_to_your_post_in) + sessionName + ": " + message.getMessage();
+                        String notificationText = senderName + stringHashMap.get("has_made_a_comment_to_your_post_in") + sessionName + ": " + message.getMessage();
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,
                                 0,
                                 senderName.length(),
-                                senderName.length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length(),
-                                senderName.length() + context.getString(R.string.has_made_a_comment_to_your_post_in).length() + sessionName.length());
+                                senderName.length() + stringHashMap.get("has_made_a_comment_to_your_post_in").length(),
+                                senderName.length() + stringHashMap.get("has_made_a_comment_to_your_post_in").length() + sessionName.length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
@@ -411,10 +405,10 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String text = "";
 
                         if (foxmikeNotification.getType().equals("participantNew")) {
-                            text = context.getString(R.string.has_booked_your_session);
+                            text = stringHashMap.get("has_booked_your_session");
                         }
                         if (foxmikeNotification.getType().equals("participantCancellation")) {
-                            text = context.getString(R.string.has_cancelled_you_session);
+                            text = stringHashMap.get("has_cancelled_you_session");
                         }
 
                         String notificationText = participantName + text + sessionName;
@@ -507,19 +501,19 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String notificationText = "";
 
                         if (foxmikeNotification.getType().equals("sessionCancellation")) {
-                            notificationText = context.getString(R.string.the_session) + sessionName + context.getString(R.string.on) + TextTimestamp.textSessionDate(adTimestamp) + context.getString(R.string.has_been_cancelled) +
-                                    context.getString(R.string.you_will_be_refunded);
+                            notificationText = stringHashMap.get("the_session") + sessionName + stringHashMap.get("on") + TextTimestamp.textSessionDate(adTimestamp) + stringHashMap.get("has_been_cancelled") +
+                                    stringHashMap.get("you_will_be_refunded");
                         }
                         if (foxmikeNotification.getType().equals("freeSessionCancellation")) {
-                            notificationText = context.getString(R.string.the_session) + sessionName + context.getString(R.string.on) + TextTimestamp.textSessionDate(adTimestamp) + context.getString(R.string.has_been_cancelled);
+                            notificationText = stringHashMap.get("the_session") + sessionName + stringHashMap.get("on") + TextTimestamp.textSessionDate(adTimestamp) + stringHashMap.get("has_been_cancelled");
                         }
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,
-                                context.getString(R.string.the_session).length(),
-                                context.getString(R.string.the_session).length() + sessionName.length(),
-                                context.getString(R.string.the_session).length() + sessionName.length() + context.getString(R.string.on).length() +TextTimestamp.textSessionDate(adTimestamp).length(),
-                                context.getString(R.string.the_session).length() + sessionName.length() + context.getString(R.string.on).length() +TextTimestamp.textSessionDate(adTimestamp).length() + context.getString(R.string.has_been_cancelled).length());
+                                stringHashMap.get("the_session").length(),
+                                stringHashMap.get("the_session").length() + sessionName.length(),
+                                stringHashMap.get("the_session").length() + sessionName.length() + stringHashMap.get("on").length() +TextTimestamp.textSessionDate(adTimestamp).length(),
+                                stringHashMap.get("the_session").length() + sessionName.length() + stringHashMap.get("on").length() +TextTimestamp.textSessionDate(adTimestamp).length() + stringHashMap.get("R.string.has_been_cancelled").length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);
@@ -580,7 +574,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                         String imageUrl = ((DataSnapshot) imageTask.getResult()).getValue().toString();
                         String name = ((DataSnapshot) nameTask.getResult()).getValue().toString();
 
-                        String notificationText = name + context.getString(R.string.has_accepted_your_friend_request);
+                        String notificationText = name + stringHashMap.get("has_accepted_your_friend_request");
 
                         SpannableStringBuilder notificationTextFormatted = mixBoldAndRegular(
                                 notificationText,

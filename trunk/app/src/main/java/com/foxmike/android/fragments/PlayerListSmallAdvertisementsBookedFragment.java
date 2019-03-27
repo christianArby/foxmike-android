@@ -58,7 +58,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onSessionClickedListener);
+        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), onSessionClickedListener);
 
         bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

@@ -1,7 +1,6 @@
 package com.foxmike.android.activities;
 //Checked
 
-import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -528,7 +527,7 @@ public class MainHostActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getSupportFragmentManager().popBackStack();
-            hideKeyboard(MainHostActivity.this);
+            hideKeyboard();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -552,12 +551,12 @@ public class MainHostActivity extends AppCompatActivity implements
         CheckVersion.checkVersion(this);
     }
 
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager inputManager = (InputMethodManager) activity
+    public void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
 
         // check if no view has focus:
-        View currentFocusedView = activity.getCurrentFocus();
+        View currentFocusedView = getCurrentFocus();
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }

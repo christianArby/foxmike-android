@@ -318,7 +318,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 }
             });
         } else {
-            Toast toast = Toast.makeText(getActivity(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
 
@@ -677,7 +677,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         snackNoUpcomingAds = view.findViewById(R.id.snackNoUpcomingAds);
         addDates = displaySession.findViewById(R.id.editSession);
         fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
-        sessionDateAndTimeLLManager = new LinearLayoutManager(getContext());
+        sessionDateAndTimeLLManager = new LinearLayoutManager(getActivity().getApplicationContext());
         upcomingSessionsRV.setHasFixedSize(true);
         upcomingSessionsRV.setLayoutManager(sessionDateAndTimeLLManager);
         ((SimpleItemAnimator) upcomingSessionsRV.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -785,7 +785,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         });
 
         // Setup wall, Posts are displayed in a RecyclerView
-        postList.setLayoutManager(new LinearLayoutManager(getContext()));
+        postList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         postsViewHolderAdapter = new RecyclerView.Adapter<PostsViewHolder>() {
             @Override
             public PostsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -1150,7 +1150,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.addAdvertisements(sessionID);
                     }
@@ -1164,7 +1164,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.addAdvertisements(sessionID);
                     }
@@ -1178,7 +1178,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession);
                     }
@@ -1192,7 +1192,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "what");
                     }
@@ -1207,7 +1207,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "who");
                     }
@@ -1222,7 +1222,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
                     if (!currentUser.isTrainerMode()) {
-                        Toast.makeText(getContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "where");
                     }

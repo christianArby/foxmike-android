@@ -24,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
+import java.util.HashMap;
+
 public class NotificationsFragment extends Fragment {
 
     public static final String TAG = NotificationsFragment.class.getSimpleName();
@@ -32,6 +34,7 @@ public class NotificationsFragment extends Fragment {
     private RecyclerView notificationsListRV;
     private TextView noContent;
     private ListNotificationsFirebaseAdapter listNotificationsFirebaseAdapter;
+    private RecyclerView.AdapterDataObserver dataObserver;
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -68,10 +71,20 @@ public class NotificationsFragment extends Fragment {
                             }
                         })
                         .build();
+        HashMap<String,String> stringHashMap = new HashMap<>();
+        stringHashMap.put("has_made_a_post_in", getResources().getString(R.string.has_made_a_post_in));
+        stringHashMap.put("has_made_a_comment_to_your_post_in", getResources().getString(R.string.has_made_a_comment_to_your_post_in));
+        stringHashMap.put("has_booked_your_session", getResources().getString(R.string.has_booked_your_session));
+        stringHashMap.put("has_cancelled_you_session", getResources().getString(R.string.has_cancelled_you_session));
+        stringHashMap.put("the_session", getResources().getString(R.string.the_session));
+        stringHashMap.put("on", getResources().getString(R.string.on));
+        stringHashMap.put("has_been_cancelled", getResources().getString(R.string.has_been_cancelled));
+        stringHashMap.put("you_will_be_refunded", getResources().getString(R.string.you_will_be_refunded));
+        stringHashMap.put("has_accepted_your_friend_request", getResources().getString(R.string.has_accepted_your_friend_request));
         //Setup message firebase adapter which loads 10 first messages
-        listNotificationsFirebaseAdapter = new ListNotificationsFirebaseAdapter(options, getContext(),onNotificationClickedListener);
+        listNotificationsFirebaseAdapter = new ListNotificationsFirebaseAdapter(options, stringHashMap, onNotificationClickedListener);
 
-        listNotificationsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
@@ -92,20 +105,56 @@ public class NotificationsFragment extends Fragment {
                     noContent.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        };
+
+        listNotificationsFirebaseAdapter.registerAdapterDataObserver(dataObserver);
 
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if (notificationsListRV!=null && listNotificationsFirebaseAdapter!=null) {
+            notificationsListRV.setAdapter(listNotificationsFirebaseAdapter);
+        }
         listNotificationsFirebaseAdapter.startListening();
+        if (dataObserver!=null) {
+            listNotificationsFirebaseAdapter.registerAdapterDataObserver(dataObserver);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         listNotificationsFirebaseAdapter.stopListening();
+        if (notificationsListRV!=null) {
+            notificationsListRV.setAdapter(null);
+        }
+        if (dataObserver!=null) {
+            listNotificationsFirebaseAdapter.unregisterAdapterDataObserver(dataObserver);
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (notificationsListRV!=null) {
+            notificationsListRV.setAdapter(null);
+            notificationsListRV = null;
+        }
+        if (noContent!=null) {
+            noContent=null;
+        }
+
+        if (listNotificationsFirebaseAdapter!=null) {
+            listNotificationsFirebaseAdapter.stopListening();
+            listNotificationsFirebaseAdapter=null;
+        }
+        if (dataObserver!=null) {
+            dataObserver = null;
+        }
     }
 
     @Override
@@ -114,7 +163,7 @@ public class NotificationsFragment extends Fragment {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
         notificationsListRV = (RecyclerView) view.findViewById(R.id.notificationsListRV);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         notificationsListRV.setLayoutManager(linearLayoutManager);
