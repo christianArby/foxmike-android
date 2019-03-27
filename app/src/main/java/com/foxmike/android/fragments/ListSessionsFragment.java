@@ -84,7 +84,7 @@ public class  ListSessionsFragment extends Fragment {
         noContent = mainView.findViewById(R.id.noContent);
         noSessionsFound = mainView.findViewById(R.id.noSessionsFound);
         //mSessionList.setHasFixedSize(true); TODO What does this mean
-        mSessionList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mSessionList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         progressBar = mainView.findViewById(R.id.progressBar);
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -133,7 +133,7 @@ public class  ListSessionsFragment extends Fragment {
                 sessionsAdapter.refreshData(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
             } else {
                 noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new ListSessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity(), currentLocation, onSessionClickedListener);
+                sessionsAdapter = new ListSessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity().getApplicationContext(), currentLocation, onSessionClickedListener);
                 if (mSessionList!=null) {
                     HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
                     mSessionList.addItemDecoration(headerItemDecoration);

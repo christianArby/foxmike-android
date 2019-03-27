@@ -20,6 +20,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -55,7 +56,6 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * This Fragment shows the current user's profile and lets the user change the information
@@ -79,6 +79,7 @@ public class UserProfilePublicEditFragment extends Fragment {
     private View profile;
     private User user;
     static UserProfilePublicEditFragment fragment;
+    private InputMethodManager imm;
 
     public UserProfilePublicEditFragment() {
         // Required empty public constructor
@@ -282,7 +283,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setCropShape(CropImageView.CropShape.OVAL)
                         .setAspectRatio(1,1)
-                        .start(fragment.getContext(), fragment);
+                        .start(getActivity().getApplicationContext(), fragment);
             }
         });
         smallImageBtn.setOnClickListener(new View.OnClickListener() {
@@ -292,7 +293,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setCropShape(CropImageView.CropShape.OVAL)
                         .setAspectRatio(1,1)
-                        .start(fragment.getContext(), fragment);
+                        .start(getActivity().getApplicationContext(), fragment);
             }
         });
 
@@ -313,7 +314,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setCropShape(CropImageView.CropShape.OVAL)
                     .setAspectRatio(1,1)
-                    .start(fragment.getContext(), fragment);
+                    .start(getActivity().getApplicationContext(), fragment);
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -359,7 +360,18 @@ public class UserProfilePublicEditFragment extends Fragment {
         if (currentUserListener!=null) {
             usersDbRef.child(currentFirebaseUser.getUid()).removeEventListener(currentUserListener);
         }
-        hideKeyboard(getActivity());
+        hideKeyboard();
+        imm = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
     public static boolean containsAny(String str, char[] searchChars) {

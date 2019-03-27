@@ -132,9 +132,9 @@ public class CommentFragment extends Fragment {
         messageView.setText(message);
 
         CircleImageView userProfileImageIV = (CircleImageView) view.findViewById(R.id.session_post_image);
-        Glide.with(getContext()).load(thumb_image).into(userProfileImageIV);
+        Glide.with(getActivity().getApplicationContext()).load(thumb_image).into(userProfileImageIV);
 
-        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         // Make sure keyboard is not hiding recyclerview
         //linearLayoutManager.setStackFromEnd(true);
         messagesListRV.setHasFixedSize(true);

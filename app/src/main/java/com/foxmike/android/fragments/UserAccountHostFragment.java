@@ -160,7 +160,7 @@ public class UserAccountHostFragment extends Fragment {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                Intent aboutIntent = new Intent(getContext(), AboutActivity.class);
+                Intent aboutIntent = new Intent(getActivity().getApplicationContext(), AboutActivity.class);
                 startActivity(aboutIntent);
             }
         });
@@ -253,11 +253,11 @@ public class UserAccountHostFragment extends Fragment {
                     mLastClickTime = SystemClock.elapsedRealtime();
 
                     if (!connected) {
-                        Toast.makeText(getContext(),"No internet connection", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(),"No internet connection", Toast.LENGTH_LONG).show();
                         return;
                     }
 
-                    Intent fadeIntent = new Intent(getContext(),SwitchModeActivity.class);
+                    Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
                     fadeIntent.putExtra("trainerMode", true);
                     startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
                 }

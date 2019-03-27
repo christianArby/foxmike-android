@@ -1,13 +1,16 @@
 package com.foxmike.android.fragments;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
@@ -27,8 +30,6 @@ import com.google.firebase.database.ValueEventListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link WriteReviewsFragment#newInstance} factory method to
@@ -46,6 +47,7 @@ public class WriteReviewsFragment extends DialogFragment {
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private InputMethodManager imm;
 
 
 
@@ -87,7 +89,7 @@ public class WriteReviewsFragment extends DialogFragment {
         closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hideKeyboard(getActivity());
+                hideKeyboard();
                 dismiss();
             }
         });
@@ -135,7 +137,7 @@ public class WriteReviewsFragment extends DialogFragment {
 
                                 rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();
                             }
-                            hideKeyboard(getActivity());
+                            hideKeyboard();
                             dismiss();
                         }
                     });
@@ -149,12 +151,23 @@ public class WriteReviewsFragment extends DialogFragment {
             });
 
         }
-
-
-
-
-
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        imm = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
 }

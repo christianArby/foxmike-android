@@ -61,6 +61,20 @@ public class PlayerSessionsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (playerSessionsPager!=null) {
+            playerSessionsPager.setAdapter(null);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        playerSessionsPagerAdapter = null;
+    }
+
     // Function which load the tab layout and viewpager
     /*public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch

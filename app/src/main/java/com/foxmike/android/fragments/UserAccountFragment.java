@@ -157,7 +157,7 @@ public class UserAccountFragment extends Fragment {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                Intent aboutIntent = new Intent(getContext(), AboutActivity.class);
+                Intent aboutIntent = new Intent(getActivity().getApplicationContext(), AboutActivity.class);
                 startActivity(aboutIntent);
             }
         });
@@ -197,7 +197,7 @@ public class UserAccountFragment extends Fragment {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                Intent paymentPreferencesIntent = new Intent(getActivity(),PaymentPreferencesActivity.class);
+                Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PaymentPreferencesActivity.class);
                 startActivity(paymentPreferencesIntent);
             }
         });
@@ -242,17 +242,17 @@ public class UserAccountFragment extends Fragment {
                 public void onClick(View view) {
 
                     if (!connected) {
-                        Toast.makeText(getContext(),"No internet connection", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(),"No internet connection", Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
-                        Intent createIntent = new Intent(getActivity(),CreateStripeAccountActivity.class);
+                        Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateStripeAccountActivity.class);
                         startActivityForResult(createIntent, 1);
                         return;
                     }
 
-                    Intent fadeIntent = new Intent(getContext(),SwitchModeActivity.class);
+                    Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
                     fadeIntent.putExtra("trainerMode", false);
                     startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
                 }
@@ -267,7 +267,7 @@ public class UserAccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==RESULT_OK){
-            Intent fadeIntent = new Intent(getContext(),SwitchModeActivity.class);
+            Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
             fadeIntent.putExtra("trainerMode", false);
             startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
         }

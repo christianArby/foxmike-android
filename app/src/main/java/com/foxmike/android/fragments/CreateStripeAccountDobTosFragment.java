@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -37,8 +38,6 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.foxmike.android.activities.MainPlayerActivity.hideKeyboard;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +57,7 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     private TextInputLayout TOSTIL;
     private ProgressBar progressBar;
     private boolean infoIsValid;
+    private InputMethodManager imm;
 
     private OnStripeAccountCreatedListener onStripeAccountCreatedListener;
 
@@ -253,7 +253,18 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
-        hideKeyboard(getActivity());
+        hideKeyboard();
+        imm = null;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    public void hideKeyboard() {
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
     @Override

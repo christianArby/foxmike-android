@@ -146,8 +146,6 @@ public class MainPlayerActivity extends AppCompatActivity
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
 
-    private SortAndFilterFragment sortAndFilterFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -726,7 +724,7 @@ public class MainPlayerActivity extends AppCompatActivity
         } else {
             getSupportFragmentManager().popBackStack();
         }
-        hideKeyboard(MainPlayerActivity.this);
+        hideKeyboard();
     }
 
     // Before starting activity, make sure user is signed-in, otherwise start login activity
@@ -742,6 +740,8 @@ public class MainPlayerActivity extends AppCompatActivity
             startActivity(welcomeIntent);
             finish();
         }
+
+        mainPager.setAdapter(bottomNavigationAdapter);
     }
 
     @Override
@@ -752,8 +752,7 @@ public class MainPlayerActivity extends AppCompatActivity
             reviewPending.cancel();
         }
 
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        exploreFragment.removeListeners();
+        mainPager.setAdapter(null);
     }
 
     // When activity is destroyed, remove all listeners
@@ -763,13 +762,15 @@ public class MainPlayerActivity extends AppCompatActivity
         if (reviewPending!=null) {
             reviewPending.cancel();
         }
+        mainPager.setAdapter(null);
+        bottomNavigationAdapter = null;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getSupportFragmentManager().popBackStack();
-            hideKeyboard(MainPlayerActivity.this);
+            hideKeyboard();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -781,12 +782,12 @@ public class MainPlayerActivity extends AppCompatActivity
         CheckVersion.checkVersion(this);
     }
 
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager inputManager = (InputMethodManager) activity
+    public void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
 
         // check if no view has focus:
-        View currentFocusedView = activity.getCurrentFocus();
+        View currentFocusedView = getCurrentFocus();
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }

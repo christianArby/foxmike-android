@@ -64,7 +64,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getContext(), onSessionClickedListener);
+        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), onSessionClickedListener);
 
         comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -84,7 +84,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getContext(), onSessionClickedListener);
+        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), onSessionClickedListener);
 
         pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -143,12 +143,12 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         pastHeading = view.findViewById(R.id.pastHeading);
 
         comingAdvertisementsRV = (RecyclerView) view.findViewById(R.id.comingAdvertisementsRV);
-        comingAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        comingAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         comingAdvertisementsRV.setAdapter(comingFirebaseAdvertisementsAdapter);
         ((SimpleItemAnimator) comingAdvertisementsRV.getItemAnimator()).setSupportsChangeAnimations(false);
 
         pastAdvertisementsRV = (RecyclerView) view.findViewById(R.id.pastAdvertisementsRV);
-        pastAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getContext()));
+        pastAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         pastAdvertisementsRV.setAdapter(pastFirebaseAdvertisementsAdapter);
         ((SimpleItemAnimator) pastAdvertisementsRV.getItemAnimator()).setSupportsChangeAnimations(false);
 

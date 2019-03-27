@@ -102,7 +102,7 @@ public class ParticipantsFragment extends DialogFragment {
         });
 
         participantsList = (RecyclerView) mainView.findViewById(R.id.participants_listRV);
-        participantsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        participantsList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
 
         Query participantsQuery = rootDbRef.child("advertisements").child(advertisementId).child("participantsTimestamps").orderByValue();
         DatabaseReference adDbRef = rootDbRef.child("usersPublic");
@@ -126,7 +126,7 @@ public class ParticipantsFragment extends DialogFragment {
                         }
                         mLastClickTime = SystemClock.elapsedRealtime();
                         if (userId.equals(mAuth.getCurrentUser().getUid())) {
-                            Toast.makeText(getActivity(), "This is you", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity().getApplicationContext(), "This is you", Toast.LENGTH_SHORT).show();
                         } else {
                             onUserClickedListener.OnUserClicked(userId);
                         }

@@ -12,7 +12,6 @@ import android.widget.ToggleButton;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
 import com.foxmike.android.interfaces.OnWeekdayChangedListener;
-import com.foxmike.android.utils.CustomToggleButton;
 import com.foxmike.android.utils.TextTimestamp;
 
 import java.text.SimpleDateFormat;
@@ -34,13 +33,13 @@ public class WeekdayFilterFragment extends Fragment{
     private HashMap<Integer,Boolean> toggleMap1 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,Boolean> toggleMap2 = new HashMap<Integer, Boolean>();
     private HashMap<Integer,ToggleButton> toggleButtonHashMap;
-    private CustomToggleButton toggleButton1;
-    private CustomToggleButton toggleButton2;
-    private CustomToggleButton toggleButton3;
-    private CustomToggleButton toggleButton4;
-    private CustomToggleButton toggleButton5;
-    private CustomToggleButton toggleButton6;
-    private CustomToggleButton toggleButton7;
+    private ToggleButton toggleButton1;
+    private ToggleButton toggleButton2;
+    private ToggleButton toggleButton3;
+    private ToggleButton toggleButton4;
+    private ToggleButton toggleButton5;
+    private ToggleButton toggleButton6;
+    private ToggleButton toggleButton7;
 
     private OnWeekdayChangedListener onWeekdayChangedListener;
     private OnWeekdayButtonClickedListener onWeekdayButtonClickedListener;

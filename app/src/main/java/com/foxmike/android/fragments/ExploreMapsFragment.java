@@ -148,9 +148,9 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         };
 
         // Construct a FusedLocationProviderClient.
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
 
-        leftMargin = (int) convertDpToPx(getActivity(), 16);
+        leftMargin = (int) convertDpToPx(getActivity().getApplicationContext(), 16);
         moveCamera=true;
 
         // Get horizontal height of small session list in order to navigation buttons position
@@ -199,7 +199,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
         // Setup horizontal recyclerView
         mSessionList = view.findViewById(R.id.session_list);
-        linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         mSessionList.setLayoutManager(linearLayoutManager);
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(mSessionList);
@@ -465,7 +465,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                     selectedMarker = markerArray.get(0);
 
                 } else {
-                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, getActivity(), onSessionClickedListener, mLastKnownLocation, mLastClickTime);
+                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, getActivity().getApplicationContext(), onSessionClickedListener, mLastKnownLocation, mLastClickTime);
                     if (mSessionList!=null) {
                         mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
                         markerArray.get(0).setIcon(selectedIcon);
@@ -564,7 +564,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mMapView.onPause();
         //stop location updates when Activity is no longer active
         if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
+            //fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
@@ -572,12 +572,15 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
-
+        listSmallRecyclerViewsAdapter = null;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mSessionList!=null) {
+            mSessionList.setAdapter(null);
+        }
     }
 
     @Override
