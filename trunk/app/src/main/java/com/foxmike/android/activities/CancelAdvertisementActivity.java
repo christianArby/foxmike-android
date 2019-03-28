@@ -1,7 +1,9 @@
 package com.foxmike.android.activities;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -9,7 +11,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
-import com.foxmike.android.utils.AlertDialogs;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -73,11 +74,10 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         DateTime adTime = new DateTime(advertisementTimestamp);
 
         Duration durationCurrentToAdvertisement = new Duration(currentTime, adTime);
-        AlertDialogs alertDialogs = new AlertDialogs(CancelAdvertisementActivity.this);
 
         // If session has already taken place show alert dialog explaining cancellation not possible
         if (currentTime.isAfter(adTime)) {
-            alertDialogs.alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new AlertDialogs.OnOkPressedListener() {
+            alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new OnOkPressedListener() {
                 @Override
                 public void OnOkPressed() {
                     setResult(RESULT_CANCELED, null);
@@ -95,7 +95,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             } else {
                 // If participants but with
                 if (durationCurrentToAdvertisement.getStandardHours() > 24) {
-                    alertDialogs.alertDialogPositiveOrNegative(getString(R.string.cancellation), getString(R.string.cancellation_small_fee_warning), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new AlertDialogs.OnPositiveOrNegativeButtonPressedListener() {
+                    alertDialogPositiveOrNegative(getString(R.string.cancellation), getString(R.string.cancellation_small_fee_warning), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
                         @Override
                         public void OnPositivePressed() {
                             cancelAd();
@@ -107,7 +107,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    alertDialogs.alertDialogPositiveOrNegative(getString(R.string.session_is_within_24_hours), getString(R.string.cancellation_large_fee_warning), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new AlertDialogs.OnPositiveOrNegativeButtonPressedListener() {
+                    alertDialogPositiveOrNegative(getString(R.string.session_is_within_24_hours), getString(R.string.cancellation_large_fee_warning), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
                         @Override
                         public void OnPositivePressed() {
                             cancelAd();
@@ -168,5 +168,60 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                         return result;
                     }
                 });
+    }
+
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onOkPressedListener.OnOkPressed();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+        dialog.show();
+    }
+
+
+    public void alertDialogPositiveOrNegative(String title, String message, String positiveButton, String negativeButton, OnPositiveOrNegativeButtonPressedListener onPositiveOrNegativeButtonPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+
+        // Add the buttons
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                onPositiveOrNegativeButtonPressedListener.OnPositivePressed();
+            }
+        });
+
+        builder.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onPositiveOrNegativeButtonPressedListener.OnNegativePressed();
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+
+    }
+
+    public interface OnOkPressedListener {
+        void OnOkPressed();
+    }
+
+    public interface OnPositiveOrNegativeButtonPressedListener {
+        void OnPositivePressed();
+        void OnNegativePressed();
     }
 }

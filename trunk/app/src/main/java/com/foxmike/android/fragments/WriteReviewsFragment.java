@@ -123,14 +123,14 @@ public class WriteReviewsFragment extends DialogFragment {
 
 
                                 rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
-                                rootDbRef.child("userRatings").child(currentUserId).child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
+                                rootDbRef.child("userRatings").child(currentUserId).child(advertisement.getSessionId()).child(advertisement.getAdvertisementId()).child(ratingAndReviewId).setValue(true);
                                 rootDbRef.child("sessionRatings").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
                                 rootDbRef.child("trainerRatings").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
 
                                 if (reviewText.getText().toString().length()>0) {
                                     Review review = new Review(currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), thisRating, currentTimestamp);
                                     rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
-                                    rootDbRef.child("userReviews").child(currentUserId).child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
+                                    rootDbRef.child("userReviews").child(currentUserId).child(advertisement.getSessionId()).child(advertisement.getAdvertisementId()).child(ratingAndReviewId).setValue(true);
                                     rootDbRef.child("sessionReviews").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(currentTimestamp);
                                     rootDbRef.child("trainerReviews").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
                                 }

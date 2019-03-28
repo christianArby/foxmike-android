@@ -134,15 +134,6 @@ public class ExploreFragment extends Fragment{
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        removeListeners();
-        if (geoQuery!=null && geoQueryEventListener!=null) {
-            geoQuery.removeGeoQueryEventListener(geoQueryEventListener);
-        }
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -881,6 +872,10 @@ public class ExploreFragment extends Fragment{
         allDatesBtn = null;
         if (exploreFragmentViewPager!=null) {
             exploreFragmentViewPager.setAdapter(null);
+        }
+        removeListeners();
+        if (geoQuery!=null && geoQueryEventListener!=null) {
+            geoQuery.removeAllListeners();
         }
 
     }

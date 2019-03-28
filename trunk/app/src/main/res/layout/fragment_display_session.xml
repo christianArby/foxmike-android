@@ -110,7 +110,7 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
                 android:padding="4dp"
                 android:textAllCaps="true"
-                android:text="NEW"
+                android:text="@string/new_text"
                 android:textStyle="bold"
                 android:textColor="@color/primaryTextColor"
                 android:layout_marginTop="@dimen/marginVertical"
@@ -353,7 +353,8 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <TextView
-                android:id="@+id/noSnackAdTV"
+                android:visibility="visible"
+                android:id="@+id/snackNoAdTV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
@@ -365,6 +366,8 @@
                 android:text="@string/no_upcoming_sessions"/>
 
             <TextView
+                android:visibility="gone"
+                android:id="@+id/showAvailAbility"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"

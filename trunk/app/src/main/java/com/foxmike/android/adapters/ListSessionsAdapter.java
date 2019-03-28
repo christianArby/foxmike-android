@@ -160,11 +160,11 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             } else if ((session.getNrOfRatings()==1)) {
                 ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
                 String rating = String.format("%.1f", session.getRating());
-                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfReviews() + ")");
+                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
             } else {
                 ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
                 String rating = String.format("%.1f", session.getRating());
-                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfReviews() + ")");
+                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
             }
         }
     }

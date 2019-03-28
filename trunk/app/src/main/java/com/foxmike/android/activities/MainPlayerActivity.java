@@ -51,10 +51,10 @@ import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
+import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
@@ -64,16 +64,9 @@ import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.utils.AlertDialogs;
-import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.Price;
-import com.foxmike.android.viewmodels.FriendRequestsUserIdViewHolder;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
-import com.foxmike.android.viewmodels.ReviewsToWriteUserIdViewModel;
-import com.foxmike.android.viewmodels.StripeCustomerIdViewModel;
-import com.foxmike.android.viewmodels.StripeLastChangeViewModel;
-import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
-import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -106,7 +99,6 @@ public class MainPlayerActivity extends AppCompatActivity
         OnNewMessageListener,
         OnUserClickedListener,
         SessionListener,
-        OnHostSessionChangedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
@@ -117,7 +109,8 @@ public class MainPlayerActivity extends AppCompatActivity
         OnWeekdayChangedListener,
         OnWeekdayButtonClickedListener,
         NotificationsFragment.OnNotificationClickedListener,
-        SortAndFilterFragment.OnFilterChangedListener{
+        SortAndFilterFragment.OnFilterChangedListener,
+        AlertOccasionCancelledListener{
 
     private FragmentManager fragmentManager;
     private AHBottomNavigation bottomNavigation;
@@ -139,7 +132,8 @@ public class MainPlayerActivity extends AppCompatActivity
     // variable to track event time
     private long mLastClickTime = 0;
 
-    private CountDownTimer reviewPending;
+
+    private HashMap<String, CountDownTimer> countDownTimerHashMap = new HashMap<>();
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -235,12 +229,12 @@ public class MainPlayerActivity extends AppCompatActivity
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
 
-        UserChatsUserIdViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(UserChatsUserIdViewModel.class);
-        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("userChats").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         liveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadChats = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot chatID: dataSnapshot.getChildren()) {
@@ -266,22 +260,24 @@ public class MainPlayerActivity extends AppCompatActivity
                 if (dataSnapshot.getValue()!=null) {
                     stripeCustomerId = dataSnapshot.getValue().toString();
                 }
-                StripeLastChangeViewModel stripeLastChangeViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(StripeLastChangeViewModel.class);
-                LiveData<DataSnapshot> StripeLastChangeLiveData = stripeLastChangeViewModel.getDataSnapshotLiveData();
+
+                FirebaseDatabaseViewModel stripeLastChangeViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
+                LiveData<DataSnapshot> StripeLastChangeLiveData = stripeLastChangeViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeLastChange"));
                 StripeLastChangeLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
                     @Override
                     public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                         if (stripeCustomerId==null) {
 
-                            StripeCustomerIdViewModel stripeCustomerIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(StripeCustomerIdViewModel.class);
-                            LiveData<DataSnapshot> stripeCustomerIdLiveData = stripeCustomerIdViewModel.getDataSnapshotLiveData();
-                            stripeCustomerIdLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+                            FirebaseDatabaseViewModel stripeCustomerViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
+                            LiveData<DataSnapshot> stripeCustomerLiveData = stripeCustomerViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId"));
+                            stripeCustomerLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
                                 @Override
                                 public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot!=null) {
+                                    if (dataSnapshot.getValue()!=null) {
                                         stripeCustomerId = dataSnapshot.getValue().toString();
                                         updateStripeCustomerInfo();
                                     }
+
                                 }
                             });
                         } else {
@@ -299,12 +295,12 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        UnreadNotificationsUserIdViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(UnreadNotificationsUserIdViewModel.class);
-        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadNotifications = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -321,12 +317,12 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        FriendRequestsUserIdViewHolder friendRequestsUserIdViewHolder = ViewModelProviders.of(this).get(FriendRequestsUserIdViewHolder.class);
-        LiveData<DataSnapshot> friendRequestsLiveData = friendRequestsUserIdViewHolder.getDataSnapshotLiveData();
-        friendRequestsLiveData.observe(this, new Observer<DataSnapshot>() {
+        FirebaseDatabaseViewModel firebaseDatabaseFriendRequestViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseFriendRequestLiveData = firebaseDatabaseFriendRequestViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("friend_requests").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        firebaseDatabaseFriendRequestLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadFriendRequests = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -344,31 +340,38 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        ReviewsToWriteUserIdViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(ReviewsToWriteUserIdViewModel.class);
-        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
-                    Long currentTimestamp = System.currentTimeMillis();
-                    Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                    if (reviewTimestamp<currentTimestamp) {
-                        presentReview(dataSnapshot.getKey());
-                    } else {
-                        reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                            @Override
-                            public void onTick(long l) {
+                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                        Long currentTimestamp = System.currentTimeMillis();
+                        Long reviewTimestamp = (Long)snapshot.getValue();
+                        if (reviewTimestamp<currentTimestamp) {
+                            presentReview(snapshot.getKey());
+                        } else {
+                            if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                                CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                    @Override
+                                    public void onTick(long l) {
 
+                                    }
+                                    @Override
+                                    public void onFinish() {
+                                        presentReview(snapshot.getKey());
+                                        countDownTimerHashMap.remove(snapshot.getKey());
+                                    }
+                                }.start();
+                                countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
                             }
-                            @Override
-                            public void onFinish() {
-                                presentReview(dataSnapshot.getKey());
-                            }
-                        }.start();
+                        }
                     }
+
                 }
             }
         });
@@ -394,13 +397,10 @@ public class MainPlayerActivity extends AppCompatActivity
 
     private void presentReview(String advertisementId) {
 
-        WriteReviewsFragment writeReviewsFragment = (WriteReviewsFragment) fragmentManager.findFragmentByTag(WriteReviewsFragment.TAG);
-        if (writeReviewsFragment==null) {
-            writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-        }
+        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment, WriteReviewsFragment.TAG).addToBackStack("").commit();
+        writeReviewsFragment.show(transaction,advertisementId);
     }
 
     private void updateStripeCustomerInfo() {
@@ -550,11 +550,6 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnHostSessionChanged() {
-        // Not possible in player environment
-    }
-
-    @Override
     public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
@@ -616,15 +611,14 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
             if (requestCode == CANCEL_BOOKING_REQUEST) {
-                AlertDialogs alertDialogs = new AlertDialogs(this);
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (data!=null) {
                     if (data.getStringExtra("operationType").equals("REFUND")) {
                         String refundAmount = data.getStringExtra("refundAmount");
                         String currency = data.getStringExtra("currency");
-                        alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation),
+                        alertDialogOk(getString(R.string.cancellation_confirmation),
                                 getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + getString(R.string.will_be_refunded_to_your_account), true,
-                                new AlertDialogs.OnOkPressedListener() {
+                                new OnOkPressedListener() {
                                     @Override
                                     public void OnOkPressed() {
 
@@ -632,8 +626,8 @@ public class MainPlayerActivity extends AppCompatActivity
                                 });
                     }
                 } else {
-                    alertDialogs.alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session),
-                            true,new AlertDialogs.OnOkPressedListener() {
+                    alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session),
+                            true,new OnOkPressedListener() {
                         @Override
                         public void OnOkPressed() {
 
@@ -740,28 +734,26 @@ public class MainPlayerActivity extends AppCompatActivity
             startActivity(welcomeIntent);
             finish();
         }
-
-        mainPager.setAdapter(bottomNavigationAdapter);
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+            countDownTimer.start();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (reviewPending!=null) {
-            reviewPending.cancel();
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+            countDownTimer.cancel();
         }
 
-        mainPager.setAdapter(null);
+
     }
 
     // When activity is destroyed, remove all listeners
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (reviewPending!=null) {
-            reviewPending.cancel();
-        }
+
         mainPager.setAdapter(null);
         bottomNavigationAdapter = null;
     }
@@ -779,7 +771,7 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         resumed=true;
-        CheckVersion.checkVersion(this);
+
     }
 
     public void hideKeyboard() {
@@ -894,5 +886,72 @@ public class MainPlayerActivity extends AppCompatActivity
         exploreFragment.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
     }
 
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onOkPressedListener.OnOkPressed();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+        dialog.show();
+    }
 
+    public void alertDialogPositiveOrNegative(String title, String message, String positiveButton, String negativeButton, OnPositiveOrNegativeButtonPressedListener onPositiveOrNegativeButtonPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                onPositiveOrNegativeButtonPressedListener.OnPositivePressed();
+            }
+        });
+        builder.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onPositiveOrNegativeButtonPressedListener.OnNegativePressed();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void AlertOccasionCancelled(boolean free, String sessionId) {
+        String message = getResources().getString(R.string.occasion_cancelled_text);
+        if (!free) {
+            message = getResources().getString(R.string.occasion_cancelled_text) + getResources().getString(R.string.you_will_be_refunded);
+        }
+        alertDialogPositiveOrNegative(getResources().getString(R.string.occasion_cancelled), message,
+                getResources().getString(R.string.ok), getResources().getString(R.string.show_availability), new OnPositiveOrNegativeButtonPressedListener() {
+                    @Override
+                    public void OnPositivePressed() {
+
+                    }
+
+                    @Override
+                    public void OnNegativePressed() {
+                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+                        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
+                    }
+                });
+    }
+
+    public interface OnOkPressedListener {
+        void OnOkPressed();
+    }
+
+    public interface OnPositiveOrNegativeButtonPressedListener {
+        void OnPositivePressed();
+        void OnNegativePressed();
+    }
 }

@@ -1,9 +1,7 @@
 package com.foxmike.android.viewmodels;
 
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.support.annotation.NonNull;
+import android.arch.lifecycle.ViewModel;
 
 import com.foxmike.android.utils.FirebaseQueryLiveData;
 import com.google.firebase.database.DataSnapshot;
@@ -15,12 +13,8 @@ import java.util.HashMap;
  * Created by chris on 2019-03-22.
  */
 
-public class FirebaseDatabaseViewModel extends AndroidViewModel {
+public class FirebaseDatabaseViewModel extends ViewModel {
     private HashMap<DatabaseReference, LiveData<DataSnapshot>> mLiveDataMap = new HashMap<>();
-
-    public FirebaseDatabaseViewModel(@NonNull final Application application) {
-        super(application);
-    }
 
     public LiveData<DataSnapshot> getDataSnapshotLiveData(DatabaseReference ref) {
         if (!mLiveDataMap.containsKey(ref)) {

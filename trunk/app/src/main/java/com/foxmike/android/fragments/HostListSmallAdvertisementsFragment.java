@@ -15,6 +15,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
+import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.SmallAdvertisementViewHolder;
@@ -28,6 +29,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     public static final String TAG = HostListSmallAdvertisementsFragment.class.getSimpleName();
 
     private OnSessionClickedListener onSessionClickedListener;
+    private AlertOccasionCancelledListener alertOccasionCancelledListener;
     private RecyclerView comingAdvertisementsRV;
     private RecyclerView pastAdvertisementsRV;
     private FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> pastFirebaseAdvertisementsAdapter;
@@ -64,7 +66,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), onSessionClickedListener);
+        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
 
         comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -84,7 +86,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), onSessionClickedListener);
+        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
 
         pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -166,11 +168,18 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnAdvertisementClickedListener");
         }
+        if (context instanceof AlertOccasionCancelledListener) {
+            alertOccasionCancelledListener = (AlertOccasionCancelledListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement AlertOccasionCancelledListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
+        alertOccasionCancelledListener = null;
     }
 }

@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
-import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -148,7 +147,6 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        CheckVersion.checkVersion(this);
 
         // check if maintenance
         MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);

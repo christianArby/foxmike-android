@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
+import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +31,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
     private RecyclerView smallAdvertisementsListRV;
     private TextView noContent;
     private ListSmallAdvertisementsFirebaseAdapter bookedAdvertisementsFirebaseAdapter;
+    private AlertOccasionCancelledListener alertOccasionCancelledListener;
 
     public PlayerListSmallAdvertisementsBookedFragment() {
         // Required empty public constructor
@@ -58,7 +60,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), onSessionClickedListener);
+        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
 
         bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -118,12 +120,19 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnSessionClickedListener");
         }
+        if (context instanceof AlertOccasionCancelledListener) {
+            alertOccasionCancelledListener = (AlertOccasionCancelledListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement AlertOccasionCancelledListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         onSessionClickedListener = null;
+        alertOccasionCancelledListener = null;
     }
 
 }

@@ -23,9 +23,10 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
-import com.foxmike.android.viewmodels.CurrentUserViewModel;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -91,19 +92,21 @@ public class UserProfileFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(false);
 
         // GET CURRENT USER FROM DATABASE
-        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
-        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
-        userLiveData.observe(this, new Observer<User>() {
+        FirebaseDatabaseViewModel firebaseDatabaseUserViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseUserLiveData = firebaseDatabaseUserViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        firebaseDatabaseUserLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
-            public void onChanged(@Nullable User user) {
-                fullNameTV.setText(user.getFullName());
-                userAboutMeTV.setText(user.getAboutMe());
-                userNameTV.setText(user.getUserName());
-
-                setCircleImage(user.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
-
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    User user = dataSnapshot.getValue(User.class);
+                    fullNameTV.setText(user.getFullName());
+                    userAboutMeTV.setText(user.getAboutMe());
+                    userNameTV.setText(user.getUserName());
+                    setCircleImage(user.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
+                }
             }
         });
+
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

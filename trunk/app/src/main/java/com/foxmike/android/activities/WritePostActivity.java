@@ -81,7 +81,7 @@ public class WritePostActivity extends AppCompatActivity {
         postTitle = findViewById(R.id.post_custom_bar_name);
         postTitle.setText(title);
 
-        showKeyboard(this);
+        showKeyboard();
 
         rootDbRef.child("usersPublic").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -167,7 +167,14 @@ public class WritePostActivity extends AppCompatActivity {
         }
     }
 
-    public static void showKeyboard(Context context) {
-        ((InputMethodManager) (context).getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    public void showKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        }
     }
 }

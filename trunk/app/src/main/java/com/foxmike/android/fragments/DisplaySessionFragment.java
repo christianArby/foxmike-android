@@ -68,7 +68,6 @@ import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
 import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
-import com.foxmike.android.viewmodels.CurrentUserViewModel;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.SessionViewModel;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
@@ -203,7 +202,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private AppBarLayout appBarLayout;
     private AppBarLayout.OnOffsetChangedListener onOffsetChangedListener;
     private ActionBar actionBar;
-    private TextView noSnackAdTV;
+    private TextView snackNoAdTV;
     HashMap<String, UserPublic> userPublicHashMap = new HashMap<>();
     private long nrOfPosts;
     private AdvertisementListener advertisementListener;
@@ -229,6 +228,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private ConstraintLayout ratingContainer;
     private TextView newFlag;
     private Disposable subscription;
+    private TextView showAvailAbility;
+    private HashMap<String, Long> adTimes = new HashMap<>();
+    private String stripeCustomerId;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -276,17 +278,19 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         getDefaultSourceMap();
 
         // GET CURRENT USER FROM DATABASE
-        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
-        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
-        userLiveData.observe(this, new Observer<User>() {
+        FirebaseDatabaseViewModel firebaseDatabaseUserViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseUserLiveData = firebaseDatabaseUserViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        firebaseDatabaseUserLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onChanged(@Nullable User user) {
-                currentUserAndViewUsed = false;
-                currentUserAndSessionAndViewAndMapUsed = false;
-                currentUser = user;
-                currentUserLoaded =true;
-                onAsyncTaskFinished();
-
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    currentUserAndViewUsed = false;
+                    currentUserAndSessionAndViewAndMapUsed = false;
+                    currentUser = dataSnapshot.getValue(User.class);
+                    currentUserLoaded =true;
+                    stripeCustomerId = currentUser.getStripeCustomerId();
+                    onAsyncTaskFinished();
+                }
             }
         });
 
@@ -298,6 +302,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 @Override
                 public void onChanged(@Nullable Session session) {
                     if (session!=null) {
+                        if (session.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                            isHost = true;
+                        }
                         mSession = session;
                         sessionLongitude = session.getLongitude();
                         sessionLatitude = session.getLatitude();
@@ -309,10 +316,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         onAsyncTaskFinished();
                         getPosts();
                         getSessionHost();
-
-                        if (session.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                            isHost = true;
-                        }
                     }
 
                 }
@@ -336,12 +339,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         defaultSourceMap = hashMap;
                         hasPaymentSystem = true;
                         sessionAndPaymentAndViewUsed = false;
+                        paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
                     } else {
                         hasPaymentSystem = false;
                         defaultSourceMap = new HashMap();
                         sessionAndPaymentAndViewUsed = false;
+                        paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
                     }
@@ -351,6 +356,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         } catch (RuntimeException e){
             defaultSourceMap = new HashMap();
             sessionAndPaymentAndViewUsed = false;
+            paymentMethodAdSelectedAndViewUsed = false;
             paymentMethodLoaded = true;
             onAsyncTaskFinished();
         }
@@ -383,35 +389,32 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
-                    postsUsed = false;
-                    nrOfPosts = dataSnapshot.getChildrenCount();
-                    postBranchArrayList.clear();
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        String postID = postSnapshot.getKey();
-                        Post post = postSnapshot.getValue(Post.class);
-                        PostBranch postBranch = new PostBranch(postSnapshot.getKey(),post);
-                        postBranchArrayList.add(postBranch);
-                        // Number of comments listener
-                        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
-                        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionPostComments").child(sessionID).child(postID));
-                        firebaseDatabaseLiveData.observe(DisplaySessionFragment.this, new Observer<DataSnapshot>() {
-                            @Override
-                            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                                nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
-                                if (nrOfComments.size()==nrOfPosts) {
-                                    postCommentsUsed = false;
-                                    postCommentsLoaded = true;
-                                    onAsyncTaskFinished();
-                                }
+                postsUsed = false;
+                nrOfPosts = dataSnapshot.getChildrenCount();
+                postBranchArrayList.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String postID = postSnapshot.getKey();
+                    Post post = postSnapshot.getValue(Post.class);
+                    PostBranch postBranch = new PostBranch(postSnapshot.getKey(),post);
+                    postBranchArrayList.add(postBranch);
+                    // Number of comments listener
+                    FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
+                    LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionPostComments").child(sessionID).child(postID));
+                    firebaseDatabaseLiveData.observe(DisplaySessionFragment.this, new Observer<DataSnapshot>() {
+                        @Override
+                        public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                            nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
+                            if (nrOfComments.size()==nrOfPosts) {
+                                postCommentsUsed = false;
+                                postCommentsLoaded = true;
+                                onAsyncTaskFinished();
                             }
-                        });
-                    }
-                    Collections.sort(postBranchArrayList);
-                    postsLoaded = true;
-                    onAsyncTaskFinished();
-
+                        }
+                    });
                 }
+                Collections.sort(postBranchArrayList);
+                postsLoaded = true;
+                onAsyncTaskFinished();
             }
         });
     }
@@ -441,7 +444,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     onAsyncTaskFinished();
                 } else {
                     // if there are advertisements collect all the timestamps in a hashmap
-                    HashMap<String,Long> adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
+                    adTimes.clear();
+                    adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
                     // If activity has been opened from map representingAdTimestamp will be 0, update snackbar.
                     if (representingAdTimestamp==0) {
                         repAdCancelled = false;
@@ -541,9 +545,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(model.getAdvertisementId(), getActivity().getApplicationContext().getResources().getString(R.string.participants_on) + " " + TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
                                 FragmentManager fragmentManager = getChildFragmentManager();
                                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                if (participantsFragment!=null) {
-                                    transaction.remove(participantsFragment);
-                                }
                                 participantsFragment.show(transaction,"participantsFragment");
                             }
                         }
@@ -675,6 +676,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         upcomingSessionsRV = displaySession.findViewById(R.id.upcomingSessionsList);
         showMore = displaySession.findViewById(R.id.showMoreText);
         snackNoUpcomingAds = view.findViewById(R.id.snackNoUpcomingAds);
+        showAvailAbility = view.findViewById(R.id.showAvailAbility);
         addDates = displaySession.findViewById(R.id.editSession);
         fbRVContainer = displaySession.findViewById(R.id.firebaseRVContainer);
         sessionDateAndTimeLLManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -684,7 +686,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         upcomingSessionsRV.setNestedScrollingEnabled(false);
         showMoreTV = displaySession.findViewById(R.id.showMoreTV);
         displaySessionSV = view.findViewById(R.id.displaySessionSV);
-        noSnackAdTV = view.findViewById(R.id.noSnackAdTV);
+        snackNoAdTV = view.findViewById(R.id.snackNoAdTV);
         mAddress = displaySession.findViewById(R.id.addressTV);
         postProgressBar = displaySession.findViewById(R.id.postProgressBar);
         sessionName = view.findViewById(R.id.sessionName);
@@ -858,6 +860,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -------------------- HOST -----------------------------
                 editTop.setVisibility(View.VISIBLE);
+                ratingContainer.setVisibility(View.GONE);
+                newFlag.setVisibility(View.GONE);
                 for (TextView editTV: editTVArrayList) {
                     editTV.setVisibility(View.VISIBLE);
                 }
@@ -991,17 +995,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             if (mSession.getNrOfRatings()==0) {
                 ratingsAndReviewsText.setText(R.string.new_session_no_reviews_yet);
                 ratingContainer.setVisibility(View.GONE);
-                newFlag.setVisibility(View.VISIBLE);
+                if (!isHost) {
+                    newFlag.setVisibility(View.VISIBLE);
+                }
             } else if (mSession.getNrOfRatings()==1) {
                 ratingContainer.setVisibility(View.VISIBLE);
                 newFlag.setVisibility(View.GONE);
                 String rating = String.format("%.1f", mSession.getRating());
-                ratingText.setText(rating + " (" + mSession.getNrOfReviews() + ")");
+                ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2_single));
             } else {
                 String rating = String.format("%.1f", mSession.getRating());
-                ratingText.setText(rating + " (" + mSession.getNrOfReviews() + ")");
-                ratingContainer.setVisibility(View.VISIBLE);
+                ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
+                if (!isHost) {
+                    ratingContainer.setVisibility(View.VISIBLE);
+                }
                 newFlag.setVisibility(View.GONE);
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2));
             }
@@ -1046,7 +1054,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     return;
                                 }
                                 lastScrollTime = SystemClock.elapsedRealtime();
-                                if (adSelected!=null) {
+                                if (adSelected==null) {
                                     snackNoUpcomingAds.setVisibility(View.VISIBLE);
                                 }
                             }
@@ -1056,12 +1064,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // If the the current user has clicked a mSession in the sessionlist which represented an ad which has been cancelled it will show
                 // "This occasion has been cancelled, please choose another occasion." otherwise it will show "no upcoming sessions"
                 if (repAdCancelled) {
-                    noSnackAdTV.setText(R.string.show_availability);
+                    if (adTimes.size()>0) {
+                        showAvailAbility.setVisibility(View.VISIBLE);
+                        snackNoAdTV.setVisibility(View.GONE);
+                    }
                 } else {
-                    if (representingAdTimestamp==0) {
-                        noSnackAdTV.setVisibility(View.GONE);
+                    if (adTimes.size()>0) {
+                        showAvailAbility.setVisibility(View.VISIBLE);
+                        snackNoAdTV.setVisibility(View.GONE);
                     } else {
-                        noSnackAdTV.setText(getResources().getString(R.string.no_upcoming_sessions));
+                        showAvailAbility.setVisibility(View.GONE);
+                        snackNoAdTV.setVisibility(View.VISIBLE);
                     }
                 }
             } else {
@@ -1134,7 +1147,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         }
                     }
                 }
-
             }
         }
 
@@ -1528,6 +1540,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         postCommentsUsed = false;
         adSetupLoaded = false;
         paymentMethodAdSelectedAndViewUsed = false;
+        if (onOffsetChangedListener!=null) {
+            appBarLayout.removeOnOffsetChangedListener(onOffsetChangedListener);
+        }
+        appBarLayout = null;
     }
 
     // Model PostBranch which is used to reflect the branch posts in the database
@@ -1612,21 +1628,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onStop() {
         super.onStop();
-        if (onOffsetChangedListener!=null) {
-            appBarLayout.removeOnOffsetChangedListener(onOffsetChangedListener);
-        }
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.stopListening();
         }
-        if (subscription!=null) {
-            subscription.dispose();
+        if (mMap!=null) {
+            mMap.clear();
         }
-        mMap.clear();
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        getDefaultSourceMap();
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.startListening();
         }

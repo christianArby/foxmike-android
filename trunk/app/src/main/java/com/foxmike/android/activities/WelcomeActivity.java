@@ -35,7 +35,6 @@ import com.foxmike.android.fragments.LinkWithFacebookFragment;
 import com.foxmike.android.fragments.PasswordResetFragment;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.AddUserToDatabase;
-import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -468,7 +467,6 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        CheckVersion.checkVersion(this);
 
         // check if maintenance
         MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);

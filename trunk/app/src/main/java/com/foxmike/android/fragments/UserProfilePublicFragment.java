@@ -24,9 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnChatClickedListener;
-import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
-import com.foxmike.android.viewmodels.CurrentUserViewModel;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -130,15 +128,6 @@ public class UserProfilePublicFragment extends Fragment {
 
         // get data of the otherUserID clicked in previous activity
         // GET CURRENT USER FROM DATABASE
-        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
-        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
-        userLiveData.observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(@Nullable User user) {
-
-            }
-        });
-
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(usersDbRef.child(otherUserID));
         firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {

@@ -146,7 +146,8 @@
         <activity android:name=".activities.WriteAdminNotification" />
         <activity android:name=".activities.RatingsAndReviewsActivity" />
         <activity android:name=".activities.ChooseLocationActivity" />
-        <activity android:name=".activities.WritePostActivity"></activity>
+        <activity android:name=".activities.WritePostActivity" />
+        <activity android:name=".activities.CreateOrEditSessionActivity"></activity>
     </application>
 
 </manifest>

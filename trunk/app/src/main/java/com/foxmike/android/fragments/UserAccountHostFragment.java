@@ -31,7 +31,6 @@ import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
-import com.foxmike.android.viewmodels.CurrentUserViewModel;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -95,35 +94,7 @@ public class UserAccountHostFragment extends Fragment {
         if (getArguments() != null) {
         }
 
-        mAuth = FirebaseAuth.getInstance();
 
-        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
-        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(connectedRef);
-        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
-                    connected = dataSnapshot.getValue(Boolean.class);
-                }
-            }
-        });
-
-        rootDbRef = FirebaseDatabase.getInstance().getReference();
-
-        // GET CURRENT USER FROM DATABASE
-        CurrentUserViewModel currentUserViewModel = ViewModelProviders.of(this).get(CurrentUserViewModel.class);
-        LiveData<User> userLiveData = currentUserViewModel.getUserLiveData();
-        userLiveData.observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(@Nullable User user) {
-                currentUser = user;
-                userLoaded = true;
-                userAndViewUsed = false;
-                onAsyncTaskFinished();
-
-            }
-        });
     }
 
     @Override
@@ -132,6 +103,7 @@ public class UserAccountHostFragment extends Fragment {
 
         /* Get the view fragment_user_account */
         view = inflater.inflate(R.layout.fragment_user_account_host, container, false);
+        mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
 
         /* Inflate the LinearLayout list (in fragment_user_account) with the layout user_profile_info */
@@ -152,6 +124,35 @@ public class UserAccountHostFragment extends Fragment {
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
         addPayoutMethod = profile.findViewById(R.id.addPayoutMethodTV);
         payoutMethodContainer = profile.findViewById(R.id.payoutMethodContainer);
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(connectedRef);
+        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    connected = dataSnapshot.getValue(Boolean.class);
+                }
+            }
+        });
+
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
+
+        // GET CURRENT USER FROM DATABASE
+        FirebaseDatabaseViewModel firebaseDatabaseUserViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseUserLiveData = firebaseDatabaseUserViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        firebaseDatabaseUserLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    currentUser = dataSnapshot.getValue(User.class);
+                    userLoaded = true;
+                    userAndViewUsed = false;
+                    onAsyncTaskFinished();
+                }
+            }
+        });
 
         aboutTV.setOnClickListener(new View.OnClickListener() {
             @Override

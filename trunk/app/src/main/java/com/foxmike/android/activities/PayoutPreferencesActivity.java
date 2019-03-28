@@ -28,14 +28,12 @@ import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
 import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
 import com.foxmike.android.fragments.UpdateStripeExternalAccountFragment;
 import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
-import com.foxmike.android.utils.CheckVersion;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -99,10 +97,11 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(PayoutPreferencesActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeAccountId"));
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 stripeAccountId = dataSnapshot.getValue().toString();
                 retrieveStripeExternalAccounts(stripeAccountId);
                 addPayoutMethodTV.setOnClickListener(new View.OnClickListener() {
@@ -129,15 +128,8 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
                         progressBar.setVisibility(View.GONE);
                         addPayoutMethodTV.setVisibility(View.VISIBLE);
-
-
                     }
                 });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
@@ -255,7 +247,6 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     @Override
     protected void onResume() {
         super.onResume();
-        CheckVersion.checkVersion(this);
         // check if maintenance
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         maintenanceRef = FirebaseDatabase.getInstance().getReference().child("maintenance");
