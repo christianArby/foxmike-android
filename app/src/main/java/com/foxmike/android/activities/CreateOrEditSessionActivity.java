@@ -1,6 +1,4 @@
-/*
-package com.foxmike.android.fragments;
-// Checked
+package com.foxmike.android.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -14,11 +12,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
@@ -29,10 +25,8 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -55,9 +49,6 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
-import com.foxmike.android.activities.ChooseLocationActivity;
-import com.foxmike.android.activities.PayoutPreferencesActivity;
-import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.Price;
@@ -93,17 +84,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static android.app.Activity.RESULT_OK;
-
-*/
-/**
- * This Fragment sets up a UI session form to the user to fill in and then sends the information to the database.
- * It also updates existing sessions.
- *//*
-
-public class CreateOrEditSessionFragment extends Fragment{
-
-    public static final String TAG = CreateOrEditSessionFragment.class.getSimpleName();
+public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
@@ -150,10 +131,7 @@ public class CreateOrEditSessionFragment extends Fragment{
     private FirebaseAuth mAuth;
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
-    private OnHostSessionChangedListener onHostSessionChangedListener;
-    static CreateOrEditSessionFragment fragment;
     private ProgressBar progressBar;
-    private View view;
     private String accountCountry;
     private boolean payoutsEnabled;
     private boolean infoIsValid = true;
@@ -179,48 +157,28 @@ public class CreateOrEditSessionFragment extends Fragment{
     private ArrayAdapter<String> adapter;
     private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog dlg;
-
-
-    public CreateOrEditSessionFragment() {
-        // Required empty public constructor
-    }
-
-    public static CreateOrEditSessionFragment newInstance() {
-        fragment = new CreateOrEditSessionFragment();
-        return fragment;
-    }
+    private View mainView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle bundle = this.getArguments();
-        type = "none";
-        if (bundle != null) {
-            existingSessionID = bundle.getString("sessionID");
-            type = bundle.getString("type");
-            clickedLatLng = bundle.getParcelable("LatLng");
-            existingSession = (Session) bundle.getSerializable("session");
-            addAdvertisements = bundle.getBoolean("addAdvertisements", false);
-        }
-    }
+        setContentView(R.layout.activity_create_or_edit_session);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_create_or_edit_session, container, false);
+        existingSessionID = getIntent().getStringExtra("sessionID");
+        type = getIntent().getStringExtra("type");
+        clickedLatLng = getIntent().getParcelableExtra("LatLng");
+        existingSession = getIntent().getParcelableExtra("session");
+        addAdvertisements = getIntent().getBooleanExtra("addAdvertisements", false);
 
-        */
-/* Create Geofire object in order to store latitude and longitude under in Geofire structure *//*
-
+        /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
         geoFire = new GeoFire(mGeofireDbRef);
 
-        */
-/* Set and inflate "create session" layout*//*
+        mainView = findViewById(R.id.mainView);
 
+        /* Set and inflate "create session" layout*/
         View createSession;
-        LinearLayout createSessionContainer = view.findViewById(R.id.create_session_container);
-        createSession = inflater.inflate(R.layout.create_or_edit_session, createSessionContainer,false);
+        LinearLayout createSessionContainer = findViewById(R.id.create_session_container);
+        createSession = getLayoutInflater().inflate(R.layout.create_or_edit_session, createSessionContainer,false);
         // Setup views
         mLocation = createSession.findViewById(R.id.locationTV);
         mSessionName = createSession.findViewById(R.id.sessionNameET);
@@ -240,16 +198,16 @@ public class CreateOrEditSessionFragment extends Fragment{
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
-        mProgress = new ProgressDialog(getActivity().getApplicationContext());
+        mProgress = new ProgressDialog(this);
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
-        mapsFragmentContainer = view.findViewById(R.id.container_maps_fragment);
+        mapsFragmentContainer = findViewById(R.id.container_maps_fragment);
         progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         imageErrorText = createSession.findViewById(R.id.imageErrorText);
         compactCalendarView = (CompactCalendarView) createSession.findViewById(R.id.compactcalendar_view);
         calendarHeadingTV = createSession.findViewById(R.id.calendarHeadingTV);
         allExceptCalendar = createSession.findViewById(R.id.allExceptCalendar);
-        createOrEditSV = view.findViewById(R.id.scrollview_create_session);
+        createOrEditSV = findViewById(R.id.scrollview_create_session);
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -281,9 +239,9 @@ public class CreateOrEditSessionFragment extends Fragment{
         });
 
         // Setup toolbar
-        Toolbar toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
@@ -296,15 +254,11 @@ public class CreateOrEditSessionFragment extends Fragment{
         // Add view to create session container
         createSessionContainer.addView(createSession);
 
-        */
-/* Create Geofire object in order to store latitude and longitude under in Geofire structure *//*
-
+        /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
         geoFire = new GeoFire(mGeofireDbRef);
 
-        */
-/*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
-          This keeps the data on the disk even though listeners are detached*//*
-
+        /*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
+          This keeps the data on the disk even though listeners are detached*/
 
         // Setup standard aspect ratio of session image
         mSessionImageButton.post(new Runnable() {
@@ -327,10 +281,8 @@ public class CreateOrEditSessionFragment extends Fragment{
                 mDateTIL.setVisibility(View.GONE);
             }
             updateSession = true;
-            */
-/**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
-             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*//*
-
+            /**If this activity was started from clicking on an edit session or returning from mapsfragment the previous activity should have sent a bundle with the session key or session object, if so
+             * extract the key and fill in the existing values in the view (Edit view). Set the text of the button to "Update session"*/
             if (existingSession==null) {
                 final DatabaseReference sessionIDref = mMarkerDbRef.child(existingSessionID);
                 sessionIDref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -348,10 +300,8 @@ public class CreateOrEditSessionFragment extends Fragment{
             } else {
                 setupUI();
             }
-        } */
-/* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
-          if so extract the LatLng and set the image to the default image (Create view)*//*
-
+        } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
+          if so extract the LatLng and set the image to the default image (Create view)*/
         else {
             if (clickedLatLng==null) {
                 mLocation.setText(getString(R.string.choose_location));
@@ -365,9 +315,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             setupUI();
         }
 
-        */
-/**When button is clicked set the values in the edittext fields to a session object *//*
-
+        /**When button is clicked set the values in the edittext fields to a session object */
         mCreateSessionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -385,17 +333,16 @@ public class CreateOrEditSessionFragment extends Fragment{
                 }
 
                 mProgress.show();
+
                 updateSessionObjectFromUI(new OnSessionUpdatedListener() {
                     @Override
                     public void OnSessionUpdated(final Map sessionMap) {
 
-                        int sad = 0;
-
                         if (!payoutsEnabled && (int) sessionMap.get("price")!=0) {
 
-                            LayoutInflater factory = LayoutInflater.from(getActivity().getApplicationContext());
-                            final View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
-                            final AlertDialog okDialog = new AlertDialog.Builder(getActivity().getApplicationContext()).create();
+                            LayoutInflater factory = LayoutInflater.from(CreateOrEditSessionActivity.this);
+                            View okDialogView = factory.inflate(R.layout.fragment_dialog, null);
+                            AlertDialog okDialog = new AlertDialog.Builder(CreateOrEditSessionActivity.this).create();
                             okDialog.setView(okDialogView);
                             TextView tv = okDialogView.findViewById(R.id.textTV);
                             tv.setText(R.string.no_active_payout_method);
@@ -410,7 +357,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                         } else {
                             if (infoIsValid) {sendSession(sessionMap);} else {
-                                Toast.makeText(getActivity().getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), R.string.type_in_necessary_information,Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -459,11 +406,10 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         }
 
-        return view;
     }
 
     private void cannotCreateSessionInPastPopUp() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
         builder.setMessage("Cannot create a session in the past.");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -510,9 +456,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
         // -------------- Set on button click listeners --------------------
 
-        */
-/*When imagebutton is clicked start gallery in phone to let user choose photo/image*//*
-
+        /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
         mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -525,9 +469,8 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image*/
-/*");
-                fragment.startActivityForResult(galleryIntent, GALLERY_REQUEST);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST);
 
             }
         });
@@ -557,8 +500,7 @@ public class CreateOrEditSessionFragment extends Fragment{
 
                 mLocationTIL.setError(null);
 
-                */
-/*FragmentManager fragmentManager = getChildFragmentManager();
+                /*FragmentManager fragmentManager = getChildFragmentManager();
 
                 if (fragmentManager.findFragmentByTag(ChooseLocationFragment.TAG)!=null) {
                     FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
@@ -568,18 +510,15 @@ public class CreateOrEditSessionFragment extends Fragment{
                 chooseLocationFragment = ChooseLocationFragment.newInstance("updateSession");
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.add(R.id.container_maps_fragment, chooseLocationFragment, ChooseLocationFragment.TAG).addToBackStack(null);
-                transaction.commit();*//*
+                transaction.commit();*/
 
-
-                Intent chooseLocatonIntent = new Intent(getActivity().getApplicationContext(),ChooseLocationActivity.class);
+                Intent chooseLocatonIntent = new Intent(CreateOrEditSessionActivity.this, ChooseLocationActivity.class);
                 startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
 
             }
         });
 
-        */
-/** When item is clicked create a dialog where use can choose between different session types *//*
-
+        /** When item is clicked create a dialog where use can choose between different session types */
         mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -696,22 +635,6 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     }
 
-    private void notPossibleHasParticipants(String text) {
-        // 1. Instantiate an AlertDialog.Builder with its constructor
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
-        // 2. Chain together various setter methods to set the dialog characteristics
-        builder.setMessage(text);
-        // Add the buttons
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
-            }
-        });
-        // 3. Get the AlertDialog from create()
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     private void setPrice(final int price) {
         // --------------CHECK IF PAYOUTS ARE ENABLED------
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -731,7 +654,6 @@ public class CreateOrEditSessionFragment extends Fragment{
                             // If not succesful, show error and return from function, will trigger if account ID does not exist
                             if (!task.isSuccessful()) {
                                 Exception e = task.getException();
-                                Log.w(TAG, "retrieve:onFailure", e);
                                 showSnackbar("An error occurred." + e.getMessage());
                                 // ----------- PAYOUTS NOT ENABLED --------------
                                 payoutsEnabled = false;
@@ -779,7 +701,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         mCreateSessionBtn.setVisibility(View.VISIBLE);
     }
 
-    public void updateSessionObjectFromUI(final OnSessionUpdatedListener onSessionUpdatedListener) {
+    public void updateSessionObjectFromUI(OnSessionUpdatedListener onSessionUpdatedListener) {
         //final Session session = new Session();
         Map sessionMap = new HashMap();
 
@@ -867,10 +789,8 @@ public class CreateOrEditSessionFragment extends Fragment{
 
 
 
-        */
-/**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
-         * photo to the Storage database*//*
-
+        /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
+         * photo to the Storage database*/
         if(mImageUri != null && infoIsValid){
             StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
             filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -881,10 +801,8 @@ public class CreateOrEditSessionFragment extends Fragment{
                         @Override
                         public void onSuccess(Uri uri) {
                             String downloadUri = uri.toString();
-                            */
-/** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
-                             * to the main activity*//*
-
+                            /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
+                             * to the main activity*/
                             sessionMap.put("imageUrl", downloadUri);
 
                             if (infoIsValid){
@@ -897,14 +815,10 @@ public class CreateOrEditSessionFragment extends Fragment{
                 }
             });
         }
-        */
-/**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*//*
-
+        /**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*/
         else {
-            */
-/**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
-             * and send the user back to the main activity*//*
-
+            /**If the session is an existing session set the created session object image uri to the existing image uri and send the updated object to the realtime database
+             * and send the user back to the main activity*/
             if (updateSession) {
                 sessionMap.put("imageUrl", existingSession.getImageUrl());
                 mProgress.dismiss();
@@ -914,9 +828,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                 }
 
             }
-            */
-/**If the session is NOT an existing session tell the user that a photo must be chosen*//*
-
+            /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
                 imageErrorText.setVisibility(View.VISIBLE);
                 mProgress.dismiss();
@@ -924,9 +836,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         }
     }
 
-    */
-/**Send session object to database *//*
-
+    /**Send session object to database */
     private void sendSession(Map sendSession) {
 
         ArrayList<String> writeReferences = new ArrayList<>();
@@ -968,8 +878,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         rootDbRef.child("sessionHosts").child(currentFirebaseUser.getUid()).child(mSessionId).setValue(true);
         // create geoFire reference
         geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
-        // TODO this listener might not be needed..
-        onHostSessionChangedListener.OnHostSessionChanged();
+        finish();
     }
 
     // Function retrieveStripeAccount
@@ -988,12 +897,12 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     private void showSnackbar(String message) {
-        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void pickTime() {
         TimePickerDialog mTimePicker;
-        mTimePicker = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+        mTimePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
@@ -1025,7 +934,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                         return;
                     }
                     // ---- Payouts not enabled -----
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
                     builder.setMessage(R.string.create_free_session_question);
                     builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -1042,7 +951,7 @@ public class CreateOrEditSessionFragment extends Fragment{
                     builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PayoutPreferencesActivity.class);
+                            Intent paymentPreferencesIntent = new Intent(CreateOrEditSessionActivity.this, PayoutPreferencesActivity.class);
                             startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
                         }
                     });
@@ -1064,18 +973,16 @@ public class CreateOrEditSessionFragment extends Fragment{
         mTimePicker.show();
     }
 
-    */
-/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
-
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialogWithArray(String title, ArrayList<String> string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
         alertDialogBuilder.setTitle(title);
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
-        adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,string_array);
+        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,string_array);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1088,11 +995,9 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
     }
-    */
-/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
-
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialog(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
@@ -1100,7 +1005,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),android.R.layout.simple_list_item_1,values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1113,11 +1018,9 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
     }
-    */
-/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
-
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createPriceDialog(String title, int string_array,  OnPriceClickedListener onPriceClickedListener) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_radiogroup, null);
         alertDialogBuilder.setView(convertView);
@@ -1130,9 +1033,9 @@ public class CreateOrEditSessionFragment extends Fragment{
         int n=1;
         for (String stringPrice: prices ) {
             if (!radioGroupHashMap.containsKey(stringPrice)) {
-                RadioButton rb = new RadioButton(getActivity().getApplicationContext());
+                RadioButton rb = new RadioButton(this);
                 rb.setText(stringPrice);
-                rb.setTextAppearance(getActivity().getApplicationContext(), android.R.style.TextAppearance_Material_Subhead);
+                rb.setTextAppearance(this, android.R.style.TextAppearance_Material_Subhead);
                 rb.setId(n);
                 n++;
                 currencySettingRadioGroup.addView(rb);
@@ -1156,11 +1059,9 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
     }
-    */
-/**Method createDialog creates a dialog with a title and a list of strings to choose from.*//*
-
+    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View convertView = inflater.inflate(R.layout.dialog_listview, null);
         alertDialogBuilder.setView(convertView);
@@ -1168,7 +1069,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         lv = convertView.findViewById(R.id.listView1);
         lv.getDivider().setAlpha(0);
         String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, values);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
         lv.setAdapter(adapter);
         final AlertDialog dlg = alertDialogBuilder.show();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1181,13 +1082,12 @@ public class CreateOrEditSessionFragment extends Fragment{
             }
         });
     }
-    */
-/** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  *//*
 
+    /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == UPDATE_SESSION_LOCATION_REQUEST && resultCode==Activity.RESULT_OK) {
+        if(requestCode == UPDATE_SESSION_LOCATION_REQUEST && resultCode== Activity.RESULT_OK) {
             updateLocation(data.getDoubleExtra("latitude", 0), data.getDoubleExtra("longitude", 0));
         }
 
@@ -1207,7 +1107,7 @@ public class CreateOrEditSessionFragment extends Fragment{
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageDenominator), getResources().getInteger(R.integer.heightOfSessionImageNumerator))
-                    .start(getActivity().getApplicationContext(), fragment);
+                    .start(this);
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -1225,9 +1125,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         }
     }
 
-    */
-/**Method setImage scales the chosen image*//*
-
+    /**Method setImage scales the chosen image*/
     private void setImage(String image, ImageView imageView) {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
@@ -1237,7 +1135,7 @@ public class CreateOrEditSessionFragment extends Fragment{
         Geocoder geocoder;
         List<Address> addresses;
         String returnAddress;
-        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
@@ -1278,26 +1176,9 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnHostSessionChangedListener) {
-            onHostSessionChangedListener = (OnHostSessionChangedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnHostSessionChangedListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        onHostSessionChangedListener = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ((AppCompatActivity)getActivity()).setSupportActionBar(null);
+    protected void onDestroy() {
+        super.onDestroy();
+        setSupportActionBar(null);
         hideKeyboard();
         imm = null;
         if (lv!=null) {
@@ -1309,10 +1190,30 @@ public class CreateOrEditSessionFragment extends Fragment{
     }
 
     public void updateLocation(Double latitude, Double longitude) {
-        if (getView()!=null) {
-            clickedLatLng = new LatLng(latitude, longitude);
-            String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
-            mLocation.setText(address);
+        clickedLatLng = new LatLng(latitude, longitude);
+        String address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
+        mLocation.setText(address);
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    public void showKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = getCurrentFocus();
+        if (currentFocusedView != null) {
+            inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         }
     }
 
@@ -1323,20 +1224,5 @@ public class CreateOrEditSessionFragment extends Fragment{
 
     public interface OnSessionUpdatedListener {
         void OnSessionUpdated(Map sessionMap);
-     }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     }
-
-    public void hideKeyboard() {
-        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-    }
-
-
-    public void showKeyboard() {
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-    }
-}*/
+}

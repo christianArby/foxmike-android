@@ -27,14 +27,13 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPaymentMethodsAdapter;
 import com.foxmike.android.fragments.UpdateStripeSourceFragment;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
-import com.foxmike.android.utils.CheckVersion;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -98,9 +97,11 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(PaymentPreferencesActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId"));
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     stripeCustomerId = dataSnapshot.getValue().toString();
                     retrieveStripeCustomerSources(stripeCustomerId);
@@ -136,9 +137,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     progressBar.setVisibility(View.GONE);
                     addPaymentMethodTV.setVisibility(View.VISIBLE);
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -254,7 +253,6 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
     @Override
     protected void onResume() {
         super.onResume();
-        CheckVersion.checkVersion(this);
 
         // check if maintenance
         MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);

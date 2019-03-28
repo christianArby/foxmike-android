@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
+import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.utils.AlertDialogs;
 import com.foxmike.android.utils.SmallAdvertisementViewHolder;
 import com.foxmike.android.utils.TextTimestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +37,7 @@ import java.util.Locale;
 public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> {
 
     private Context context;
+    private AlertOccasionCancelledListener alertOccasionCancelledListener;
     private OnSessionClickedListener onSessionClickedListener;
     private long mLastClickTime = 0;
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
@@ -45,9 +46,10 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListSmallAdvertisementsFirebaseAdapter(FirebaseRecyclerOptions<Advertisement> options, Context context, OnSessionClickedListener onSessionClickedListener) {
+    public ListSmallAdvertisementsFirebaseAdapter(FirebaseRecyclerOptions<Advertisement> options, Context context, AlertOccasionCancelledListener alertOccasionCancelledListener, OnSessionClickedListener onSessionClickedListener) {
         super(options);
         this.context = context;
+        this.alertOccasionCancelledListener = alertOccasionCancelledListener;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
@@ -83,20 +85,11 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
                 mLastClickTime = SystemClock.elapsedRealtime();
                 if (!model.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                     if (model.getStatus().equals("cancelled")) {
-                        AlertDialogs alertDialogs = new AlertDialogs(context);
-                        alertDialogs.alertDialogPositiveOrNegative(context.getResources().getString(R.string.occasion_cancelled), context.getResources().getString(R.string.occasion_cancelled_text) + context.getResources().getString(R.string.you_will_be_refunded),
-                                context.getResources().getString(R.string.ok), context.getResources().getString(R.string.show_availability), new AlertDialogs.OnPositiveOrNegativeButtonPressedListener() {
-                                    @Override
-                                    public void OnPositivePressed() {
-
-                                    }
-
-                                    @Override
-                                    public void OnNegativePressed() {
-                                        onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
-                                    }
-                                });
-
+                        if (model.getPrice()>0) {
+                            alertOccasionCancelledListener.AlertOccasionCancelled(false, model.getSessionId());
+                        } else {
+                            alertOccasionCancelledListener.AlertOccasionCancelled(true, model.getSessionId());
+                        }
                     } else {
                         onSessionClickedListener.OnSessionClicked(model.getSessionId(), model.getAdvertisementTimestamp());
                     }

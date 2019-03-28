@@ -30,7 +30,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.CreateOrEditSessionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
@@ -40,27 +39,22 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
+import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnCreateSessionClickedListener;
-import com.foxmike.android.interfaces.OnHostSessionChangedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
-import com.foxmike.android.interfaces.OnSessionBranchClickedListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionBranch;
-import com.foxmike.android.utils.CheckVersion;
-import com.foxmike.android.viewmodels.FriendRequestsUserIdViewHolder;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
-import com.foxmike.android.viewmodels.ReviewsToWriteUserIdViewModel;
-import com.foxmike.android.viewmodels.UnreadNotificationsUserIdViewModel;
-import com.foxmike.android.viewmodels.UserChatsUserIdViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -80,8 +74,6 @@ public class MainHostActivity extends AppCompatActivity implements
         OnUserClickedListener,
         OnNewMessageListener,
         SessionListener,
-        OnHostSessionChangedListener,
-        OnSessionBranchClickedListener,
         OnChatClickedListener,
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
@@ -89,7 +81,8 @@ public class MainHostActivity extends AppCompatActivity implements
         OnCreateSessionClickedListener,
         OnAdvertisementsFoundListener,
         AdvertisementListener,
-        NotificationsFragment.OnNotificationClickedListener {
+        NotificationsFragment.OnNotificationClickedListener,
+        AlertOccasionCancelledListener{
 
     private FragmentManager fragmentManager;
     private AHBottomNavigation bottomNavigation;
@@ -106,7 +99,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadFriendRequests = 0;
     private long mLastClickTime = 0;
     private String currentUserId;
-    private CountDownTimer reviewPending;
+    private HashMap<String, CountDownTimer> countDownTimerHashMap = new HashMap<>();
 
 
     @Override
@@ -173,12 +166,12 @@ public class MainHostActivity extends AppCompatActivity implements
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
 
-        UserChatsUserIdViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(UserChatsUserIdViewModel.class);
-        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("userChats").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         liveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadChats = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot chatID: dataSnapshot.getChildren()) {
@@ -197,12 +190,12 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        UnreadNotificationsUserIdViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(UnreadNotificationsUserIdViewModel.class);
-        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadNotifications = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -219,12 +212,12 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        FriendRequestsUserIdViewHolder friendRequestsUserIdViewHolder = ViewModelProviders.of(this).get(FriendRequestsUserIdViewHolder.class);
-        LiveData<DataSnapshot> friendRequestsLiveData = friendRequestsUserIdViewHolder.getDataSnapshotLiveData();
-        friendRequestsLiveData.observe(this, new Observer<DataSnapshot>() {
+        FirebaseDatabaseViewModel firebaseDatabaseFriendRequestViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseFriendRequestLiveData = firebaseDatabaseFriendRequestViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("friend_requests").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        firebaseDatabaseFriendRequestLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     unreadFriendRequests = 0;
                     if (dataSnapshot.hasChildren()) {
                         for (DataSnapshot child: dataSnapshot.getChildren()) {
@@ -251,31 +244,38 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        ReviewsToWriteUserIdViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(ReviewsToWriteUserIdViewModel.class);
-        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData();
+        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot!=null) {
+                if (dataSnapshot.getValue()!=null) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
-                    Long currentTimestamp = System.currentTimeMillis();
-                    Long reviewTimestamp = (Long)dataSnapshot.getValue();
-                    if (reviewTimestamp<currentTimestamp) {
-                        presentReview(dataSnapshot.getKey());
-                    } else {
-                        reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                            @Override
-                            public void onTick(long l) {
+                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                        Long currentTimestamp = System.currentTimeMillis();
+                        Long reviewTimestamp = (Long)snapshot.getValue();
+                        if (reviewTimestamp<currentTimestamp) {
+                            presentReview(snapshot.getKey());
+                        } else {
+                            if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                                CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                    @Override
+                                    public void onTick(long l) {
 
+                                    }
+                                    @Override
+                                    public void onFinish() {
+                                        presentReview(snapshot.getKey());
+                                        countDownTimerHashMap.remove(snapshot.getKey());
+                                    }
+                                }.start();
+                                countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
                             }
-                            @Override
-                            public void onFinish() {
-                                presentReview(dataSnapshot.getKey());
-                            }
-                        }.start();
+                        }
                     }
+
                 }
             }
         });
@@ -300,11 +300,10 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     private void presentReview(String advertisementId) {
-
-        /*WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(R.animator.fade_in, R.animator.fade_out);
-        transaction.add(R.id.container_fullscreen_main_player, writeReviewsFragment).addToBackStack("").commit();*/
+        writeReviewsFragment.show(transaction,advertisementId);
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
@@ -340,24 +339,6 @@ public class MainHostActivity extends AppCompatActivity implements
         mLastClickTime = SystemClock.elapsedRealtime();
         DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
-    }
-
-    @Override
-    public void OnSessionBranchClicked(SessionBranch sessionBranch, String request) {
-
-        if (request.equals("displaySession")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(sessionBranch.getSessionID());
-            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
-        }
-
-        if (request.equals("createSession")) {
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("template", true);
-            bundle.putSerializable("session", sessionBranch.getSession());
-            CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-            createOrEditSessionFragment.setArguments(bundle);
-            cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "");
-        }
     }
 
     /* Listener, when edit "button" in account is clicked show user profile */
@@ -397,70 +378,49 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnCreateSessionClicked() {
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        startActivity(createOrEditSession);
     }
 
 
     @Override
     public void OnEditSession(String sessionID) {
-        Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        createOrEditSession.putExtra("sessionID", sessionID);
+        startActivity(createOrEditSession);
     }
 
     @Override
     public void OnEditSession(String sessionID, String type) {
-        Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        bundle.putString("type", type);
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
-
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        createOrEditSession.putExtra("sessionID", sessionID);
+        createOrEditSession.putExtra("type", type);
+        startActivity(createOrEditSession);
     }
 
     @Override
     public void OnEditSession(String sessionID, Session session) {
-        Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        bundle.putSerializable("session", session);
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        createOrEditSession.putExtra("session", session);
+        createOrEditSession.putExtra("sessionID", sessionID);
+        startActivity(createOrEditSession);
     }
 
     @Override
     public void OnEditSession(String sessionID, Session session, String type) {
-        Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        bundle.putString("type", type);
-        bundle.putSerializable("session", session);
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        createOrEditSession.putExtra("session", session);
+        createOrEditSession.putExtra("sessionID", sessionID);
+        createOrEditSession.putExtra("type", type);
+        startActivity(createOrEditSession);
     }
 
     @Override
     public void addAdvertisements(String sessionID) {
-        Bundle bundle = new Bundle();
-        bundle.putString("sessionID", sessionID);
-        bundle.putBoolean("addAdvertisements", true);
-        CreateOrEditSessionFragment createOrEditSessionFragment = CreateOrEditSessionFragment.newInstance();
-        createOrEditSessionFragment.setArguments(bundle);
-        cleanMainFullscreenActivityAndSwitch(createOrEditSessionFragment, true, "editSession");
-    }
-
-    // Pops backstack to displaysession again after session has been updated in CreateOrEditSession. Also reloads lists in hostSessions.
-    @Override
-    public void OnHostSessionChanged() {
-        if (fragmentManager.findFragmentByTag("xMainHostSessionsFragment")!=null) {
-            HostSessionsFragment hs = (HostSessionsFragment) fragmentManager.findFragmentByTag("xMainHostSessionsFragment");
-            hs.loadPages(true);
-        }
-        getSupportFragmentManager().popBackStack("editSession", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+        createOrEditSession.putExtra("sessionID", sessionID);
+        createOrEditSession.putExtra("addAdvertisements", true);
+        startActivity(createOrEditSession);
     }
 
     /* When back button is pressed while in main host activity override function and replace with following */
@@ -481,8 +441,8 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        if (reviewPending!=null) {
-            reviewPending.cancel();
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+            countDownTimer.cancel();
         }
     }
 
@@ -498,6 +458,9 @@ public class MainHostActivity extends AppCompatActivity implements
             welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(welcomeIntent);
             finish();
+        }
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+            countDownTimer.start();
         }
     }
 
@@ -548,7 +511,6 @@ public class MainHostActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         resumed = true;
-        CheckVersion.checkVersion(this);
     }
 
     public void hideKeyboard() {
@@ -606,5 +568,10 @@ public class MainHostActivity extends AppCompatActivity implements
         if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
             Toast.makeText(MainHostActivity.this, R.string.not_possible_in_trainer_mode, Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void AlertOccasionCancelled(boolean free, String sessionId) {
+
     }
 }

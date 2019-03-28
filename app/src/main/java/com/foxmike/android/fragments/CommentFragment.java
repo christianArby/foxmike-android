@@ -98,11 +98,7 @@ public class CommentFragment extends Fragment {
             thumb_image = getArguments().getString("thumb_image");
             wallType = getArguments().getString("wallType");
         }
-        if (wallType.equals("session")) {
-            postCommentsDatabaseRef = "sessionPostComments";
-        } else {
-            postCommentsDatabaseRef = "advertisementPostComments";
-        }
+        postCommentsDatabaseRef = "sessionPostComments";
     }
 
     @Override
@@ -207,7 +203,6 @@ public class CommentFragment extends Fragment {
         });
 
         messagesListRV.setAdapter(messageFirebaseAdapter);
-        messageFirebaseAdapter.startListening();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -267,12 +262,27 @@ public class CommentFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        messageFirebaseAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        messageFirebaseAdapter.stopListening();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         for (Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerMap.entrySet()) {
             DatabaseReference ref = entry.getKey();
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
+        }
+        if (messagesListRV!=null) {
+            messagesListRV.setAdapter(null);
         }
     }
 }
