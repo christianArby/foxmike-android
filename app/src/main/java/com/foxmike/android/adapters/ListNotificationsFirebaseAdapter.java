@@ -513,7 +513,7 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                                 stringHashMap.get("the_session").length(),
                                 stringHashMap.get("the_session").length() + sessionName.length(),
                                 stringHashMap.get("the_session").length() + sessionName.length() + stringHashMap.get("on").length() +TextTimestamp.textSessionDate(adTimestamp).length(),
-                                stringHashMap.get("the_session").length() + sessionName.length() + stringHashMap.get("on").length() +TextTimestamp.textSessionDate(adTimestamp).length() + stringHashMap.get("R.string.has_been_cancelled").length());
+                                stringHashMap.get("the_session").length() + sessionName.length() + stringHashMap.get("on").length() +TextTimestamp.textSessionDate(adTimestamp).length() + stringHashMap.get("has_been_cancelled").length());
 
                         inAppNotification.setNotificationThumbnail(imageUrl);
                         inAppNotification.setNotificationText(notificationTextFormatted);

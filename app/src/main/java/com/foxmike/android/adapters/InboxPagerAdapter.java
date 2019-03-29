@@ -32,14 +32,14 @@ public class InboxPagerAdapter extends FragmentPagerAdapter{
 
         switch (position) {
             case 0:
-                ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
-            case 1:
-                FriendsFragment friendsFragment = new FriendsFragment();
-                return friendsFragment;
-            case 2:
                 NotificationsFragment notificationsFragment = new NotificationsFragment();
                 return notificationsFragment;
+            case 1:
+                ChatsFragment chatsFragment = new ChatsFragment();
+                return chatsFragment;
+            case 2:
+                FriendsFragment friendsFragment = new FriendsFragment();
+                return friendsFragment;
             default:
                 return null;
         }
