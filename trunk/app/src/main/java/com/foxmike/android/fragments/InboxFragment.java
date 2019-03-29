@@ -55,7 +55,7 @@ public class InboxFragment extends Fragment {
 
         inboxPager = (ViewPager) view.findViewById(R.id.inboxPager);
         inboxPager.setOffscreenPageLimit(2);
-        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getResources().getString(R.string.tab_messages), getResources().getString(R.string.tab_friends), getResources().getString(R.string.tab_notifications));
+        inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getResources().getString(R.string.tab_notifications), getResources().getString(R.string.tab_messages), getResources().getString(R.string.tab_friends));
         inboxPager.setAdapter(inboxPagerAdapter);
 
         inboxPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

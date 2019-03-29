@@ -617,40 +617,42 @@ public class ExploreFragment extends Fragment{
 
         int width = mainView.getRight();
         int height = mainView.getBottom();
-        float fabDiameter = convertDpToPx(getActivity(), 56);
+        float fabDiameter = convertDpToPx(getActivity().getApplicationContext(), 56);
 
-        mapOrListBtnStartX = width/2 - fabDiameter/2;
-        mapOrListBtnStartY = height -  convertDpToPx(getActivity(), 20) - fabDiameter;
-        float Xcontrol2 = width - convertDpToPx(getActivity(),72);
-        float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(getActivity(), 144);
+        if (width>0 && height>0 && fabDiameter>0) {
+            mapOrListBtnStartX = width/2 - fabDiameter/2;
+            mapOrListBtnStartY = height -  convertDpToPx(getActivity().getApplicationContext(), 20) - fabDiameter;
+            float Xcontrol2 = width - convertDpToPx(getActivity().getApplicationContext(),72);
+            float Ycontrol2 = sortAndFilterFAB.getY() + convertDpToPx(getActivity().getApplicationContext(), 144);
 
-        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
+            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) exploreFragmentAdapter.getRegisteredFragment(1);
 
 
-        if (mapIsVisible) {
-            exploreMapsFragment.showRecylerView(true);
-            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
-            myLocationBtn.show();
+            if (mapIsVisible) {
+                exploreMapsFragment.showRecylerView(true);
+                mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_list_black_24dp));
+                myLocationBtn.show();
 
-            Path path = new Path();
-            path.moveTo(mapOrListBtnStartX, mapOrListBtnStartY);
-            path.quadTo(mapOrListBtnStartX, Ycontrol2, Xcontrol2, Ycontrol2);
-            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
-            objectAnimator1.setDuration(500);
-            objectAnimator1.setInterpolator(new LinearOutSlowInInterpolator());
-            objectAnimator1.start();
-        } else {
-            exploreMapsFragment.showRecylerView(false);
-            mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
-            myLocationBtn.hide();
+                Path path = new Path();
+                path.moveTo(mapOrListBtnStartX, mapOrListBtnStartY);
+                path.quadTo(mapOrListBtnStartX, Ycontrol2, Xcontrol2, Ycontrol2);
+                ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
+                objectAnimator1.setDuration(500);
+                objectAnimator1.setInterpolator(new LinearOutSlowInInterpolator());
+                objectAnimator1.start();
+            } else {
+                exploreMapsFragment.showRecylerView(false);
+                mapOrListBtn.setImageDrawable(getResources().getDrawable(R.mipmap.ic_location_on_black_24dp));
+                myLocationBtn.hide();
 
-            Path path = new Path();
-            path.moveTo(Xcontrol2, Ycontrol2);
-            path.quadTo(Ycontrol2, mapOrListBtnStartY, mapOrListBtnStartX, mapOrListBtnStartY);
-            ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
-            objectAnimator1.setDuration(500);
-            objectAnimator1.setInterpolator(new FastOutLinearInInterpolator());
-            objectAnimator1.start();
+                Path path = new Path();
+                path.moveTo(Xcontrol2, Ycontrol2);
+                path.quadTo(Ycontrol2, mapOrListBtnStartY, mapOrListBtnStartX, mapOrListBtnStartY);
+                ObjectAnimator objectAnimator1 = new ObjectAnimator().ofFloat(mapOrListBtn, "x", "y", path);
+                objectAnimator1.setDuration(500);
+                objectAnimator1.setInterpolator(new FastOutLinearInInterpolator());
+                objectAnimator1.start();
+            }
         }
     }
 
