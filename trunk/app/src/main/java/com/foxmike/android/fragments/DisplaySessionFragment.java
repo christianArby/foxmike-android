@@ -425,7 +425,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // Current time as timestamp
         Long currentTimestamp = System.currentTimeMillis();
         // Create query to get all the advertisement keys from the current mSession
-        Query keyQuery = rootDbRef.child("sessions").child(mSession.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+        Query keyQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
         // Use the query to get all the advertisement keys from the current mSession
         keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -436,6 +436,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     if (representingAdTimestamp!=0) {
                         repAdCancelled = true;
                     }
+                    addDates.setText(R.string.add_sessions);
                     // display text "no upcoming sessions"
                     showMoreTV.setText(getResources().getString(R.string.no_upcoming_sessions));
                     // run method which updates snackbar
@@ -443,6 +444,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     adSelectedReady = true;
                     onAsyncTaskFinished();
                 } else {
+                    addDates.setText(R.string.add_more_sessions);
                     // if there are advertisements collect all the timestamps in a hashmap
                     adTimes.clear();
                     adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
@@ -501,7 +503,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // --------- POPULATE THE RECYCLERVIEW WITH THE ADVERTISEMENTS ---------
         // Create the key query which will get all the advertisement keys for ads with a date in the future.
-        Query allKeysQuery = rootDbRef.child("sessions").child(mSession.getSessionId()).child("advertisements").orderByValue().startAt(currentTimestamp);
+        Query allKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
         // Create the firebase recycler adapter which will fill the list with those advertisements specified by the above query
         FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
@@ -833,6 +835,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         return view;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -864,11 +867,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 newFlag.setVisibility(View.GONE);
                 for (TextView editTV: editTVArrayList) {
                     editTV.setVisibility(View.VISIBLE);
-                }
-                if (mSession.getAdvertisements()!=null) {
-                    addDates.setText(R.string.add_more_sessions);
-                } else {
-                    addDates.setText(R.string.add_sessions);
                 }
                 addDates.setVisibility(View.VISIBLE);
                 mSendMessageToHost.setText(R.string.show_and_edit_profile_text);

@@ -50,13 +50,11 @@ public class FirebaseQueryLiveDataFromChildren extends LiveData<DataSnapshot> {
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            // TODO ONLY FOR TEST
-            setValue(dataSnapshot);
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+            setValue(dataSnapshot);
         }
 
         @Override

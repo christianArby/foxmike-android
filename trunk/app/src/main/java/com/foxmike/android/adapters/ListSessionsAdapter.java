@@ -444,9 +444,12 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public void notifyAdvertisementChange(String advertisementId, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap) {
-        this.advertisementHashMap = advertisementHashMap;
-        this.sessionHashMap = sessionHashMap;
-        this.notifyDataSetChanged();
+        if (advertisementHashMap.containsKey(advertisementId)) {
+            this.advertisementHashMap = advertisementHashMap;
+            this.sessionHashMap = sessionHashMap;
+            this.notifyDataSetChanged();
+        }
+
     }
 
     public void notifyAdvertisementRemoved(AdvertisementIdsAndTimestamps removedAd) {

@@ -3,7 +3,6 @@ package com.foxmike.android.models;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 
 public class Session implements Comparable<Session>, Serializable {
@@ -15,7 +14,6 @@ public class Session implements Comparable<Session>, Serializable {
     private String maxParticipants;
     private double latitude;
     private double longitude;
-    private HashMap<String, Long> advertisements;
     private String imageUrl;
     private String what;
     private String who;
@@ -28,7 +26,7 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
 
-    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, HashMap<String, Long> advertisements, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
+    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
         this.sessionId = sessionId;
         this.host = host;
         this.sessionName = sessionName;
@@ -37,7 +35,6 @@ public class Session implements Comparable<Session>, Serializable {
         this.maxParticipants = maxParticipants;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.advertisements = advertisements;
         this.imageUrl = imageUrl;
         this.what = what;
         this.who = who;
@@ -63,7 +60,6 @@ public class Session implements Comparable<Session>, Serializable {
         this.maxParticipants = sessionToCopy.maxParticipants;
         this.latitude = sessionToCopy.latitude;
         this.longitude = sessionToCopy.longitude;
-        this.advertisements = sessionToCopy.advertisements;
         this.imageUrl = sessionToCopy.imageUrl;
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
@@ -93,18 +89,6 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public HashMap<String, Long> getAdvertisements() {
-        if (this.advertisements==null) {
-            advertisements = new HashMap<String, Long>();
-        }
-        return advertisements;
-    }
-
-
-    public void setAdvertisements(HashMap<String, Long> advertisements) {
-        this.advertisements = advertisements;
     }
 
     public float getRating() {
