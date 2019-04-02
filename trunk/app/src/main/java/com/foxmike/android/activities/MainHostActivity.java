@@ -171,21 +171,19 @@ public class MainHostActivity extends AppCompatActivity implements
         liveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadChats = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot chatID: dataSnapshot.getChildren()) {
-                            Boolean read = (Boolean) chatID.getValue();
-                            if (!read) {
-                                unreadChats++;
-                            }
+                unreadChats = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                        Boolean read = (Boolean) chatID.getValue();
+                        if (!read) {
+                            unreadChats++;
                         }
                     }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
-                    } else {
-                        bottomNavigation.setNotification("",0);
-                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                } else {
+                    bottomNavigation.setNotification("",0);
                 }
             }
         });
@@ -195,20 +193,17 @@ public class MainHostActivity extends AppCompatActivity implements
         unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadNotifications = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            unreadNotifications++;
-                        }
-                    }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                    } else {
-                        bottomNavigation.setNotification("",2);
+                unreadNotifications = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        unreadNotifications++;
                     }
                 }
-
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
+                } else {
+                    bottomNavigation.setNotification("",0);
+                }
             }
         });
 
@@ -217,20 +212,18 @@ public class MainHostActivity extends AppCompatActivity implements
         firebaseDatabaseFriendRequestLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadFriendRequests = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            if (!child.child("request_type").getValue().toString().equals("sent")) {
-                                unreadFriendRequests++;
-                            }
+                unreadFriendRequests = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        if (!child.child("request_type").getValue().toString().equals("sent")) {
+                            unreadFriendRequests++;
                         }
                     }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                    } else {
-                        bottomNavigation.setNotification("",2);
-                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                } else {
+                    bottomNavigation.setNotification("",2);
                 }
             }
         });

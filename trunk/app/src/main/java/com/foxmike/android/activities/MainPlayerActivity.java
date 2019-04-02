@@ -234,21 +234,19 @@ public class MainPlayerActivity extends AppCompatActivity
         liveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadChats = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot chatID: dataSnapshot.getChildren()) {
-                            Boolean read = (Boolean) chatID.getValue();
-                            if (!read) {
-                                unreadChats++;
-                            }
+                unreadChats = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                        Boolean read = (Boolean) chatID.getValue();
+                        if (!read) {
+                            unreadChats++;
                         }
                     }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                    } else {
-                        bottomNavigation.setNotification("",2);
-                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                } else {
+                    bottomNavigation.setNotification("",2);
                 }
             }
         });
@@ -300,18 +298,16 @@ public class MainPlayerActivity extends AppCompatActivity
         unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadNotifications = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            unreadNotifications++;
-                        }
+                unreadNotifications = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        unreadNotifications++;
                     }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                    } else {
-                        bottomNavigation.setNotification("",2);
-                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                } else {
+                    bottomNavigation.setNotification("",2);
                 }
 
             }
@@ -322,20 +318,18 @@ public class MainPlayerActivity extends AppCompatActivity
         firebaseDatabaseFriendRequestLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    unreadFriendRequests = 0;
-                    if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot child: dataSnapshot.getChildren()) {
-                            if (!child.child("request_type").getValue().toString().equals("sent")) {
-                                unreadFriendRequests++;
-                            }
+                unreadFriendRequests = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot child: dataSnapshot.getChildren()) {
+                        if (!child.child("request_type").getValue().toString().equals("sent")) {
+                            unreadFriendRequests++;
                         }
                     }
-                    if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                        bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                    } else {
-                        bottomNavigation.setNotification("",2);
-                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                } else {
+                    bottomNavigation.setNotification("",2);
                 }
             }
         });
@@ -345,33 +339,30 @@ public class MainPlayerActivity extends AppCompatActivity
         reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    if (dataSnapshot.getValue()==null) {
-                        return;
-                    }
-                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        Long currentTimestamp = System.currentTimeMillis();
-                        Long reviewTimestamp = (Long)snapshot.getValue();
-                        if (reviewTimestamp<currentTimestamp) {
-                            presentReview(snapshot.getKey());
-                        } else {
-                            if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
-                                CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                    @Override
-                                    public void onTick(long l) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                    Long currentTimestamp = System.currentTimeMillis();
+                    Long reviewTimestamp = (Long)snapshot.getValue();
+                    if (reviewTimestamp<currentTimestamp) {
+                        presentReview(snapshot.getKey());
+                    } else {
+                        if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                            CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                @Override
+                                public void onTick(long l) {
 
-                                    }
-                                    @Override
-                                    public void onFinish() {
-                                        presentReview(snapshot.getKey());
-                                        countDownTimerHashMap.remove(snapshot.getKey());
-                                    }
-                                }.start();
-                                countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
-                            }
+                                }
+                                @Override
+                                public void onFinish() {
+                                    presentReview(snapshot.getKey());
+                                    countDownTimerHashMap.remove(snapshot.getKey());
+                                }
+                            }.start();
+                            countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
                         }
                     }
-
                 }
             }
         });
