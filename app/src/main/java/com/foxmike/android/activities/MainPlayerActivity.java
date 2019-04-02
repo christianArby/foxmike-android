@@ -583,6 +583,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
         bookIntent.putExtra("hostId", hostId);
         bookIntent.putExtra("amount",amount);
+        bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
 
     }
