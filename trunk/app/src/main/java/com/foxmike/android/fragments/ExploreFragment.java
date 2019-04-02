@@ -550,50 +550,52 @@ public class ExploreFragment extends Fragment{
             // create a boolean to keep track if this session has been added to the sessionArray or not
             boolean sessionAdded = false;
             if (sessionAdsHashMap.get(nearSession.getSessionId())!=null) {
-                // loop through all the advertisement timestamps found under session/adIds
-                for (String advertisementKey: sessionAdsHashMap.get(nearSession.getSessionId()).keySet()) {
-                    // If part of weekday filter
-                    long advertisementTimestamp = sessionAdsHashMap.get(nearSession.getSessionId()).get(advertisementKey);
-                    if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
-                        if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
-                            // if time has not passed
-                            if (advertisementTimestamp > currentTimestamp) {
-                                if (advertisementHashMap.containsKey(advertisementKey)) {
-                                    if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                        DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                        DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
-                                        DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
-                                        if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
-                                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                            // if this session hasn't already been saved to sessionArray save it
-                                            if (!sessionAdded) {
-                                                sessionIdsFiltered.add(nearSession.getSessionId());
-                                                sessionAdded = true;
+                if ((sessionDistances.get(nearSession.getSessionId())/1000)<=distanceRadius) {
+                    // loop through all the advertisement timestamps found under session/adIds
+                    for (String advertisementKey: sessionAdsHashMap.get(nearSession.getSessionId()).keySet()) {
+                        // If part of weekday filter
+                        long advertisementTimestamp = sessionAdsHashMap.get(nearSession.getSessionId()).get(advertisementKey);
+                        if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                // if time has not passed
+                                if (advertisementTimestamp > currentTimestamp) {
+                                    if (advertisementHashMap.containsKey(advertisementKey)) {
+                                        if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                            DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                            DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                            DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                            if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
+                                                advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                                // if this session hasn't already been saved to sessionArray save it
+                                                if (!sessionAdded) {
+                                                    sessionIdsFiltered.add(nearSession.getSessionId());
+                                                    sessionAdded = true;
+                                                }
                                             }
+
                                         }
 
                                     }
 
                                 }
-
                             }
                         }
-                    }
-                    // same for secondWeek of the filter (I have one hashmap for each week)
-                    if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
-                        if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
-                            if (advertisementTimestamp > currentTimestamp) {
-                                if (advertisementHashMap.containsKey(advertisementKey)) {
-                                    if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                        DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                        DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
-                                        DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
-                                        if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
-                                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                            // if this session hasn't already been saved to sessionArray save it
-                                            if (!sessionAdded) {
-                                                sessionIdsFiltered.add(nearSession.getSessionId());
-                                                sessionAdded = true;
+                        // same for secondWeek of the filter (I have one hashmap for each week)
+                        if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                            if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                if (advertisementTimestamp > currentTimestamp) {
+                                    if (advertisementHashMap.containsKey(advertisementKey)) {
+                                        if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                            DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                            DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                            DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                            if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
+                                                advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                                // if this session hasn't already been saved to sessionArray save it
+                                                if (!sessionAdded) {
+                                                    sessionIdsFiltered.add(nearSession.getSessionId());
+                                                    sessionAdded = true;
+                                                }
                                             }
                                         }
                                     }
@@ -759,7 +761,7 @@ public class ExploreFragment extends Fragment{
         } else {
             removeFilteredItem("distance");
         }
-        setupListAndMapWithSessions();
+        filterSessionAndAdvertisements();
     }
 
     public void OnMinPriceChanged(int minPrice, String currencyCountry) {
