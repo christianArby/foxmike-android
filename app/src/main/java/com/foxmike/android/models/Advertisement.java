@@ -20,6 +20,7 @@ public class Advertisement implements Comparable<Advertisement> {
     private String advertisementId;
     private String maxParticipants;
     private HashMap<String,Long> participantsTimestamps;
+    private int durationInMin;
     private String currency;
     private long advertisementTimestamp;
     private int price;
@@ -36,9 +37,18 @@ public class Advertisement implements Comparable<Advertisement> {
         this.advertisementId = advertisementId;
         this.maxParticipants = maxParticipants;
         this.participantsTimestamps = participantsTimestamps;
+        this.durationInMin = durationInMin;
         this.currency = currency;
         this.advertisementTimestamp = advertisementTimestamp;
         this.price = price;
+    }
+
+    public int getDurationInMin() {
+        return durationInMin;
+    }
+
+    public void setDurationInMin(int durationInMin) {
+        this.durationInMin = durationInMin;
     }
 
     public String getStatus() {

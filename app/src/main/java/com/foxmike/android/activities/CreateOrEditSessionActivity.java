@@ -3,6 +3,9 @@ package com.foxmike.android.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -52,6 +56,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.Price;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -143,7 +148,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private CompactCalendarView compactCalendarView;
     private TextView calendarHeadingTV;
     private HashMap<Long, Integer> advertisementTimestampsAndPrices = new HashMap<>();
-    private HashMap<String, Long> advertisements = new HashMap<>();
+    private Map advertisements = new HashMap();
     private long mLastClickTime = 0;
     private LinearLayout allExceptCalendar;
     private boolean addAdvertisements;
@@ -431,14 +436,24 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(existingSession.getSessionType());
             // Existing advertisements
-            if (existingSession.getAdvertisements()!=null) {
-                for (Long advertisementTimestamp: existingSession.getAdvertisements().values()) {
-                    if (advertisementTimestamp!=0) {
-                        Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
-                        compactCalendarView.addEvent(sessionTime);
+
+            FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> fbDbLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()));
+            fbDbLiveData.observe(this, new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getChildrenCount()>0) {
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            Long advertisementTimestamp = (Long) snapshot.getValue();
+                            if (advertisementTimestamp!=0) {
+                                Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
+                                compactCalendarView.addEvent(sessionTime);
+                            }
+                        }
+
                     }
                 }
-            }
+            });
             mMaxParticipants.setText(existingSession.getMaxParticipants());
             mDuration.setText(existingSession.getDurationInMin() + getString(R.string.minutes_append));
             mWhat.setText(existingSession.getWhat());
@@ -707,11 +722,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         if (updateSession) {
             mSessionId = existingSessionID;
-            if (existingSession.getAdvertisements()!=null) {
-                for (String ad : existingSession.getAdvertisements().keySet()) {
-                    advertisements.put(ad, existingSession.getAdvertisements().get(ad));
-                }
-            }
         } else {
             mSessionId = mMarkerDbRef.push().getKey();
         }
@@ -858,7 +868,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     advertisementTimestamp,
                     advertisementTimestampsAndPrices.get(advertisementTimestamp)
             );
-            // Save the advertisement Id and the ad timestamp in a hashmap to be saved under session
+            // Save the advertisement Id and the ad timestamp in a hashmap to be saved under sessionAdvertisements
             advertisements.put(advertisementKey, advertisementTimestamp);
             // send the ad to the database
             rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -870,8 +880,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 }
             });
         }
-        // Save the hashmap of ad Ids and timestamps under session
-        sendSession.put("advertisements", advertisements);
+        // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
+        rootDbRef.child("sessionAdvertisements").child(mSessionId).updateChildren(advertisements);
         // Update the session (with 'updateChildren' so not all child nodes are overwritten)
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
         // Update user object with sessionsHosting

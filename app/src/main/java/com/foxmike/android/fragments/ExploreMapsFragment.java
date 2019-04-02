@@ -28,6 +28,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsHorizontalAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionAdvertisements;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -111,6 +112,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private LocationCallback locationCallback;
 
     private LocationRequest locationRequest;
+    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap;
 
 
     public ExploreMapsFragment() {
@@ -465,7 +467,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                     selectedMarker = markerArray.get(0);
 
                 } else {
-                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, getActivity().getApplicationContext(), onSessionClickedListener, mLastKnownLocation, mLastClickTime);
+                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, sessionAdvertisementsHashMap, getActivity().getApplicationContext(), onSessionClickedListener, mLastKnownLocation, mLastClickTime);
                     if (mSessionList!=null) {
                         mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
                         markerArray.get(0).setIcon(selectedIcon);
@@ -500,7 +502,8 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(ArrayList<String> sessionIdsFiltered, HashMap<String, Session> sessionHashMap) {
+    public void addMarkersToMap(ArrayList<String> sessionIdsFiltered, HashMap<String, Session> sessionHashMap, HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap) {
+        this.sessionAdvertisementsHashMap = sessionAdvertisementsHashMap;
         this.sessionIdsFiltered = sessionIdsFiltered;
         this.sessionHashMap = sessionHashMap;
         nearSessionsLoaded = true;
