@@ -48,7 +48,7 @@ public class ListReviewsAdapter extends RecyclerView.Adapter<ListReviewsAdapter.
                 holder.setName(userPublicHashMap.get(reviewArray.get(position).getAuthorId()).getFirstName());
             }
         });
-        holder.setText(reviewArray.get(position).getReviewText());
+        holder.setText(reviewArray.get(position).getReview());
         holder.setReviewDate(TextTimestamp.textDateAndTime(reviewArray.get(position).getTimestamp()));
 
     }

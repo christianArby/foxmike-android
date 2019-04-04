@@ -5,13 +5,15 @@ package com.foxmike.android.models;
  */
 
 public class Rating {
+    private String hostId;
     private String authorId;
     private String advertisementId;
     private String sessionId;
     private int rating;
     private Long timestamp;
 
-    public Rating(String authorId, String advertisementId, String sessionId, int rating, Long timestamp) {
+    public Rating(String hostId, String authorId, String advertisementId, String sessionId, int rating, Long timestamp) {
+        this.hostId = hostId;
         this.authorId = authorId;
         this.advertisementId = advertisementId;
         this.sessionId = sessionId;
@@ -20,6 +22,14 @@ public class Rating {
     }
 
     public Rating() {
+    }
+
+    public String getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
     }
 
     public String getAuthorId() {

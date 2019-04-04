@@ -44,7 +44,7 @@ public class ListReviewsFirebaseAdapter extends FirebaseRecyclerAdapter<Review, 
                 holder.setName(userPublicHashMap.get(model.getAuthorId()).firstName);
             }
         });
-        holder.setText(model.getReviewText());
+        holder.setText(model.getReview());
     }
 
     @NonNull
