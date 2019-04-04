@@ -1,9 +1,13 @@
 package com.foxmike.android.fragments;
 
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +22,7 @@ import com.firebase.ui.database.SnapshotParser;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListNotificationsFirebaseAdapter;
 import com.foxmike.android.models.FoxmikeNotification;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -35,6 +40,8 @@ public class NotificationsFragment extends Fragment {
     private TextView noContent;
     private ListNotificationsFirebaseAdapter listNotificationsFirebaseAdapter;
     private RecyclerView.AdapterDataObserver dataObserver;
+    private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+    private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -52,9 +59,6 @@ public class NotificationsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
-
-        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // Set database reference to chat id in message root and build query
         DatabaseReference notificationsRef = rootDbRef.child("notifications").child(currentUserId);
@@ -82,7 +86,10 @@ public class NotificationsFragment extends Fragment {
         stringHashMap.put("you_will_be_refunded", getResources().getString(R.string.you_will_be_refunded));
         stringHashMap.put("has_accepted_your_friend_request", getResources().getString(R.string.has_accepted_your_friend_request));
         //Setup message firebase adapter which loads 10 first messages
-        listNotificationsFirebaseAdapter = new ListNotificationsFirebaseAdapter(options, stringHashMap, onNotificationClickedListener);
+
+        int unreadColor = getResources().getColor(R.color.foxmikeSelectedColor);
+        int readColor = getResources().getColor(R.color.color_background_light);
+
 
         RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
@@ -107,7 +114,10 @@ public class NotificationsFragment extends Fragment {
             }
         };
 
+        listNotificationsFirebaseAdapter = new ListNotificationsFirebaseAdapter(options, stringHashMap, null, readColor, unreadColor, onNotificationClickedListener);
         listNotificationsFirebaseAdapter.registerAdapterDataObserver(dataObserver);
+
+
 
     }
 
@@ -117,7 +127,9 @@ public class NotificationsFragment extends Fragment {
         if (notificationsListRV!=null && listNotificationsFirebaseAdapter!=null) {
             notificationsListRV.setAdapter(listNotificationsFirebaseAdapter);
         }
-        listNotificationsFirebaseAdapter.startListening();
+        if (listNotificationsFirebaseAdapter!=null) {
+            listNotificationsFirebaseAdapter.startListening();
+        }
         if (dataObserver!=null) {
             listNotificationsFirebaseAdapter.registerAdapterDataObserver(dataObserver);
         }
@@ -170,6 +182,23 @@ public class NotificationsFragment extends Fragment {
         ((SimpleItemAnimator) notificationsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         notificationsListRV.setAdapter(listNotificationsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
+
+
+
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> notificationsLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("unreadNotifications").child(currentUserId));
+        notificationsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (listNotificationsFirebaseAdapter!=null) {
+                    listNotificationsFirebaseAdapter.updateUnreadNotifications(dataSnapshot);
+                }
+
+            }
+        });
+
+
+
         return view;
     }
 

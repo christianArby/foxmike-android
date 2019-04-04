@@ -14,8 +14,6 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.InboxPagerAdapter;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * This fragment sets up the tabs for the inbox and loads the fragments ChatsFragment, FriendsFragment and RequestsFragment
@@ -58,24 +56,6 @@ public class InboxFragment extends Fragment {
         inboxPagerAdapter = new InboxPagerAdapter(getChildFragmentManager(), getResources().getString(R.string.tab_notifications), getResources().getString(R.string.tab_messages), getResources().getString(R.string.tab_friends));
         inboxPager.setAdapter(inboxPagerAdapter);
 
-        inboxPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position==2) {
-                    FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
         tabLayout = (TabLayout) view.findViewById(R.id.inbox_tabs);
         tabLayout.setupWithViewPager(inboxPager);
         searchFab = view.findViewById(R.id.searchFAB);
