@@ -18,7 +18,7 @@ public class Distance {
         DISTANCE_INTEGERS_SE.put("40 km", 40);
         DISTANCE_INTEGERS_SE.put("80 km", 80);
         DISTANCE_INTEGERS_SE.put("1000 km", 1000);
-        DISTANCE_INTEGERS_SE.put("Max", 1000000);
+        DISTANCE_INTEGERS_SE.put("Max", 10000);
 
         DISTANCE_STRINGS_SE.put(0, "Min");
         DISTANCE_STRINGS_SE.put(3, "3 km");
@@ -27,6 +27,6 @@ public class Distance {
         DISTANCE_STRINGS_SE.put(40, "40 km");
         DISTANCE_STRINGS_SE.put(80, "80 km");
         DISTANCE_STRINGS_SE.put(1000, "1000 km");
-        DISTANCE_STRINGS_SE.put(1000000, "Max");
+        DISTANCE_STRINGS_SE.put(10000, "Max");
     }
 }

@@ -992,17 +992,20 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             String ratingTextFormatted = String.format("%.1f", mSession.getRating());
             if (mSession.getNrOfRatings()==0) {
                 ratingsAndReviewsText.setText(R.string.new_session_no_reviews_yet);
+                showAllReviews.setVisibility(View.GONE);
                 ratingContainer.setVisibility(View.GONE);
                 if (!isHost) {
                     newFlag.setVisibility(View.VISIBLE);
                 }
             } else if (mSession.getNrOfRatings()==1) {
+                showAllReviews.setVisibility(View.VISIBLE);
                 ratingContainer.setVisibility(View.VISIBLE);
                 newFlag.setVisibility(View.GONE);
                 String rating = String.format("%.1f", mSession.getRating());
                 ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2_single));
             } else {
+                showAllReviews.setVisibility(View.VISIBLE);
                 String rating = String.format("%.1f", mSession.getRating());
                 ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
                 if (!isHost) {
