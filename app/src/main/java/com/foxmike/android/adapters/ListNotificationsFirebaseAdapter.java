@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,15 +47,21 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private HashMap<String, InAppNotification> notificationHashMap = new HashMap<>();
     private HashMap<String, String> stringHashMap = new HashMap<>();
+    private DataSnapshot unreadNotifications;
+    private int unreadColor;
+    private int readColor;
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListNotificationsFirebaseAdapter(FirebaseRecyclerOptions<FoxmikeNotification> options, HashMap<String, String> stringHashMap, NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener) {
+    public ListNotificationsFirebaseAdapter(FirebaseRecyclerOptions<FoxmikeNotification> options, HashMap<String, String> stringHashMap, DataSnapshot unreadNotifications, int readColor, int unreadColor, NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener) {
         super(options);
         this.onNotificationClickedListener = onNotificationClickedListener;
         this.stringHashMap = stringHashMap;
+        this.unreadNotifications = unreadNotifications;
+        this.unreadColor = unreadColor;
+        this.readColor = readColor;
     }
 
     @NonNull
@@ -86,6 +93,12 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
         holder.setNotificationClickedListener(model);
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
+
+        if (unreadNotifications.hasChild(model.getNotificationId())) {
+            holder.setNotificationUnread(true);
+        } else {
+            holder.setNotificationUnread(false);
+        }
     }
 
     public class NotificationsViewHolder extends RecyclerView.ViewHolder {
@@ -97,6 +110,9 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                 @Override
                 public void onClick(View view) {
                     onNotificationClickedListener.OnNotificationClicked(foxmikeNotification);
+                    if (unreadNotifications.hasChild(foxmikeNotification.getNotificationId())) {
+                        FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(foxmikeNotification.getNotificationId()).setValue(null);
+                    }
                 }
             });
         }
@@ -119,6 +135,14 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         public void setNotificationImage(String thumb_image) {
             CircleImageView notificationImageIV = (CircleImageView) mView.findViewById(R.id.notification_image);
             Glide.with(notificationImageIV.getContext()).load(thumb_image).into(notificationImageIV);
+        }
+
+        public void setNotificationUnread(boolean unread) {
+            if (unread) {
+                mView.setBackgroundColor(unreadColor);
+            } else {
+                mView.setBackgroundColor(readColor);
+            }
         }
     }
 
@@ -623,5 +647,10 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
 
     public interface OnNotificationLoadedListener{
         void OnNotificationLoaded();
+    }
+
+    public void updateUnreadNotifications(DataSnapshot unreadNotifications) {
+        this.unreadNotifications = unreadNotifications;
+        this.notifyDataSetChanged();
     }
 }

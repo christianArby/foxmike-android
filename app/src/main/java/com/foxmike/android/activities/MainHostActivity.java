@@ -221,9 +221,9 @@ public class MainHostActivity extends AppCompatActivity implements
                     }
                 }
                 if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),0);
                 } else {
-                    bottomNavigation.setNotification("",2);
+                    bottomNavigation.setNotification("",0);
                 }
             }
         });
