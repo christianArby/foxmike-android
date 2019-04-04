@@ -125,6 +125,7 @@ public class ExploreFragment extends Fragment{
     private GeoQuery geoQuery;
     private GeoQueryEventListener geoQueryEventListener;
     private HashMap<String, SessionAdvertisements> sessionAdsHashMap;
+    private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -168,7 +169,7 @@ public class ExploreFragment extends Fragment{
 
         /** Setup List and Map with sessions*/
         sortType = "date";
-        distanceRadius = DISTANCE_INTEGERS_SE.get("Max");
+        distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
     }
 
     @Override
@@ -224,7 +225,7 @@ public class ExploreFragment extends Fragment{
                         onFilterChangedListener.OnMaxPriceChanged(maxPrice);
                     }
                     if (filterType.equals("distance")) {
-                        distanceRadius = DISTANCE_INTEGERS_SE.get("Max");
+                        distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
                         onFilterChangedListener.OnDistanceFilterChanged(distanceRadius);
                     }
                 }
@@ -264,7 +265,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen);
                 sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
@@ -547,54 +548,71 @@ public class ExploreFragment extends Fragment{
         Long currentTimestamp = System.currentTimeMillis();
         // Filter sessions not part of weekdays
         for (Session nearSession : sessionHashMap.values()) {
-            // create a boolean to keep track if this session has been added to the sessionArray or not
-            boolean sessionAdded = false;
-            if (sessionAdsHashMap.get(nearSession.getSessionId())!=null) {
-                if ((sessionDistances.get(nearSession.getSessionId())/1000)<=distanceRadius) {
-                    // loop through all the advertisement timestamps found under session/adIds
-                    for (String advertisementKey: sessionAdsHashMap.get(nearSession.getSessionId()).keySet()) {
-                        // If part of weekday filter
-                        long advertisementTimestamp = sessionAdsHashMap.get(nearSession.getSessionId()).get(advertisementKey);
-                        if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
-                            if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
-                                // if time has not passed
-                                if (advertisementTimestamp > currentTimestamp) {
-                                    if (advertisementHashMap.containsKey(advertisementKey)) {
-                                        if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                            DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                            DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
-                                            DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
-                                            if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
-                                                advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                                // if this session hasn't already been saved to sessionArray save it
-                                                if (!sessionAdded) {
-                                                    sessionIdsFiltered.add(nearSession.getSessionId());
-                                                    sessionAdded = true;
+
+            boolean show = false;
+
+            // User has made an active choice
+            if (sessionTypeChosen.containsValue(true)) {
+                if (!sessionTypeChosen.containsKey(nearSession.getSessionType())) {
+                    show = false;
+                } else if (sessionTypeChosen.get(nearSession.getSessionType())) {
+                    show = true;
+                }
+            } else {
+                // User has NOT made an active choice
+                show = true;
+            }
+
+            if (show) {
+                // create a boolean to keep track if this session has been added to the sessionArray or not
+                boolean sessionAdded = false;
+                if (sessionAdsHashMap.get(nearSession.getSessionId())!=null) {
+                    if ((sessionDistances.get(nearSession.getSessionId())/1000)<=distanceRadius) {
+                        // loop through all the advertisement timestamps found under session/adIds
+                        for (String advertisementKey: sessionAdsHashMap.get(nearSession.getSessionId()).keySet()) {
+                            // If part of weekday filter
+                            long advertisementTimestamp = sessionAdsHashMap.get(nearSession.getSessionId()).get(advertisementKey);
+                            if (firstWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                if (firstWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                    // if time has not passed
+                                    if (advertisementTimestamp > currentTimestamp) {
+                                        if (advertisementHashMap.containsKey(advertisementKey)) {
+                                            if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                                DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                                DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                                DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                                if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
+                                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                                    // if this session hasn't already been saved to sessionArray save it
+                                                    if (!sessionAdded) {
+                                                        sessionIdsFiltered.add(nearSession.getSessionId());
+                                                        sessionAdded = true;
+                                                    }
                                                 }
+
                                             }
 
                                         }
 
                                     }
-
                                 }
                             }
-                        }
-                        // same for secondWeek of the filter (I have one hashmap for each week)
-                        if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
-                            if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
-                                if (advertisementTimestamp > currentTimestamp) {
-                                    if (advertisementHashMap.containsKey(advertisementKey)) {
-                                        if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
-                                            DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
-                                            DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
-                                            DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
-                                            if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
-                                                advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
-                                                // if this session hasn't already been saved to sessionArray save it
-                                                if (!sessionAdded) {
-                                                    sessionIdsFiltered.add(nearSession.getSessionId());
-                                                    sessionAdded = true;
+                            // same for secondWeek of the filter (I have one hashmap for each week)
+                            if (secondWeekdayHashMap.containsKey(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                if (secondWeekdayHashMap.get(TextTimestamp.textSDF(advertisementTimestamp))) {
+                                    if (advertisementTimestamp > currentTimestamp) {
+                                        if (advertisementHashMap.containsKey(advertisementKey)) {
+                                            if (advertisementHashMap.get(advertisementKey).getPrice()>=minPrice && advertisementHashMap.get(advertisementKey).getPrice()<=maxPrice) {
+                                                DateTime adTime = new DateTime(advertisementHashMap.get(advertisementKey).getAdvertisementTimestamp());
+                                                DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                                                DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                                                if ((adTime.isAfter(minTime) || adTime.isEqual(minTime)) && (adTime.isBefore(maxTime) || adTime.isEqual(maxTime))) {
+                                                    advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisementKey, advertisementTimestamp));
+                                                    // if this session hasn't already been saved to sessionArray save it
+                                                    if (!sessionAdded) {
+                                                        sessionIdsFiltered.add(nearSession.getSessionId());
+                                                        sessionAdded = true;
+                                                    }
                                                 }
                                             }
                                         }
@@ -605,7 +623,6 @@ public class ExploreFragment extends Fragment{
                     }
                 }
             }
-
         }
         // If array should be sorted by date sort it by date
         if (sortType.equals("date")) {
@@ -756,7 +773,7 @@ public class ExploreFragment extends Fragment{
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
     public void OnFilterByDistance(int filterDistance) {
         distanceRadius = filterDistance;
-        if (filterDistance!= DISTANCE_INTEGERS_SE.get("Max")) {
+        if (filterDistance!= DISTANCE_INTEGERS_SE.get("1000 km")) {
             showFilteredItem("distance", getString(R.string.distance_colon) + DISTANCE_STRINGS_SE.get(distanceRadius));
         } else {
             removeFilteredItem("distance");
@@ -795,6 +812,13 @@ public class ExploreFragment extends Fragment{
         } else {
             removeFilteredItem("maxPrice");
         }
+
+        filterSessionAndAdvertisements();
+    }
+
+    public void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen) {
+
+        this.sessionTypeChosen = sessionTypeChosen;
 
         filterSessionAndAdvertisements();
     }

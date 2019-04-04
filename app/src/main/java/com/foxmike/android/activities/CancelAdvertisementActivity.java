@@ -87,10 +87,11 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         } else {
             // If no participants, cancel advertisement without cloud function
             if (participantsTimestamps.size()==0) {
-                rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
+                cancelAd();
+                /*rootDbRef.child("advertisements").child(advertisementId).child("status").setValue("cancelled");
                 rootDbRef.child("sessionAdvertisements").child(sessionId).child(advertisementId).setValue(0);
                 progressBar.setVisibility(View.GONE);
-                finishCancellation();
+                finishCancellation();*/
             } else {
                 // If participants but with
                 if (durationCurrentToAdvertisement.getStandardHours() > 24) {

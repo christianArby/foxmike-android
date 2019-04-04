@@ -22,6 +22,8 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_left"
         android:text="@string/loading"
+        android:ellipsize="end"
+        android:maxLines="3"
         android:textColor="@color/primaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_toEndOf="@id/notification_image"/>

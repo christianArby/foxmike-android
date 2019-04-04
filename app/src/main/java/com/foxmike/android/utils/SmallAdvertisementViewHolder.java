@@ -22,6 +22,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public TextView text2TV;
     public TextView text3TV;
     public TextView cancelledTV;
+    public TextView cancelledFlag;
 
 
     public SmallAdvertisementViewHolder(View itemView) {
@@ -31,6 +32,7 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
         text2TV = (TextView) itemView.findViewById(R.id.text2);
         text3TV = (TextView) itemView.findViewById(R.id.text3);
         cancelledTV = (TextView) itemView.findViewById(R.id.cancelledCaption);
+        cancelledFlag = (TextView) itemView.findViewById(R.id.cancelledFlag);
     }
 
     public void setSessionImage(String sessionImage, Context context) {
@@ -53,9 +55,11 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public void setCancelled(boolean cancelled) {
         if (cancelled) {
             cancelledTV.setVisibility(View.VISIBLE);
+            cancelledFlag.setVisibility(View.VISIBLE);
             sessionIV.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
         } else {
             cancelledTV.setVisibility(View.GONE);
+            cancelledFlag.setVisibility(View.GONE);
             sessionIV.clearColorFilter();
         }
     }

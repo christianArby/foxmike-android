@@ -878,6 +878,12 @@ public class MainPlayerActivity extends AppCompatActivity
         exploreFragment.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
     }
 
+    @Override
+    public void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        exploreFragment.OnSessionTypeChanged(sessionTypeChosen);
+    }
+
     public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         // 2. Chain together various setter methods to set the dialog characteristics

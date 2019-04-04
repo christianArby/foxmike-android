@@ -22,15 +22,42 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:background="@color/color_background_dark"
-                android:padding="@dimen/margin_minimum"
+                android:paddingTop="@dimen/margin_minimum"
+                android:paddingEnd="@dimen/margin_minimum"
                 android:src="@drawable/ic_close_black_24dp" />
+
+            <TextView
+                android:id="@+id/sessionTypeHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:text="@string/session_type"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/sessionTypeRV"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/timeHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginTop="@dimen/marginVertical"
+                android:layout_marginTop="@dimen/margin_minimum"
                 android:text="@string/start_time"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
@@ -78,10 +105,11 @@
                         app:layout_constraintTop_toBottomOf="@id/timeHeading" />
                 </LinearLayout>
 
-                <com.foxmike.android.utils.PatchedCrystalRangeSeekbar
-                    app:left_thumb_color="@color/foxmikePrimaryColor"
+                <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+                    app:corner_radius="48"
                     app:right_thumb_color="@color/foxmikePrimaryColor"
                     app:bar_highlight_color="@color/foxmikePrimaryColor"
+                    app:left_thumb_color="@color/foxmikePrimaryColor"
                     app:left_thumb_color_pressed="@color/foxmikePrimaryDarkColor"
                     app:right_thumb_color_pressed="@color/foxmikePrimaryDarkColor"
                     android:id="@+id/rangeSeekbar"
@@ -97,7 +125,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginTop="@dimen/marginVertical"
+                android:layout_marginTop="@dimen/margin_minimum"
                 android:text="@string/filter_by_price"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rangeSeekbar" />
@@ -138,7 +166,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginTop="@dimen/marginVertical"
+                android:layout_marginTop="@dimen/margin_minimum"
                 android:text="@string/filter_on_distance_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -150,57 +178,27 @@
                 android:layout_marginEnd="@dimen/margin_minimum"
                 android:layout_marginStart="@dimen/margin_minimum"
                 android:layout_marginTop="@dimen/margin_minimum"
-                android:background="@drawable/round_corners">
+                android:background="@drawable/round_corners"
+                android:orientation="vertical">
 
-                <RadioGroup
-                    android:id="@+id/filterDistanceRadioGroup"
+                <TextView
+                    android:id="@+id/chosenDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_editText_in_center"
-                    android:layout_marginStart="@dimen/margin_left"
+                    android:text="60 km"
                     android:layout_marginTop="@dimen/marginVertical"
-                    app:layout_constraintBottom_toTopOf="@id/sortText"
-                    app:layout_constraintStart_toStartOf="@id/filterText"
-                    app:layout_constraintTop_toBottomOf="@id/filterText">
+                    android:layout_marginStart="@dimen/margin_left"/>
 
-                    <RadioButton
-                        android:id="@+id/distance1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance1_text" />
-
-                    <RadioButton
-                        android:id="@+id/distance2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance2_text" />
-
-                    <RadioButton
-                        android:id="@+id/distance3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance3_text" />
-
-                    <RadioButton
-                        android:id="@+id/distance4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance4_text" />
-
-                    <RadioButton
-                        android:id="@+id/distance5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance5_text" />
-
-                    <RadioButton
-                        android:id="@+id/distance6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/distance6_text" />
-
-                </RadioGroup>
-
+                <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
+                    app:corner_radius="48"
+                    app:bar_highlight_color="@color/foxmikePrimaryColor"
+                    app:left_thumb_color="@color/foxmikePrimaryColor"
+                    app:left_thumb_color_pressed="@color/foxmikePrimaryDarkColor"
+                    android:id="@+id/distanceSeekbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_left"
+                    app:steps="10" />
             </LinearLayout>
 
 
@@ -209,10 +207,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_editText_in_center"
-                android:layout_marginTop="@dimen/margin_editText_in_center"
+                android:layout_marginTop="@dimen/margin_minimum"
                 android:text="@string/Sort_on_text"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/filterDistanceRadioGroup" />
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
