@@ -7,23 +7,33 @@ import android.support.annotation.NonNull;
  */
 
 public class Review implements Comparable<Review>{
+    private String hostId;
     private String authorId;
     private String advertisementId;
     private String sessionId;
-    private String reviewText;
+    private String review;
     private float rating;
     private Long timestamp;
 
-    public Review(String authorId, String advertisementId, String sessionId, String reviewText, float rating, Long timestamp) {
+    public Review(String hostId, String authorId, String advertisementId, String sessionId, String review, float rating, Long timestamp) {
+        this.hostId = hostId;
         this.authorId = authorId;
         this.advertisementId = advertisementId;
         this.sessionId = sessionId;
-        this.reviewText = reviewText;
+        this.review = review;
         this.rating = rating;
         this.timestamp = timestamp;
     }
 
     public Review() {
+    }
+
+    public String getHostId() {
+        return hostId;
+    }
+
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
     }
 
     public float getRating() {
@@ -58,12 +68,12 @@ public class Review implements Comparable<Review>{
         this.sessionId = sessionId;
     }
 
-    public String getReviewText() {
-        return reviewText;
+    public String getReview() {
+        return review;
     }
 
-    public void setReviewText(String reviewText) {
-        this.reviewText = reviewText;
+    public void setReview(String review) {
+        this.review = review;
     }
 
     public Long getTimestamp() {

@@ -134,6 +134,7 @@ public class ExploreFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        setupListAndMapWithSessions();
     }
 
     @Override
@@ -280,10 +281,13 @@ public class ExploreFragment extends Fragment{
             }
         });
 
-        setupListAndMapWithSessions();
-
-
         return mainView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setupListAndMapWithSessions();
     }
 
     @Override
@@ -536,7 +540,10 @@ public class ExploreFragment extends Fragment{
                 });
             }
         } catch (SecurityException e)  {
-
+            // no location
+            locationFound = false;
+            locationAndViewUsed = false;
+            onAsyncTaskFinished();
         }
     }
 

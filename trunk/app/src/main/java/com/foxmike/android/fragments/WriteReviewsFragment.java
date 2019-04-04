@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,8 @@ public class WriteReviewsFragment extends DialogFragment {
     @BindView(R.id.closeImageButton) ImageButton closeIcon;
     @BindView(R.id.ratingTitle) TextView ratingTitle;
     @BindView(R.id.reviewTitle) TextView reviewTitle;
-    @BindView(R.id.ratingBar) RatingBar ratingBar;
+    @BindView(R.id.ratingBar)
+    AppCompatRatingBar ratingBar;
     @BindView(R.id.reviewText) EditText reviewText;
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -113,26 +115,16 @@ public class WriteReviewsFragment extends DialogFragment {
                         public void onRatingChanged(RatingBar ratingBar, final float v, boolean b) {
                             if (b) {
                                 float thisRating = (float)Math.ceil(v);
-                                ratingBar.setRating(thisRating);
                                 Long currentTimestamp = System.currentTimeMillis();
 
-
-                                Rating rating = new Rating(currentUserId, advertisementId, advertisement.getSessionId(), (int)thisRating, currentTimestamp);
                                 String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
 
-
-
+                                Rating rating = new Rating(advertisement.getHost(),currentUserId, advertisementId, advertisement.getSessionId(), (int)thisRating, currentTimestamp);
                                 rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
-                                rootDbRef.child("userRatings").child(currentUserId).child(advertisement.getSessionId()).child(advertisement.getAdvertisementId()).child(ratingAndReviewId).setValue(true);
-                                rootDbRef.child("sessionRatings").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(true);
-                                rootDbRef.child("trainerRatings").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
 
                                 if (reviewText.getText().toString().length()>0) {
-                                    Review review = new Review(currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), thisRating, currentTimestamp);
+                                    Review review = new Review(advertisement.getHost(), currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), thisRating, currentTimestamp);
                                     rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
-                                    rootDbRef.child("userReviews").child(currentUserId).child(advertisement.getSessionId()).child(advertisement.getAdvertisementId()).child(ratingAndReviewId).setValue(true);
-                                    rootDbRef.child("sessionReviews").child(advertisement.getSessionId()).child(ratingAndReviewId).setValue(currentTimestamp);
-                                    rootDbRef.child("trainerReviews").child(advertisement.getHost()).child(ratingAndReviewId).setValue(true);
                                 }
 
                                 rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();
