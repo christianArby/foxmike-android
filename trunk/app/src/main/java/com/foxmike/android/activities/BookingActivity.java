@@ -72,7 +72,7 @@ public class BookingActivity extends AppCompatActivity {
                         Exception e = task.getException();
                         progressBar.setVisibility(View.GONE);
                         Log.w(TAG, "retrieve:onFailure", e);
-                        showSnackbar("An error occurred." + e.getMessage());
+                        showSnackbar(getString(R.string.bad_internet));
                         return;
                     }
                     // If successful the variable "operationResult" will say "success,
@@ -108,7 +108,7 @@ public class BookingActivity extends AppCompatActivity {
                     Exception e = task.getException();
                     progressBar.setVisibility(View.GONE);
                     Log.w(TAG, "retrieve:onFailure", e);
-                    showSnackbar("An error occurred." + e.getMessage());
+                    showSnackbar(getString(R.string.bad_internet));
                     return;
                 }
                 // If successful the variable "operationResult" will say "success,

@@ -132,7 +132,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                     Exception e = task.getException();
                     // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
-                    Toast.makeText(CancelAdvertisementActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CancelAdvertisementActivity.this, getString(R.string.bad_internet), Toast.LENGTH_LONG).show();
                     return;
                     // [END_EXCLUDE]
                 }

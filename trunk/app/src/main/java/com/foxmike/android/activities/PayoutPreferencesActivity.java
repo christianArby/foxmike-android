@@ -157,7 +157,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
                     // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
-                    showSnackbar("An error occurred." + e.getMessage());
+                    showSnackbar(getString(R.string.bad_internet));
                     return;
                     // [END_EXCLUDE]
                 }

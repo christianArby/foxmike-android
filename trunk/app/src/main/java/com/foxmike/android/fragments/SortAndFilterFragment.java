@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -74,6 +75,7 @@ public class SortAndFilterFragment extends DialogFragment {
     private TextView chosenDistance;
     private RecyclerView sessionTypeRV;
     private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
+    private LinearLayout sessionTypeProgress;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
@@ -127,6 +129,7 @@ public class SortAndFilterFragment extends DialogFragment {
         distanceSeekbar = view.findViewById(R.id.distanceSeekbar);
         chosenDistance = view.findViewById(R.id.chosenDistance);
         sessionTypeRV = view.findViewById(R.id.sessionTypeRV);
+        sessionTypeProgress = view.findViewById(R.id.sessionTypeProgress);
 
         HashMap<String, Drawable> sessionTypeDrawables = new HashMap<>();
         sessionTypeDrawables.put("checked", getResources().getDrawable(R.drawable.ic_check_black_24dp));
@@ -152,6 +155,7 @@ public class SortAndFilterFragment extends DialogFragment {
                     }
                     ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeArray, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
                     sessionTypeRV.setAdapter(listSessionTypesAdapter);
+                    sessionTypeProgress.setVisibility(View.GONE);
                 }
 
             }

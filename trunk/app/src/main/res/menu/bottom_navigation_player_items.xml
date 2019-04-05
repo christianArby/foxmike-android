@@ -4,13 +4,13 @@
     <item
         android:id="@+id/menuListOrMap"
         android:enabled="true"
-        android:icon="@drawable/ic_search_black_24dp"
+        android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/menu_explore"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuPlayerSessions"
         android:enabled="true"
-        android:icon="@mipmap/ic_list_black_24dp"
+        android:icon="@mipmap/ic_access_time_black_24dp"
         android:title="@string/menu_my_bookings"
         app:showAsAction="ifRoom" />
     <item

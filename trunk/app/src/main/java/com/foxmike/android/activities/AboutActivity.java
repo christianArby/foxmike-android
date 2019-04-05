@@ -108,7 +108,7 @@ public class AboutActivity extends AppCompatActivity {
                             if (!task.isSuccessful()) {
                                 Exception e = task.getException();
                                 Log.w(TAG, "retrieve:onFailure", e);
-                                Toast.makeText(AboutActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(AboutActivity.this, getString(R.string.bad_internet), Toast.LENGTH_LONG).show();
                                 return;
                             }
                             // If successful, extract
