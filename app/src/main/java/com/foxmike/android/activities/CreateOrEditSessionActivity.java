@@ -413,6 +413,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
     private void cannotCreateSessionInPastPopUp() {
         AlertDialog.Builder builder = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
         builder.setMessage("Cannot create a session in the past.");

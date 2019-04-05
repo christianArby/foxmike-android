@@ -63,7 +63,7 @@ public class WriteAdminNotification extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             Exception e = task.getException();
                             Log.w(TAG, "retrieve:onFailure", e);
-                            Toast.makeText(WriteAdminNotification.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(WriteAdminNotification.this, getString(R.string.bad_internet), Toast.LENGTH_LONG).show();
                             return;
                         }
                         // If successful, extract

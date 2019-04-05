@@ -173,7 +173,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                     addPaymentMethodTV.setVisibility(View.VISIBLE);
                     // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
-                    showSnackbar("An error occurred." + e.getMessage());
+                    showSnackbar(getString(R.string.bad_internet));
                     return;
                     // [END_EXCLUDE]
                 }

@@ -36,6 +36,46 @@
                 app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
 
             <LinearLayout
+                android:id="@+id/sessionTypeProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="vertical">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/session_type_single_layout"/>
+
+                    <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+                        android:visibility="visible"
+                        android:id="@+id/paymentMethodProgressBar"
+                        android:layout_width="80dp"
+                        android:layout_height="19dp"
+                        android:layout_gravity=""
+                        app:amount="4"
+                        app:duration="@android:integer/config_mediumAnimTime"
+                        app:endColor="@color/foxmikePrimaryColor"
+                        app:startColor="@color/foxmikePrimaryDarkColor"
+                        app:animationDirection="left"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        />
+
+
+                </android.support.constraint.ConstraintLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_minimum"

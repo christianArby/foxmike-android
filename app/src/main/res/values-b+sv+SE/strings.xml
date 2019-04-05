@@ -559,4 +559,5 @@
     <string name="leave_your_review_below">, lämna ditt omdöme nedan.</string>
     <string name="Rate">Betygsätt</string>
     <string name="new_text">NEW</string>
+    <string name="bad_internet">Dålig internetuppkoppling, försök igen senare.</string>
 </resources>

@@ -171,7 +171,7 @@ public class MainPlayerActivity extends AppCompatActivity
         /** Setup bottom navigation */
         AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation_player_items);
         navigationAdapter.setupWithBottomNavigation(bottomNavigation);
-        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
         bottomNavigation.setAnimation(null);
         bottomNavigation.setCurrentItem(0);
         bottomNavigation.setAccentColor(getResources().getColor(R.color.foxmikePrimaryColor));
@@ -404,7 +404,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     Exception e = task.getException();
                     // [START_EXCLUDE]
                     Log.w(TAG, "retrieve:onFailure", e);
-                    showSnackbar("An error occurred." + e.getMessage());
+                    showSnackbar(getString(R.string.bad_internet));
                     return;
                     // [END_EXCLUDE]
                 }

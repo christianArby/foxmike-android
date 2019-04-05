@@ -559,4 +559,5 @@
     <string name="leave_your_review_below">, leave your review below.</string>
     <string name="Rate">Rate</string>
     <string name="new_text">NEW</string>
+    <string name="bad_internet">Bad internet connection, please try again later.</string>
 </resources>

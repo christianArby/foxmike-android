@@ -93,7 +93,7 @@ public class CancelBookingActivity extends AppCompatActivity {
                     Exception e = task.getException();
                     progressBarHorizontal.setProgress(100);
                     Log.w(TAG, "retrieve:onFailure", e);
-                    Toast.makeText(CancelBookingActivity.this, "An error occurred." + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CancelBookingActivity.this, getString(R.string.bad_internet), Toast.LENGTH_LONG).show();
                     return;
                 }
                 progressBarHorizontal.setProgress(80);
