@@ -11,7 +11,7 @@ public class Session implements Comparable<Session>, Serializable {
     private String sessionName;
     private String sessionType;
     private String address;
-    private String maxParticipants;
+    private int maxParticipants;
     private double latitude;
     private double longitude;
     private String imageUrl;
@@ -26,7 +26,7 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
 
-    public Session(String sessionId, String host, String sessionName, String sessionType, String address, String maxParticipants, double latitude, double longitude, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
+    public Session(String sessionId, String host, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
         this.sessionId = sessionId;
         this.host = host;
         this.sessionName = sessionName;
@@ -147,11 +147,11 @@ public class Session implements Comparable<Session>, Serializable {
         this.sessionType = sessionType;
     }
 
-    public String getMaxParticipants() {
+    public int getMaxParticipants() {
         return maxParticipants;
     }
 
-    public void setMaxParticipants(String maxParticipants) {
+    public void setMaxParticipants(int maxParticipants) {
         this.maxParticipants = maxParticipants;
     }
 

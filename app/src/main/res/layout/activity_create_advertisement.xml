@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.foxmike.android.activities.CreateAdvertisementActivity"
+    android:background="@color/color_background_dark">
+
+    <include layout="@layout/app_bar_layout"
+        android:id="@+id/app_bar"/>
+
+    <View
+        android:id="@+id/spaceView00"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <View
+        android:id="@+id/spaceView01"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintTop_toBottomOf="@id/spaceView00"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TimePicker
+        android:id="@+id/time"
+        android:background="@color/color_background_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        app:layout_constraintTop_toBottomOf="@id/spaceView01"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+    </TimePicker>
+
+    <View
+        android:id="@+id/spaceView02"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        app:layout_constraintTop_toBottomOf="@id/time"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/parametersContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/spaceView02"
+        android:layout_marginTop="@dimen/marginVertical"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/color_background_light">
+
+        <View
+            android:id="@+id/spaceView03"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/durationLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spaceView03">
+
+            <TextView
+                android:id="@+id/durationExpTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/duration_hint"
+                app:layout_constraintHorizontal_bias="0"
+                android:drawableStart="@mipmap/ic_timelapse_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawablePadding="@dimen/margin_left"
+                android:background="@color/color_background_light"
+                android:padding="@dimen/margin_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/durationTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/durationExpTV"
+                app:layout_constraintBottom_toBottomOf="@id/durationExpTV"
+                android:padding="@dimen/margin_left"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawableEnd="@drawable/ic_arrow_right"
+                android:drawablePadding="@dimen/margin_left"/>
+
+
+        </android.support.constraint.ConstraintLayout>
+
+        <View
+            android:id="@+id/spaceView04"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            app:layout_constraintTop_toBottomOf="@id/durationLayout"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/maxParticipantsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spaceView04">
+
+            <TextView
+                android:id="@+id/maxParticipantsExpTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/maximum_participants"
+                app:layout_constraintHorizontal_bias="0"
+                android:drawableStart="@mipmap/ic_people_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawablePadding="@dimen/margin_left"
+                android:background="@color/color_background_light"
+                android:padding="@dimen/margin_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/maxParticipantsTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/maxParticipantsExpTV"
+                app:layout_constraintBottom_toBottomOf="@id/maxParticipantsExpTV"
+                android:padding="@dimen/margin_left"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawableEnd="@drawable/ic_arrow_right"
+                android:drawablePadding="@dimen/margin_left"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <View
+            android:id="@+id/spaceView05"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            app:layout_constraintTop_toBottomOf="@id/maxParticipantsLayout"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/priceLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spaceView05">
+
+            <View
+                android:visibility="gone"
+                android:id="@+id/priceOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="0dip"
+                android:background="@color/color_background_light"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/priceExpTV"
+                app:layout_constraintBottom_toBottomOf="@id/priceExpTV"
+                android:elevation="1dp"/>
+
+            <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+                android:visibility="gone"
+                android:id="@+id/payoutProgressBar"
+                android:layout_width="80dp"
+                android:layout_height="19dp"
+                app:endColor="@color/foxmikePrimaryColor"
+                app:startColor="@color/foxmikePrimaryDarkColor"
+                app:amount="4"
+                app:layout_constraintTop_toTopOf="@id/priceExpTV"
+                app:layout_constraintBottom_toBottomOf="@id/priceExpTV"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:elevation="1dp"/>
+
+
+            <TextView
+                android:id="@+id/priceExpTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/price_per_person"
+                app:layout_constraintHorizontal_bias="0"
+                android:drawableStart="@drawable/ic_attach_money_black_24dp"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawablePadding="@dimen/margin_left"
+                android:background="@color/color_background_light"
+                android:padding="@dimen/margin_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/priceTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/priceExpTV"
+                app:layout_constraintBottom_toBottomOf="@id/priceExpTV"
+                android:padding="@dimen/margin_left"
+                android:drawableTint="@color/primaryTextColor"
+                android:drawableEnd="@drawable/ic_arrow_right"
+                android:drawablePadding="@dimen/margin_left"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <View
+            android:id="@+id/spaceView06"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            app:layout_constraintTop_toBottomOf="@id/priceLayout"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/advertisementsRV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/parametersContainer">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+
+</android.support.constraint.ConstraintLayout>

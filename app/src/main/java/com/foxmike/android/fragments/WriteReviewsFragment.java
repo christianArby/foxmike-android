@@ -119,11 +119,11 @@ public class WriteReviewsFragment extends DialogFragment {
 
                                 String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
 
-                                Rating rating = new Rating(advertisement.getHost(),currentUserId, advertisementId, advertisement.getSessionId(), (int)thisRating, currentTimestamp);
+                                Rating rating = new Rating(advertisement.getHost(),currentUserId, advertisementId, advertisement.getSessionId(), (int) thisRating, currentTimestamp);
                                 rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
 
                                 if (reviewText.getText().toString().length()>0) {
-                                    Review review = new Review(advertisement.getHost(), currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), thisRating, currentTimestamp);
+                                    Review review = new Review(advertisement.getHost(), currentUserId, advertisementId, advertisement.getSessionId(), reviewText.getText().toString(), (int) thisRating, currentTimestamp);
                                     rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
                                 }
 

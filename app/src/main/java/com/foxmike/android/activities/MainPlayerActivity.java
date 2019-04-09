@@ -630,17 +630,15 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
             if (requestCode == BOOK_SESSION_REQUEST) {
-                if (fragmentManager.findFragmentByTag("xMainPlayerSessionsFragment")!=null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
-                    builder.setMessage(R.string.booking_confirmed);
-                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+                builder.setMessage(R.string.booking_confirmed);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
 
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         }
     }

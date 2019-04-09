@@ -147,7 +147,11 @@
         <activity android:name=".activities.RatingsAndReviewsActivity" />
         <activity android:name=".activities.ChooseLocationActivity" />
         <activity android:name=".activities.WritePostActivity" />
-        <activity android:name=".activities.CreateOrEditSessionActivity"></activity>
+        <activity android:name=".activities.CreateOrEditSessionActivity" />
+        <activity android:name=".activities.CreateAdvertisementActivity" />
+        <activity android:name=".activities.SetDurationActivity" />
+        <activity android:name=".activities.SetMaxParticipantsActivity" />
+        <activity android:name=".activities.SetPriceActivity"></activity>
     </application>
 
 </manifest>

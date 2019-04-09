@@ -412,7 +412,7 @@
     <string name="cancel_booking_anyway">Avboka passet ändå</string>
     <string name="confirm_booking">Bekräfta bokning</string>
     <string name="your_booking_has_been_cancelled">Passet är nu avbokat.</string>
-    <string name="booking_confirmed">Passet är bokat!</string>
+    <string name="booking_confirmed">Passet är bokat! Uppge namn eller användarnamn till tränaren när ni samlas.</string>
     <string name="ok">Ok</string>
     <string name="dont_show_booking_text">Visa inte den här texten nästa gång jag bokar ett pass.</string>
     <string name="switching_to_participant_mode">Byter till deltagarläge</string>
@@ -545,7 +545,7 @@
     <string name="based_on_nr_ratings_text_2">\u0020omdömen</string>
     <string name="based_on_nr_ratings_text_2_single">\u0020omdöme</string>
     <string name="new_session_no_reviews_yet">Nytt pass, inga omdömen än</string>
-    <string name="show_all_reviews">Visa alla ömdömen</string>
+    <string name="show_all_reviews">Visa alla omdömen</string>
     <string name="_5_stars">5 stars</string>
     <string name="_4_stars">4 stars</string>
     <string name="_3_stars">3 stars</string>
@@ -560,4 +560,6 @@
     <string name="Rate">Betygsätt</string>
     <string name="new_text">NEW</string>
     <string name="bad_internet">Dålig internetuppkoppling, försök igen senare.</string>
+    <string name="save">Spara</string>
+    <string name="already_session_planned_at_this_time">Du har redan ett pass den här tiden, välj en annan tid.</string>
 </resources>

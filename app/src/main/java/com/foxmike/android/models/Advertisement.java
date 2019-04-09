@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.foxmike.android.utils.TextTimestamp;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -11,14 +12,14 @@ import java.util.HashMap;
  * Created by chris on 2018-09-09.
  */
 
-public class Advertisement implements Comparable<Advertisement> {
+public class Advertisement implements Comparable<Advertisement>, Serializable {
     private String status;
     private String sessionId;
     private String host;
     private String sessionName;
     private String imageUrl;
     private String advertisementId;
-    private String maxParticipants;
+    private int maxParticipants;
     private HashMap<String,Long> participantsTimestamps;
     private int durationInMin;
     private String currency;
@@ -28,7 +29,7 @@ public class Advertisement implements Comparable<Advertisement> {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, String maxParticipants, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, int maxParticipants, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
         this.host = host;
@@ -57,9 +58,6 @@ public class Advertisement implements Comparable<Advertisement> {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public void setDuration(int durationInMin) {
     }
 
     public String getSessionId() {
@@ -138,11 +136,11 @@ public class Advertisement implements Comparable<Advertisement> {
         this.price = price;
     }
 
-    public String getMaxParticipants() {
+    public int getMaxParticipants() {
         return maxParticipants;
     }
 
-    public void setMaxParticipants(String maxParticipants) {
+    public void setMaxParticipants(int maxParticipants) {
         this.maxParticipants = maxParticipants;
     }
 

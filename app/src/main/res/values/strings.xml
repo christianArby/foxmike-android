@@ -230,7 +230,7 @@
     <string name="creating_session">Creating session…</string>
     <string name="select_time">Select Time</string>
     <string name="choose_session_type">Choose session type</string>
-    <string name="session_duration">Session durationInMin in minutes</string>
+    <string name="session_duration">Session duration in minutes</string>
     <string name="nr_participants">Nr of participants</string>
     <string name="type_in_necessary_information">Type in necessary information</string>
     <string name="tab_messages">Messages</string>
@@ -412,7 +412,7 @@
     <string name="cancel_booking_anyway">Cancel booking anyway</string>
     <string name="confirm_booking">Confirm booking</string>
     <string name="your_booking_has_been_cancelled">Your booking has been cancelled.</string>
-    <string name="booking_confirmed">Booking confirmed!</string>
+    <string name="booking_confirmed">Booking confirmed! Please state your name or user name to the trainer at session start.</string>
     <string name="ok">Ok</string>
     <string name="dont_show_booking_text">I get it, don\'t show this message at my next booking.</string>
     <string name="switching_to_participant_mode">Switching to participant mode</string>
@@ -560,4 +560,6 @@
     <string name="Rate">Rate</string>
     <string name="new_text">NEW</string>
     <string name="bad_internet">Bad internet connection, please try again later.</string>
+    <string name="save">Save</string>
+    <string name="already_session_planned_at_this_time">You already have a session planned at this time, please choose another time.</string>
 </resources>

@@ -12,10 +12,10 @@ public class Review implements Comparable<Review>{
     private String advertisementId;
     private String sessionId;
     private String review;
-    private float rating;
+    private int rating;
     private Long timestamp;
 
-    public Review(String hostId, String authorId, String advertisementId, String sessionId, String review, float rating, Long timestamp) {
+    public Review(String hostId, String authorId, String advertisementId, String sessionId, String review, int rating, Long timestamp) {
         this.hostId = hostId;
         this.authorId = authorId;
         this.advertisementId = advertisementId;
@@ -40,7 +40,7 @@ public class Review implements Comparable<Review>{
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 
