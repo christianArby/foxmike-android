@@ -90,7 +90,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -522,7 +521,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     countParticipants = 0;
                 }
                 // set the text of each row in the list of advertisements
-                int maxParticipants = Integer.parseInt(model.getMaxParticipants());
+                int maxParticipants = model.getMaxParticipants();
                 holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
                 holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
                 // set the click listener on each row
@@ -1265,11 +1264,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     // If the current user isn´t the host of the mSession
                     if (!mSession.getHost().equals(currentFirebaseUser.getUid())) {
-                        DateTime currentTime = DateTime.now();
+                        DateTime twoWeekTime = DateTime.now().plusWeeks(2);
                         DateTime adTime = new DateTime(adSelected.getAdvertisementTimestamp());
-                        Duration durationCurrentToAd = new Duration(currentTime, adTime);
 
-                        if (durationCurrentToAd.getStandardDays()>13) {
+                        if (adTime.isBefore(twoWeekTime)) {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setMessage(R.string.booking_more_than_2_weeks_ahead).setTitle(R.string.booking_not_possible);
                             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

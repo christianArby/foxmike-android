@@ -93,6 +93,46 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/sortPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:text="@string/filter_by_price"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rangeSeekbar" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/priceSpinnerMin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_left"
+                    android:backgroundTint="@color/grayTextColor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
+
+                <Spinner
+                    android:id="@+id/priceSpinnerMax"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/marginVertical"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:backgroundTint="@color/grayTextColor"
+                    app:layout_constraintStart_toEndOf="@id/priceSpinnerMin"
+                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
+
+            </LinearLayout>
+
+            <TextView
                 android:id="@+id/timeHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -160,46 +200,6 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/sortPriceText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginTop="@dimen/margin_minimum"
-                android:text="@string/filter_by_price"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rangeSeekbar" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
-                android:layout_marginTop="@dimen/margin_minimum"
-                android:background="@drawable/round_corners"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/priceSpinnerMin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_left"
-                    android:backgroundTint="@color/grayTextColor"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
-
-                <Spinner
-                    android:id="@+id/priceSpinnerMax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/marginVertical"
-                    android:layout_marginStart="@dimen/margin_left"
-                    android:backgroundTint="@color/grayTextColor"
-                    app:layout_constraintStart_toEndOf="@id/priceSpinnerMin"
-                    app:layout_constraintTop_toBottomOf="@id/sortPriceText" />
-
-            </LinearLayout>
-
 
             <TextView
                 android:id="@+id/filterText"
@@ -207,10 +207,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
-                android:text="@string/filter_on_distance_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/priceSpinnerMin" />
+                android:text="@string/filter_on_distance_text"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

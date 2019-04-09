@@ -94,8 +94,12 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         holder.setNotificationClickedListener(model);
         holder.setNotificationTime(TextTimestamp.textShortDateAndTime(model.getTimestamp()));
 
-        if (unreadNotifications.hasChild(model.getNotificationId())) {
-            holder.setNotificationUnread(true);
+        if (unreadNotifications!=null) {
+            if (unreadNotifications.hasChild(model.getNotificationId())) {
+                holder.setNotificationUnread(true);
+            } else {
+                holder.setNotificationUnread(false);
+            }
         } else {
             holder.setNotificationUnread(false);
         }
@@ -110,8 +114,10 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
                 @Override
                 public void onClick(View view) {
                     onNotificationClickedListener.OnNotificationClicked(foxmikeNotification);
-                    if (unreadNotifications.hasChild(foxmikeNotification.getNotificationId())) {
-                        FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(foxmikeNotification.getNotificationId()).setValue(null);
+                    if (unreadNotifications!=null) {
+                        if (unreadNotifications.hasChild(foxmikeNotification.getNotificationId())) {
+                            FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(foxmikeNotification.getNotificationId()).setValue(null);
+                        }
                     }
                 }
             });

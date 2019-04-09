@@ -1,11 +1,6 @@
 package com.foxmike.android.activities;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -41,12 +35,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -55,8 +47,7 @@ import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.utils.Price;
-import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -64,6 +55,8 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -99,15 +92,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private TextInputLayout mLocationTIL;
     private TextInputLayout mSessionTypeTIL;
     private TextInputLayout mDateTIL;
-    private TextInputLayout mDurationTIL;
-    private TextInputLayout mMaxParticipantsTIL;
     private TextInputLayout mWhatTIL;
     private TextInputLayout mWhoTIL;
     private TextInputLayout mWhereTIL;
     private TextInputEditText mSessionName;
     private TextInputEditText mSessionType;
-    private TextInputEditText mMaxParticipants;
-    private TextInputEditText mDuration;
     private EditText mWhat;
     private EditText mWho;
     private EditText mWhere;
@@ -122,6 +111,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 1;
     private static final int PAYOUT_METHOD_REQUEST = 2;
     private static final int UPDATE_SESSION_LOCATION_REQUEST = 3;
+    private static final int CREATE_ADVERTISEMENT = 4;
     private Uri mImageUri = null;
     private ProgressDialog mProgress;
     private LatLng clickedLatLng;
@@ -136,7 +126,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FragmentManager fragmentManager;
     private FrameLayout mapsFragmentContainer;
-    private ProgressBar progressBar;
     private String accountCountry;
     private boolean payoutsEnabled;
     private boolean infoIsValid = true;
@@ -147,12 +136,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private TextView imageErrorText;
     private CompactCalendarView compactCalendarView;
     private TextView calendarHeadingTV;
-    private HashMap<Long, Integer> advertisementTimestampsAndPrices = new HashMap<>();
+    private HashMap<Long, Advertisement> timestampsAndAdvertisements = new HashMap<>();
+    private ArrayList<Advertisement> advertisementArrayList = new ArrayList<>();
     private Map advertisements = new HashMap();
     private long mLastClickTime = 0;
     private LinearLayout allExceptCalendar;
     private boolean addAdvertisements;
-    private int currentPrice = 0;
     private String type;
     private NestedScrollView createOrEditSV;
     private String address;
@@ -163,11 +152,21 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog dlg;
     private View mainView;
+    private View progressOverlay;
+    private DotProgressBar progressBar;
+    private String accountCountry1;
+    private int duration;
+    private int maxParticipants;
+    private int price =-1;
+    private boolean advertisementsIsLoaded;
+    private boolean stripeAccountIsLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_or_edit_session);
+
+        checkIfPayOutsIsEnabled();
 
         existingSessionID = getIntent().getStringExtra("sessionID");
         type = getIntent().getStringExtra("type");
@@ -191,14 +190,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mSessionNameTIL = createSession.findViewById(R.id.sessionNameTIL);
         mLocationTIL = createSession.findViewById(R.id.locationTIL);
         mSessionTypeTIL = createSession.findViewById(R.id.sessionTypeTIL);
-        mMaxParticipants = createSession.findViewById(R.id.maxParticipantsET);
-        mDuration = createSession.findViewById(R.id.durationET);
         mDateTIL = createSession.findViewById(R.id.dateTIL);
-        mDurationTIL = createSession.findViewById(R.id.durationTIL);
         mWhatTIL = createSession.findViewById(R.id.whatTIL);
         mWhoTIL = createSession.findViewById(R.id.whoTIL);
         mWhereTIL = createSession.findViewById(R.id.whereTIL);
-        mMaxParticipantsTIL = createSession.findViewById(R.id.maxParticipantTIL);
         mWhat = createSession.findViewById(R.id.whatET);
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
@@ -207,12 +202,13 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
         mapsFragmentContainer = findViewById(R.id.container_maps_fragment);
-        progressBar = createSession.findViewById(R.id.progressBar_cyclic);
         imageErrorText = createSession.findViewById(R.id.imageErrorText);
         compactCalendarView = (CompactCalendarView) createSession.findViewById(R.id.compactcalendar_view);
         calendarHeadingTV = createSession.findViewById(R.id.calendarHeadingTV);
         allExceptCalendar = createSession.findViewById(R.id.allExceptCalendar);
         createOrEditSV = findViewById(R.id.scrollview_create_session);
+        progressOverlay = createSession.findViewById(R.id.payoutProgressOverlay);
+        progressBar = createSession.findViewById(R.id.payoutProgressBar);
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -229,11 +225,28 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     return;
                 }
 
-                compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
+                //compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
                 // set the calendar to the clicked date
                 myCalendar.setTime(dateClicked);
-                pickTime();
-                // Open timepicker in order for user to set time for the event
+
+                Intent createAdIntent = new Intent(CreateOrEditSessionActivity.this, CreateAdvertisementActivity.class);
+                createAdIntent.putExtra("date", dateClicked.getTime());
+
+                if (existingSession!=null) {
+                    duration = existingSession.getDurationInMin();
+                    maxParticipants = existingSession.getMaxParticipants();
+                    price = existingSession.getPrice();
+                }
+
+                createAdIntent.putExtra("duration", duration);
+                createAdIntent.putExtra("maxParticipants", maxParticipants);
+                createAdIntent.putExtra("price", price);
+
+                createAdIntent.putExtra("advertisementArrayList", advertisementArrayList);
+                createAdIntent.putExtra("payoutsEnabled", payoutsEnabled);
+                createAdIntent.putExtra("accountCurrency", accountCurrency);
+                startActivityForResult(createAdIntent, CREATE_ADVERTISEMENT);
+                overridePendingTransition(R.anim.slide_in_up, R.anim.stay );
             }
             @Override
             public void onMonthScroll(Date firstDayOfNewMonth) {
@@ -242,6 +255,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 calendarHeadingTV.setText(fmt.toString());
             }
         });
+        compactCalendarView.shouldDrawIndicatorsBelowSelectedDays(true);
 
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -250,7 +264,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        progressBar.setVisibility(View.VISIBLE);
         mCreateSessionBtn.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
@@ -314,8 +327,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
                 mLocation.setText(address);
             }
-
-            setPrice(0);
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
             setupUI();
         }
@@ -329,7 +340,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-
 
                 if (updateSession) {
                     mProgress.setMessage(getString(R.string.updating_session));
@@ -371,7 +381,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         });
 
         if (type!=null) {
-
             if (type.equals("what")) {
                 mWhat.post(new Runnable() {
                     @Override
@@ -396,7 +405,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     }
                 });
             }
-
             if (type.equals("where")) {
                 mWhere.post(new Runnable() {
                     @Override
@@ -410,7 +418,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 });
             }
         }
-
     }
 
     @Override
@@ -442,31 +449,58 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(existingSession.getSessionType());
             // Existing advertisements
-
-            FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-            LiveData<DataSnapshot> fbDbLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()));
-            fbDbLiveData.observe(this, new Observer<DataSnapshot>() {
+            Long currentTimestamp = System.currentTimeMillis();
+            rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    ArrayList<Task<?>> tasks = new ArrayList<>();
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                            Long advertisementTimestamp = (Long) snapshot.getValue();
-                            if (advertisementTimestamp!=0) {
-                                Event sessionTime = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisementTimestamp, "existingAd");
-                                compactCalendarView.addEvent(sessionTime);
-                            }
+                            TaskCompletionSource<DataSnapshot> dbSource = new TaskCompletionSource<>();
+                            Task dbTask = dbSource.getTask();
+                            DatabaseReference ref = rootDbRef.child("advertisements").child(snapshot.getKey());
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    dbSource.trySetResult(dataSnapshot);
+                                    if (dataSnapshot.getValue()!=null) {
+                                        advertisementArrayList.add(dataSnapshot.getValue(Advertisement.class));
+                                    }
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    dbSource.setException(databaseError.toException());
+                                }
+                            });
+                            tasks.add(dbTask);
                         }
-
+                        Tasks.whenAll(tasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                advertisementsIsLoaded = true;
+                                tryLoadCalendar();
+                            }
+                        });
+                    } else {
+                        advertisementsIsLoaded = true;
+                        tryLoadCalendar();
                     }
                 }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    advertisementsIsLoaded = true;
+                    tryLoadCalendar();
+                }
             });
-            mMaxParticipants.setText(existingSession.getMaxParticipants());
-            mDuration.setText(existingSession.getDurationInMin() + getString(R.string.minutes_append));
+
             mWhat.setText(existingSession.getWhat());
             mWho.setText(existingSession.getWho());
             mWhere.setText(existingSession.getWhereAt());
-            setPrice(existingSession.getPrice());
 
+        } else {
+            advertisementsIsLoaded = true;
+            tryLoadCalendar();
         }
 
         if (updateSession) {
@@ -521,18 +555,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
                 mLocationTIL.setError(null);
 
-                /*FragmentManager fragmentManager = getChildFragmentManager();
-
-                if (fragmentManager.findFragmentByTag(ChooseLocationFragment.TAG)!=null) {
-                    FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
-                    removeTransaction.remove(fragmentManager.findFragmentByTag(ChooseLocationFragment.TAG)).commit();
-                };
-
-                chooseLocationFragment = ChooseLocationFragment.newInstance("updateSession");
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.add(R.id.container_maps_fragment, chooseLocationFragment, ChooseLocationFragment.TAG).addToBackStack(null);
-                transaction.commit();*/
-
                 Intent chooseLocatonIntent = new Intent(CreateOrEditSessionActivity.this, ChooseLocationActivity.class);
                 startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
 
@@ -585,37 +607,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
         });
 
-        mDurationTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDurationTIL.setError(null);
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
-            }
-        });
-        mDuration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDurationTIL.setError(null);
-                createDialog(getString(R.string.session_duration), R.array.duration_array,mDuration);
-            }
-        });
-
-        mMaxParticipantsTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mMaxParticipantsTIL.setError(null);
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
-
-            }
-        });
-        mMaxParticipants.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mMaxParticipantsTIL.setError(null);
-                changeNumberOfParticipants(getString(R.string.nr_participants), R.array.max_participants_array,mMaxParticipants);
-            }
-        });
-
         mWhat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -656,7 +647,24 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     }
 
-    private void setPrice(final int price) {
+    private void tryLoadCalendar() {
+        if (stripeAccountIsLoaded && advertisementsIsLoaded) {
+            if (advertisementArrayList!=null) {
+                for (Advertisement advertisement: advertisementArrayList) {
+                    if (advertisement.getSessionId()!=null) {
+                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
+                        compactCalendarView.addEvent(event);
+                    }
+                }
+            }
+
+            progressOverlay.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            mCreateSessionBtn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void checkIfPayOutsIsEnabled() {
         // --------------CHECK IF PAYOUTS ARE ENABLED------
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -665,9 +673,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 if (dataSnapshot.getValue()==null) {
                     // ----------- PAYOUTS NOT ENABLED --------------
                     payoutsEnabled = false;
-                    showPriceView();
+                    stripeAccountIsLoaded = true;
+                    tryLoadCalendar();
                 } else {
-                    stripeAccountId = dataSnapshot.getValue().toString();
+                    String stripeAccountId = dataSnapshot.getValue().toString();
                     // Stripe function
                     retrieveStripeAccount(stripeAccountId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                         @Override
@@ -678,7 +687,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                                 showSnackbar("An error occurred." + e.getMessage());
                                 // ----------- PAYOUTS NOT ENABLED --------------
                                 payoutsEnabled = false;
-                                showPriceView();
+                                stripeAccountIsLoaded = true;
+                                tryLoadCalendar();
                                 return;
                             }
                             // If successful, extract
@@ -686,18 +696,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                             if (result.get("resultType").toString().equals("account")) {
 
                                 HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
-                                accountCountry = account.get("country").toString();
+                                accountCountry1 = account.get("country").toString();
                                 accountCurrency = account.get("default_currency").toString();
 
                                 // ----------- PAYOUTS ENABLED --------------
                                 if (account.get("payouts_enabled").toString().equals("true")) {
                                     payoutsEnabled = true;
-                                    showPriceView();
+                                    stripeAccountIsLoaded = true;
+                                    tryLoadCalendar();
 
                                 } else {
                                     // ----------- PAYOUTS NOT ENABLED --------------
                                     payoutsEnabled = false;
-                                    showPriceView();
+                                    stripeAccountIsLoaded = true;
+                                    tryLoadCalendar();
                                 }
 
                             } else {
@@ -711,18 +723,21 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                payoutsEnabled = false;
+                stripeAccountIsLoaded = true;
+                tryLoadCalendar();
             }
         });
-
-    }
-
-    private void showPriceView() {
-        progressBar.setVisibility(View.GONE);
-        mCreateSessionBtn.setVisibility(View.VISIBLE);
     }
 
     public void updateSessionObjectFromUI(OnSessionUpdatedListener onSessionUpdatedListener) {
+
+        if (existingSession!=null) {
+            maxParticipants = existingSession.getMaxParticipants();
+            duration = existingSession.getDurationInMin();
+            price = existingSession.getPrice();
+        }
+
         //final Session session = new Session();
         Map sessionMap = new HashMap();
 
@@ -738,15 +753,16 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         sessionMap.put("what",mWhat.getText().toString());
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
-        sessionMap.put("maxParticipants", mMaxParticipants.getText().toString());
+        sessionMap.put("maxParticipants", maxParticipants);
         sessionMap.put("address", address);
-
-        String sDur = mDuration.getText().toString().replaceAll("[^0-9]", "");
-        if (sDur.length()>1) {
-            int intDur = Integer.parseInt(sDur);
-            sessionMap.put("durationInMin", intDur);
+        sessionMap.put("durationInMin", duration);
+        sessionMap.put("maxParticipants", maxParticipants);
+        if (payoutsEnabled) {
+            sessionMap.put("price", price);
+            sessionMap.put("currency", accountCurrency);
         } else {
-            sessionMap.put("durationInMin", 0);
+            sessionMap.put("price", 0);
+            sessionMap.put("currency", "free");
         }
 
         sessionMap.put("longitude", clickedLatLng.longitude);
@@ -769,15 +785,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             infoIsValid = false;
         }
 
-        if (TextUtils.isEmpty(mDuration.getText().toString())) {
-            mDurationTIL.setError(getString(R.string.please_choose_session_duration));
-            infoIsValid = false;
-        }
-
-        if (TextUtils.isEmpty(mMaxParticipants.getText().toString())) {
-            mMaxParticipantsTIL.setError(getString(R.string.please_choose_maximum_nr_of_participants));
-            infoIsValid = false;
-        }
 
         if (TextUtils.isEmpty(mWhat.getText().toString())) {
             mWhatTIL.setError(getString(R.string.please_write_longer_session_description));
@@ -793,17 +800,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mWhereTIL.setError(getString(R.string.please_explain_session_where));
             infoIsValid = false;
         }
-
-        if (payoutsEnabled) {
-            sessionMap.put("price", currentPrice);
-            sessionMap.put("currency", accountCurrency);
-        } else {
-            currentPrice = 0;
-            sessionMap.put("price", 0);
-            sessionMap.put("currency", "free");
-        }
-
-
 
         /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/
@@ -858,33 +854,31 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         ArrayList<String> writeReferences = new ArrayList<>();
         // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
         // Loop through the timestamps created by clicking and making events in the calendar
-        for (Long advertisementTimestamp: advertisementTimestampsAndPrices.keySet()) {
-            // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
-            String advertisementKey = rootDbRef.child("advertisements").push().getKey();
-            Advertisement advertisement = new Advertisement("active",
-                    (String) sendSession.get("sessionId"),
-                    (String) sendSession.get("host"),
-                    (String) sendSession.get("sessionName"),
-                    (String) sendSession.get("imageUrl"),
-                    advertisementKey,
-                    (String) sendSession.get("maxParticipants"),
-                    new HashMap<String, Long>(),
-                    (int) sendSession.get("durationInMin"),
-                    (String) sendSession.get("currency"),
-                    advertisementTimestamp,
-                    advertisementTimestampsAndPrices.get(advertisementTimestamp)
-            );
-            // Save the advertisement Id and the ad timestamp in a hashmap to be saved under sessionAdvertisements
-            advertisements.put(advertisementKey, advertisementTimestamp);
-            // send the ad to the database
-            rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    // save the key and ad timestamp under user/advertisementHosting
-                    writeReferences.add(rootDbRef.child("advertisements").child(advertisementKey).toString());
-                    rootDbRef.child("advertisementHosts").child(currentFirebaseUser.getUid()).child(advertisementKey).setValue(advertisementTimestamp);
-                }
-            });
+        for (Advertisement advertisement: advertisementArrayList) {
+            if (advertisement.getSessionId()==null) {
+                // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
+                String advertisementKey = rootDbRef.child("advertisements").push().getKey();
+
+                advertisement.setAdvertisementId(advertisementKey);
+                advertisement.setStatus("active");
+                advertisement.setSessionId((String) sendSession.get("sessionId"));
+                advertisement.setHost((String) sendSession.get("host"));
+                advertisement.setSessionName((String) sendSession.get("sessionName"));
+                advertisement.setImageUrl((String) sendSession.get("imageUrl"));
+                advertisement.setCurrency(accountCurrency);
+
+                // Save the advertisement Id and the ad timestamp in a hashmap to be saved under sessionAdvertisements
+                advertisements.put(advertisementKey, advertisement.getAdvertisementTimestamp());
+                // send the ad to the database
+                rootDbRef.child("advertisements").child(advertisementKey).setValue(advertisement).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // save the key and ad timestamp under user/advertisementHosting
+                        writeReferences.add(rootDbRef.child("advertisements").child(advertisementKey).toString());
+                        rootDbRef.child("advertisementHosts").child(currentFirebaseUser.getUid()).child(advertisementKey).setValue(advertisement.getAdvertisementTimestamp());
+                    }
+                });
+            }
         }
         // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
         rootDbRef.child("sessionAdvertisements").child(mSessionId).updateChildren(advertisements);
@@ -916,79 +910,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
     }
 
-    private void pickTime() {
-        TimePickerDialog mTimePicker;
-        mTimePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
-                myCalendar.set(Calendar.MINUTE, selectedMinute);
-
-                Date pickedDate = new Date(myCalendar.getTime().getTime());
-                Date currentDate = new Date();
-
-                if (pickedDate.before(currentDate)) {
-                    cannotCreateSessionInPastPopUp();
-                } else {
-
-                    if (payoutsEnabled) {
-                        if (accountCountry.equals("SE")) {
-                            createPriceDialog(getString(R.string.price_per_person_in_sek), R.array.price_array_SE, new OnPriceClickedListener() {
-                                @Override
-                                public void OnPriceClicked() {
-                                    Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
-                                    compactCalendarView.addEvent(event);
-                                    compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                    if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
-                                        compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                                    }
-                                    advertisementTimestampsAndPrices.put(myCalendar.getTimeInMillis(), currentPrice);
-
-                                }
-                            });
-                        }
-                        return;
-                    }
-                    // ---- Payouts not enabled -----
-                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
-                    builder.setMessage(R.string.create_free_session_question);
-                    builder.setPositiveButton(R.string.create_free_session, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor),myCalendar.getTimeInMillis());
-                            compactCalendarView.addEvent(event);
-                            compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                            if (DateUtils.isToday(myCalendar.getTimeInMillis())) {
-                                compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.foxmikePrimaryColor));
-                            }
-                            advertisementTimestampsAndPrices.put(myCalendar.getTimeInMillis(), 0);
-                            currentPrice = 0;
-                        }
-                    });
-                    builder.setNegativeButton(R.string.add_payout_method_text, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent paymentPreferencesIntent = new Intent(CreateOrEditSessionActivity.this, PayoutPreferencesActivity.class);
-                            startActivityForResult(paymentPreferencesIntent, PAYOUT_METHOD_REQUEST);
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-
-
-
-
-
-
-
-
-                }
-            }
-        }, 12, 0, true);//Yes 24 hour time
-        mTimePicker.setTitle(getString(R.string.select_time));
-        mTimePicker.show();
-    }
-
     /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
     private void createDialogWithArray(String title, ArrayList<String> string_array, final EditText mEditText) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -1011,109 +932,43 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
         });
     }
-    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
-    private void createDialog(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View convertView = inflater.inflate(R.layout.dialog_listview, null);
-        alertDialogBuilder.setView(convertView);
-        alertDialogBuilder.setTitle(title);
-        lv = convertView.findViewById(R.id.listView1);
-        lv.getDivider().setAlpha(0);
-        String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,values);
-        lv.setAdapter(adapter);
-        final AlertDialog dlg = alertDialogBuilder.show();
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int itemPosition = position;
-                String itemValue = (String) lv.getItemAtPosition(position);
-                mEditText.setText(itemValue);
-                dlg.dismiss();
-            }
-        });
-    }
-    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
-    private void createPriceDialog(String title, int string_array,  OnPriceClickedListener onPriceClickedListener) {
-        alertDialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View convertView = inflater.inflate(R.layout.dialog_radiogroup, null);
-        alertDialogBuilder.setView(convertView);
-        alertDialogBuilder.setTitle(title);
-        currencySettingRadioGroup = (RadioGroup) convertView.findViewById(R.id.dialogRadioGroup);
-        TextView priceOkButton = convertView.findViewById(R.id.priceOK);
-        radioGroupHashMap.clear();
-        currencySettingRadioGroup.removeAllViews();
-        String[] prices = getResources().getStringArray(string_array);
-        int n=1;
-        for (String stringPrice: prices ) {
-            if (!radioGroupHashMap.containsKey(stringPrice)) {
-                RadioButton rb = new RadioButton(this);
-                rb.setText(stringPrice);
-                rb.setTextAppearance(this, android.R.style.TextAppearance_Material_Subhead);
-                rb.setId(n);
-                n++;
-                currencySettingRadioGroup.addView(rb);
-                radioGroupHashMap.put(stringPrice, rb);
-            }
-        }
-        radioGroupHashMap.get(Price.PRICES_STRINGS_SE.get(currentPrice)).setChecked(true);
-        dlg = alertDialogBuilder.show();
-        currencySettingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                currentPrice = Price.PRICES_INTEGERS_SE.get(prices[i-1]);
-            }
-        });
-        priceOkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dlg.dismiss();
-                onPriceClickedListener.OnPriceClicked();
-
-            }
-        });
-    }
-    /**Method createDialog creates a dialog with a title and a list of strings to choose from.*/
-    private void changeNumberOfParticipants(String title, int string_array, final EditText mEditText) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View convertView = inflater.inflate(R.layout.dialog_listview, null);
-        alertDialogBuilder.setView(convertView);
-        alertDialogBuilder.setTitle(title);
-        lv = convertView.findViewById(R.id.listView1);
-        lv.getDivider().setAlpha(0);
-        String[] values = getResources().getStringArray(string_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
-        lv.setAdapter(adapter);
-        final AlertDialog dlg = alertDialogBuilder.show();
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int itemPosition = position;
-                String itemValue = (String) lv.getItemAtPosition(position);
-                mEditText.setText(itemValue);
-                dlg.dismiss();
-            }
-        });
-    }
 
     /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == UPDATE_SESSION_LOCATION_REQUEST && resultCode== Activity.RESULT_OK) {
-            updateLocation(data.getDoubleExtra("latitude", 0), data.getDoubleExtra("longitude", 0));
+        if (requestCode == CREATE_ADVERTISEMENT) {
+            payoutsEnabled = data.getBooleanExtra("payoutsEnabled", payoutsEnabled);
+            if (resultCode == RESULT_OK) {
+
+                duration = data.getIntExtra("duration", 0);
+                maxParticipants = data.getIntExtra("maxParticipants", 0);
+                price = data.getIntExtra("price", 100);
+                Long timestamp = data.getLongExtra("dateAndTime", 0);
+                advertisementArrayList = (ArrayList<Advertisement>) data.getSerializableExtra("advertisementArrayList");
+
+                if (existingSession!=null) {
+                    existingSession.setDurationInMin(duration);
+                    existingSession.setMaxParticipants(maxParticipants);
+                    existingSession.setPrice(price);
+                }
+
+                compactCalendarView.removeAllEvents();
+                for (Advertisement advertisement: advertisementArrayList) {
+                    if (advertisement.getSessionId()!=null) {
+                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
+                        compactCalendarView.addEvent(event);
+                    } else {
+                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), advertisement.getAdvertisementTimestamp());
+                        compactCalendarView.addEvent(event);
+                    }
+                }
+
+            }
         }
 
-        // TODO Change with RxJava instead listening to variable hasPaymentin MainHostAc
-        if(requestCode == PAYOUT_METHOD_REQUEST) {
-            if (existingSession!=null) {
-                setPrice(existingSession.getPrice());
-            } else {
-                setPrice(0);
-            }
+        if(requestCode == UPDATE_SESSION_LOCATION_REQUEST && resultCode== RESULT_OK) {
+            updateLocation(data.getDoubleExtra("latitude", 0), data.getDoubleExtra("longitude", 0));
         }
 
         if(requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
@@ -1145,6 +1000,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void setImage(String image, ImageView imageView) {
         mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(image).into(imageView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        setSupportActionBar(null);
+        hideKeyboard();
+        imm = null;
+        if (lv!=null) {
+            lv.setAdapter(null);
+        }
+        adapter = null;
+        alertDialogBuilder=null;
+        dlg =null;
     }
 
     private String getAddress(double latitude, double longitude) {
@@ -1189,20 +1058,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             returnAddress = "failed";
         }
         return returnAddress;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        setSupportActionBar(null);
-        hideKeyboard();
-        imm = null;
-        if (lv!=null) {
-            lv.setAdapter(null);
-        }
-        adapter = null;
-        alertDialogBuilder=null;
-        dlg =null;
     }
 
     public void updateLocation(Double latitude, Double longitude) {
