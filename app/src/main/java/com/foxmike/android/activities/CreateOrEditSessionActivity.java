@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -18,6 +19,8 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -45,6 +48,8 @@ import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
+import com.foxmike.android.adapters.ListCreateAdvertisementsAdapter;
+import com.foxmike.android.interfaces.OnAdvertisementArrayListChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
@@ -71,6 +76,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -137,7 +144,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private CompactCalendarView compactCalendarView;
     private TextView calendarHeadingTV;
     private HashMap<Long, Advertisement> timestampsAndAdvertisements = new HashMap<>();
-    private ArrayList<Advertisement> advertisementArrayList = new ArrayList<>();
+    private ArrayList<Advertisement> mAdvertisementArrayList = new ArrayList<>();
     private Map advertisements = new HashMap();
     private long mLastClickTime = 0;
     private LinearLayout allExceptCalendar;
@@ -160,6 +167,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private int price =-1;
     private boolean advertisementsIsLoaded;
     private boolean stripeAccountIsLoaded;
+    private RecyclerView adRecyclerView;
+    private ConstraintLayout recyclerViewContainer;
+    private DateTime selectedDate;
+    private ListCreateAdvertisementsAdapter listCreateAdvertisementsAdapter;
+    private TextView addAdvertisement;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,6 +221,13 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         createOrEditSV = findViewById(R.id.scrollview_create_session);
         progressOverlay = createSession.findViewById(R.id.payoutProgressOverlay);
         progressBar = createSession.findViewById(R.id.payoutProgressBar);
+        adRecyclerView = createSession.findViewById(R.id.advertisementsRV);
+        recyclerViewContainer = createSession.findViewById(R.id.recyclerViewContainer);
+        addAdvertisement = createSession.findViewById(R.id.addAdvertisement);
+
+        adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        selectedDate = new DateTime().minusMonths(2);
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -218,35 +237,36 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             @Override
             public void onDayClick(Date dateClicked) {
 
-                Date currentDate = new Date();
+                selectedDate = new DateTime(dateClicked);
+                boolean hasAds = false;
 
-                if (dateClicked.before(currentDate) && !DateUtils.isToday(dateClicked.getTime())) {
-                    cannotCreateSessionInPastPopUp();
-                    return;
+                for (Advertisement advertisement: mAdvertisementArrayList) {
+                    DateTime adDateTime = new DateTime(advertisement.getAdvertisementTimestamp());
+                    if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
+                        hasAds = true;
+                    }
                 }
 
-                //compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
-                // set the calendar to the clicked date
-                myCalendar.setTime(dateClicked);
-
-                Intent createAdIntent = new Intent(CreateOrEditSessionActivity.this, CreateAdvertisementActivity.class);
-                createAdIntent.putExtra("date", dateClicked.getTime());
-
-                if (existingSession!=null) {
-                    duration = existingSession.getDurationInMin();
-                    maxParticipants = existingSession.getMaxParticipants();
-                    price = existingSession.getPrice();
+                if (hasAds) {
+                    if (listCreateAdvertisementsAdapter==null) {
+                        listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mAdvertisementArrayList, selectedDate, new OnAdvertisementArrayListChangedListener() {
+                            @Override
+                            public void OnAdvertisementArrayList(ArrayList<Advertisement> advertisementArrayList) {
+                                mAdvertisementArrayList = advertisementArrayList;
+                                checkIfRecyclerViewShouldBeVisible();
+                            }
+                        });
+                        adRecyclerView.setAdapter(listCreateAdvertisementsAdapter);
+                    } else {
+                        listCreateAdvertisementsAdapter.updateAdvertisements(mAdvertisementArrayList, selectedDate);
+                    }
+                    checkIfRecyclerViewShouldBeVisible();
+                } else {
+                    checkIfRecyclerViewShouldBeVisible();
+                    createAdvertisement(dateClicked);
                 }
 
-                createAdIntent.putExtra("duration", duration);
-                createAdIntent.putExtra("maxParticipants", maxParticipants);
-                createAdIntent.putExtra("price", price);
 
-                createAdIntent.putExtra("advertisementArrayList", advertisementArrayList);
-                createAdIntent.putExtra("payoutsEnabled", payoutsEnabled);
-                createAdIntent.putExtra("accountCurrency", accountCurrency);
-                startActivityForResult(createAdIntent, CREATE_ADVERTISEMENT);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.stay );
             }
             @Override
             public void onMonthScroll(Date firstDayOfNewMonth) {
@@ -256,6 +276,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
         });
         compactCalendarView.shouldDrawIndicatorsBelowSelectedDays(true);
+        checkIfRecyclerViewShouldBeVisible();
+
+        addAdvertisement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createAdvertisement(selectedDate.toDate());
+            }
+        });
 
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -420,6 +448,69 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         }
     }
 
+    private void createAdvertisement(Date dateClicked) {
+        Date currentDate = new Date();
+
+        if (dateClicked.before(currentDate) && !DateUtils.isToday(dateClicked.getTime())) {
+            cannotCreateSessionInPastPopUp();
+            return;
+        }
+        //compactCalendarView.setCurrentSelectedDayBackgroundColor(getResources().getColor(R.color.grayTextColor));
+        // set the calendar to the clicked date
+        myCalendar.setTime(dateClicked);
+
+        Intent createAdIntent = new Intent(CreateOrEditSessionActivity.this, CreateAdvertisementActivity.class);
+        createAdIntent.putExtra("date", dateClicked.getTime());
+
+        if (existingSession!=null) {
+            duration = existingSession.getDurationInMin();
+            maxParticipants = existingSession.getMaxParticipants();
+            price = existingSession.getPrice();
+        }
+
+        createAdIntent.putExtra("duration", duration);
+        createAdIntent.putExtra("maxParticipants", maxParticipants);
+        createAdIntent.putExtra("price", price);
+
+        createAdIntent.putExtra("advertisementArrayList", mAdvertisementArrayList);
+        createAdIntent.putExtra("payoutsEnabled", payoutsEnabled);
+        createAdIntent.putExtra("accountCurrency", accountCurrency);
+        startActivityForResult(createAdIntent, CREATE_ADVERTISEMENT);
+        overridePendingTransition(R.anim.slide_in_up, R.anim.stay );
+    }
+
+    private void checkIfRecyclerViewShouldBeVisible() {
+        Boolean hasAdvertisements = false;
+        compactCalendarView.removeAllEvents();
+        for (Advertisement advertisement: mAdvertisementArrayList) {
+            DateTime adDateTime = new DateTime(advertisement.getAdvertisementTimestamp());
+            if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
+                hasAdvertisements = true;
+            }
+
+            if (advertisement.getSessionId()!=null) {
+                Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
+                compactCalendarView.addEvent(event);
+            } else {
+                Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), advertisement.getAdvertisementTimestamp());
+                compactCalendarView.addEvent(event);
+            }
+
+        }
+        if (hasAdvertisements) {
+            recyclerViewContainer.setVisibility(View.VISIBLE);
+            recyclerViewContainer.post(new Runnable() {
+                @Override
+                public void run() {
+                    createOrEditSV.smoothScrollTo(0, mCreateSessionBtn.getBottom());
+                }
+            });
+
+        } else {
+            recyclerViewContainer.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -464,7 +555,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     dbSource.trySetResult(dataSnapshot);
                                     if (dataSnapshot.getValue()!=null) {
-                                        advertisementArrayList.add(dataSnapshot.getValue(Advertisement.class));
+                                        mAdvertisementArrayList.add(dataSnapshot.getValue(Advertisement.class));
                                     }
                                 }
                                 @Override
@@ -649,13 +740,22 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private void tryLoadCalendar() {
         if (stripeAccountIsLoaded && advertisementsIsLoaded) {
-            if (advertisementArrayList!=null) {
-                for (Advertisement advertisement: advertisementArrayList) {
+            if (mAdvertisementArrayList !=null) {
+                for (Advertisement advertisement: mAdvertisementArrayList) {
                     if (advertisement.getSessionId()!=null) {
                         Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
                         compactCalendarView.addEvent(event);
                     }
                 }
+
+                listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mAdvertisementArrayList, new DateTime(selectedDate), new OnAdvertisementArrayListChangedListener() {
+                    @Override
+                    public void OnAdvertisementArrayList(ArrayList<Advertisement> advertisementArrayList) {
+                        mAdvertisementArrayList = advertisementArrayList;
+                        checkIfRecyclerViewShouldBeVisible();
+                    }
+                });
+                adRecyclerView.setAdapter(listCreateAdvertisementsAdapter);
             }
 
             progressOverlay.setVisibility(View.GONE);
@@ -854,7 +954,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         ArrayList<String> writeReferences = new ArrayList<>();
         // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
         // Loop through the timestamps created by clicking and making events in the calendar
-        for (Advertisement advertisement: advertisementArrayList) {
+        for (Advertisement advertisement: mAdvertisementArrayList) {
             if (advertisement.getSessionId()==null) {
                 // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
                 String advertisementKey = rootDbRef.child("advertisements").push().getKey();
@@ -945,7 +1045,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 maxParticipants = data.getIntExtra("maxParticipants", 0);
                 price = data.getIntExtra("price", 100);
                 Long timestamp = data.getLongExtra("dateAndTime", 0);
-                advertisementArrayList = (ArrayList<Advertisement>) data.getSerializableExtra("advertisementArrayList");
+                mAdvertisementArrayList = (ArrayList<Advertisement>) data.getSerializableExtra("advertisementArrayList");
+
+                if (mAdvertisementArrayList==null) {
+                    mAdvertisementArrayList = new ArrayList<>();
+                }
 
                 if (existingSession!=null) {
                     existingSession.setDurationInMin(duration);
@@ -953,16 +1057,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     existingSession.setPrice(price);
                 }
 
-                compactCalendarView.removeAllEvents();
-                for (Advertisement advertisement: advertisementArrayList) {
-                    if (advertisement.getSessionId()!=null) {
-                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
-                        compactCalendarView.addEvent(event);
-                    } else {
-                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), advertisement.getAdvertisementTimestamp());
-                        compactCalendarView.addEvent(event);
-                    }
-                }
+                listCreateAdvertisementsAdapter.updateAdvertisements(mAdvertisementArrayList, selectedDate);
+                checkIfRecyclerViewShouldBeVisible();
 
             }
         }

@@ -251,7 +251,7 @@
     <string name="placeholder_last_seen">Sågs senast</string>
     <string name="CD_choose_session_image_button">Välj sessionsbildsknapp</string>
     <string name="CD_location_icon">Location_icon</string>
-    <string name="advertised_word">Tillfällen</string>
+    <string name="advertised_word">Annonserat</string>
     <string name="CD_date_icon">Datum ikon</string>
     <string name="CD_duration_icon">Varaktighetsikonen</string>
     <string name="duration_hint">Varaktighet</string>
@@ -562,4 +562,6 @@
     <string name="bad_internet">Dålig internetuppkoppling, försök igen senare.</string>
     <string name="save">Spara</string>
     <string name="already_session_planned_at_this_time">Du har redan ett pass den här tiden, välj en annan tid.</string>
+    <string name="saved_and_advertised_sessions_at_this_date">Sparade och annonserade tillfällen detta datum:</string>
+    <string name="create_occasion">Skapa tillfälle</string>
 </resources>
