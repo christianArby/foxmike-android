@@ -11,7 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
@@ -57,7 +56,6 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
     @BindView(R.id.maxParticipantsLayout) ConstraintLayout maxParticipantsLayout;
     @BindView(R.id.priceOverlay) View priceOverlay;
     @BindView(R.id.payoutProgressBar) DotProgressBar dotProgressBar;
-    @BindView(R.id.advertisementsRV) RecyclerView advertisementsRV;
     private static final int DURATION_REQUEST = 1000;
     private static final int MAX_PARTICIPANTS_REQUEST = 1001;
     private static final int PRICE_REQUEST = 1002;
@@ -119,6 +117,10 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
         accountCurrency = getIntent().getStringExtra("accountCurrency");
         advertisementArrayList = (ArrayList<Advertisement>) getIntent().getSerializableExtra("advertisementArrayList");
 
+        if (advertisementArrayList==null) {
+            advertisementArrayList = new ArrayList<>();
+        }
+
         if (duration>0) {
             durationTV.setText(DURATION_STRINGS.get(duration));
         }
@@ -129,10 +131,6 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
 
         if (price>=0) {
             priceTV.setText(PRICES_STRINGS_SE.get(price));
-        }
-
-        if (advertisementArrayList == null) {
-            advertisementArrayList = new ArrayList<>();
         }
 
         durationLayout.setOnClickListener(new View.OnClickListener() {
@@ -190,6 +188,7 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
         saveTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (duration==-1) {
                     Toast.makeText(CreateAdvertisementActivity.this, getResources().getString(R.string.please_choose_session_duration), Toast.LENGTH_LONG).show();
                     return;
@@ -260,8 +259,6 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
     }
 
     @Override

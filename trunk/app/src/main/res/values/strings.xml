@@ -562,4 +562,6 @@
     <string name="bad_internet">Bad internet connection, please try again later.</string>
     <string name="save">Save</string>
     <string name="already_session_planned_at_this_time">You already have a session planned at this time, please choose another time.</string>
+    <string name="saved_and_advertised_sessions_at_this_date">Saved and advertised sessions at this date:</string>
+    <string name="create_occasion">Create occasion</string>
 </resources>
