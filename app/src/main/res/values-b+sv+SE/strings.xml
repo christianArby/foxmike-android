@@ -235,7 +235,7 @@
     <string name="type_in_necessary_information">Skriv in nödvändig information</string>
     <string name="tab_messages">Meddelanden</string>
     <string name="tab_friends">Vänner</string>
-    <string name="tab_notifications">Notifikationer</string>
+    <string name="tab_notifications">Notiser</string>
     <string name="unknown_area">Okänt område</string>
     <string name="failed">misslyckades</string>
     <string name="Session_not_found_please_try_again_later">Passet hittades inte, försök igen senare.</string>
@@ -564,4 +564,7 @@
     <string name="already_session_planned_at_this_time">Du har redan ett pass den här tiden, välj en annan tid.</string>
     <string name="saved_and_advertised_sessions_at_this_date">Sparade och annonserade tillfällen detta datum:</string>
     <string name="create_occasion">Skapa tillfälle</string>
+    <string name="session_is_full">Bokning ej möjlig</string>
+    <string name="max_number_of_participants_reached">Passet kunde inte bokas då det är fullt.</string>
+    <string name="no_written_reviews_yet">Inga skrivna omdömen än.</string>
 </resources>

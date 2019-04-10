@@ -1264,10 +1264,23 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     // If the current user isn´t the host of the mSession
                     if (!mSession.getHost().equals(currentFirebaseUser.getUid())) {
-                        DateTime twoWeekTime = DateTime.now().plusWeeks(2);
-                        DateTime adTime = new DateTime(adSelected.getAdvertisementTimestamp());
 
-                        if (adTime.isBefore(twoWeekTime)) {
+                        if (adSelected.getMaxParticipants()<=adSelected.getParticipantsTimestamps().size()) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setMessage(R.string.max_number_of_participants_reached).setTitle(R.string.session_is_full);
+                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                            return;
+                        }
+
+                        Long currentTimestamp = System.currentTimeMillis();
+                        Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
+
+                        if (adSelected.getAdvertisementTimestamp()>twoWeekTimestamp) {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             builder.setMessage(R.string.booking_more_than_2_weeks_ahead).setTitle(R.string.booking_not_possible);
                             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

@@ -27,6 +27,6 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/bottom_navigation_host"
         android:layout_width="match_parent"
-        android:layout_height="60dp"/>
+        android:layout_height="56dp"/>
 
 </RelativeLayout>

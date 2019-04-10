@@ -4,20 +4,20 @@
     <item
         android:id="@+id/menuInbox"
         android:enabled="true"
-        android:icon="@mipmap/ic_chat_bubble_outline_black_24dp"
+        android:icon="@drawable/baseline_chat_bubble_outline_black_36"
         android:title="@string/menu_inbox"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuHostSessions"
         android:enabled="true"
-        android:icon="@mipmap/ic_access_time_black_24dp"
+        android:icon="@drawable/baseline_access_time_black_36"
         android:title="@string/menu_my_sessions"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menuProfile"
         android:enabled="true"
-        android:icon="@mipmap/ic_account_circle_black_24dp"
+        android:icon="@drawable/baseline_account_circle_black_36"
         android:title="@string/menu_profile"
         app:showAsAction="ifRoom" />
 </menu>

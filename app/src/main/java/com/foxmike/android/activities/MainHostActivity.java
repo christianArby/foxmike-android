@@ -128,6 +128,7 @@ public class MainHostActivity extends AppCompatActivity implements
         navigationAdapter.setupWithBottomNavigation(bottomNavigation);
         bottomNavigation.setAnimation(null);
         bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
+        bottomNavigation.setInactiveColor(getResources().getColor(R.color.primaryTextColor));
         bottomNavigation.setCurrentItem(0);
         bottomNavigation.setAccentColor(getResources().getColor(R.color.foxmikePrimaryColor));
         bottomNavigation.setBehaviorTranslationEnabled(false);
