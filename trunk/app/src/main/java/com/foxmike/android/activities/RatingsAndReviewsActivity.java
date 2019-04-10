@@ -67,6 +67,7 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
     @BindView(R.id.twoStarBar) ProgressBar twoStarBar;
     @BindView(R.id.oneStarBar) ProgressBar oneStarBar;
     @BindView(R.id.reviewContainer) CustomConstraintLayout reviewContainer;
+    @BindView(R.id.noWrittenReviewsYet) TextView noWrittenReviewsYet;
 
     @BindView(R.id.progressBar) ProgressBar progressBar;
 
@@ -190,11 +191,27 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
             keysQuery = rootDbRef.child("sessionReviews").child(sessionId).orderByValue().endAt(lastTimestamp-1).limitToLast(currentNumberOfReviews);
         }
 
+        // Listener to keep data in cache in sync with database
+        keysQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         keysQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
                     progressBar.setVisibility(View.GONE);
+                    if (listReviewseAdapter.getItemCount()==0) {
+                        noWrittenReviewsYet.setVisibility(View.VISIBLE);
+                    }
                 } else {
 
                     if (dataSnapshot.getChildrenCount()<currentNumberOfReviews) {

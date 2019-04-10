@@ -108,7 +108,7 @@ public class WritePostActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if (postTextET.getText().length()>0) {
-                    sendTW.setTextColor(getResources().getColor(R.color.primaryTextColor));
+                    sendTW.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
                     sendable=true;
                 } else  {
                     sendTW.setTextColor(getResources().getColor(R.color.grayTextColor));
@@ -165,6 +165,12 @@ public class WritePostActivity extends AppCompatActivity {
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     public void showKeyboard() {

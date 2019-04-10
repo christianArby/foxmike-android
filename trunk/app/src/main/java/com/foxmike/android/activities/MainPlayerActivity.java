@@ -113,7 +113,7 @@ public class MainPlayerActivity extends AppCompatActivity
         AlertOccasionCancelledListener{
 
     private FragmentManager fragmentManager;
-    private AHBottomNavigation bottomNavigation;
+
     private String fromUserID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -124,6 +124,7 @@ public class MainPlayerActivity extends AppCompatActivity
     static final int CANCEL_BOOKING_REQUEST = 16;
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
     private String stripeCustomerId;
+    private AHBottomNavigation bottomNavigation;
     private AHBottomNavigationViewPager mainPager;
     private BottomNavigationAdapter bottomNavigationAdapter;
     private int unreadChats = 0;
@@ -174,6 +175,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
         bottomNavigation.setAnimation(null);
         bottomNavigation.setCurrentItem(0);
+        bottomNavigation.setInactiveColor(getResources().getColor(R.color.primaryTextColor));
         bottomNavigation.setAccentColor(getResources().getColor(R.color.foxmikePrimaryColor));
         bottomNavigation.setBehaviorTranslationEnabled(false);
         bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.primaryLightColor));

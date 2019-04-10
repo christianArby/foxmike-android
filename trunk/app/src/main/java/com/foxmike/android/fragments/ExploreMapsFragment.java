@@ -112,7 +112,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private LocationCallback locationCallback;
 
     private LocationRequest locationRequest;
-    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap;
+    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap = new HashMap<>();
 
 
     public ExploreMapsFragment() {

@@ -564,4 +564,7 @@
     <string name="already_session_planned_at_this_time">You already have a session planned at this time, please choose another time.</string>
     <string name="saved_and_advertised_sessions_at_this_date">Saved and advertised sessions at this date:</string>
     <string name="create_occasion">Create occasion</string>
+    <string name="session_is_full">Session is full</string>
+    <string name="max_number_of_participants_reached">The maximum number of participants has been reached, session cannot be booked.</string>
+    <string name="no_written_reviews_yet">No written reviews yet.</string>
 </resources>

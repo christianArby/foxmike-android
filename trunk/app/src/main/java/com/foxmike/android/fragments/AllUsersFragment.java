@@ -213,7 +213,7 @@ public class AllUsersFragment extends Fragment {
                             @Override
                             protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
                                 holder.setHeading(model.getFullName());
-                                holder.setText(model.getFullName(),true);
+                                holder.setText(model.getUserName(),true);
                                 holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
 
                                 final String userId = getRef(position).getKey();
