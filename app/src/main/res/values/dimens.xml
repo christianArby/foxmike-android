@@ -81,8 +81,14 @@
     <dimen name="horizontal_session_height_2x">192dp</dimen>
     <dimen name="horizontal_session_height_3x">288dp</dimen>
 
-    <dimen name="bottom_navigation_icon">28dp</dimen>
-   <!-- <dimen name="bottom_navigation_height">56dp</dimen>-->
+    <dimen name="bottom_navigation_icon">32dp</dimen>
+    <dimen name="bottom_navigation_height">48dp</dimen>
+
+    <dimen name="bottom_navigation_small_margin_top_active">8dp</dimen>
+    <dimen name="bottom_navigation_small_margin_top">8dp</dimen>
+    <dimen name="bottom_navigation_small_margin_bottom">16dp</dimen>
+
+    <dimen name="bottom_navigation_notification_margin_top">6dp</dimen>
 
 
 </resources>

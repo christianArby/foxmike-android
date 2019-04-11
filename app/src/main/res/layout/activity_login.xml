@@ -93,6 +93,7 @@
 
     <android.support.design.widget.FloatingActionButton
         android:elevation="0dp"
+        app:borderWidth="0dp"
         android:src="@mipmap/ic_keyboard_arrow_right_black_24dp"
         android:id="@+id/loginBtn"
         android:layout_width="@dimen/fab_diameter"
