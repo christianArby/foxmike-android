@@ -58,6 +58,7 @@ public class WriteReviewsFragment extends DialogFragment {
 
     // TODO: Rename and change types of parameters
     private String advertisementId;
+    private View view;
 
 
     public WriteReviewsFragment() {
@@ -85,7 +86,7 @@ public class WriteReviewsFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_write_reviews, container, false);
+        view = inflater.inflate(R.layout.fragment_write_reviews, container, false);
         ButterKnife.bind(this, view);
 
         closeIcon.setOnClickListener(new View.OnClickListener() {
@@ -129,8 +130,15 @@ public class WriteReviewsFragment extends DialogFragment {
 
                                 rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisementId).removeValue();
                             }
-                            hideKeyboard();
-                            dismiss();
+                            view.postDelayed(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    hideKeyboard();
+                                    dismiss();
+                                }
+
+                            }, 200);
                         }
                     });
 

@@ -1265,18 +1265,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     // If the current user isn´t the host of the mSession
                     if (!mSession.getHost().equals(currentFirebaseUser.getUid())) {
 
-                        if (adSelected.getMaxParticipants()<=adSelected.getParticipantsTimestamps().size()) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setMessage(R.string.max_number_of_participants_reached).setTitle(R.string.session_is_full);
-                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                            return;
-                        }
-
                         Long currentTimestamp = System.currentTimeMillis();
                         Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
 
@@ -1297,6 +1285,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(), adSelected.getPrice(), mSession.getHost());
                                 return;
                             }
+                        }
+
+                        if (adSelected.getMaxParticipants()<=adSelected.getParticipantsTimestamps().size()) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setMessage(R.string.max_number_of_participants_reached).setTitle(R.string.session_is_full);
+                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                            return;
                         }
                         // If the current user is not a participant, the mSession is not free and the user does not have a payment method, button will be gray,
                         // click will show dialog saying you need to have a payment method to book
