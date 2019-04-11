@@ -138,6 +138,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
+    private int prevTab;
+
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
 
@@ -213,6 +215,8 @@ public class MainPlayerActivity extends AppCompatActivity
             // Start normally
         }
 
+        prevTab = 0;
+
         /** Setup Bottom navigation */
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
@@ -222,7 +226,22 @@ public class MainPlayerActivity extends AppCompatActivity
                     if (position==0) {
                         exploreFragment.OnRefreshSessions();
                     }
+
+                    if (position==2) {
+                        bottomNavigation.setNotification("", 2);
+                    }
+                    if (position==2) {
+                        bottomNavigation.setNotification("", 2);
+                    }
+
+                    if (position!=2) {
+                        if (prevTab==2) {
+                            FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
+                        }
+                    }
                 }
+
+                prevTab = position;
 
                 return true;
             }

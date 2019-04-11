@@ -192,17 +192,15 @@ public class RatingsAndReviewsActivity extends AppCompatActivity {
         }
 
         // Listener to keep data in cache in sync with database
-        keysQuery.addValueEventListener(new ValueEventListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(RatingsAndReviewsActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(keysQuery);
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                // Dummy listener
             }
         });
+
 
         keysQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
