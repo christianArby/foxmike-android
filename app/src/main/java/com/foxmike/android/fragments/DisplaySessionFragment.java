@@ -31,6 +31,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRatingBar;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -171,11 +172,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
     private boolean currentUserAndSessionAndViewAndMapUsed;
-    private boolean hostAndViewUsed;
+    private boolean hostAndFoxmikeUidAndViewUsed;
     private boolean postsUsed;
     private boolean postCommentsUsed;
     private boolean paymentMethodLoaded;
-    private boolean sessionAndPaymentAndViewUsed;
+    private boolean sessionAndPaymentAndFoxmikeUidAndViewUsed;
+    private boolean foxmikeUidLoaded;
     private RecyclerView upcomingSessionsRV;
     private List<SessionDateAndTime> sessionDateAndTimeList = new ArrayList<>();
     private LinearLayoutManager sessionDateAndTimeLLManager;
@@ -230,6 +232,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView showAvailAbility;
     private HashMap<String, Long> adTimes = new HashMap<>();
     private String stripeCustomerId;
+    private String foxmikeUid;
+    private AppCompatTextView whatHeadingTW;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -293,6 +297,22 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
+        // GET FOXMIKE UID FROM DATABASE
+        FirebaseDatabaseViewModel foxmikeUIDViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> foxmikeUIDLiveData = foxmikeUIDViewModel.getDataSnapshotLiveData(rootDbRef.child("foxmikeUID"));
+        foxmikeUIDLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    foxmikeUid = dataSnapshot.getValue().toString();
+                    foxmikeUidLoaded = true;
+                    hostAndFoxmikeUidAndViewUsed = false;
+                    sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+                    onAsyncTaskFinished();
+                }
+            }
+        });
+
         // GET SESSION FROM DATABASE
         if(!sessionID.equals("")) {
             SessionViewModel sessionViewModel = ViewModelProviders.of(this).get(SessionViewModel.class);
@@ -309,7 +329,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         sessionLatitude = session.getLatitude();
                         sessionID = session.getSessionId();
                         currentUserAndSessionAndViewAndMapUsed = false;
-                        sessionAndPaymentAndViewUsed = false;
+                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
                         sessionUsed = false;
                         sessionLoaded = true;
                         onAsyncTaskFinished();
@@ -337,14 +357,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     if (hashMap.get("brand")!=null) {
                         defaultSourceMap = hashMap;
                         hasPaymentSystem = true;
-                        sessionAndPaymentAndViewUsed = false;
+                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
                         paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
                     } else {
                         hasPaymentSystem = false;
                         defaultSourceMap = new HashMap();
-                        sessionAndPaymentAndViewUsed = false;
+                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
                         paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
@@ -354,7 +374,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             return;
         } catch (RuntimeException e){
             defaultSourceMap = new HashMap();
-            sessionAndPaymentAndViewUsed = false;
+            sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
             paymentMethodAdSelectedAndViewUsed = false;
             paymentMethodLoaded = true;
             onAsyncTaskFinished();
@@ -373,6 +393,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 }
                 host = dataSnapshot.getValue(User.class);
                 hostLoaded = true;
+                hostAndFoxmikeUidAndViewUsed = false;
                 onAsyncTaskFinished();
             }
 
@@ -653,6 +674,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
         mAddressAndSessionType = view.findViewById(R.id.addressTV);
         writePostLayout = displaySession.findViewById(R.id.write_post_layout);
+        whatHeadingTW = displaySession.findViewById(R.id.whatHeadingTW);
         mWhatTW = displaySession.findViewById(R.id.whatTW);
         mWhoTW = displaySession.findViewById(R.id.whoTW);
         mWhereTW = displaySession.findViewById(R.id.whereTW);
@@ -903,12 +925,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
 
         // ---------------- HOST && VIEW-----------------
-        if (hostLoaded && getView()!=null && !hostAndViewUsed) {
-            hostAndViewUsed=true;
+        if (hostLoaded && getView()!=null && foxmikeUidLoaded && !hostAndFoxmikeUidAndViewUsed) {
+            hostAndFoxmikeUidAndViewUsed =true;
             setImage(host.getThumb_image(), mHostImage);
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
+
+            if (host.getUserId().equals(foxmikeUid)) {
+                mHost.setText(R.string.foxmike_tip);
+                mHostAboutTV.setText(R.string.foxmike_tip_text);
+            }
         }
 
         if (postsLoaded && getView()!=null && !postsUsed) {
@@ -952,9 +979,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
 
         // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
+        if (sessionLoaded && getView()!=null && paymentMethodLoaded && foxmikeUidLoaded && !sessionAndPaymentAndFoxmikeUidAndViewUsed) {
+
+            if (mSession.getHost().equals(foxmikeUid)) {
+                whatHeadingTW.setText(R.string.information);
+            }
+
             paymentMethodProgressBar.setVisibility(View.GONE);
-            sessionAndPaymentAndViewUsed = true;
+            sessionAndPaymentAndFoxmikeUidAndViewUsed = true;
 
             postList.setVisibility(View.VISIBLE);
             writePostLayout.setVisibility(View.VISIBLE);
@@ -1545,9 +1577,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionAndViewUsed = false;
         currentUserAndViewUsed = false;
         currentUserAndSessionAndViewAndMapUsed = false;
-        hostAndViewUsed = false;
+        hostAndFoxmikeUidAndViewUsed = false;
         sessionUsed = false;
-        sessionAndPaymentAndViewUsed = false;
+        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
         postsUsed = false;
         postCommentsUsed = false;
         adSetupLoaded = false;
