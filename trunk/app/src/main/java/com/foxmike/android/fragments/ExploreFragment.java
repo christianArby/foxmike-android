@@ -342,6 +342,10 @@ public class ExploreFragment extends Fragment{
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             currentLocation = task.getResult();
+                            if (currentLocation==null) {
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.location_not_found, Toast.LENGTH_LONG).show();
+                                return;
+                            };
                             geoQuery = geoFire.queryAtLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()), distanceRadius);
                             geoQueryEventListener = new GeoQueryEventListener() {
                                 @Override
