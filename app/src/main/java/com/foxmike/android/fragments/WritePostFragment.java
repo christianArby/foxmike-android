@@ -165,6 +165,7 @@ public class WritePostFragment extends DialogFragment {
         sendTW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                sendTW.setClickable(false);
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                     return;
                 }

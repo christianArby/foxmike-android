@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private String deviceToken;
+    private FirebaseUser currentUser;
+    private DatabaseReference rootDbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         deviceToken = FirebaseInstanceId.getInstance().getToken();
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+        currentUser = mAuth.getCurrentUser();
+        rootDbRef = FirebaseDatabase.getInstance().getReference();
 
-        if (currentUser!=null) {
+        if (currentUser !=null) {
             // User is signed in
             rootDbRef.child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

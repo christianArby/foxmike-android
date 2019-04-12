@@ -133,6 +133,11 @@ public class SortAndFilterFragment extends DialogFragment {
 
         HashMap<String, Drawable> sessionTypeDrawables = new HashMap<>();
         sessionTypeDrawables.put("checked", getResources().getDrawable(R.drawable.ic_check_black_24dp));
+        sessionTypeDrawables.put("Styrka", getResources().getDrawable(R.drawable.strength));
+        sessionTypeDrawables.put("Löpning", getResources().getDrawable(R.drawable.running));
+        sessionTypeDrawables.put("Yoga", getResources().getDrawable(R.drawable.yoga));
+        sessionTypeDrawables.put("Cardio", getResources().getDrawable(R.drawable.cardio));
+        sessionTypeDrawables.put("Crossfit", getResources().getDrawable(R.drawable.crossfit));
         sessionTypeDrawables.put("default", getResources().getDrawable(R.mipmap.ic_people_black_24dp));
         ColorStateList checkedColor = ColorStateList.valueOf(Color.parseColor("#006959"));
         ColorStateList notCheckedColor = ColorStateList.valueOf(Color.parseColor("#00bfa5"));
