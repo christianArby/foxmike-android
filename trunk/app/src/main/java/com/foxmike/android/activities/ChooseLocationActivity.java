@@ -219,6 +219,9 @@ public class ChooseLocationActivity extends AppCompatActivity implements OnMapRe
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
+                            if (mLastKnownLocation==null) {
+                                return;
+                            }
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));

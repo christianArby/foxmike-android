@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@mipmap/background_welcome_foxmike"/>
+        android:src="@drawable/background_welcome_foxmike"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:src="@mipmap/ic_foxmike_launcher"
