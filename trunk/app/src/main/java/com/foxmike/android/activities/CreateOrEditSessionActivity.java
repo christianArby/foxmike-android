@@ -52,6 +52,7 @@ import com.foxmike.android.adapters.ListCreateAdvertisementsAdapter;
 import com.foxmike.android.interfaces.OnAdvertisementArrayListChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
@@ -93,7 +94,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private final DatabaseReference mMarkerDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
     private TextView mLocation;
     private TextInputLayout mSessionNameTIL;
     private TextInputLayout mLocationTIL;
@@ -185,9 +185,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         clickedLatLng = getIntent().getParcelableExtra("LatLng");
         existingSession = getIntent().getParcelableExtra("session");
         addAdvertisements = getIntent().getBooleanExtra("addAdvertisements", false);
-
-        /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
-        geoFire = new GeoFire(mGeofireDbRef);
 
         mainView = findViewById(R.id.mainView);
 
@@ -300,8 +297,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         // Add view to create session container
         createSessionContainer.addView(createSession);
 
-        /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
-        geoFire = new GeoFire(mGeofireDbRef);
+
 
         /*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
           This keeps the data on the disk even though listeners are detached*/
@@ -978,6 +974,15 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         rootDbRef.child("advertisementHosts").child(currentFirebaseUser.getUid()).child(advertisementKey).setValue(advertisement.getAdvertisementTimestamp());
                     }
                 });
+                // create geoFire reference
+                /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
+
+                String geoFireDateNode = TextTimestamp.textSDF(advertisement.getAdvertisementTimestamp());
+                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + "123" + advertisement.getSessionId();
+
+                DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireDays").child(geoFireDateNode);
+                geoFire = new GeoFire(mGeofireDbRef);
+                geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
             }
         }
         // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
@@ -986,8 +991,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
         // Update user object with sessionsHosting
         rootDbRef.child("sessionHosts").child(currentFirebaseUser.getUid()).child(mSessionId).setValue(true);
-        // create geoFire reference
-        geoFire.setLocation(mSessionId, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
         finish();
     }
 
