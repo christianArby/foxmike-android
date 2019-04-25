@@ -43,7 +43,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,7 +69,6 @@ import com.foxmike.android.utils.AdvertisementRowViewHolder;
 import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
-import com.foxmike.android.viewmodels.SessionViewModel;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -176,7 +174,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean postsUsed;
     private boolean postCommentsUsed;
     private boolean paymentMethodLoaded;
-    private boolean sessionAndPaymentAndFoxmikeUidAndViewUsed;
+    private boolean sessionAndPaymentAndViewUsed;
     private boolean foxmikeUidLoaded;
     private RecyclerView upcomingSessionsRV;
     private List<SessionDateAndTime> sessionDateAndTimeList = new ArrayList<>();
@@ -279,11 +277,15 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // GET THE PAYMENT INFO FROM CURRENT USER
         getDefaultSourceMap();
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         // GET CURRENT USER FROM DATABASE
         FirebaseDatabaseViewModel firebaseDatabaseUserViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseUserLiveData = firebaseDatabaseUserViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        firebaseDatabaseUserLiveData.observe(this, new Observer<DataSnapshot>() {
+        firebaseDatabaseUserLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
@@ -300,14 +302,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // GET FOXMIKE UID FROM DATABASE
         FirebaseDatabaseViewModel foxmikeUIDViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> foxmikeUIDLiveData = foxmikeUIDViewModel.getDataSnapshotLiveData(rootDbRef.child("foxmikeUID"));
-        foxmikeUIDLiveData.observe(this, new Observer<DataSnapshot>() {
+        foxmikeUIDLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
                     foxmikeUid = dataSnapshot.getValue().toString();
                     foxmikeUidLoaded = true;
                     hostAndFoxmikeUidAndViewUsed = false;
-                    sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
                     onAsyncTaskFinished();
                 }
             }
@@ -315,12 +316,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // GET SESSION FROM DATABASE
         if(!sessionID.equals("")) {
-            SessionViewModel sessionViewModel = ViewModelProviders.of(this).get(SessionViewModel.class);
-            LiveData<Session> sessionLiveData = sessionViewModel.getSessionLiveData(sessionID);
-            sessionLiveData.observe(this, new Observer<Session>() {
+            FirebaseDatabaseViewModel sessionViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> sessionLiveData = sessionViewModel.getDataSnapshotLiveData(rootDbRef.child("sessions").child(sessionID));
+            sessionLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
                 @Override
-                public void onChanged(@Nullable Session session) {
-                    if (session!=null) {
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()!=null) {
+                        Session session = dataSnapshot.getValue(Session.class);
                         if (session.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                             isHost = true;
                         }
@@ -329,23 +331,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         sessionLatitude = session.getLatitude();
                         sessionID = session.getSessionId();
                         currentUserAndSessionAndViewAndMapUsed = false;
-                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+                        sessionAndPaymentAndViewUsed = false;
                         sessionUsed = false;
                         sessionLoaded = true;
                         onAsyncTaskFinished();
                         getPosts();
                         getSessionHost();
-                    }
 
+                    }
                 }
             });
         } else {
             Toast toast = Toast.makeText(getActivity().getApplicationContext(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
-
     }
-
 
     private void getDefaultSourceMap () {
         try {
@@ -357,14 +357,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     if (hashMap.get("brand")!=null) {
                         defaultSourceMap = hashMap;
                         hasPaymentSystem = true;
-                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+                        sessionAndPaymentAndViewUsed = false;
                         paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
                     } else {
                         hasPaymentSystem = false;
                         defaultSourceMap = new HashMap();
-                        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+                        sessionAndPaymentAndViewUsed = false;
                         paymentMethodAdSelectedAndViewUsed = false;
                         paymentMethodLoaded = true;
                         onAsyncTaskFinished();
@@ -374,7 +374,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             return;
         } catch (RuntimeException e){
             defaultSourceMap = new HashMap();
-            sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+            sessionAndPaymentAndViewUsed = false;
             paymentMethodAdSelectedAndViewUsed = false;
             paymentMethodLoaded = true;
             onAsyncTaskFinished();
@@ -406,7 +406,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private void getPosts() {
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionPosts").child(sessionID));
-        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
+        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 postsUsed = false;
@@ -420,7 +420,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     // Number of comments listener
                     FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
                     LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessionPostComments").child(sessionID).child(postID));
-                    firebaseDatabaseLiveData.observe(DisplaySessionFragment.this, new Observer<DataSnapshot>() {
+                    firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
                         @Override
                         public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                             nrOfComments.put(dataSnapshot.getKey(), dataSnapshot.getChildrenCount());
@@ -774,18 +774,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         };
         appBarLayout.addOnOffsetChangedListener(onOffsetChangedListener);
 
-        // Setup standard aspect ratio of mSession image
-        sessionImageCardView.post(new Runnable() {
-            @Override
-            public void run() {
-                RelativeLayout.LayoutParams mParams;
-                mParams = (RelativeLayout.LayoutParams) sessionImageCardView.getLayoutParams();
-                mParams.height = sessionImageCardView.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
-                sessionImageCardView.setLayoutParams(mParams);
-                sessionImageCardView.postInvalidate();
-            }
-        });
-
         // --------- Set on click listener to showMore text --------
         // If number of items in the list (adapter) is more than current height + 4 set it to current height + 4
         // else set the height to the number of items in the adapter.
@@ -878,7 +866,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
             mAddress.setText(address);
 
-            setupAds();
 
             if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
 
@@ -922,6 +909,15 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                 });
             }
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setupAds();
+
+                }
+            }, 400);
         }
 
         // ---------------- HOST && VIEW-----------------
@@ -933,6 +929,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mHostAboutTV.setText(host.getAboutMe());
 
             if (host.getUserId().equals(foxmikeUid)) {
+                whatHeadingTW.setText(R.string.information);
                 mHost.setText(R.string.foxmike_tip);
                 mHostAboutTV.setText(R.string.foxmike_tip_text);
             }
@@ -979,14 +976,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
 
         // ------------------------------ SESSION --- PAYMENT METHOD -----------LOADED ------------------
-        if (sessionLoaded && getView()!=null && paymentMethodLoaded && foxmikeUidLoaded && !sessionAndPaymentAndFoxmikeUidAndViewUsed) {
+        if (sessionLoaded && getView()!=null && paymentMethodLoaded && !sessionAndPaymentAndViewUsed) {
 
-            if (mSession.getHost().equals(foxmikeUid)) {
-                whatHeadingTW.setText(R.string.information);
-            }
+
 
             paymentMethodProgressBar.setVisibility(View.GONE);
-            sessionAndPaymentAndFoxmikeUidAndViewUsed = true;
+            sessionAndPaymentAndViewUsed = true;
 
             postList.setVisibility(View.VISIBLE);
             writePostLayout.setVisibility(View.VISIBLE);
@@ -1579,7 +1574,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         currentUserAndSessionAndViewAndMapUsed = false;
         hostAndFoxmikeUidAndViewUsed = false;
         sessionUsed = false;
-        sessionAndPaymentAndFoxmikeUidAndViewUsed = false;
+        sessionAndPaymentAndViewUsed = false;
         postsUsed = false;
         postCommentsUsed = false;
         adSetupLoaded = false;
@@ -1716,4 +1711,5 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public interface OnUsersLoadedListener{
         void OnUsersLoaded();
     }
+
 }

@@ -52,17 +52,20 @@
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/sessionImageCardView"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <ImageView
                         android:contentDescription="@string/session_image"
                         android:id="@+id/displaySessionImage"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:adjustViewBounds="true"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
                         android:scaleType="centerCrop"
-                        android:src="@mipmap/add_btn" />
+                        app:layout_constraintDimensionRatio="5:3"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
                 </android.support.constraint.ConstraintLayout>
 

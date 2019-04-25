@@ -447,7 +447,10 @@ public class ChatFragment extends Fragment {
             ValueEventListener listener = entry.getValue();
             ref.removeEventListener(listener);
         }
-        messageFirebaseAdapter.stopListening();
+        if (messageFirebaseAdapter!=null) {
+            messageFirebaseAdapter.stopListening();
+        }
+
         hideKeyboard();
     }
 

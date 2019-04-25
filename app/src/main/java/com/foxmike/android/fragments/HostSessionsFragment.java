@@ -95,9 +95,9 @@ public class HostSessionsFragment extends Fragment {
 
 
 
-        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
+        /*hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-        tabLayout.setupWithViewPager(hostSessionsPager);
+        tabLayout.setupWithViewPager(hostSessionsPager);*/
 
 
         return view;

@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -102,7 +101,6 @@ public class SortAndFilterFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mSortType = getArguments().getString(ARG_SORT);
             mFilterDistance = getArguments().getInt(ARG_FILTER);
             minPrice = getArguments().getInt("minPrice");
             maxPrice = getArguments().getInt("maxPrice");
@@ -120,8 +118,6 @@ public class SortAndFilterFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_sort_and_filter, container, false);
-        sortDateTB = view.findViewById(R.id.sortDateToggle);
-        sortDistanceTB = view.findViewById(R.id.sortDistanceToggle);
         closeButton = view.findViewById(R.id.closeImageButton);
         timeSeekbar = view.findViewById(R.id.rangeSeekbar);
         minTime = view.findViewById(R.id.startTime);
@@ -202,42 +198,6 @@ public class SortAndFilterFragment extends DialogFragment {
                 maxTime.setText(String.format("%02d:%02d", maxHour, maxMinute));
 
                 onFilterChangedListener.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
-            }
-        });
-
-        // Setup sort on DATE toggle button
-        sortDateTB.setText(getString(R.string.date_text));
-        sortDateTB.setTextOn(getString(R.string.date_text));
-        sortDateTB.setTextOff(getString(R.string.date_text));
-
-        // Set initial state of sort buttons
-        if (mSortType.equals("distance")) {
-            sortDistanceTB.setChecked(true);
-            sortDateTB.setChecked(false);
-        } else {
-            sortDistanceTB.setChecked(false);
-            sortDateTB.setChecked(true);
-        }
-
-        sortDateTB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                sortDistanceTB.setChecked(!b);
-                mSortType ="date";
-                onFilterChangedListener.OnSortTypeChanged(mSortType);
-            }
-        });
-
-        // Setup sort on Distance toggle button
-        sortDistanceTB.setText(getString(R.string.distance_word));
-        sortDistanceTB.setTextOn(getString(R.string.distance_word));
-        sortDistanceTB.setTextOff(getString(R.string.distance_word));
-        sortDistanceTB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                sortDateTB.setChecked(!b);
-                mSortType = "distance";
-                onFilterChangedListener.OnSortTypeChanged(mSortType);
             }
         });
 
@@ -369,7 +329,6 @@ public class SortAndFilterFragment extends DialogFragment {
     }
 
     public interface OnFilterChangedListener {
-        void OnSortTypeChanged(String sortType);
         void OnDistanceFilterChanged(int filterDistance);
         void OnMinPriceChanged(int minPrice);
         void OnMaxPriceChanged(int maxPrice);

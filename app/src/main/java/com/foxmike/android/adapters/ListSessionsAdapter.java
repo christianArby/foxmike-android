@@ -10,9 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -39,12 +37,17 @@ import java.util.Locale;
 
 public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HeaderItemDecoration.StickyHeaderInterface {
 
-    private ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList;
+    private ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList = new ArrayList<>();
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
     private final Context context;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
+
+    private static final int ITEM = 0;
+    private static final int HEADING = 1;
+    private static final int LOADING = 2;
+    private boolean isLoadingAdded  = false;
 
     public ListSessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener) {
         this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
@@ -52,6 +55,11 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.sessionHashMap = sessionHashMap;
         this.context = context;
         this.currentLocation = currentLocation;
+        this.onSessionClickedListener = onSessionClickedListener;
+    }
+
+    public ListSessionsAdapter(Context context, OnSessionClickedListener onSessionClickedListener) {
+        this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
@@ -66,121 +74,195 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     /**Inflate the parent recyclerview with the layout session_card_view which is the session "cardview" */
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        RecyclerView.ViewHolder viewHolder = null;
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        if (viewType==1) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_list_date_header,parent,false);
-            return  new ListSessionsAdapter.SessionListHeaderViewHolder(v);
-        } else {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
-            final ImageView session_image = v.findViewById(R.id.session_image);
-            // Setup standard aspect ratio of session image
-            session_image.post(new Runnable() {
-                @Override
-                public void run() {
-                    RelativeLayout.LayoutParams mParams;
-                    mParams = (RelativeLayout.LayoutParams) session_image.getLayoutParams();
-                    mParams.height = session_image.getWidth()*context.getResources().getInteger(R.integer.heightOfSessionImageNumerator)/context.getResources().getInteger(R.integer.heightOfSessionImageDenominator);
-                    session_image.setLayoutParams(mParams);
-                    session_image.postInvalidate();
-                }
-            });
-
-            return new ListSessionsAdapter.SessionViewHolder(v);
+        switch (viewType) {
+            case ITEM:
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_card_view,parent,false);
+                viewHolder = new ListSessionsAdapter.SessionViewHolder(v);
+                break;
+            case HEADING:
+                View v2 = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_list_date_header,parent,false);
+                viewHolder = new ListSessionsAdapter.SessionListHeaderViewHolder(v2);
+                break;
+            case LOADING:
+                View v3 = inflater.inflate(R.layout.pagination_loading, parent, false);
+                viewHolder = new ListSessionsAdapter.LoadingVH(v3);
+                break;
         }
+
+        return viewHolder;
+
+
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         /**Get the current session inflated in the sessionViewHolder from the session arraylist" */
 
+        switch (getItemViewType(position)) {
+            case ITEM:
+                Advertisement advertisement = advertisementHashMap.get(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId());
+                Session session = sessionHashMap.get(advertisement.getSessionId());
 
-        if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("dateHeader")) {
-            DateTime currentTime = DateTime.now();
-            DateTime tomorrowTime = currentTime.plusDays(1);
-            DateTime sessionTime = new DateTime(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp());
-            if (currentTime.getYear()==sessionTime.getYear() &&
-                    currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
-                    currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
-                    ) {
-                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.today_text));
-            } else if (tomorrowTime.getYear()==sessionTime.getYear() &&
-                    tomorrowTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
-                    tomorrowTime.getDayOfMonth()==sessionTime.getDayOfMonth()
-                    ) {
-                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
-            } else {
-                ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp()));
-            }
-        } else {
-            Advertisement advertisement = advertisementHashMap.get(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId());
-            Session session = sessionHashMap.get(advertisement.getSessionId());
-
-            /**Fill the cardview with information of the session" */
-            final LatLng sessionLatLng = new LatLng(session.getLatitude(), session.getLongitude());
-            String addressName = getAddress(session.getLatitude(),session.getLongitude());
-            if (addressName.length()>40) {
-                addressName = addressName.substring(0,40)+ "...";
-            }
-            String address = addressName +"  |  " + getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
-            ((ListSessionsAdapter.SessionViewHolder) holder).setTitle(session.getSessionName());
-            ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(session.getSessionType());
-            ((ListSessionsAdapter.SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
-            ((ListSessionsAdapter.SessionViewHolder) holder).setAddress(address);
-            ((ListSessionsAdapter.SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
-
-            if (position > 0 && !advertisementIdsAndTimestampsFilteredArrayList.get(position-1).getAdvertisementId().equals("dateHeader")) {
-                ((ListSessionsAdapter.SessionViewHolder) holder).setMargin();
-            } else {
-                ((ListSessionsAdapter.SessionViewHolder) holder).resetMargin();
-            }
-            /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
-            ((ListSessionsAdapter.SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onSessionClickedListener.OnSessionClicked(advertisement.getSessionId(), advertisement.getAdvertisementTimestamp());
+                /**Fill the cardview with information of the session" */
+                final LatLng sessionLatLng = new LatLng(session.getLatitude(), session.getLongitude());
+                String addressName = getAddress(session.getLatitude(),session.getLongitude());
+                if (addressName.length()>40) {
+                    addressName = addressName.substring(0,40)+ "...";
                 }
-            });
-            String currencyString = "?";
-            if (advertisement.getCurrency()==null) {
-                currencyString = "";
-            } else {
-                currencyString = context.getResources().getString(R.string.sek);
-            }
-            String priceText;
-            if (advertisement.getPrice()== 0) {
-                priceText = context.getResources().getString(R.string.free);
-            } else {
-                priceText = advertisement.getPrice() + " " + currencyString;
-            }
-            ((ListSessionsAdapter.SessionViewHolder) holder).setPrice(priceText);
+                String address = addressName +"  |  " + getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
+                ((ListSessionsAdapter.SessionViewHolder) holder).setTitle(session.getSessionName());
+                ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(session.getSessionType());
+                ((ListSessionsAdapter.SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+                ((ListSessionsAdapter.SessionViewHolder) holder).setAddress(address);
+                ((ListSessionsAdapter.SessionViewHolder) holder).setImage(this.context,session.getImageUrl());
 
-            ((ListSessionsAdapter.SessionViewHolder) holder).setRating(session.getRating());
-            if (session.getNrOfRatings()==0) {
-                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(false);
-            } else if ((session.getNrOfRatings()==1)) {
-                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
-                String rating = String.format("%.1f", session.getRating());
-                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
-            } else {
-                ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
-                String rating = String.format("%.1f", session.getRating());
-                ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
-            }
+                if (position > 0 && !advertisementIdsAndTimestampsFilteredArrayList.get(position-1).getAdvertisementId().equals("dateHeader")) {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setMargin();
+                } else {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).resetMargin();
+                }
+                /**When button is clicked, start DisplaySessionActivity by sending the LatLng object in order for the activity to find the session" */
+                ((ListSessionsAdapter.SessionViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onSessionClickedListener.OnSessionClicked(advertisement.getSessionId(), advertisement.getAdvertisementTimestamp());
+                    }
+                });
+                String currencyString = "?";
+                if (advertisement.getCurrency()==null) {
+                    currencyString = "";
+                } else {
+                    currencyString = context.getResources().getString(R.string.sek);
+                }
+                String priceText;
+                if (advertisement.getPrice()== 0) {
+                    priceText = context.getResources().getString(R.string.free);
+                } else {
+                    priceText = advertisement.getPrice() + " " + currencyString;
+                }
+                ((ListSessionsAdapter.SessionViewHolder) holder).setPrice(priceText);
+
+                ((ListSessionsAdapter.SessionViewHolder) holder).setRating(session.getRating());
+                if (session.getNrOfRatings()==0) {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(false);
+                } else if ((session.getNrOfRatings()==1)) {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
+                    String rating = String.format("%.1f", session.getRating());
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
+                } else {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).displayRating(true);
+                    String rating = String.format("%.1f", session.getRating());
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setRatingAndReviewText(rating + " (" + session.getNrOfRatings() + ")");
+                }
+                break;
+            case HEADING:
+                DateTime currentTime = DateTime.now();
+                DateTime tomorrowTime = currentTime.plusDays(1);
+                DateTime sessionTime = new DateTime(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp());
+                if (currentTime.getYear()==sessionTime.getYear() &&
+                        currentTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                        currentTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                        ) {
+                    ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.today_text));
+                } else if (tomorrowTime.getYear()==sessionTime.getYear() &&
+                        tomorrowTime.getMonthOfYear()==sessionTime.getMonthOfYear() &&
+                        tomorrowTime.getDayOfMonth()==sessionTime.getDayOfMonth()
+                        ) {
+                    ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(context.getString(R.string.tomorrow_text));
+                } else {
+                    ((ListSessionsAdapter.SessionListHeaderViewHolder) holder).setHeader(TextTimestamp.textSessionDate(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdTimestamp()));
+                }
+                break;
+            case LOADING:
+//                Do nothing
+                break;
         }
     }
 
     @Override
     public int getItemViewType(int position) {
         if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("dateHeader")) {
-            return 1;
+            return HEADING;
+        }
+        if (position == advertisementIdsAndTimestampsFilteredArrayList.size() - 1 && isLoadingAdded) {
+            return  LOADING;
         }
         return 0;
+    }
+
+    public void add(AdvertisementIdsAndTimestamps ad) {
+        if(advertisementIdsAndTimestampsFilteredArrayList.size()==0) {
+            AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", ad.getAdTimestamp());
+            advertisementIdsAndTimestampsFilteredArrayList.add(dummyAdvertisementIdAndTimestamp);
+            notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+
+            advertisementIdsAndTimestampsFilteredArrayList.add(ad);
+            notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+            return;
+        }
+
+        if (advertisementIdsAndTimestampsFilteredArrayList.get(advertisementIdsAndTimestampsFilteredArrayList.size()-1).getAdTimestamp()!=0L && ad.getAdTimestamp()!=0L) {
+            TextTimestamp prevTextTimestamp = new TextTimestamp(advertisementIdsAndTimestampsFilteredArrayList.get(advertisementIdsAndTimestampsFilteredArrayList.size()-1).getAdTimestamp());
+            if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(ad.getAdTimestamp()))) {
+                AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", ad.getAdTimestamp());
+                advertisementIdsAndTimestampsFilteredArrayList.add(dummyAdvertisementIdAndTimestamp);
+                notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+            }
+        }
+
+        advertisementIdsAndTimestampsFilteredArrayList.add(ad);
+        notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+    }
+
+    public void addAll(List<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation) {
+        this.currentLocation = currentLocation;
+        this.advertisementHashMap = advertisementHashMap;
+        this.sessionHashMap = sessionHashMap;
+        for (AdvertisementIdsAndTimestamps ad : advertisementIdsAndTimestampsList) { add(ad); }
+    }
+
+    public void clear() {
+        isLoadingAdded = false;
+        while (getItemCount() > 0) { remove(getItem(0)); }
+    }
+
+    public boolean isEmpty() { return getItemCount() == 0; }
+
+    public void addLoadingFooter() {
+        isLoadingAdded = true;
+        add(new AdvertisementIdsAndTimestamps("sadsa",0L));
+    }
+
+    public void removeLoadingFooter() {
+        isLoadingAdded = false;
+
+        int position = advertisementIdsAndTimestampsFilteredArrayList.size() - 1;
+        AdvertisementIdsAndTimestamps item = getItem(position);
+        if (item != null) {
+            advertisementIdsAndTimestampsFilteredArrayList.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public AdvertisementIdsAndTimestamps getItem(int position) {
+        return advertisementIdsAndTimestampsFilteredArrayList.get(position);
+    }
+
+    public void remove(AdvertisementIdsAndTimestamps ad) {
+        int position = advertisementIdsAndTimestampsFilteredArrayList.indexOf(ad);
+        if (position > -1) {
+            advertisementIdsAndTimestampsFilteredArrayList.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 
     /**Change getItemCount to return the number of items this ListSessionsAdapter should adapt*/
     @Override
     public int getItemCount() {
-        return advertisementIdsAndTimestampsFilteredArrayList.size();
+        return advertisementIdsAndTimestampsFilteredArrayList == null ? 0 : advertisementIdsAndTimestampsFilteredArrayList.size();
     }
 
     /**
@@ -268,6 +350,13 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
+    protected class LoadingVH extends RecyclerView.ViewHolder {
+
+        public LoadingVH(View itemView) {
+            super(itemView);
+        }
+    }
+
     public class SessionListHeaderViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
@@ -325,7 +414,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void setMargin(){
-            ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            /*ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 5; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
             int margin = (int)(dpValue * d);
@@ -334,11 +423,11 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     FrameLayout.LayoutParams.MATCH_PARENT
             );
             params.setMargins(0, margin, 0, 0);
-            constraintLayout.setLayoutParams(params);
+            constraintLayout.setLayoutParams(params);*/
         }
 
         public void resetMargin(){
-            ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
+            /*ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 0; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
             int margin = (int)(dpValue * d);
@@ -347,7 +436,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     FrameLayout.LayoutParams.MATCH_PARENT
             );
             params.setMargins(0, margin, 0, 0);
-            constraintLayout.setLayoutParams(params);
+            constraintLayout.setLayoutParams(params);*/
         }
 
         public void setRating(float rating) {

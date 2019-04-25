@@ -1,11 +1,8 @@
 package com.foxmike.android.utils;
 // Checked
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 
-import com.foxmike.android.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.RemoteMessage;
 
 /**
@@ -47,5 +44,12 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.notify(mNotificationId, mBuilder.build());*/
+    }
+
+    @Override
+    public void onNewToken(String token) {
+        if (FirebaseAuth.getInstance().getCurrentUser()!=null) {
+            FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("device_token").child(token).setValue(true);
+        }
     }
 }

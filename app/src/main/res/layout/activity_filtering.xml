@@ -238,6 +238,56 @@
                     app:steps="10" />
             </LinearLayout>
 
+
+            <TextView
+                android:id="@+id/sortText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_editText_in_center"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:text="@string/Sort_on_text"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/marginVertical"
+                android:layout_marginEnd="@dimen/margin_minimum"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_minimum"
+                android:background="@drawable/round_corners"
+                android:orientation="horizontal">
+
+                <ToggleButton
+                    android:id="@+id/sortDateToggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/color_background_light"
+                    android:fontFamily="sans-serif"
+                    android:textAllCaps="false"
+                    android:textColor="@color/toggle_color"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/sortText"
+                    app:layout_constraintTop_toBottomOf="@+id/sortText" />
+
+                <ToggleButton
+                    android:id="@+id/sortDistanceToggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_editText_in_center"
+                    android:background="@color/color_background_light"
+                    android:fontFamily="sans-serif"
+                    android:textAllCaps="false"
+                    android:textColor="@color/toggle_color"
+                    app:layout_constraintBottom_toBottomOf="@id/sortDateToggle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/sortDateToggle" />
+
+            </LinearLayout>
+
+
         </LinearLayout>
 
 

@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
@@ -23,12 +24,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsHorizontalAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionAdvertisements;
+import com.foxmike.android.utils.CustomMapClusterRenderer;
+import com.foxmike.android.utils.MyItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -44,13 +48,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
@@ -59,6 +64,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
     private MapView mMapView;
     private GoogleMap mMap;
+    private ClusterManager<MyItem> mClusterManager;
 
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -81,7 +87,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
-    private Location mLastKnownLocation;
+    public Location mLastKnownLocation;
     private int horizontalSessionHeight = 0;
     private int currentSessionInt = 0;
     private RecyclerView mSessionList;
@@ -90,7 +96,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private BitmapDescriptor selectedIcon;
     private ArrayList<Marker> markerArray = new ArrayList<>();
     private Marker selectedMarker;
-    ArrayList<String> sessionIdsFiltered = new ArrayList<>();
+    private HashMap<String, GeoLocation> sessionLocationsMap = new HashMap<>();
     private int leftMargin;
 
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
@@ -110,10 +116,14 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private OnSessionClickedListener onSessionClickedListener;
 
     private LocationCallback locationCallback;
-
     private LocationRequest locationRequest;
-    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap = new HashMap<>();
+    private FrameLayout smallMapsSessionFragmentContainer;
 
+    private Map<MyItem, String> markers = new HashMap<>();
+
+    public Location getmLastKnownLocation() {
+        return mLastKnownLocation;
+    }
 
     public ExploreMapsFragment() {
         // Required empty public constructor
@@ -140,8 +150,6 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                 if (locationList.size() > 0) {
                     //The last location in the list is the newest
                     mLastKnownLocation = locationList.get(locationList.size() - 1);
-                    if (listSmallRecyclerViewsAdapter!=null && sessionIdsFiltered.size()>0)
-                        listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
                     if (mCurrLocationMarker != null) {
                         mCurrLocationMarker.remove();
                     }
@@ -199,6 +207,8 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
         mMapView.getMapAsync(this);
 
+        smallMapsSessionFragmentContainer = view.findViewById(R.id.smallMapSessionFragmentContainer);
+
         // Setup horizontal recyclerView
         mSessionList = view.findViewById(R.id.session_list);
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -239,10 +249,14 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         getDeviceLocation();
 
         // Listen to scroll events
-        listenToScrollEvents();
+        //listenToScrollEvents();
 
         // Setup on marker clicked listener
         listenToMapAndMarkerClickedEvents();
+
+        setUpClusterer();
+
+
 
     }
 
@@ -264,8 +278,6 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
-
-
     }
 
     /**
@@ -349,9 +361,44 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         updateLocationUI();
     }
 
+    private void setUpClusterer() {
+        // Position the map.
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), mMap);
+        CustomMapClusterRenderer customMapClusterRenderer = new CustomMapClusterRenderer<>(getActivity().getApplicationContext(),mMap, mClusterManager);
+        mClusterManager.setRenderer(customMapClusterRenderer);
+
+        mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
+            @Override
+            public boolean onClusterItemClick(MyItem myItem) {
+                Marker clickedMarker = customMapClusterRenderer.getMarker(myItem);
+                String sessionId = markers.get(myItem);
+                FragmentManager fragmentManager = getChildFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.smallMapSessionFragmentContainer, SmallMapSessionFragment.newInstance(sessionId)).commit();
+                ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", 0);
+                animation.setDuration(500);
+                animation.start();
+                mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
+                clickedMarker.setIcon(selectedIcon);
+                return false;
+            }
+        });
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraIdleListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+
+        // Add cluster items (markers) to the cluster manager.
+
+    }
 
 
-    private void listenToScrollEvents() {
+
+    /*private void listenToScrollEvents() {
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -385,35 +432,19 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                 }
             }
         });
-    }
+    }*/
+
 
     private void listenToMapAndMarkerClickedEvents() {
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // Find out which session is in focus in recyclerView
-                //currentSessionInt = (linearLayoutManager.findLastCompletelyVisibleItemPosition() - linearLayoutManager.findFirstCompletelyVisibleItemPosition())  / 2 + linearLayoutManager.findFirstVisibleItemPosition();
 
-                // If the corresponding session to the clicked marker is not in focus in recyclerView, scroll to that position
-                mSessionList.smoothScrollToPosition(markerArray.indexOf(marker));
-                // When clicked on marker, show recyclerView
-                if (sessionIdsFiltered.size()>0) {
-                    ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
-                    animation.setDuration(500);
-                    animation.start();
-                    mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
-                }
-
-                return false;
-            }
-        });
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
-                if (sessionIdsFiltered.size()>0) {
-                    hideList();
-                }
+                ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", horizontalSessionHeight);
+                animation.setDuration(500);
+                animation.start();
+                mMap.setPadding(leftMargin,0,leftMargin,0);
             }
         });
     }
@@ -445,70 +476,29 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
             currentSessionInt = 0;
             markerArray.clear();
 
-            if (sessionIdsFiltered.size()==0) {
-                if (listSmallRecyclerViewsAdapter!=null) {
-                    listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
-                    mSessionList.smoothScrollToPosition(0);
-                    hideList();
-                }
-            }
-
-            if (sessionIdsFiltered.size()>0) {
+            if (sessionLocationsMap.size()>0) {
                 // Add markers the map
-                for (String sessionId : sessionIdsFiltered) {
-                    LatLng loc = new LatLng(sessionHashMap.get(sessionId).getLatitude(), sessionHashMap.get(sessionId).getLongitude());
+                for (String key : sessionLocationsMap.keySet()) {
+                    /*LatLng loc = new LatLng(sessionLocationsMap.get(key).latitude, sessionLocationsMap.get(key).longitude);
                     //Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromBitmap(defaultMarkerBitmap)));
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(loc).icon(defaultIcon));
-                    markerArray.add(marker);
-                }
+                    */
 
-                // Update or create the recyclerView
-                if (listSmallRecyclerViewsAdapter!=null) {
-                    listSmallRecyclerViewsAdapter.refreshData(sessionHashMap, sessionIdsFiltered);
-                    mSessionList.smoothScrollToPosition(0);
-                    markerArray.get(0).setIcon(selectedIcon);
-                    selectedMarker = markerArray.get(0);
+                    MyItem marker = new MyItem(sessionLocationsMap.get(key).latitude, sessionLocationsMap.get(key).longitude);
 
-                } else {
-                    listSmallRecyclerViewsAdapter = new ListSmallSessionsHorizontalAdapter(sessionHashMap, sessionIdsFiltered, sessionAdvertisementsHashMap, getActivity().getApplicationContext(), onSessionClickedListener, mLastKnownLocation, mLastClickTime);
-                    if (mSessionList!=null) {
-                        mSessionList.setAdapter(listSmallRecyclerViewsAdapter);
-                        markerArray.get(0).setIcon(selectedIcon);
-                        selectedMarker = markerArray.get(0);
-                    }
-                    listSmallRecyclerViewsAdapter.notifyDataSetChanged();
+                    markers.put(marker, key);
+                    mClusterManager.addItem(marker);
+
                 }
             }
 
-        }
-
-        if (showRecyclerViewLoaded && mMap!=null && !showRecyclerViewUsed) {
-            showRecyclerViewUsed = true;
-
-            if (!showRecyclerView) {
-                if (sessionIdsFiltered.size()>0) {
-                    hideList();
-                }
-            } else {
-                if (sessionIdsFiltered.size()==0) {
-                    hideList();
-                } else {
-                    ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", 0);
-                    animation.setDuration(500);
-                    animation.start();
-                    mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
-                }
-            }
         }
 
     }
 
     // Method to add markers to map. This method is called from MainPlayerActivity. Set also an
     // Onclicklistener to the map in order to display session when marker is clicked.
-    public void addMarkersToMap(ArrayList<String> sessionIdsFiltered, HashMap<String, Session> sessionHashMap, HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap) {
-        this.sessionAdvertisementsHashMap = sessionAdvertisementsHashMap;
-        this.sessionIdsFiltered = sessionIdsFiltered;
-        this.sessionHashMap = sessionHashMap;
+    public void addMarkersToMap(HashMap<String, GeoLocation> sessionLocationsMap) {
+        this.sessionLocationsMap = sessionLocationsMap;
         nearSessionsLoaded = true;
         nearSessionsUsed = false;
         onAsyncTaskFinished();
@@ -570,7 +560,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mMapView.onPause();
         //stop location updates when Activity is no longer active
         if (fusedLocationClient != null) {
-            //fusedLocationClient.removeLocationUpdates(locationCallback);
+            fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
@@ -606,15 +596,6 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         onSessionClickedListener = null;
     }
 
-
-    private void hideList() {
-        if (sessionIdsFiltered.size()>0) {
-            ObjectAnimator animation = ObjectAnimator.ofFloat(mSessionList, "translationY", horizontalSessionHeight);
-            animation.setDuration(500);
-            animation.start();
-            mMap.setPadding(leftMargin,0,leftMargin,0);
-        }
-    }
 
     private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
         Canvas canvas = new Canvas();

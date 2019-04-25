@@ -1,153 +1,146 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout android:id="@+id/sessionCardViewFrame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ImageView
+        android:contentDescription="@string/session_image"
+        android:id="@+id/session_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="5:3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <android.support.v7.widget.AppCompatTextView
+            style="@style/FoxmikeTitle"
+            android:id="@+id/session_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/session_name_goes_here"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:textColor="@color/secondaryTextColor"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
+            />
+        <TextView
+            android:id="@+id/session_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/address"
+            android:textColor="@color/secondaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/session_title"
+            />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/priceTV"
+        android:layout_width="wrap_content"
+        android:text="asdas"
+        android:elevation="1dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/session_desc"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginBottom="3dp"/>
+
+    <TextView
+        android:id="@+id/session_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/description_goes_here"
+        android:textColor="@color/secondaryTextColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_marginBottom="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/marginVertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/newFlag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/small_rounded_textview"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+        android:padding="4dp"
+        android:textAllCaps="true"
+        android:text="NEW"
+        android:textStyle="bold"
+        android:textColor="@color/primaryTextColor"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginStart="@dimen/margin_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/sessionCardViewFrame"
-        android:layout_width="match_parent"
-        android:layout_height="230dp"
-        android:orientation="vertical">
+        android:id="@+id/reviewContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:contentDescription="@string/session_image"
-                android:id="@+id/session_image"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/add_btn" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <android.support.v7.widget.AppCompatRatingBar
+            android:id="@+id/ratingBar"
+            style="@style/Base.Widget.AppCompat.RatingBar.Small"
+            android:progressTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <android.support.v7.widget.AppCompatTextView
-                style="@style/FoxmikeTitle"
-                android:id="@+id/session_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_name_goes_here"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_right"
-                android:textColor="@color/secondaryTextColor"
-                android:layout_centerHorizontal="true"
-                android:gravity="center_horizontal"
-                />
-            <TextView
-                android:id="@+id/session_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/address"
-                android:textColor="@color/secondaryTextColor"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/session_title"
-                />
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/priceTV"
-            android:layout_width="wrap_content"
-            android:text="asdas"
-            android:elevation="1dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/session_desc"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/secondaryTextColor"
+            android:numStars="1"
+            android:rating="1"
             android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginBottom="3dp"/>
-
-        <TextView
-            android:id="@+id/session_desc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/description_goes_here"
-            android:textColor="@color/secondaryTextColor"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginBottom="@dimen/marginVertical"
-            android:layout_marginStart="@dimen/marginVertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <TextView
-            android:id="@+id/newFlag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/small_rounded_textview"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
-            android:padding="4dp"
-            android:textAllCaps="true"
-            android:text="NEW"
-            android:textStyle="bold"
-            android:textColor="@color/primaryTextColor"
             android:layout_marginTop="@dimen/marginVertical"
-            android:layout_marginStart="@dimen/margin_left"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/reviewContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <android.support.v7.widget.AppCompatRatingBar
-                android:id="@+id/ratingBar"
-                style="@style/Base.Widget.AppCompat.RatingBar.Small"
-                android:progressTint="@color/white"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:numStars="1"
-                android:rating="1"
-                android:layout_marginStart="@dimen/margin_left"
-                android:layout_marginTop="@dimen/marginVertical"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                />
-
-            <TextView
-                android:id="@+id/ratingsAndReviewsText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/margin_minimum"
-                android:textColor="@color/secondaryTextColor"
-                android:text="60 omdömen"
-                app:layout_constraintTop_toTopOf="@id/ratingBar"
-                app:layout_constraintBottom_toBottomOf="@id/ratingBar"
-                app:layout_constraintStart_toEndOf="@id/ratingBar"
-                />
-
-        </android.support.constraint.ConstraintLayout>
+            />
 
         <TextView
-            android:id="@+id/session_date_and_time"
+            android:id="@+id/ratingsAndReviewsText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/date_goes_here"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/margin_minimum"
             android:textColor="@color/secondaryTextColor"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginBottom="@dimen/marginVertical"
-            android:layout_marginEnd="@dimen/marginHorizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:text="60 omdömen"
+            app:layout_constraintTop_toTopOf="@id/ratingBar"
+            app:layout_constraintBottom_toBottomOf="@id/ratingBar"
+            app:layout_constraintStart_toEndOf="@id/ratingBar"
+            />
+
     </android.support.constraint.ConstraintLayout>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/session_date_and_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/date_goes_here"
+        android:textColor="@color/secondaryTextColor"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_marginBottom="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/marginHorizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</android.support.constraint.ConstraintLayout>
