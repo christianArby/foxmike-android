@@ -10,6 +10,11 @@ public class StaticResources {
     public static HashMap<String, Integer> DURATION_INTEGERS = new HashMap<>();
     public static HashMap<Integer, String> DURATION_STRINGS = new HashMap<>();
 
+    public static int minDefaultHour = 4;
+    public static int minDefaultMinute = 0;
+    public static int maxDefaultHour = 23;
+    public static int maxDefaultMinute = 45;
+
     static {
         DURATION_INTEGERS.put("10 min", 10);
         DURATION_INTEGERS.put("20 min", 20);

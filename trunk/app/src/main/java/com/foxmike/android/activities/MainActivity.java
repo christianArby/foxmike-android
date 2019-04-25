@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private String deviceToken;
     private FirebaseUser currentUser;
     private DatabaseReference rootDbRef;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
     public void checkUserStatus() {
 
         mAuth = FirebaseAuth.getInstance();
-        deviceToken = FirebaseInstanceId.getInstance().getToken();
         currentUser = mAuth.getCurrentUser();
         rootDbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -124,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
             rootDbRef.child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
-                    if (user==null) {
+                    user = dataSnapshot.getValue(User.class);
+                    if (user ==null) {
                         Intent welcomeIntent = new Intent(MainActivity.this, WelcomeActivity.class);
                         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         welcomeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -134,102 +135,39 @@ public class MainActivity extends AppCompatActivity {
                         /*Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
                         startActivity(setupAccount);*/
                     } else {
-                        //-------------------------THE DOOR OPENS--------------------------------------//
-                        if (user.trainerMode) {
-                            rootDbRef.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
-                                    mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(mainHost);
+
+                        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                if (!task.isSuccessful()) {
+                                    Toast.makeText(MainActivity.this, "Could not register for notifications...", Toast.LENGTH_LONG).show();
+                                    //-------------------------THE DOOR OPENS--------------------------------------//
+                                    theDoorOpens();
+                                    //---------------------------------------------------------------//
+                                    return;
                                 }
-                            });
-                        } else {
-                            rootDbRef.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
-                                    mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(mainPlayer);
-                                }
-                            });
-                        }
-                        //---------------------------------------------------------------//
+
+                                // Get new Instance ID token
+                                String deviceToken = task.getResult().getToken();
+                                rootDbRef.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        //-------------------------THE DOOR OPENS--------------------------------------//
+                                        theDoorOpens();
+                                        //---------------------------------------------------------------//
+                                    }
+                                });
+                                //---------------------------------------------------------------//
+                            }
+                        });
+
+
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
 
-                }
-            });
-            /*myFirebaseDatabase = new MyFirebaseDatabase();
-            myFirebaseDatabase.getCurrentUser(new OnUserFoundListener() {
-                @Override
-                public void OnUserFound(User user) {
-                    if (user==null) {
-                        Intent setupAccount = new Intent(MainActivity.this, SetupAccountActivity.class);
-                        //mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(setupAccount);
-                    } else {
-                        //-------------------------THE DOOR OPENS--------------------------------------//
-                        if (user.trainerMode) {
-                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
-                                    mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(mainHost);
-                                }
-                            });
-                        } else {
-                            mDatabase.child("users").child(currentUser.getUid()).child("device_token").child(deviceToken).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
-                                    mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(mainPlayer);
-                                }
-                            });
-                        }
-                        //---------------------------------------------------------------//
-                    }
-                }
-            });*/
-
-            /*//--------------------- Set presence of current user---------------------------------
-            String currentUserID = mAuth.getCurrentUser().getUid();
-
-            // since I can connect from multiple devices, we store each connection instance separately
-            // any time that connectionsRef's value is null (i.e. has no children) I am offline
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myConnectionsRef = database.getReference("presence/"+currentUserID+"/connections");
-
-            // stores the timestamp of my last disconnect (the last time I was seen online)
-            final DatabaseReference lastOnlineRef = database.getReference("/presence/"+currentUserID+"/lastOnline");
-
-            final DatabaseReference connectedRef = database.getReference(".info/connected");
-            connectedRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    boolean connected = snapshot.getValue(Boolean.class);
-                    if (connected) {
-                        DatabaseReference con = myConnectionsRef.push();
-
-                        // when this device disconnects, remove it
-                        con.onDisconnect().removeValue();
-
-                        // when I disconnect, update the last time I was seen online
-                        lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
-
-                        // add this device to my connections list
-                        // this value could contain info about the device or a timestamp too
-                        con.setValue(Boolean.TRUE);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    System.err.println("Listener was cancelled at .info/connected");
                 }
             });
 
@@ -244,5 +182,17 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+
+    private void theDoorOpens() {
+        if (user.trainerMode) {
+            Intent mainHost = new Intent(MainActivity.this, MainHostActivity.class);
+            mainHost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(mainHost);
+        } else {
+            Intent mainPlayer = new Intent(MainActivity.this, MainPlayerActivity.class);
+            mainPlayer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(mainPlayer);
+        }
     }
 }

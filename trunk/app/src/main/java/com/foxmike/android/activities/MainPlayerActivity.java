@@ -1,7 +1,6 @@
 package com.foxmike.android.activities;
 //Checked
 
-import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -58,8 +57,6 @@ import com.foxmike.android.interfaces.OnCommentClickedListener;
 import com.foxmike.android.interfaces.OnNewMessageListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.interfaces.OnUserClickedListener;
-import com.foxmike.android.interfaces.OnWeekdayButtonClickedListener;
-import com.foxmike.android.interfaces.OnWeekdayChangedListener;
 import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
@@ -106,11 +103,9 @@ public class MainPlayerActivity extends AppCompatActivity
         AdvertisementListener,
         ListSessionsFragment.OnRefreshSessionsListener,
         ListSessionsFragment.OnListSessionsScrollListener,
-        OnWeekdayChangedListener,
-        OnWeekdayButtonClickedListener,
         NotificationsFragment.OnNotificationClickedListener,
         SortAndFilterFragment.OnFilterChangedListener,
-        AlertOccasionCancelledListener{
+        AlertOccasionCancelledListener, ListSessionsFragment.OnNextDayWithSessionsClickedListener{
 
     private FragmentManager fragmentManager;
 
@@ -826,18 +821,6 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        exploreFragment.OnWeekdayChanged(week, weekdayKey, weekdayBoolean, activity);
-    }
-
-    @Override
-    public void OnWeekdayButtonClicked(int week, int button, HashMap<Integer, Boolean> toggleHashMap) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        exploreFragment.OnWeekdayButtonClicked(week, button, toggleHashMap);
-    }
-
-    @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
             DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
@@ -864,12 +847,6 @@ public class MainPlayerActivity extends AppCompatActivity
             PlayerSessionsFragment playerSessionsFragment = (PlayerSessionsFragment) bottomNavigationAdapter.getRegisteredFragment(1);
             playerSessionsFragment.setPage(0);
         }
-    }
-
-    @Override
-    public void OnSortTypeChanged(String sortType) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        exploreFragment.OnChangeSortType(sortType);
     }
 
     @Override
@@ -961,6 +938,14 @@ public class MainPlayerActivity extends AppCompatActivity
                         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
                     }
                 });
+    }
+
+    @Override
+    public void OnNextDayWithSessionsClicked(Integer currentDay) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        if (exploreFragment!=null) {
+            exploreFragment.navigateToNextDayWithSessions(currentDay);
+        }
     }
 
     public interface OnOkPressedListener {

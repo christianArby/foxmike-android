@@ -978,7 +978,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
 
                 String geoFireDateNode = TextTimestamp.textSDF(advertisement.getAdvertisementTimestamp());
-                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + "123" + advertisement.getSessionId();
+                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + "XXXXXXXXXXX";
 
                 DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireDays").child(geoFireDateNode);
                 geoFire = new GeoFire(mGeofireDbRef);

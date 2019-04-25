@@ -15,6 +15,9 @@ public class AdvertisementIdsAndTimestamps implements Comparable<AdvertisementId
         this.adTimestamp = adTimestamp;
     }
 
+    public AdvertisementIdsAndTimestamps() {
+    }
+
     public String getAdvertisementId() {
         return advertisementId;
     }

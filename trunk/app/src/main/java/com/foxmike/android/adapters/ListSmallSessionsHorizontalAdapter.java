@@ -18,8 +18,6 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
-import com.foxmike.android.models.SessionAdvertisements;
-import com.foxmike.android.utils.TextTimestamp;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,12 +37,10 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
     private OnSessionClickedListener onSessionClickedListener;
     private Location lastLocation;
     private long mLastClickTime = 0;
-    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap;
 
-    public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, ArrayList<String> sessionIdsFiltered, HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation, long mLastClickTime) {
+    public ListSmallSessionsHorizontalAdapter(HashMap<String, Session> sessionHashMap, ArrayList<String> sessionIdsFiltered, Context context, OnSessionClickedListener onSessionClickedListener, Location lastLocation, long mLastClickTime) {
         this.sessionHashMap = sessionHashMap;
         this.sessionIdsFiltered = sessionIdsFiltered;
-        this.sessionAdvertisementsHashMap = sessionAdvertisementsHashMap;
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
         this.lastLocation = lastLocation;
@@ -67,7 +63,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
         String sessionName = sessionHashMap.get(sessionIdsFiltered.get(position)).getSessionName();
         holder.setSessionName(sessionName);
 
-        if (sessionAdvertisementsHashMap.get(sessionIdsFiltered.get(position)).size()>0) {
+        /*if (sessionAdvertisementsHashMap.get(sessionIdsFiltered.get(position)).size()>0) {
             Long currentTimestamp = System.currentTimeMillis();
             Long earliestAd = 0L;
             for (Long adTimestamp : sessionAdvertisementsHashMap.get(sessionIdsFiltered.get(position)).values()) {
@@ -85,7 +81,7 @@ public class ListSmallSessionsHorizontalAdapter extends RecyclerView.Adapter<Lis
             }
         } else {
             holder.setText2(context.getString(R.string.no_upcoming_sessions));
-        }
+        }*/
 
         String address = getAddress(sessionHashMap.get(sessionIdsFiltered.get(position)).getLatitude(), sessionHashMap.get(sessionIdsFiltered.get(position)).getLongitude());
         holder.setText3(address);

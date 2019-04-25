@@ -5,6 +5,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.foxmike.android.fragments.ExploreFragment">
 
+    <FrameLayout
+        android:id="@+id/mapContainer"
+        android:elevation="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -12,54 +20,23 @@
         android:id="@+id/barLayout"
         android:stateListAnimator="@animator/foxmike_app_bar_elevation">
 
-        <LinearLayout
+        <android.support.design.widget.TabLayout
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:tabSelectedTextColor="@color/foxmikePrimaryColor"
+            app:tabMode="scrollable"
+            app:tabMaxWidth="58dp"
+            app:tabTextColor="@color/primaryTextColor"
+            android:id="@+id/explorer_tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/weekdayFilterFragmentContainer">
-
-            <ToggleButton
-                style="?android:attr/borderlessButtonStyle"
-                android:background="@drawable/all_dates_button"
-                android:layout_gravity="center_vertical"
-                android:id="@+id/allDatesBtn"
-                android:text="@string/all"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textAllCaps="false"
-                android:textColor="@color/secondaryTextColor" />
-
-            <view
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                class="com.foxmike.android.utils.WrapContentViewPager"
-                android:id="@+id/weekdayPager"
-                android:layout_alignParentTop="true"/>
-
-        </LinearLayout>
-
-        <com.rd.PageIndicatorView
-            android:id="@+id/pageIndicatorView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/weekdayPager"
-            android:layout_marginBottom="4dp"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/color_background_light"
-            app:piv_selectedColor="@color/foxmikePrimaryColor"
-            app:piv_unselectedColor="@color/unselectedGreyColor"
-            app:piv_animationType="slide"
-            app:piv_viewPager="@+id/weekdayPager" />
+            android:layout_height="wrap_content"/>
     </android.support.design.widget.AppBarLayout>
 
-    <com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager
+    <android.support.v4.view.ViewPager
         android:id="@+id/exploreFragmentViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/barLayout">
-    </com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager>
+        android:layout_below="@id/barLayout"
+        android:layout_alignParentBottom="true"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

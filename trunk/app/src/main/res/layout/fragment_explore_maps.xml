@@ -12,6 +12,14 @@
 
     </com.google.android.gms.maps.MapView>
 
+    <FrameLayout
+        android:id="@+id/smallMapSessionFragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+    </FrameLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/session_list"
         android:layout_width="match_parent"
