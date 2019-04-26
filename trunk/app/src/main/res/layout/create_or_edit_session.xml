@@ -84,7 +84,7 @@
                 android:drawableTint="@color/primaryTextColor"
                 android:background="@android:color/transparent"
                 android:layout_gravity="center_vertical"
-                android:hint="@string/location" />
+                android:hint="@string/choose_location" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
