@@ -172,6 +172,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private DateTime selectedDate;
     private ListCreateAdvertisementsAdapter listCreateAdvertisementsAdapter;
     private TextView addAdvertisement;
+    private boolean sessionLoadedIfAny;
+    private HashMap<String, String> sessionTypeFilterMap;
+    private ArrayList<String> sessionTypeArray;
+    private boolean sessionTypesLoaded;
+    private boolean uiLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,6 +230,25 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         selectedDate = new DateTime().minusMonths(2);
+
+        Locale current = getResources().getConfiguration().locale;
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                sessionTypeFilterMap = new HashMap<>();
+                sessionTypeArray = new ArrayList<>();
+                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                    sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                    sessionTypeArray.add(sessionTypeSnap.getValue().toString());
+                }
+                sessionTypesLoaded = true;
+                setupUI();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -331,6 +355,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         existingSession = dataSnapshot.getValue(Session.class);
+                        sessionLoadedIfAny = true;
                         setupUI();
                     }
                     @Override
@@ -340,18 +365,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 });
 
             } else {
+                sessionLoadedIfAny = true;
                 setupUI();
             }
         } /* If no bundle or sessionID exists, the method takes for granted that the activity was started by clicking on the map and a bundle with the LatLng object should exist,
           if so extract the LatLng and set the image to the default image (Create view)*/
         else {
             if (clickedLatLng==null) {
-                mLocation.setText(getString(R.string.choose_location));
+
             } else {
                 address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
                 mLocation.setText(address);
             }
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
+            sessionLoadedIfAny = true;
             setupUI();
         }
 
@@ -527,6 +554,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private void setupUI() {
 
+        if (!sessionLoadedIfAny || !sessionTypesLoaded || uiLoaded) {
+            return;
+        }
+
         if (existingSession!=null) {
 
             clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
@@ -534,7 +565,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mLocation.setText(address);
             setImage(existingSession.getImageUrl(),mSessionImageButton);
             mSessionName.setText(existingSession.getSessionName());
-            mSessionType.setText(existingSession.getSessionType());
+            mSessionType.setText(sessionTypeFilterMap.get(existingSession.getSessionType()));
             // Existing advertisements
             Long currentTimestamp = System.currentTimeMillis();
             rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -653,44 +684,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mSessionTypeTIL.setError(null);
-
-                Locale current = getResources().getConfiguration().locale;
-                DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
-                sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        ArrayList<String> sessionTypeArray = new ArrayList<>();
-                        for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                            sessionTypeArray.add(sessionTypeSnap.getKey());
-                        }
-                        createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+                createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
             }
         });
         mSessionType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mSessionTypeTIL.setError(null);
-
-                Locale current = getResources().getConfiguration().locale;
-                DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
-                sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        ArrayList<String> sessionTypeArray = new ArrayList<>();
-                        for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                            sessionTypeArray.add(sessionTypeSnap.getKey());
-                        }
-                        createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+                createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
             }
         });
 
@@ -828,6 +829,13 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     public void updateSessionObjectFromUI(OnSessionUpdatedListener onSessionUpdatedListener) {
 
+        if (TextUtils.isEmpty(mLocation.getText().toString())) {
+            mLocationTIL.setError(getString(R.string.please_choose_location));
+            infoIsValid = false;
+            mProgress.dismiss();
+            return;
+        }
+
         if (existingSession!=null) {
             maxParticipants = existingSession.getMaxParticipants();
             duration = existingSession.getDurationInMin();
@@ -845,7 +853,17 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
-        sessionMap.put("sessionType", mSessionType.getText().toString());
+        String sessionTypeCode = "000";
+        String chosenSessionType = mSessionType.getText().toString();
+        for (String sessionTypeFilterCode: sessionTypeFilterMap.keySet()) {
+            if (sessionTypeFilterMap.get(sessionTypeFilterCode).equals(chosenSessionType)) {
+                sessionMap.put("sessionType", sessionTypeFilterCode);
+                sessionTypeCode = sessionTypeFilterCode;
+            }
+        }
+        if (sessionTypeCode.equals("000")) {
+            Toast.makeText(CreateOrEditSessionActivity.this, "Sorry, could not find session type, please try again later or contact Foxmike.", Toast.LENGTH_LONG).show();
+        }
         sessionMap.put("what",mWhat.getText().toString());
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
@@ -978,9 +996,41 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
 
                 String geoFireDateNode = TextTimestamp.textSDF(advertisement.getAdvertisementTimestamp());
-                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + "XXXXXXXXXXX";
 
-                DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireDays").child(geoFireDateNode);
+
+                String sessionType = (String) sendSession.get("sessionType");
+                String currency = accountCurrency;
+                String price = "0000";
+                String rating = "99";
+
+                String stringPrice = Integer.toString(advertisement.getPrice());
+                switch(stringPrice.length()) {
+                    case 0:
+                        break;
+                    case 1:
+                        price = "000" + stringPrice;
+                        break;
+                    case 2:
+                        price = "00" + stringPrice;
+                        break;
+                    case 3:
+                        price = "0" + stringPrice;
+                        break;
+                    case 4:
+                        price = stringPrice;
+                        break;
+                    default:
+                        price = "0000";
+                }
+
+                if (existingSession!=null) {
+                    int ratingInt = Math.round(existingSession.getRating()*10) ;
+                    rating = Integer.toString(ratingInt);
+                }
+
+                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + sessionType + currency + price + rating;
+
+                DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireDaysTest").child(geoFireDateNode);
                 geoFire = new GeoFire(mGeofireDbRef);
                 geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
             }
