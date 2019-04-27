@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
@@ -129,11 +130,12 @@ public class  ListSessionsFragment extends Fragment {
     private boolean isLastPage = false;
 
     // total no. of pages to load. Initial load is page 0, after which 2 more pages will load.
-    private int TOTAL_PAGES = 3;
+    private int TOTAL_PAGES;
     // indicates the current page which Pagination is fetching.
     private int currentPage = PAGE_START;
-    private boolean firstLoad = true;
-
+    private LinearLayoutManager linearLayoutManager;
+    private OnDimCurrentDayListener onDimCurrentDayListener;
+    private boolean currentDayIsDimmed;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -167,10 +169,10 @@ public class  ListSessionsFragment extends Fragment {
         //noSessionsFound = mainView.findViewById(R.id.noLocation);
         mSessionList.setHasFixedSize(true);
         mSessionList.setItemViewCacheSize(20);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         mSessionList.setLayoutManager(linearLayoutManager);
         mSessionList.setItemAnimator(new DefaultItemAnimator());
-        sessionsAdapter = new ListSessionsAdapter(getActivity().getApplicationContext(), onSessionClickedListener);
+        sessionsAdapter = new ListSessionsAdapter(getActivity().getApplicationContext(), onSessionClickedListener, this.weekday);
         HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
         mSessionList.addItemDecoration(headerItemDecoration);
         mSessionList.setAdapter(sessionsAdapter);
@@ -184,13 +186,32 @@ public class  ListSessionsFragment extends Fragment {
         //dateHeaderTV.setText(dateHeader);
 
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
-        /*mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 onListSessionsScrollListener.OnListSessionsScroll(newState);
             }
-        });*/
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (sessionsAdapter.getFirstItemNextDay()!=-1) {
+                    if (linearLayoutManager.findFirstVisibleItemPosition()>sessionsAdapter.getFirstItemNextDay()) {
+                        if (!currentDayIsDimmed) {
+                            onDimCurrentDayListener.OnDimCurrentDay(true);
+                            currentDayIsDimmed = true;
+                        }
+                    } else {
+                        if (currentDayIsDimmed) {
+                            onDimCurrentDayListener.OnDimCurrentDay(false);
+                            currentDayIsDimmed = false;
+                        }
+                    }
+                }
+            }
+        });
 
         listSessionsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -207,7 +228,7 @@ public class  ListSessionsFragment extends Fragment {
                 //Increment page index to load the next one
                 currentPage += 1;
                 totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
-                addListeners();
+                loadNextPage();
             }
 
             @Override
@@ -249,8 +270,16 @@ public class  ListSessionsFragment extends Fragment {
             loadedthisDay = 0;
             totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
             TOTAL_PAGES = geoFireNodesKeysFromThisDay.size()/itemsToLoadPerDayEachTime;
-            firstLoad = true;
-            addListeners();
+            loadFirstPage();
+        } else {
+            if(isAdded()) {
+                if (geoFireNodesKeysFromThisDay.size()==0) {
+                    Toast.makeText(getActivity().getApplicationContext(), "geoFireNodesKeysFromThisDay=0" + weekday, Toast.LENGTH_LONG).show();
+                }
+                if (sessionsAdapter.getItemCount()!=0) {
+                    Toast.makeText(getActivity().getApplicationContext(), "sessionsAdapter.getItemCount()!=0" + weekday, Toast.LENGTH_LONG).show();
+                }
+            }
         }
 
         if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
@@ -282,9 +311,16 @@ public class  ListSessionsFragment extends Fragment {
         this.geoFireNodesKeys = geoFireNodesKeys;
 
         geoFireLoaded = true;
-
         Long todayTimestamp = System.currentTimeMillis();
-        Long thisDayTimestamp = new DateTime(todayTimestamp).plusDays(day).getMillis();
+
+        Long thisDayTimestamp = 0L;
+        if (day == 0) {
+            thisDayTimestamp = new DateTime(todayTimestamp).plusDays(day).getMillis();
+        } else {
+            DateTime thisDayDateTime = new DateTime(todayTimestamp).plusDays(day);
+            thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
+        }
+
 
         geoFireNodesKeysFromThisDay.clear();
 
@@ -307,7 +343,85 @@ public class  ListSessionsFragment extends Fragment {
         checkIfToLoadList();
     }
 
-    private void addListeners() {
+    private void loadFirstPage() {
+
+        Log.d("NYTT_TEST", "ListSessions, adding listeners in day " + Integer.toString(weekday));
+        sessionAdvertisementTasks.clear();
+        while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
+            advertisementIdsAndTimestampsFilteredArrayList.clear();
+
+            String adId = CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 13, 33).toString();
+            String sessionId = CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 33, 53).toString();
+
+            TaskCompletionSource<Boolean> sessionSource = new TaskCompletionSource<>();
+            Task sessionTask = sessionSource.getTask();
+            sessionAdvertisementTasks.add(sessionTask);
+            DatabaseReference sessionRef = FirebaseDatabase.getInstance().getReference().child("sessions").child(sessionId);
+            FirebaseDatabaseViewModel sessionViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> sessionLiveData = sessionViewModel.getDataSnapshotLiveData(sessionRef);
+            sessionLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()!=null) {
+                        sessionHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Session.class));
+                    }
+                    // -------------
+                    sessionSource.trySetResult(true);
+                }
+            });
+
+
+            TaskCompletionSource<Boolean> adSource = new TaskCompletionSource<>();
+            Task adTask = adSource.getTask();
+            sessionAdvertisementTasks.add(adTask);
+            DatabaseReference advertisementRef = FirebaseDatabase.getInstance().getReference().child("advertisements").child(adId);
+            FirebaseDatabaseViewModel advertisementViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> advertisementLiveData = advertisementViewModel.getDataSnapshotLiveData(advertisementRef);
+            advertisementLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()!=null) {
+                        Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                        if (!advertisement.getStatus().equals("cancelled")) {
+                            advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class).getAdvertisementTimestamp()));
+                        }
+                    }
+                    adSource.trySetResult(true);
+                }
+            });
+
+            loadedthisDay++;
+        }
+
+        if (sessionAdvertisementTasks.isEmpty()) {
+            TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+            Task dummyTask = dummySource.getTask();
+            sessionAdvertisementTasks.add(dummyTask);
+            dummySource.setResult("done");
+        }
+
+        Tasks.whenAll(sessionAdvertisementTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d("NYTT_TEST", "All listeners triggered, loading list in " + Integer.toString(weekday));
+
+                    Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
+
+                    stopSwipeRefreshingSymbol();
+                    firsLoadProgressBar.setVisibility(View.GONE);
+                    sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
+
+                    if (currentPage <= TOTAL_PAGES) sessionsAdapter.addLoadingFooter();
+                    else isLastPage = true;
+                }
+            }
+        });
+
+    }
+
+    private void loadNextPage() {
 
         Log.d("NYTT_TEST", "ListSessions, adding listeners in day " + Integer.toString(weekday));
         while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
@@ -372,27 +486,15 @@ public class  ListSessionsFragment extends Fragment {
 
                     Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
 
-                    //updateSessionListView(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
-                    stopSwipeRefreshingSymbol();
-
-                    if (firstLoad) {
-                        sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
-                        if (currentPage <= TOTAL_PAGES) sessionsAdapter.addLoadingFooter();
-                        else isLastPage = true;
-                        firstLoad = false;
-                        firsLoadProgressBar.setVisibility(View.GONE);
-                    } else {
-                        sessionsAdapter.removeLoadingFooter();  // 2
-                        isLoading = false;   // 3
-                        sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);   // 4
-                        if (currentPage != TOTAL_PAGES) sessionsAdapter.addLoadingFooter();  // 5
-                        else isLastPage = true;
-
-                    }
-
+                    sessionsAdapter.removeLoadingFooter();  // 2
+                    isLoading = false;   // 3
+                    sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation); // 4
+                    if (currentPage != TOTAL_PAGES) sessionsAdapter.addLoadingFooter();  // 5
+                    else isLastPage = true;
                 }
             }
         });
+
     }
 
     /*private void onAsyncTaskFinished() {
@@ -554,6 +656,12 @@ public class  ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnNextDayWithSessionsClickedListener");
         }
+        if (context instanceof OnDimCurrentDayListener) {
+            onDimCurrentDayListener = (OnDimCurrentDayListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnDimCurrentDayListener");
+        }
     }
 
     @Override
@@ -563,6 +671,7 @@ public class  ListSessionsFragment extends Fragment {
         onRefreshSessionsListener = null;
         onListSessionsScrollListener = null;
         onNextDayWithSessionsClickedListener = null;
+        onDimCurrentDayListener = null;
     }
 
     public interface OnRefreshSessionsListener {
@@ -579,5 +688,9 @@ public class  ListSessionsFragment extends Fragment {
 
     public interface OnNextDayWithSessionsClickedListener {
         void OnNextDayWithSessionsClicked(Integer currentDay);
+    }
+
+    public interface OnDimCurrentDayListener {
+        void OnDimCurrentDay(boolean dim);
     }
 }

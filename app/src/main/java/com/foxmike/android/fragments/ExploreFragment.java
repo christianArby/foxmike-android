@@ -47,6 +47,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -59,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -107,6 +109,7 @@ public class ExploreFragment extends Fragment{
     private HashMap<GeoQuery, GeoQueryEventListener> geofireListeners = new HashMap<>();
     private TabLayout tabLayout;
     private FrameLayout mapContainer;
+    private boolean listIsVisible = true;
 
     private boolean mLocationPermissionGranted;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -138,6 +141,9 @@ public class ExploreFragment extends Fragment{
     private boolean locationFound;
     private boolean advertisementsPerDayLoaded;
     private int iteratedDay;
+    public HashMap<String, String> sessionTypeFilterMap;
+    private ArrayList<String> sessionTypeArray;
+    private boolean defaultColors;
 
     public HashMap<String, Boolean> getSessionTypeChosen() {
         return sessionTypeChosen;
@@ -183,6 +189,38 @@ public class ExploreFragment extends Fragment{
     public void onResume() {
         super.onResume();
         //setupMapWithSessions();
+    }
+
+    public HashMap<String, String> getSessionTypeFilterMap() {
+        return sessionTypeFilterMap;
+    }
+
+    public ArrayList<String> getSessionTypeArray() {
+        return sessionTypeArray;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        sessionTypeArray = new ArrayList<>();
+        sessionTypeFilterMap = new HashMap<>();
+
+        Locale current = getResources().getConfiguration().locale;
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                sessionTypeFilterMap = new HashMap<>();
+                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                    sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                    sessionTypeArray.add(sessionTypeSnap.getKey());
+                }
+                sortAndFilterFAB.show();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     @Override
@@ -287,7 +325,24 @@ public class ExploreFragment extends Fragment{
         }
     }
 
+    public void dimCurrentDay(boolean dim) {
+        if (dim) {
+            tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.primaryTextColor));
+            defaultColors = false;
+        } else {
+            tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
+            defaultColors = true;
+        }
+    }
+
     private void geoFireNodesLoaded() {
+
+        filterGeoFireNodes(new OnFilterReadyListener() {
+            @Override
+            public void OnFilterReady() {
+
+            }
+        });
 
         ArrayList<String> geoFireNodesKeys = new ArrayList<>(geoFireNodes.keySet());
         Collections.sort(geoFireNodesKeys);
@@ -342,6 +397,9 @@ public class ExploreFragment extends Fragment{
         exploreFragmentViewPager = mainView.findViewById(R.id.exploreFragmentViewPager);
         tabLayout = (TabLayout) mainView.findViewById(R.id.explorer_tabs);
         tabLayout.setupWithViewPager(exploreFragmentViewPager);
+        tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
+
+
 
         mapContainer = mainView.findViewById(R.id.mapContainer);
         mapContainer.setVisibility(View.INVISIBLE);
@@ -352,12 +410,18 @@ public class ExploreFragment extends Fragment{
         exploreFragmentViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
-                mapOrListBtn
-                        .animate()
-                        .translationY(0)
-                        .withLayer()
-                        .start();
-                sortAndFilterFAB.show();
+                /*if (listIsVisible) {
+                    mapOrListBtn
+                            .animate()
+                            .translationY(0)
+                            .withLayer()
+                            .start();
+                    sortAndFilterFAB.show();
+                }*/
+                if (!defaultColors) {
+                    tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
+                    defaultColors = true;
+                }
             }
 
             @Override
@@ -367,6 +431,7 @@ public class ExploreFragment extends Fragment{
 
             @Override
             public void onPageScrollStateChanged(int i) {
+
 
             }
         });
@@ -416,9 +481,11 @@ public class ExploreFragment extends Fragment{
             public void onClick(View view) {
                 if (mapContainer.getVisibility()==INVISIBLE) {
                     mapContainer.setVisibility(View.VISIBLE);
+                    listIsVisible = false;
                     switchMapOrListUI(true);
                 } else {
                     mapContainer.setVisibility(View.INVISIBLE);
+                    listIsVisible = true;
                     switchMapOrListUI(false);
                 }
             }
@@ -433,7 +500,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen, sessionTypeFilterMap, sessionTypeArray);
                 sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
@@ -747,7 +814,7 @@ public class ExploreFragment extends Fragment{
 
             Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
             String geoFireDateNode = TextTimestamp.textSDF(dayTimestamp);
-            DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofireDays").child(geoFireDateNode);
+            DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(geoFireDateNode);
             GeoFire geoFire = new GeoFire(mGeofireDbRef);
             GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), distanceRadius);
             GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
@@ -808,15 +875,13 @@ public class ExploreFragment extends Fragment{
             return;
         }
 
-        // Filter on day
-
         // if filter
-        if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km") || minPrice!=PRICES_INTEGERS_SE.get("Min") || maxPrice!=PRICES_INTEGERS_SE.get("Max") || minHour!=minDefaultHour || minMinute!=minDefaultMinute || maxHour!=maxDefaultHour || maxMinute!= maxDefaultMinute || sessionTypeChosen.containsValue(true)) {
+        /*if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km") || minPrice!=PRICES_INTEGERS_SE.get("Min") || maxPrice!=PRICES_INTEGERS_SE.get("Max") || minHour!=minDefaultHour || minMinute!=minDefaultMinute || maxHour!=maxDefaultHour || maxMinute!= maxDefaultMinute || sessionTypeChosen.containsValue(true)) {
             // FILTER
             for (String key: geoFireNodes.keySet()) {
                 boolean show = true;
 
-                /*// User has made an active choice
+                // User has made an active choice
                 if (sessionTypeChosen.containsValue(true)) {
                     if (!sessionTypeChosen.containsKey(sessionHashMap.get(advertisement.getSessionId()).getSessionType())) {
                         show = false;
@@ -844,7 +909,7 @@ public class ExploreFragment extends Fragment{
                 }
                 if (show) {
                     advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(advertisement.getAdvertisementId(), advertisement.getAdvertisementTimestamp()));
-                }*/
+                }
 
                 geoFireNodesFiltered.put(key, geoFireNodes.get(key));
             }
@@ -854,7 +919,7 @@ public class ExploreFragment extends Fragment{
 
             Log.d("FOXMIKE_LOG", "Filtering ended");
             onFilterReadyListener.OnFilterReady();
-        };
+        };*/
 
     }
 

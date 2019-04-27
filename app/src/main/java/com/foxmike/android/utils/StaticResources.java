@@ -9,6 +9,7 @@ import java.util.HashMap;
 public class StaticResources {
     public static HashMap<String, Integer> DURATION_INTEGERS = new HashMap<>();
     public static HashMap<Integer, String> DURATION_STRINGS = new HashMap<>();
+    public static HashMap<String, String> FILTER_SESSION_TYPE_STRINGS = new HashMap<>();
 
     public static int minDefaultHour = 4;
     public static int minDefaultMinute = 0;
@@ -41,6 +42,13 @@ public class StaticResources {
         DURATION_STRINGS.put(100, "100 min");
         DURATION_STRINGS.put(110, "110 min");
         DURATION_STRINGS.put(120, "120 min");
+
+        FILTER_SESSION_TYPE_STRINGS.put("Running", "AAA");
+        FILTER_SESSION_TYPE_STRINGS.put("Yoga", "BBB");
+        FILTER_SESSION_TYPE_STRINGS.put("Crossfit", "CCC");
+        FILTER_SESSION_TYPE_STRINGS.put("Strength", "DDD");
+        FILTER_SESSION_TYPE_STRINGS.put("Cardio", "EEE");
+        FILTER_SESSION_TYPE_STRINGS.put("Ballsport", "FFF");
 
     }
 }

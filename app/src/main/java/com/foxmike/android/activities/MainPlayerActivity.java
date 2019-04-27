@@ -105,7 +105,9 @@ public class MainPlayerActivity extends AppCompatActivity
         ListSessionsFragment.OnListSessionsScrollListener,
         NotificationsFragment.OnNotificationClickedListener,
         SortAndFilterFragment.OnFilterChangedListener,
-        AlertOccasionCancelledListener, ListSessionsFragment.OnNextDayWithSessionsClickedListener{
+        AlertOccasionCancelledListener,
+        ListSessionsFragment.OnNextDayWithSessionsClickedListener,
+        ListSessionsFragment.OnDimCurrentDayListener{
 
     private FragmentManager fragmentManager;
 
@@ -945,6 +947,14 @@ public class MainPlayerActivity extends AppCompatActivity
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         if (exploreFragment!=null) {
             exploreFragment.navigateToNextDayWithSessions(currentDay);
+        }
+    }
+
+    @Override
+    public void OnDimCurrentDay(boolean dim) {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        if (exploreFragment!=null) {
+            exploreFragment.dimCurrentDay(dim);
         }
     }
 
