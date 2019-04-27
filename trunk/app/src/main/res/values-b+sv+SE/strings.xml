@@ -570,4 +570,5 @@
     <string name="foxmike_tip">Foxmike tipsar</string>
     <string name="foxmike_tip_text">Tips på gratispass, se mer information om arrangör och passet nedan.</string>
     <string name="information">Information</string>
+    <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">Inga pass den här dagen, visar närmaste dagen med pass nedan.</string>
 </resources>

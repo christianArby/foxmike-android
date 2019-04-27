@@ -47,7 +47,17 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final int ITEM = 0;
     private static final int HEADING = 1;
     private static final int LOADING = 2;
+    private static final int NO_SESSIONS = 3;
     private boolean isLoadingAdded  = false;
+    private int firstItemNextDay = -1;
+    private int weekDay = 0;
+
+
+    public int getFirstItemNextDay() {
+        return firstItemNextDay;
+    }
+
+
 
     public ListSessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener) {
         this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
@@ -58,9 +68,10 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
-    public ListSessionsAdapter(Context context, OnSessionClickedListener onSessionClickedListener) {
+    public ListSessionsAdapter(Context context, OnSessionClickedListener onSessionClickedListener, int weekDay) {
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
+        this.weekDay = weekDay;
     }
 
     public void refreshData(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation) {
@@ -89,6 +100,10 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             case LOADING:
                 View v3 = inflater.inflate(R.layout.pagination_loading, parent, false);
                 viewHolder = new ListSessionsAdapter.LoadingVH(v3);
+                break;
+            case NO_SESSIONS:
+                View v4 = inflater.inflate(R.layout.no_sessions_this_day, parent, false);
+                viewHolder = new ListSessionsAdapter.LoadingVH(v4);
                 break;
         }
 
@@ -178,6 +193,8 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 break;
             case LOADING:
 //                Do nothing
+            case NO_SESSIONS:
+//                Do nothing
                 break;
         }
     }
@@ -190,11 +207,42 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (position == advertisementIdsAndTimestampsFilteredArrayList.size() - 1 && isLoadingAdded) {
             return  LOADING;
         }
+        if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("noSessionsThisDay")) {
+            return NO_SESSIONS;
+        }
         return 0;
     }
 
+    public void setFirstItemNextDay(int firstItemNextDay) {
+        if (this.firstItemNextDay==-1) {
+            this.firstItemNextDay = firstItemNextDay;
+        } else {
+            if (firstItemNextDay<this.firstItemNextDay) {
+                this.firstItemNextDay = firstItemNextDay;
+            }
+        }
+
+    }
+
+
     public void add(AdvertisementIdsAndTimestamps ad) {
         if(advertisementIdsAndTimestampsFilteredArrayList.size()==0) {
+
+            Long todayTimestamp = System.currentTimeMillis();
+            Long thisDayTimestamp = 0L;
+            thisDayTimestamp = new DateTime(todayTimestamp).plusDays(this.weekDay).getMillis();
+            TextTimestamp thisDayTextTimestamp = new TextTimestamp(thisDayTimestamp);
+
+            if (!thisDayTextTimestamp.textSDF().equals(TextTimestamp.textSDF(ad.getAdTimestamp()))) {
+                setFirstItemNextDay(0);
+                AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", thisDayTimestamp);
+                advertisementIdsAndTimestampsFilteredArrayList.add(dummyAdvertisementIdAndTimestamp);
+                notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+                AdvertisementIdsAndTimestamps dummyNoSessionsThisDayAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("noSessionsThisDay", thisDayTimestamp);
+                advertisementIdsAndTimestampsFilteredArrayList.add(dummyNoSessionsThisDayAdvertisementIdAndTimestamp);
+                notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
+            }
+
             AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", ad.getAdTimestamp());
             advertisementIdsAndTimestampsFilteredArrayList.add(dummyAdvertisementIdAndTimestamp);
             notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
@@ -207,6 +255,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (advertisementIdsAndTimestampsFilteredArrayList.get(advertisementIdsAndTimestampsFilteredArrayList.size()-1).getAdTimestamp()!=0L && ad.getAdTimestamp()!=0L) {
             TextTimestamp prevTextTimestamp = new TextTimestamp(advertisementIdsAndTimestampsFilteredArrayList.get(advertisementIdsAndTimestampsFilteredArrayList.size()-1).getAdTimestamp());
             if (!prevTextTimestamp.textSDF().equals(TextTimestamp.textSDF(ad.getAdTimestamp()))) {
+                setFirstItemNextDay(advertisementIdsAndTimestampsFilteredArrayList.size());
                 AdvertisementIdsAndTimestamps dummyAdvertisementIdAndTimestamp = new AdvertisementIdsAndTimestamps("dateHeader", ad.getAdTimestamp());
                 advertisementIdsAndTimestampsFilteredArrayList.add(dummyAdvertisementIdAndTimestamp);
                 notifyItemInserted(advertisementIdsAndTimestampsFilteredArrayList.size() - 1);
@@ -353,6 +402,13 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     protected class LoadingVH extends RecyclerView.ViewHolder {
 
         public LoadingVH(View itemView) {
+            super(itemView);
+        }
+    }
+
+    protected class NoSessionsVH extends RecyclerView.ViewHolder {
+
+        public NoSessionsVH(View itemView) {
             super(itemView);
         }
     }

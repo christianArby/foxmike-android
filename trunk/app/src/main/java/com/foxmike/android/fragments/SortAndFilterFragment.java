@@ -6,7 +6,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,13 +28,9 @@ import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSessionTypesAdapter;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
 import static com.foxmike.android.utils.Distance.DISTANCE_STRINGS_SE;
@@ -75,12 +70,14 @@ public class SortAndFilterFragment extends DialogFragment {
     private RecyclerView sessionTypeRV;
     private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
     private LinearLayout sessionTypeProgress;
+    private HashMap<String,String> sessionTypeCodes;
+    private ArrayList<String> sessionTypeArray;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
     }
 
-    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, HashMap<String, Boolean> sessionTypeChosen) {
+    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, HashMap<String, Boolean> sessionTypeChosen, HashMap<String,String> sessionTypeCodes, ArrayList<String> sessionTypeArray) {
         SortAndFilterFragment fragment = new SortAndFilterFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT, sort);
@@ -93,6 +90,8 @@ public class SortAndFilterFragment extends DialogFragment {
         args.putInt("maxMinute", maxMinute);
         args.putInt("distance", distance);
         args.putSerializable("sessionTypeChosen", sessionTypeChosen);
+        args.putSerializable("sessionTypeCodes", sessionTypeCodes);
+        args.putSerializable("sessionTypeArray", sessionTypeArray);
         fragment.setArguments(args);
         return fragment;
     }
@@ -110,6 +109,8 @@ public class SortAndFilterFragment extends DialogFragment {
             maxMinute = getArguments().getInt("maxMinute");
             mFilterDistance = getArguments().getInt("distance");
             sessionTypeChosen = (HashMap<String, Boolean>)getArguments().getSerializable("sessionTypeChosen");
+            sessionTypeCodes = (HashMap<String, String>)getArguments().getSerializable("sessionTypeCodes");
+            sessionTypeArray = (ArrayList<String>)getArguments().getSerializable("sessionTypeArray");
         }
     }
 
@@ -145,27 +146,10 @@ public class SortAndFilterFragment extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         sessionTypeRV.setLayoutManager(linearLayoutManager);
 
-        Locale current = getResources().getConfiguration().locale;
-        FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot dataSnapshot) {
-                ArrayList<String> sessionTypeArray = new ArrayList<>();
-                if (dataSnapshot.getValue()!=null) {
-                    for (com.google.firebase.database.DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        sessionTypeArray.add(snapshot.getKey());
-                    }
-                    ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeArray, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
-                    sessionTypeRV.setAdapter(listSessionTypesAdapter);
-                    sessionTypeProgress.setVisibility(View.GONE);
-                }
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeArray, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
+        sessionTypeRV.setAdapter(listSessionTypesAdapter);
+        sessionTypeProgress.setVisibility(View.GONE);
 
         timeSeekbar.setMinValue(240);
         timeSeekbar.setMaxValue(1425);
@@ -271,31 +255,35 @@ public class SortAndFilterFragment extends DialogFragment {
                             mFilterDistance = DISTANCE_INTEGERS_SE.get("1000 km");
                             onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         }
-                        return;
+                        break;
                     case 50:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(80));
                         mFilterDistance = 80;
                         onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
-                        return;
+                        break;
                     case 40:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(40));
                         mFilterDistance = 40;
                         onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
-                        return;
+                        break;
                     case 30:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(16));
                         mFilterDistance = 16;
                         onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
-                        return;
+                        break;
                     case 20:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(8));
                         mFilterDistance = 8;
                         onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
-                        return;
+                        break;
                     case 10:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(3));
                         mFilterDistance = 3;
                         onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
+                        break;
+                    default:
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1000 km")));
+                        break;
                 }
             }
         });

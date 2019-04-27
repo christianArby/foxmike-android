@@ -22,14 +22,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
@@ -323,66 +316,8 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
 
     private void checkIfPayOutsIsEnabled() {
         // --------------CHECK IF PAYOUTS ARE ENABLED------
-        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()==null) {
-                    // ----------- PAYOUTS NOT ENABLED --------------
-                    priceOverlay.setVisibility(View.GONE);
-                    dotProgressBar.setVisibility(View.GONE);
-                    payoutsEnabled = false;
-                } else {
-                    String stripeAccountId = dataSnapshot.getValue().toString();
-                    // Stripe function
-                    retrieveStripeAccount(stripeAccountId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                            // If not succesful, show error and return from function, will trigger if account ID does not exist
-                            if (!task.isSuccessful()) {
-                                Exception e = task.getException();
-                                showSnackbar("An error occurred." + e.getMessage());
-                                // ----------- PAYOUTS NOT ENABLED --------------
-                                payoutsEnabled = false;
-                                priceOverlay.setVisibility(View.GONE);
-                                dotProgressBar.setVisibility(View.GONE);
-                                return;
-                            }
-                            // If successful, extract
-                            HashMap<String, Object> result = task.getResult();
-                            if (result.get("resultType").toString().equals("account")) {
-
-                                HashMap<String, Object> account = (HashMap<String, Object>) result.get("account");
-                                accountCurrency = account.get("default_currency").toString();
-
-                                // ----------- PAYOUTS ENABLED --------------
-                                if (account.get("payouts_enabled").toString().equals("true")) {
-                                    payoutsEnabled = true;
-                                    priceOverlay.setVisibility(View.GONE);
-                                    dotProgressBar.setVisibility(View.GONE);
-
-                                } else {
-                                    // ----------- PAYOUTS NOT ENABLED --------------
-                                    payoutsEnabled = false;
-                                    priceOverlay.setVisibility(View.GONE);
-                                    dotProgressBar.setVisibility(View.GONE);
-                                }
-
-                            } else {
-                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                showSnackbar(error.get("message").toString());
-                            }
-                            // [END_EXCLUDE]
-                        }
-                    });
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                priceOverlay.setVisibility(View.GONE);
-                dotProgressBar.setVisibility(View.GONE);
-                payoutsEnabled = false;
-            }
-        });
+        payoutsEnabled = true;
+        priceOverlay.setVisibility(View.GONE);
+        dotProgressBar.setVisibility(View.GONE);
     }
 }

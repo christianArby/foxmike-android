@@ -46,7 +46,6 @@ public class MyFirebaseDatabase extends Service {
     private int studioDownloadedCounter = 0;
     private HashMap<String,Integer> studioDistances = new HashMap<>();
 
-    private final DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geofire");
 
     public void getSessions(final OnSessionsFoundListener onSessionsFoundListener, final HashMap<String, Long> sessionsHashMap) {
 
