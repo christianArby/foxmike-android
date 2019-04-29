@@ -472,6 +472,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
             }
             // Clear the map of markers and clear set the array of the new array
             mMap.clear();
+            mClusterManager.clearItems();
             selectedMarker = null;
             currentSessionInt = 0;
             markerArray.clear();

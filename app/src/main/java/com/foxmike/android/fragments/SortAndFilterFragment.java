@@ -24,6 +24,7 @@ import android.widget.ToggleButton;
 import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarChangeListener;
 import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarFinalValueListener;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.foxmike.android.R;
@@ -162,6 +163,12 @@ public class SortAndFilterFragment extends DialogFragment {
         timeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
             @Override
             public void finalValue(Number minValue, Number maxValue) {
+                int minHour = minValue.intValue()/60; //since both are ints, you get an int
+                int minMinute =minValue.intValue() % 60;
+
+                int maxHour = maxValue.intValue()/60; //since both are ints, you get an int
+                int maxMinute = maxValue.intValue() % 60 ;
+                onFilterChangedListener.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
 
             }
         });
@@ -169,19 +176,13 @@ public class SortAndFilterFragment extends DialogFragment {
         timeSeekbar.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
             @Override
             public void valueChanged(Number minValue, Number maxValue) {
-
                 int minHour = minValue.intValue()/60; //since both are ints, you get an int
                 int minMinute =minValue.intValue() % 60;
 
                 int maxHour = maxValue.intValue()/60; //since both are ints, you get an int
                 int maxMinute = maxValue.intValue() % 60 ;
-
-
-
                 minTime.setText(String.format("%02d:%02d", minHour, minMinute));
                 maxTime.setText(String.format("%02d:%02d", maxHour, maxMinute));
-
-                onFilterChangedListener.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
             }
         });
 
@@ -245,6 +246,13 @@ public class SortAndFilterFragment extends DialogFragment {
 
         distanceSeekbar.setMaxValue(60).setSteps(10).setMinStartValue(seekbarDistanceValuesMap.get(mFilterDistance)).apply();
 
+        distanceSeekbar.setOnSeekbarFinalValueListener(new OnSeekbarFinalValueListener() {
+            @Override
+            public void finalValue(Number value) {
+                onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
+            }
+        });
+
         distanceSeekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
             public void valueChanged(Number value) {
@@ -253,33 +261,31 @@ public class SortAndFilterFragment extends DialogFragment {
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1000 km")));
                         if (mFilterDistance!=DISTANCE_INTEGERS_SE.get("1000 km")) {
                             mFilterDistance = DISTANCE_INTEGERS_SE.get("1000 km");
-                            onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         }
                         break;
                     case 50:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(80));
                         mFilterDistance = 80;
-                        onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         break;
                     case 40:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(40));
                         mFilterDistance = 40;
-                        onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         break;
                     case 30:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(16));
                         mFilterDistance = 16;
-                        onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         break;
                     case 20:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(8));
                         mFilterDistance = 8;
-                        onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
                         break;
                     case 10:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(3));
                         mFilterDistance = 3;
-                        onFilterChangedListener.OnDistanceFilterChanged(mFilterDistance);
+                        break;
+                    case 0:
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(1));
+                        mFilterDistance = 1;
                         break;
                     default:
                         chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1000 km")));
