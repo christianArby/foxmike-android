@@ -144,6 +144,9 @@ public class ExploreFragment extends Fragment{
     public HashMap<String, String> sessionTypeFilterMap;
     private ArrayList<String> sessionTypeArray;
     private boolean defaultColors;
+    private boolean geoFireNodesUsed;
+    private boolean fragmentsLoaded;
+    private boolean geoFireNodesAndFragmentsUsed;
 
     public HashMap<String, Boolean> getSessionTypeChosen() {
         return sessionTypeChosen;
@@ -185,12 +188,6 @@ public class ExploreFragment extends Fragment{
         return advertismentsPerDayMap;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //setupMapWithSessions();
-    }
-
     public HashMap<String, String> getSessionTypeFilterMap() {
         return sessionTypeFilterMap;
     }
@@ -221,21 +218,14 @@ public class ExploreFragment extends Fragment{
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+        Log.d("LIFECYCLE", "EXPLORE/ONACTIVITYCREATED --> checkIfGeoFireNodesAreLoaded()");
+        Log.d("LIFECYCLE", "EXPLORE/ONACTIVITYCREATED --> geoFireNodesLoaded()");
+        checkIfGeoFireNodesAreLoaded();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        fragmentManager = getChildFragmentManager();
-        exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
-
-        for (int x = 0; x < 14; x++) {
-            ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x);
-            exploreFragmentAdapter.addFragments(listSessionsFragment);
-        }
-
-        fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(), "ExploreMapsFragment").commit();
 
         // GET LOCATION ---------------------------------------------------------------------------------------------------------
         locationCallback = new LocationCallback() {
@@ -246,6 +236,7 @@ public class ExploreFragment extends Fragment{
                     //The last location in the list is the newest
                     mLastKnownLocation = locationList.get(locationList.size() - 1);
                     locationFound = true;
+                    Log.d("LIFECYCLE", "EXPLORE/LOCATION CALLBACK --> checkIfGeoFireNodesAreLoaded()");
                     checkIfGeoFireNodesAreLoaded();
                     // ANTINGEN HÄR '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
                     // UPDATE THINGS THAT NEED LAST LOCATION
@@ -292,6 +283,7 @@ public class ExploreFragment extends Fragment{
                                 return;
                             }
                             locationFound = true;
+                            Log.d("LIFECYCLE", "EXPLORE/LOCATION2 --> checkIfGeoFireNodesAreLoaded()");
                             checkIfGeoFireNodesAreLoaded();
                             // ELLER HÄR '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
                         } else {
@@ -319,8 +311,10 @@ public class ExploreFragment extends Fragment{
     }
 
     private void checkIfGeoFireNodesAreLoaded() {
-        if (!geoFireNodesLoaded) {
-            geoFireNodesLoaded = true;
+
+        Log.d("LIFECYCLE", "EXPLORE/checkIfGeoFireNodesAreLoaded:" + geoFireNodesLoaded + "locationFound:" + locationFound);
+        if (!geoFireNodesLoaded && locationFound) {
+            Log.d("LIFECYCLE", "EXPLORE/checkIfGeoFireNodesAreLoaded: Running query");
             loadGeoFireNodes();
         }
     }
@@ -333,39 +327,6 @@ public class ExploreFragment extends Fragment{
             tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
             defaultColors = true;
         }
-    }
-
-    private void geoFireNodesLoaded() {
-
-        filterGeoFireNodes(new OnFilterReadyListener() {
-            @Override
-            public void OnFilterReady() {
-
-            }
-        });
-
-        ArrayList<String> geoFireNodesKeys = new ArrayList<>(geoFireNodes.keySet());
-        Collections.sort(geoFireNodesKeys);
-
-        for (int x = 0; x < 14; x++) {
-            Log.d("NYTT_TEST", "Initializing day " + Integer.toString(x));
-
-            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(x);
-            listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
-        }
-
-        HashMap<String, GeoLocation> sessionLocations = new HashMap<>();
-
-        for (String geoFireNodeKey: geoFireNodesKeys) {
-            String sessionId = CharBuffer.wrap(geoFireNodeKey, 33, 53).toString();
-            sessionLocations.put(sessionId, geoFireNodes.get(geoFireNodeKey));
-        }
-
-        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
-        if (exploreMapsFragment!=null) {
-            exploreMapsFragment.addMarkersToMap(sessionLocations);
-        }
-
     }
 
     /**
@@ -399,13 +360,28 @@ public class ExploreFragment extends Fragment{
         tabLayout.setupWithViewPager(exploreFragmentViewPager);
         tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
 
-
-
         mapContainer = mainView.findViewById(R.id.mapContainer);
         mapContainer.setVisibility(View.INVISIBLE);
 
+
+
+        fragmentManager = getChildFragmentManager();
+        exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
+        for (int x = 0; x < 14; x++) {
+            ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x);
+            exploreFragmentAdapter.addFragments(listSessionsFragment);
+        }
+
         exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
         exploreFragmentViewPager.setOffscreenPageLimit(4);
+
+        if (fragmentManager.findFragmentByTag("ExploreMapsFragment")==null) {
+            fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(), "ExploreMapsFragment").commit();
+        }
+
+        geoFireNodesAndFragmentsUsed = false;
+        fragmentsLoaded = true;
+        checkIfToLoadFragmentsWithData();
 
         exploreFragmentViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -518,7 +494,67 @@ public class ExploreFragment extends Fragment{
             }
         });
 
+
+
+
+
         return mainView;
+    }
+
+    private void checkIfToLoadFragmentsWithData() {
+
+        if (fragmentsLoaded && geoFireNodesLoaded && !geoFireNodesAndFragmentsUsed) {
+            geoFireNodesAndFragmentsUsed = true;
+
+            String view = "false";
+            if (getView()!=null) {
+                view = "true";
+            }
+            Log.d("LIFECYCLE", "EXPLORE/geoFireNodesLoaded: " + geoFireNodesLoaded + "getView()!=null: " + view + "geoFireNodesUsed: " + geoFireNodesUsed);
+
+            geoFireNodesUsed = true;
+            filterGeoFireNodes(new OnFilterReadyListener() {
+                @Override
+                public void OnFilterReady() {
+
+                }
+            });
+
+            ArrayList<String> geoFireNodesKeys = new ArrayList<>(geoFireNodes.keySet());
+            Collections.sort(geoFireNodesKeys);
+
+            Log.d("LIFECYCLE", "EXPLORE/geoFireNodesLoaded:geoFireNodes.size=" + Integer.toString(geoFireNodes.size()));
+
+            for (int x = 0; x < 14; x++) {
+                Log.d("NYTT_TEST", "Initializing day " + Integer.toString(x));
+
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                if (listSessionsFragment!=null) {
+                    listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
+                } else {
+                    ListSessionsFragment notYetCreatedlistSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getItem(x);
+                    notYetCreatedlistSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
+                }
+
+            }
+
+            HashMap<String, GeoLocation> sessionLocations = new HashMap<>();
+
+            for (String geoFireNodeKey: geoFireNodesKeys) {
+                String sessionId = CharBuffer.wrap(geoFireNodeKey, 33, 53).toString();
+                sessionLocations.put(sessionId, geoFireNodes.get(geoFireNodeKey));
+            }
+
+            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
+            if (exploreMapsFragment!=null) {
+                exploreMapsFragment.addMarkersToMap(sessionLocations);
+            }
+
+
+        }
+
+
+
     }
 
     public void navigateToNextDayWithSessions(Integer currentDay) {
@@ -798,8 +834,6 @@ public class ExploreFragment extends Fragment{
 
     private void loadGeoFireNodes() {
 
-        Log.d("NYTT_TEST", "GeoFire Query started");
-
         geoFireNodes.clear();
         lastKeyEnteredTime = 0;
         firstKey = true;
@@ -851,6 +885,7 @@ public class ExploreFragment extends Fragment{
                 Log.d("FOXMIKE_LOG", "Adding geoQuery");
                 geofireListeners.put(geoQuery, geoQueryEventListener);
             }
+            Log.d("LIFECYCLE", "EXPLORE/loadGeofireNodes:Running listeners attached");
 
         }
 
@@ -858,8 +893,10 @@ public class ExploreFragment extends Fragment{
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d("NYTT_TEST", "CALLING LIST");
-                    geoFireNodesLoaded();
+                    Log.d("LIFECYCLE", "EXPLORE/loadGeofireNodes-->geoFireNodesLoaded()");
+                    geoFireNodesAndFragmentsUsed = false;
+                    geoFireNodesLoaded = true;
+                    checkIfToLoadFragmentsWithData();
                 }
             }
         });

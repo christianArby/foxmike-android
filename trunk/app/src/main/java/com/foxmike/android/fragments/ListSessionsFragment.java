@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
@@ -261,26 +260,43 @@ public class  ListSessionsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> CREATING WEEK " + Integer.toString(this.weekday));
+        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> checkIfToLoadList()");
         checkIfToLoadList();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> RESUMING WEEK " + Integer.toString(this.weekday));
+    }
+
     private void checkIfToLoadList() {
+
+        String booleangeoFireNodesKeysFromThisDay = "false";
+        if (geoFireNodesKeysFromThisDay.size()>0) {
+            booleangeoFireNodesKeysFromThisDay = "true";
+        }
+
+        String sessionsAdapterString = "false";
+        if (sessionsAdapter==null) {
+            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLadList sessionsAdapter==null");
+        } else {
+            if (sessionsAdapter.getItemCount()==0) {
+                sessionsAdapterString = "true";
+            }
+        }
+
+        Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList: isAdded" + isAdded() + "geoFireNodesKeysFromThisDay.size()>0" + booleangeoFireNodesKeysFromThisDay + "sessionsAdapter.getItemCount()==0" + sessionsAdapterString);
         if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
             loadedthisDay = 0;
             totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
             TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
             firstLoad = true;
             loadPage();
+            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Loading page...");
         } else {
-            if(isAdded()) {
-                if (geoFireNodesKeysFromThisDay.size()==0) {
-                    Toast.makeText(getActivity().getApplicationContext(), "geoFireNodesKeysFromThisDay=0" + weekday, Toast.LENGTH_LONG).show();
-                }
-                if (sessionsAdapter.getItemCount()!=0) {
-                    Toast.makeText(getActivity().getApplicationContext(), "sessionsAdapter.getItemCount()!=0" + weekday, Toast.LENGTH_LONG).show();
-                }
-            }
+            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Not loading page...");
         }
 
         if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
@@ -308,6 +324,7 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public void geoFireNodesUpdated(ArrayList<String> geoFireNodesKeys, Location currentLocation, Integer day) {
+
         this.currentLocation = currentLocation;
         this.geoFireNodesKeys = geoFireNodesKeys;
 
@@ -325,8 +342,6 @@ public class  ListSessionsFragment extends Fragment {
 
         geoFireNodesKeysFromThisDay.clear();
 
-        Log.d("NYTT_TEST", "ListSessions, ordering keys in day " + Integer.toString(day));
-
         for (String nodeKey: geoFireNodesKeys) {
             Long timestamp = Long.parseLong(CharBuffer.wrap(nodeKey, 0, 13).toString());
             if (timestamp>thisDayTimestamp) {
@@ -334,12 +349,14 @@ public class  ListSessionsFragment extends Fragment {
             }
         }
 
-        Log.d("NYTT_TEST", "ListSessions, finished ordering keys in day " + Integer.toString(weekday));
-
         // TODO CHECK THIS WITH ISADDED
         if (sessionsAdapter!=null) {
             sessionsAdapter.clear();
         }
+
+        Log.d("LIFECYCLE", "LISTSESSIONS: running geoFireNodesUpdated" + Integer.toString(geoFireNodesKeysFromThisDay.size()));
+
+        Log.d("LIFECYCLE", "LISTSESSIONS --> checkIfToLoadList()");
 
         checkIfToLoadList();
     }
@@ -397,10 +414,10 @@ public class  ListSessionsFragment extends Fragment {
         }
 
         if (sessionAdvertisementFirstLoadTasks.isEmpty()) {
-            isLoading = false;
-            stopSwipeRefreshingSymbol();
-            firsLoadProgressBar.setVisibility(View.GONE);
-            isLastPage = true;
+            TaskCompletionSource<String> dummySource = new TaskCompletionSource<>();
+            Task dummyTask = dummySource.getTask();
+            sessionAdvertisementFirstLoadTasks.add(dummyTask);
+            dummySource.setResult("done");
         }
 
         Tasks.whenAll(sessionAdvertisementFirstLoadTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
