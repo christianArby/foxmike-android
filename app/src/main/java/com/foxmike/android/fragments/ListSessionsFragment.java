@@ -14,7 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -262,50 +261,6 @@ public class  ListSessionsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         onFragmentAttachedNeedNewDataListener.OnFragmentAttachedNeedNewData(this.weekday);
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> CREATING WEEK " + Integer.toString(this.weekday));
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> checkIfToLoadList()");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> RESUMING WEEK " + Integer.toString(this.weekday));
-    }
-
-    private void checkIfToLoadList() {
-
-        String booleangeoFireNodesKeysFromThisDay = "false";
-        if (geoFireNodesKeysFromThisDay.size()>0) {
-            booleangeoFireNodesKeysFromThisDay = "true";
-        }
-
-        String sessionsAdapterString = "false";
-        if (sessionsAdapter==null) {
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLadList sessionsAdapter==null");
-        } else {
-            if (sessionsAdapter.getItemCount()==0) {
-                sessionsAdapterString = "true";
-            }
-        }
-
-        Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList: isAdded" + isAdded() + "geoFireNodesKeysFromThisDay.size()>0" + booleangeoFireNodesKeysFromThisDay + "sessionsAdapter.getItemCount()==0" + sessionsAdapterString);
-        if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
-            loadedthisDay = 0;
-            currentPage = PAGE_START;
-            isLastPage = false;
-            isLoading = false;
-            totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
-            TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
-            firstLoad = true;
-            loadPage();
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Loading page...");
-        } else {
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Not loading page...");
-        }
-
-        if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
-            firsLoadProgressBar.setVisibility(View.GONE);
-        }
     }
 
 
@@ -358,17 +313,29 @@ public class  ListSessionsFragment extends Fragment {
             sessionsAdapter.clear();
         }
 
-        Log.d("LIFECYCLE", "LISTSESSIONS: running geoFireNodesUpdated" + Integer.toString(geoFireNodesKeysFromThisDay.size()));
-
-        Log.d("LIFECYCLE", "LISTSESSIONS --> checkIfToLoadList()");
-
         checkIfToLoadList();
+    }
+
+    private void checkIfToLoadList() {
+
+        if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
+            loadedthisDay = 0;
+            currentPage = PAGE_START;
+            isLastPage = false;
+            isLoading = false;
+            totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
+            TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
+            firstLoad = true;
+            loadPage();
+        }
+
+        if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
+            firsLoadProgressBar.setVisibility(View.GONE);
+        }
     }
 
     private void loadPage() {
         ArrayList<Task<?>> sessionAdvertisementFirstLoadTasks  = new ArrayList<>();
-
-        Log.d("NYTT_TEST", "ListSessions, adding listeners in day " + Integer.toString(weekday));
         sessionAdvertisementFirstLoadTasks.clear();
         while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
             advertisementIdsAndTimestampsFilteredArrayList.clear();
@@ -428,8 +395,6 @@ public class  ListSessionsFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d("NYTT_TEST", "All listeners triggered, loading list in " + Integer.toString(weekday));
-
                     Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
 
                     if (currentPage==PAGE_START && PAGE_START==TOTAL_PAGES) {
@@ -463,103 +428,6 @@ public class  ListSessionsFragment extends Fragment {
         });
 
     }
-
-    /*private void onAsyncTaskFinished() {
-        if (sessionsLoaded && locationLoaded && !sessionsAndLocationUsed && this.mainView!=null ) {
-            sessionsAndLocationUsed = true;
-
-            if (sessionsAdapter !=null) {
-                //noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter.refreshData(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
-            } else {
-                //noSessionsFound.setVisibility(View.GONE);
-                sessionsAdapter = new ListSessionsAdapter(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, getActivity().getApplicationContext(), currentLocation, onSessionClickedListener);
-                if (mSessionList!=null) {
-                    HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
-                    mSessionList.addItemDecoration(headerItemDecoration);
-                    mSessionList.setAdapter(sessionsAdapter);
-                }
-                sessionsAdapter.notifyDataSetChanged();
-                sessionsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                    @Override
-                    public void onChanged() {
-                        super.onChanged();
-                        if (sessionsAdapter.getItemCount()>0) {
-                            noContent.setVisibility(View.GONE);
-                            //noSessionsFound.setVisibility(View.GONE);
-                        } else {
-                            if (!loading) {
-                                noContent.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onItemRangeInserted(int positionStart, int itemCount) {
-                        super.onItemRangeInserted(positionStart, itemCount);
-                        if (sessionsAdapter.getItemCount()>0) {
-                            noContent.setVisibility(View.GONE);
-                            //noSessionsFound.setVisibility(View.GONE);
-                        } else {
-                            if (!loading) {
-                                noContent.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        if (swipeRefreshStatusLoaded && mainView!=null && !swipeRefreshStatusUsed) {
-            swipeRefreshStatusUsed = true;
-            listSessionsSwipeRefreshLayout.setRefreshing(false);
-        }
-    }*/
-
-    /*public void setListLoadingStatus(boolean loading) {
-        if (loading) {
-            this.loading = true;
-            //progressBar.setVisibility(View.VISIBLE);
-            noContent.setVisibility(View.GONE);
-        } else {
-            this.loading = false;
-            //progressBar.setVisibility(View.GONE);
-            listSessionsSwipeRefreshLayout.setRefreshing(false);
-        }
-    }*/
-
-    /*public void setListContentStatus(boolean hasContent) {
-        if (hasContent) {
-            noContent.setVisibility(View.GONE);
-            noContentWithLink.setVisibility(View.GONE);
-        } else {
-            noContent.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void setListContentWithLinkStatus(boolean hasContent) {
-        if (hasContent) {
-            noContent.setVisibility(View.GONE);
-        } else {
-            noContent.setVisibility(View.GONE);
-            noContentWithLink.setVisibility(View.VISIBLE);
-        }
-    }*/
-
-    // Function to refresh data in sessionsAdapter
-    /*public void updateSessionListView(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation) {
-        this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
-        this.advertisementHashMap = advertisementHashMap;
-        this.sessionHashMap = sessionHashMap;
-        this.currentLocation = currentLocation;
-        sessionsLoaded = true;
-        locationLoaded = true;
-        sessionsAndLocationUsed = false;
-
-        //onAsyncTaskFinished();
-    }*/
-
-
 
     public void notifyAdvertisementChange(String advertisementId, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap) {
         if (sessionsAdapter !=null) {
