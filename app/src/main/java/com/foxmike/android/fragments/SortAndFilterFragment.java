@@ -30,7 +30,6 @@ import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSessionTypesAdapter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
@@ -71,14 +70,13 @@ public class SortAndFilterFragment extends DialogFragment {
     private RecyclerView sessionTypeRV;
     private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
     private LinearLayout sessionTypeProgress;
-    private HashMap<String,String> sessionTypeCodes;
-    private ArrayList<String> sessionTypeArray;
+    private HashMap<String,String> sessionTypeDictionary;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
     }
 
-    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, HashMap<String, Boolean> sessionTypeChosen, HashMap<String,String> sessionTypeCodes, ArrayList<String> sessionTypeArray) {
+    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, HashMap<String, Boolean> sessionTypeChosen, HashMap<String,String> sessionTypeDictionary) {
         SortAndFilterFragment fragment = new SortAndFilterFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT, sort);
@@ -91,8 +89,7 @@ public class SortAndFilterFragment extends DialogFragment {
         args.putInt("maxMinute", maxMinute);
         args.putInt("distance", distance);
         args.putSerializable("sessionTypeChosen", sessionTypeChosen);
-        args.putSerializable("sessionTypeCodes", sessionTypeCodes);
-        args.putSerializable("sessionTypeArray", sessionTypeArray);
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -110,8 +107,7 @@ public class SortAndFilterFragment extends DialogFragment {
             maxMinute = getArguments().getInt("maxMinute");
             mFilterDistance = getArguments().getInt("distance");
             sessionTypeChosen = (HashMap<String, Boolean>)getArguments().getSerializable("sessionTypeChosen");
-            sessionTypeCodes = (HashMap<String, String>)getArguments().getSerializable("sessionTypeCodes");
-            sessionTypeArray = (ArrayList<String>)getArguments().getSerializable("sessionTypeArray");
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
     }
 
@@ -131,11 +127,11 @@ public class SortAndFilterFragment extends DialogFragment {
 
         HashMap<String, Drawable> sessionTypeDrawables = new HashMap<>();
         sessionTypeDrawables.put("checked", getResources().getDrawable(R.drawable.ic_check_black_24dp));
-        sessionTypeDrawables.put("Styrka", getResources().getDrawable(R.drawable.strength));
-        sessionTypeDrawables.put("Löpning", getResources().getDrawable(R.drawable.running));
-        sessionTypeDrawables.put("Yoga", getResources().getDrawable(R.drawable.yoga));
-        sessionTypeDrawables.put("Cardio", getResources().getDrawable(R.drawable.cardio));
-        sessionTypeDrawables.put("Crossfit", getResources().getDrawable(R.drawable.crossfit));
+        sessionTypeDrawables.put("DDD", getResources().getDrawable(R.drawable.strength));
+        sessionTypeDrawables.put("AAA", getResources().getDrawable(R.drawable.running));
+        sessionTypeDrawables.put("BBB", getResources().getDrawable(R.drawable.yoga));
+        sessionTypeDrawables.put("EEE", getResources().getDrawable(R.drawable.cardio));
+        sessionTypeDrawables.put("CCC", getResources().getDrawable(R.drawable.crossfit));
         sessionTypeDrawables.put("default", getResources().getDrawable(R.mipmap.ic_people_black_24dp));
         ColorStateList checkedColor = ColorStateList.valueOf(Color.parseColor("#006959"));
         ColorStateList notCheckedColor = ColorStateList.valueOf(Color.parseColor("#00bfa5"));
@@ -147,8 +143,7 @@ public class SortAndFilterFragment extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         sessionTypeRV.setLayoutManager(linearLayoutManager);
 
-
-        ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeArray, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
+        ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeDictionary, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
         sessionTypeRV.setAdapter(listSessionTypesAdapter);
         sessionTypeProgress.setVisibility(View.GONE);
 

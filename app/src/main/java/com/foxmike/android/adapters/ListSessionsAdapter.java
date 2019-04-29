@@ -43,6 +43,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private final Context context;
     private Location currentLocation;
     private OnSessionClickedListener onSessionClickedListener;
+    private HashMap<String, String> sessionTypeDictionary;
 
     private static final int ITEM = 0;
     private static final int HEADING = 1;
@@ -59,7 +60,8 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
 
 
-    public ListSessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener) {
+    public ListSessionsAdapter(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Context context, Location currentLocation, OnSessionClickedListener onSessionClickedListener, HashMap<String,String> sessionTypeDictionary) {
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
         this.advertisementHashMap = advertisementHashMap;
         this.sessionHashMap = sessionHashMap;
@@ -68,13 +70,15 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
-    public ListSessionsAdapter(Context context, OnSessionClickedListener onSessionClickedListener, int weekDay) {
+    public ListSessionsAdapter(Context context, OnSessionClickedListener onSessionClickedListener, int weekDay, HashMap<String,String> sessionTypeDictionary) {
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.context = context;
         this.onSessionClickedListener = onSessionClickedListener;
         this.weekDay = weekDay;
     }
 
-    public void refreshData(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation) {
+    public void refreshData(ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList, HashMap<String, Advertisement> advertisementHashMap, HashMap<String, Session> sessionHashMap, Location currentLocation, HashMap<String,String> sessionTypeDictionary) {
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.advertisementIdsAndTimestampsFilteredArrayList = advertisementIdsAndTimestampsFilteredArrayList;
         this.advertisementHashMap = advertisementHashMap;
         this.sessionHashMap = sessionHashMap;
@@ -129,7 +133,12 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
                 String address = addressName +"  |  " + getDistance(session.getLatitude(),session.getLongitude(), this.currentLocation);
                 ((ListSessionsAdapter.SessionViewHolder) holder).setTitle(session.getSessionName());
-                ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(session.getSessionType());
+                if (sessionTypeDictionary.containsKey(session.getSessionType())) {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(sessionTypeDictionary.get(session.getSessionType()));
+                } else {
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(context.getString(R.string.unknown));
+                }
+                ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(sessionTypeDictionary.get(session.getSessionType()));
                 ((ListSessionsAdapter.SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
                 ((ListSessionsAdapter.SessionViewHolder) holder).setAddress(address);
                 ((ListSessionsAdapter.SessionViewHolder) holder).setImage(this.context,session.getImageUrl());

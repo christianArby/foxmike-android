@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -58,11 +59,14 @@ import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
 
@@ -100,6 +104,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private long mLastClickTime = 0;
     private String currentUserId;
     private HashMap<String, CountDownTimer> countDownTimerHashMap = new HashMap<>();
+    private HashMap<String, String> sessionTypeDictionary;
 
 
     @Override
@@ -143,26 +148,90 @@ public class MainHostActivity extends AppCompatActivity implements
 
         // Add fragments to container and hide them
 
-        InboxFragment hostInboxFragment = InboxFragment.newInstance();
-        bottomNavigationAdapter.addFragments(hostInboxFragment);
-
-        HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance();
-        bottomNavigationAdapter.addFragments(hostSessionsFragment);
-
-        UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
-        bottomNavigationAdapter.addFragments(hostUserAccountFragment);
-
-        mainPager.setAdapter(bottomNavigationAdapter);
-
-        // Listen to bottom navigation and switch to corresponding fragment
-        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+        Locale current = getResources().getConfiguration().locale;
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public boolean onTabSelected(int position, boolean wasSelected) {
-                if (!wasSelected)
-                    mainPager.setCurrentItem(position, false);
-                return true;
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                sessionTypeDictionary = new HashMap<>();
+                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                    sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                }
+
+                InboxFragment hostInboxFragment = InboxFragment.newInstance();
+                bottomNavigationAdapter.addFragments(hostInboxFragment);
+
+                HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance();
+                bottomNavigationAdapter.addFragments(hostSessionsFragment);
+
+                UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
+                bottomNavigationAdapter.addFragments(hostUserAccountFragment);
+
+                mainPager.setAdapter(bottomNavigationAdapter);
+
+                // Listen to bottom navigation and switch to corresponding fragment
+                bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+                    @Override
+                    public boolean onTabSelected(int position, boolean wasSelected) {
+                        if (!wasSelected)
+                            mainPager.setCurrentItem(position, false);
+                        return true;
+                    }
+                });
+
+                getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                    @Override
+                    public void onBackStackChanged() {
+                        if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible()){
+                            bottomNavigation.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+                FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainHostActivity.this).get(FirebaseDatabaseViewModel.class);
+                LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                reviewsToWriteLiveData.observe(MainHostActivity.this, new Observer<DataSnapshot>() {
+                    @Override
+                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue()!=null) {
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                                Long currentTimestamp = System.currentTimeMillis();
+                                Long reviewTimestamp = (Long)snapshot.getValue();
+                                if (reviewTimestamp<currentTimestamp) {
+                                    presentReview(snapshot.getKey());
+                                } else {
+                                    if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                            @Override
+                                            public void onTick(long l) {
+
+                                            }
+                                            @Override
+                                            public void onFinish() {
+                                                presentReview(snapshot.getKey());
+                                                countDownTimerHashMap.remove(snapshot.getKey());
+                                            }
+                                        }.start();
+                                        countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
+
+
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
@@ -229,50 +298,7 @@ public class MainHostActivity extends AppCompatActivity implements
             }
         });
 
-        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible()){
-                    bottomNavigation.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    if (dataSnapshot.getValue()==null) {
-                        return;
-                    }
-                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        Long currentTimestamp = System.currentTimeMillis();
-                        Long reviewTimestamp = (Long)snapshot.getValue();
-                        if (reviewTimestamp<currentTimestamp) {
-                            presentReview(snapshot.getKey());
-                        } else {
-                            if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
-                                CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                    @Override
-                                    public void onTick(long l) {
-
-                                    }
-                                    @Override
-                                    public void onFinish() {
-                                        presentReview(snapshot.getKey());
-                                        countDownTimerHashMap.remove(snapshot.getKey());
-                                    }
-                                }.start();
-                                countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
-                            }
-                        }
-                    }
-
-                }
-            }
-        });
 
         // check if maintenance
         MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
@@ -321,7 +347,7 @@ public class MainHostActivity extends AppCompatActivity implements
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
     }
 
@@ -331,7 +357,7 @@ public class MainHostActivity extends AppCompatActivity implements
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
@@ -540,19 +566,19 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {

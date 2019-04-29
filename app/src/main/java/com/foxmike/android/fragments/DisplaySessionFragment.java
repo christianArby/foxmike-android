@@ -232,22 +232,25 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private String stripeCustomerId;
     private String foxmikeUid;
     private AppCompatTextView whatHeadingTW;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
     }
 
-    public static DisplaySessionFragment newInstance(String sessionID) {
+    public static DisplaySessionFragment newInstance(String sessionID, HashMap<String,String> sessionTypeDictionary) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
         args.putString(SESSION_ID, sessionID);
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static DisplaySessionFragment newInstance(String sessionID, Long representingAdTimestamp) {
+    public static DisplaySessionFragment newInstance(String sessionID, Long representingAdTimestamp, HashMap<String,String> sessionTypeDictionary) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         args.putString(SESSION_ID, sessionID);
         args.putLong(REPRESSENTING_AD_TIMESTAMP, representingAdTimestamp);
         fragment.setArguments(args);
@@ -273,6 +276,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         if (getArguments() != null) {
             sessionID = getArguments().getString(SESSION_ID);
             representingAdTimestamp = getArguments().getLong(REPRESSENTING_AD_TIMESTAMP);
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
 
         // GET THE PAYMENT INFO FROM CURRENT USER
@@ -1012,7 +1016,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mWhatTW.setText(mSession.getWhat());
             mWhoTW.setText(mSession.getWho());
             mWhereTW.setText(mSession.getWhereAt());
-            mSessionType.setText(mSession.getSessionType());
+            if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
+                mSessionType.setText(getResources().getString(R.string.unknown));
+            } else {
+                mSessionType.setText(sessionTypeDictionary.get(mSession.getSessionType()));
+            }
+
             mDuration.setText(mSession.getDurationInMin() + getString(R.string.minutes_append));
             ratingBar.setRating(mSession.getRating());
             String ratingTextFormatted = String.format("%.1f", mSession.getRating());

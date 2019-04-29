@@ -47,7 +47,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -60,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.TreeMap;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -141,8 +139,7 @@ public class ExploreFragment extends Fragment{
     private boolean locationFound;
     private boolean advertisementsPerDayLoaded;
     private int iteratedDay;
-    public HashMap<String, String> sessionTypeFilterMap;
-    private ArrayList<String> sessionTypeArray;
+    private HashMap<String, String> sessionTypeDictionary;
     private boolean defaultColors;
     private boolean geoFireNodesUsed;
     private boolean fragmentsLoaded;
@@ -189,41 +186,24 @@ public class ExploreFragment extends Fragment{
         return advertismentsPerDayMap;
     }
 
-    public HashMap<String, String> getSessionTypeFilterMap() {
-        return sessionTypeFilterMap;
+
+    public static ExploreFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
+
+        Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
+        ExploreFragment fragment = new ExploreFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    public ArrayList<String> getSessionTypeArray() {
-        return sessionTypeArray;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        sessionTypeArray = new ArrayList<>();
-        sessionTypeFilterMap = new HashMap<>();
-
-        Locale current = getResources().getConfiguration().locale;
-        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
-        sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                sessionTypeFilterMap = new HashMap<>();
-                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                    sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
-                    sessionTypeArray.add(sessionTypeSnap.getKey());
-                }
-                sortAndFilterFAB.show();
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
+        }
 
         // GET LOCATION ---------------------------------------------------------------------------------------------------------
         locationCallback = new LocationCallback() {
@@ -361,7 +341,7 @@ public class ExploreFragment extends Fragment{
         fragmentManager = getChildFragmentManager();
         exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
         for (int x = 0; x < 14; x++) {
-            ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x);
+            ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x, sessionTypeDictionary);
             exploreFragmentAdapter.addFragments(listSessionsFragment);
         }
 
@@ -469,7 +449,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen, sessionTypeFilterMap, sessionTypeArray);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen, sessionTypeDictionary);
                 sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
@@ -901,7 +881,6 @@ public class ExploreFragment extends Fragment{
 
                 if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km")) {
                     float distanceRadiusFloat = (float) distanceRadius;
-                    float test = getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation);
                     if (getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation) > distanceRadiusFloat*1000) {
                         show = false;
                     }
@@ -911,8 +890,6 @@ public class ExploreFragment extends Fragment{
                     geoFireNodesFiltered.put(geoFireNodeKey, geoFireNodes.get(geoFireNodeKey));
                 }
             }
-
-
         }
 
 

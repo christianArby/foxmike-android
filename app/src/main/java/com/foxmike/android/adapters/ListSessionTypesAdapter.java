@@ -22,18 +22,24 @@ import java.util.HashMap;
 
 public class ListSessionTypesAdapter extends RecyclerView.Adapter<ListSessionTypesAdapter.ListSessionTypesViewHolder>{
 
-    private ArrayList<String> sessionTypeArraylist;
+    private HashMap<String,String> sessionTypeDictionary;
+    private HashMap<String,String> sessionTypeDictionaryReversed = new HashMap<>();
+    private ArrayList<String> sessionTypeArray;
     private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
     private HashMap<String, Drawable> sessionTypeDrawables = new HashMap<>();
     private HashMap<String, ColorStateList> checkedColors = new HashMap<>();
     private SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener;
 
-    public ListSessionTypesAdapter(ArrayList<String> sessionTypeArraylist, HashMap<String, Boolean> sessionTypeChosen, HashMap<String, Drawable> sessionTypeDrawables, HashMap<String, ColorStateList> checkedColors, SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener) {
-        this.sessionTypeArraylist = sessionTypeArraylist;
+    public ListSessionTypesAdapter(HashMap<String,String> sessionTypeDictionary, HashMap<String, Boolean> sessionTypeChosen, HashMap<String, Drawable> sessionTypeDrawables, HashMap<String, ColorStateList> checkedColors, SortAndFilterFragment.OnFilterChangedListener onFilterChangedListener) {
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.sessionTypeChosen = sessionTypeChosen;
         this.sessionTypeDrawables = sessionTypeDrawables;
         this.checkedColors = checkedColors;
         this.onFilterChangedListener = onFilterChangedListener;
+        this.sessionTypeArray = new ArrayList<>(sessionTypeDictionary.values());
+        for (String sessionTypeCode: sessionTypeDictionary.keySet()) {
+            this.sessionTypeDictionaryReversed.put(sessionTypeDictionary.get(sessionTypeCode), sessionTypeCode);
+        }
     }
 
     @NonNull
@@ -47,26 +53,28 @@ public class ListSessionTypesAdapter extends RecyclerView.Adapter<ListSessionTyp
 
     @Override
     public void onBindViewHolder(@NonNull ListSessionTypesViewHolder listSessionTypesViewHolder, int i) {
-        listSessionTypesViewHolder.setTypeText(sessionTypeArraylist.get(i));
+        listSessionTypesViewHolder.setTypeText(sessionTypeArray.get(i));
 
+        String chosesTypeInCode = sessionTypeDictionaryReversed.get(sessionTypeArray.get(i));
         // set Chosen status
-        setChosenStatus(sessionTypeArraylist.get(i), listSessionTypesViewHolder);
+        setChosenStatus(chosesTypeInCode, listSessionTypesViewHolder);
 
 
         listSessionTypesViewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sessionTypeChosen.get(sessionTypeArraylist.get(i))==null) {
-                    sessionTypeChosen.put(sessionTypeArraylist.get(i), true);
-                    setChosenStatus(sessionTypeArraylist.get(i), listSessionTypesViewHolder);
+                String chosesTypeInCode = sessionTypeDictionaryReversed.get(sessionTypeArray.get(i));
+                if (sessionTypeChosen.get(chosesTypeInCode)==null) {
+                    sessionTypeChosen.put(chosesTypeInCode, true);
+                    setChosenStatus(chosesTypeInCode, listSessionTypesViewHolder);
                     onFilterChangedListener.OnSessionTypeChanged(sessionTypeChosen);
-                } else if (sessionTypeChosen.get(sessionTypeArraylist.get(i))) {
-                    sessionTypeChosen.put(sessionTypeArraylist.get(i), false);
-                    setChosenStatus(sessionTypeArraylist.get(i), listSessionTypesViewHolder);
+                } else if (sessionTypeChosen.get(chosesTypeInCode)) {
+                    sessionTypeChosen.put(chosesTypeInCode, false);
+                    setChosenStatus(chosesTypeInCode, listSessionTypesViewHolder);
                     onFilterChangedListener.OnSessionTypeChanged(sessionTypeChosen);
                 } else {
-                    sessionTypeChosen.put(sessionTypeArraylist.get(i), true);
-                    setChosenStatus(sessionTypeArraylist.get(i), listSessionTypesViewHolder);
+                    sessionTypeChosen.put(chosesTypeInCode, true);
+                    setChosenStatus(chosesTypeInCode, listSessionTypesViewHolder);
                     onFilterChangedListener.OnSessionTypeChanged(sessionTypeChosen);
                 }
             }
@@ -104,7 +112,7 @@ public class ListSessionTypesAdapter extends RecyclerView.Adapter<ListSessionTyp
 
     @Override
     public int getItemCount() {
-        return sessionTypeArraylist.size();
+        return sessionTypeDictionary.size();
     }
 
     public class ListSessionTypesViewHolder extends RecyclerView.ViewHolder {
