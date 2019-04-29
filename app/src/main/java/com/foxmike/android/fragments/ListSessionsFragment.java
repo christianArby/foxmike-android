@@ -14,7 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -260,43 +259,17 @@ public class  ListSessionsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> CREATING WEEK " + Integer.toString(this.weekday));
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> checkIfToLoadList()");
         checkIfToLoadList();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("LIFECYCLE", "LISTSESSIONS/onActivityCreated --> RESUMING WEEK " + Integer.toString(this.weekday));
     }
 
     private void checkIfToLoadList() {
 
-        String booleangeoFireNodesKeysFromThisDay = "false";
-        if (geoFireNodesKeysFromThisDay.size()>0) {
-            booleangeoFireNodesKeysFromThisDay = "true";
-        }
-
-        String sessionsAdapterString = "false";
-        if (sessionsAdapter==null) {
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLadList sessionsAdapter==null");
-        } else {
-            if (sessionsAdapter.getItemCount()==0) {
-                sessionsAdapterString = "true";
-            }
-        }
-
-        Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList: isAdded" + isAdded() + "geoFireNodesKeysFromThisDay.size()>0" + booleangeoFireNodesKeysFromThisDay + "sessionsAdapter.getItemCount()==0" + sessionsAdapterString);
         if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
             loadedthisDay = 0;
             totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
             TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
             firstLoad = true;
             loadPage();
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Loading page...");
-        } else {
-            Log.d("LIFECYCLE", "LISTSESSIONS/checkIfToLoadList:Not loading page...");
         }
 
         if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
@@ -304,12 +277,6 @@ public class  ListSessionsFragment extends Fragment {
         }
     }
 
-
-    /** Use sessionsAdapter to generate view mSessionList*/
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        //onAsyncTaskFinished();
-    }
 
     @Override
     public void onDestroyView() {
@@ -354,17 +321,12 @@ public class  ListSessionsFragment extends Fragment {
             sessionsAdapter.clear();
         }
 
-        Log.d("LIFECYCLE", "LISTSESSIONS: running geoFireNodesUpdated" + Integer.toString(geoFireNodesKeysFromThisDay.size()));
-
-        Log.d("LIFECYCLE", "LISTSESSIONS --> checkIfToLoadList()");
-
         checkIfToLoadList();
     }
 
     private void loadPage() {
         ArrayList<Task<?>> sessionAdvertisementFirstLoadTasks  = new ArrayList<>();
 
-        Log.d("NYTT_TEST", "ListSessions, adding listeners in day " + Integer.toString(weekday));
         sessionAdvertisementFirstLoadTasks.clear();
         while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
             advertisementIdsAndTimestampsFilteredArrayList.clear();
@@ -424,7 +386,6 @@ public class  ListSessionsFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d("NYTT_TEST", "All listeners triggered, loading list in " + Integer.toString(weekday));
 
                     Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
 
