@@ -500,46 +500,13 @@ public class ExploreFragment extends Fragment{
             geoFireNodesAndFragmentsUsed = true;
 
             geoFireNodesUsed = true;
-            filterGeoFireNodes(new OnFilterReadyListener() {
-                @Override
-                public void OnFilterReady() {
+            filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
-                }
-            });
-            geoFireNodesKeys.clear();
-            geoFireNodesKeys = new ArrayList<>(geoFireNodes.keySet());
-            Collections.sort(geoFireNodesKeys);
-
-            for (int x = 0; x < 14; x++) {
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
-                if (listSessionsFragment!=null) {
-                    listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
-                }
-            }
-
-            HashMap<String, GeoLocation> sessionLocations = new HashMap<>();
-
-            for (String geoFireNodeKey: geoFireNodesKeys) {
-                String sessionId = CharBuffer.wrap(geoFireNodeKey, 33, 53).toString();
-                sessionLocations.put(sessionId, geoFireNodes.get(geoFireNodeKey));
-            }
-
-            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
-            if (exploreMapsFragment!=null) {
-                exploreMapsFragment.addMarkersToMap(sessionLocations);
-            }
         }
 
     }
 
-    public void updateWeekFragmentWithData(int week) {
-        if (geoFireNodesLoaded) {
-            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(week);
-            if (listSessionsFragment!=null) {
-                listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, week);
-            }
-        }
-    }
+
 
     public void navigateToNextDayWithSessions(Integer currentDay) {
         Long todayTimestamp = System.currentTimeMillis();
@@ -647,6 +614,8 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("distance");
         }
 
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
+
     }
 
     public void OnMinPriceChanged(int minPrice, String currencyCountry) {
@@ -659,6 +628,8 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("minPrice");
         }
 
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
+
 
     }
 
@@ -668,6 +639,7 @@ public class ExploreFragment extends Fragment{
         this.maxHour = maxHour;
         this.maxMinute = maxMinute;
 
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
     }
 
@@ -681,12 +653,15 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("maxPrice");
         }
 
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
+
 
     }
 
     public void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen) {
 
         this.sessionTypeChosen = sessionTypeChosen;
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
 
     }
@@ -884,13 +859,99 @@ public class ExploreFragment extends Fragment{
 
     }
 
-    private void filterGeoFireNodes(OnFilterReadyListener onFilterReadyListener) {
-        geoFireNodesFiltered.clear();
-        if (geoFireNodes.size()==0) {
-
-            onFilterReadyListener.OnFilterReady();
-            return;
+    public void updateWeekFragmentWithData(int weekday) {
+        if (geoFireNodesLoaded) {
+            filterGeoFireNodesAndPopulateListAndMap(true, weekday);
         }
+    }
+
+    private void filterGeoFireNodesAndPopulateListAndMap(boolean updateSingleFragment, int weekday) {
+        Log.d("FILTERING", "STARTING FILTERING");
+        geoFireNodesFiltered.clear();
+        if (geoFireNodes.size()>0) {
+            for (String geoFireNodeKey: geoFireNodes.keySet()) {
+                boolean show = true;
+
+                // User has made an active choice
+                if (sessionTypeChosen.containsValue(true)) {
+                    if (!sessionTypeChosen.containsKey(CharBuffer.wrap(geoFireNodeKey, 53, 56).toString())) {
+                        show = false;
+                    } else {
+                        if (!sessionTypeChosen.get(CharBuffer.wrap(geoFireNodeKey, 53, 56).toString())) {
+                            show = false;
+                        }
+                    }
+                }
+
+                if (minPrice!=PRICES_INTEGERS_SE.get("Min") ||  maxPrice!=PRICES_INTEGERS_SE.get("Max")) {
+                    int price = Integer.parseInt(CharBuffer.wrap(geoFireNodeKey, 59, 63).toString());
+                    if (price < minPrice || price > maxPrice) {
+                        show = false;
+                    }
+                }
+
+                if (minHour!=minDefaultHour || minMinute!=minDefaultMinute || maxHour!=maxDefaultHour || maxMinute!= maxDefaultMinute) {
+                    DateTime adTime = new DateTime(Long.parseLong(CharBuffer.wrap(geoFireNodeKey, 0, 13).toString()));
+                    DateTime minTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), minHour, minMinute);
+                    DateTime maxTime = new DateTime(adTime.getYear(), adTime.getMonthOfYear(), adTime.getDayOfMonth(), maxHour, maxMinute);
+                    if (adTime.isBefore(minTime) || adTime.isAfter(maxTime)) {
+                        show = false;
+                    }
+                }
+
+                if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km")) {
+                    float distanceRadiusFloat = (float) distanceRadius;
+                    float test = getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation);
+                    if (getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation) > distanceRadiusFloat*1000) {
+                        show = false;
+                    }
+                }
+
+                if (show) {
+                    geoFireNodesFiltered.put(geoFireNodeKey, geoFireNodes.get(geoFireNodeKey));
+                }
+            }
+
+
+        }
+
+
+        // FILTERING DONE
+
+        Log.d("FILTERING", "FILTERING READY");
+        geoFireNodesKeys.clear();
+        geoFireNodesKeys = new ArrayList<>(geoFireNodesFiltered.keySet());
+        Collections.sort(geoFireNodesKeys);
+
+        if (updateSingleFragment) {
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
+            if (listSessionsFragment!=null) {
+                listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, weekday);
+            }
+        } else {
+            for (int x = 0; x < 14; x++) {
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                if (listSessionsFragment!=null) {
+                    listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
+                }
+            }
+        }
+
+
+
+        HashMap<String, GeoLocation> sessionLocations = new HashMap<>();
+
+        for (String geoFireNodeKey: geoFireNodesKeys) {
+            String sessionId = CharBuffer.wrap(geoFireNodeKey, 33, 53).toString();
+            sessionLocations.put(sessionId, geoFireNodesFiltered.get(geoFireNodeKey));
+        }
+
+        ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
+        if (exploreMapsFragment!=null) {
+            exploreMapsFragment.addMarkersToMap(sessionLocations);
+        }
+
+        return;
 
         // if filter
         /*if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km") || minPrice!=PRICES_INTEGERS_SE.get("Min") || maxPrice!=PRICES_INTEGERS_SE.get("Max") || minHour!=minDefaultHour || minMinute!=minDefaultMinute || maxHour!=maxDefaultHour || maxMinute!= maxDefaultMinute || sessionTypeChosen.containsValue(true)) {
