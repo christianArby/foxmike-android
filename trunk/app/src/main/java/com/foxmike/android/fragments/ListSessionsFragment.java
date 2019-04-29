@@ -46,13 +46,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
-import static com.foxmike.android.utils.Price.PRICES_INTEGERS_SE;
-import static com.foxmike.android.utils.StaticResources.maxDefaultHour;
-import static com.foxmike.android.utils.StaticResources.maxDefaultMinute;
-import static com.foxmike.android.utils.StaticResources.minDefaultHour;
-import static com.foxmike.android.utils.StaticResources.minDefaultMinute;
-
 /**
  * This fragment creates a list of sessions based on an arraylist of session objects given as arguments. It also
  * uses an location object in order to sort the sessions on distance from user
@@ -68,55 +61,25 @@ public class  ListSessionsFragment extends Fragment {
     private OnRefreshSessionsListener onRefreshSessionsListener;
     private SwipeRefreshLayout listSessionsSwipeRefreshLayout;
     private OnListSessionsScrollListener onListSessionsScrollListener;
-    //private TextView noSessionsFound;
-    private boolean sessionsLoaded;
-    private boolean locationLoaded;
-    private boolean sessionsAndLocationUsed;
-    private boolean swipeRefreshStatusLoaded;
-    private boolean swipeRefreshStatusUsed;
-    //private TextView noContent;
-    //private DotProgressBar progressBar;
-    private boolean loading = false;
-
     private View mainView;
-
-    private long lastKeyEnteredTime = 0;
-    private boolean firstKey = true;
     private ArrayList<AdvertisementIdsAndTimestamps> advertisementIdsAndTimestampsFilteredArrayList  = new ArrayList<>();
-    private ArrayList<String> sessionIdsFiltered  = new ArrayList<>();
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
     private HashMap<String, Advertisement> advertisementHashMap = new HashMap<>();
     private int loadedthisDay = 0;
     private int itemsToLoadPerDayEachTime = 20;
     private int totalAdsToLoadThisDay;
+    private HashMap<String, String> sessionTypeDictionary;
 
     private HashMap<GeoQuery, GeoQueryEventListener> geofireListeners = new HashMap<>();
-    private boolean allLoaded;
     private int weekday;
-    //private TextView dateHeaderTV;
-
-    private int minPrice = PRICES_INTEGERS_SE.get("Min");
-    private int maxPrice = PRICES_INTEGERS_SE.get("Max");
-    private int minHour = minDefaultHour;
-    private int minMinute = minDefaultMinute;
-    private int maxHour = maxDefaultHour;
-    private int maxMinute = maxDefaultMinute;
-    private int distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
-    private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
     ArrayList<String> geoFireNodesKeys = new ArrayList<>();
     private DotProgressBar firsLoadProgressBar;
 
     private boolean geoFireLoaded = false;
     private boolean firstLoad = true;
 
-
-
     //private TextView noContentWithLink;
-    private OnNextDayWithSessionsClickedListener onNextDayWithSessionsClickedListener;
     private ArrayList<String> geoFireNodesKeysFromThisDay = new ArrayList<>();
-    private boolean listenersAdded;
-
-
 
     // Index from which pagination should start (0 is 1st page in our case)
     private static final int PAGE_START = 1;
@@ -140,10 +103,11 @@ public class  ListSessionsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ListSessionsFragment newInstance(int weekday) {
+    public static ListSessionsFragment newInstance(int weekday, HashMap<String,String> sessionTypeDictionary) {
         ListSessionsFragment fragment = new ListSessionsFragment();
         Bundle args = new Bundle();
         args.putInt("weekday", weekday);
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -153,6 +117,7 @@ public class  ListSessionsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             this.weekday = getArguments().getInt("weekday");
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
     }
 
@@ -163,29 +128,22 @@ public class  ListSessionsFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_list_sessions, container, false);
         mSessionList = mainView.findViewById(R.id.session_list);
         listSessionsSwipeRefreshLayout = mainView.findViewById(R.id.session_list_swipe_layout);
-        //noContent = mainView.findViewById(R.id.noContent);
-        //noContentWithLink = mainView.findViewById(R.id.noContentWithLink);
-        //noSessionsFound = mainView.findViewById(R.id.noLocation);
         mSessionList.setHasFixedSize(true);
         mSessionList.setItemViewCacheSize(20);
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         mSessionList.setLayoutManager(linearLayoutManager);
         mSessionList.setItemAnimator(new DefaultItemAnimator());
-        sessionsAdapter = new ListSessionsAdapter(getActivity().getApplicationContext(), onSessionClickedListener, this.weekday);
+        sessionsAdapter = new ListSessionsAdapter(getActivity().getApplicationContext(), onSessionClickedListener, this.weekday, sessionTypeDictionary);
         HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
         mSessionList.addItemDecoration(headerItemDecoration);
         mSessionList.setAdapter(sessionsAdapter);
-        /*progressBar = mainView.findViewById(R.id.dotProgressBar);
-        dateHeaderTV = mainView.findViewById(R.id.listSessionsDateHeader);*/
 
         Long todayTimestamp = System.currentTimeMillis();
         Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
         String dateHeader = TextTimestamp.textSessionDate(dayTimestamp);
         firsLoadProgressBar = mainView.findViewById(R.id.firstLoadProgressBar);
-        //dateHeaderTV.setText(dateHeader);
 
         // Tell the parent activity when the list is scrolled (in order to hide FAB buttons)
-
         mSessionList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -216,7 +174,6 @@ public class  ListSessionsFragment extends Fragment {
             @Override
             public void onRefresh() {
                 onRefreshSessionsListener.OnRefreshSessions();
-
             }
         });
 
@@ -246,14 +203,6 @@ public class  ListSessionsFragment extends Fragment {
             }
         });
 
-
-        /*noContentWithLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onNextDayWithSessionsClickedListener.OnNextDayWithSessionsClicked(weekday);
-            }
-        });*/
-
         return mainView;
     }
 
@@ -261,13 +210,6 @@ public class  ListSessionsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         onFragmentAttachedNeedNewDataListener.OnFragmentAttachedNeedNewData(this.weekday);
-    }
-
-
-    /** Use sessionsAdapter to generate view mSessionList*/
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        //onAsyncTaskFinished();
     }
 
     @Override
@@ -278,8 +220,6 @@ public class  ListSessionsFragment extends Fragment {
                 geoQuery.removeAllListeners();
             }
         }
-        listenersAdded = false;
-        loading = false;
     }
 
     public void geoFireNodesUpdated(ArrayList<String> geoFireNodesKeys, Location currentLocation, Integer day) {
@@ -298,7 +238,6 @@ public class  ListSessionsFragment extends Fragment {
             thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
         }
 
-
         geoFireNodesKeysFromThisDay.clear();
 
         for (String nodeKey: geoFireNodesKeys) {
@@ -307,12 +246,10 @@ public class  ListSessionsFragment extends Fragment {
                 geoFireNodesKeysFromThisDay.add(nodeKey);
             }
         }
-
         // TODO CHECK THIS WITH ISADDED
         if (sessionsAdapter!=null) {
             sessionsAdapter.clear();
         }
-
         checkIfToLoadList();
     }
 
@@ -443,25 +380,8 @@ public class  ListSessionsFragment extends Fragment {
         }
     }
 
-    public void emptyListView() {
-        //noSessionsFound.setVisibility(View.VISIBLE);
-    }
-
     public void stopSwipeRefreshingSymbol() {
-        swipeRefreshStatusUsed = false;
-        swipeRefreshStatusLoaded = true;
         //onAsyncTaskFinished();
-    }
-
-    private float getDistance(double latitude, double longitude, Location currentLocation){
-
-        Location locationA = new Location("point A");
-        locationA.setLatitude(currentLocation.getLatitude());
-        locationA.setLongitude(currentLocation.getLongitude());
-        Location locationB = new Location("point B");
-        locationB.setLatitude(latitude);
-        locationB.setLongitude(longitude);
-        return  locationA.distanceTo(locationB);
     }
 
     @Override
@@ -485,12 +405,6 @@ public class  ListSessionsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListSessionsScrollListener");
         }
-        if (context instanceof OnNextDayWithSessionsClickedListener) {
-            onNextDayWithSessionsClickedListener = (OnNextDayWithSessionsClickedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnNextDayWithSessionsClickedListener");
-        }
         if (context instanceof OnDimCurrentDayListener) {
             onDimCurrentDayListener = (OnDimCurrentDayListener) context;
         } else {
@@ -511,7 +425,6 @@ public class  ListSessionsFragment extends Fragment {
         onSessionClickedListener = null;
         onRefreshSessionsListener = null;
         onListSessionsScrollListener = null;
-        onNextDayWithSessionsClickedListener = null;
         onDimCurrentDayListener = null;
         onFragmentAttachedNeedNewDataListener = null;
     }
@@ -522,14 +435,6 @@ public class  ListSessionsFragment extends Fragment {
 
     public interface OnListSessionsScrollListener {
         void OnListSessionsScroll(int state);
-    }
-
-    public interface OnFilterReadyListener {
-        void OnFilterReady();
-    }
-
-    public interface OnNextDayWithSessionsClickedListener {
-        void OnNextDayWithSessionsClicked(Integer currentDay);
     }
 
     public interface OnDimCurrentDayListener {

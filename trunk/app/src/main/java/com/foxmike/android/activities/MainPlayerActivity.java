@@ -79,6 +79,7 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 import io.reactivex.subjects.BehaviorSubject;
@@ -106,7 +107,6 @@ public class MainPlayerActivity extends AppCompatActivity
         NotificationsFragment.OnNotificationClickedListener,
         SortAndFilterFragment.OnFilterChangedListener,
         AlertOccasionCancelledListener,
-        ListSessionsFragment.OnNextDayWithSessionsClickedListener,
         ListSessionsFragment.OnDimCurrentDayListener, ListSessionsFragment.OnFragmentAttachedNeedNewDataListener{
 
     private FragmentManager fragmentManager;
@@ -136,6 +136,7 @@ public class MainPlayerActivity extends AppCompatActivity
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
     private int prevTab;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
@@ -186,88 +187,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
         /** Setup fragments */
 
-        ExploreFragment exploreFragment = new ExploreFragment();
-        bottomNavigationAdapter.addFragments(exploreFragment);
-
-        PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance();
-        bottomNavigationAdapter.addFragments(playerSessionsFragment);
-
-        InboxFragment inboxFragment = InboxFragment.newInstance();
-        bottomNavigationAdapter.addFragments(inboxFragment);
-
-        UserAccountFragment userAccountFragment = new UserAccountFragment();
-        bottomNavigationAdapter.addFragments(userAccountFragment);
-
-        mainPager.setAdapter(bottomNavigationAdapter);
-
-
-        /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
-        if (fromUserID!=null) {
-            Bundle fromUserbundle = new Bundle();
-            fromUserbundle.putString("otherUserID", fromUserID);
-            UserProfilePublicFragment userProfilePublicFragment = UserProfilePublicFragment.newInstance();
-            userProfilePublicFragment.setArguments(fromUserbundle);
-            cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
-        } else {
-            // Start normally
-        }
-
-        prevTab = 0;
-
-        /** Setup Bottom navigation */
-        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
-            @Override
-            public boolean onTabSelected(int position, boolean wasSelected) {
-                if (!wasSelected) {
-                    mainPager.setCurrentItem(position, false);
-                    if (position==0) {
-                        exploreFragment.OnRefreshSessions();
-                    }
-
-                    if (position==2) {
-                        bottomNavigation.setNotification("", 2);
-                    }
-                    if (position==2) {
-                        bottomNavigation.setNotification("", 2);
-                    }
-
-                    if (position!=2) {
-                        if (prevTab==2) {
-                            FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                        }
-                    }
-                }
-
-                prevTab = position;
-
-                return true;
-            }
-        });
-
-        // --------------------------  LISTEN TO CHATS -------------------------------------
-        // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
-
-        FirebaseDatabaseViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("userChats").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        liveData.observe(this, new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                unreadChats = 0;
-                if (dataSnapshot.hasChildren()) {
-                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
-                        Boolean read = (Boolean) chatID.getValue();
-                        if (!read) {
-                            unreadChats++;
-                        }
-                    }
-                }
-                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
-                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
-                } else {
-                    bottomNavigation.setNotification("",2);
-                }
-            }
-        });
+        sessionTypeDictionary = new HashMap<>();
 
         // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
         rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -311,9 +231,36 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        FirebaseDatabaseViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        // --------------------------  LISTEN TO CHATS -------------------------------------
+        // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
+
+        FirebaseDatabaseViewModel userChatsUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> liveData = userChatsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("userChats").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        liveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                unreadChats = 0;
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot chatID: dataSnapshot.getChildren()) {
+                        Boolean read = (Boolean) chatID.getValue();
+                        if (!read) {
+                            unreadChats++;
+                        }
+                    }
+                }
+                if ((unreadChats + unreadNotifications + unreadFriendRequests) >0) {
+                    bottomNavigation.setNotification(Integer.toString(unreadChats + unreadNotifications + unreadFriendRequests),2);
+                } else {
+                    bottomNavigation.setNotification("",2);
+                }
+            }
+        });
+
+
+
+        FirebaseDatabaseViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        unreadNotificationsliveData.observe(this, new Observer<DataSnapshot>() {
+        unreadNotificationsliveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 unreadNotifications = 0;
@@ -331,9 +278,9 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        FirebaseDatabaseViewModel firebaseDatabaseFriendRequestViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        FirebaseDatabaseViewModel firebaseDatabaseFriendRequestViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseFriendRequestLiveData = firebaseDatabaseFriendRequestViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("friend_requests").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        firebaseDatabaseFriendRequestLiveData.observe(this, new Observer<DataSnapshot>() {
+        firebaseDatabaseFriendRequestLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 unreadFriendRequests = 0;
@@ -352,43 +299,120 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
+        Locale current = getResources().getConfiguration().locale;
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()==null) {
-                    return;
-                }
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                    Long currentTimestamp = System.currentTimeMillis();
-                    Long reviewTimestamp = (Long)snapshot.getValue();
-                    if (reviewTimestamp<currentTimestamp) {
-                        presentReview(snapshot.getKey());
-                    } else {
-                        if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
-                            CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                @Override
-                                public void onTick(long l) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                sessionTypeDictionary = new HashMap<>();
+                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                    sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                }
+
+                ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary);
+                bottomNavigationAdapter.addFragments(exploreFragment);
+
+                PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance();
+                bottomNavigationAdapter.addFragments(playerSessionsFragment);
+
+                InboxFragment inboxFragment = InboxFragment.newInstance();
+                bottomNavigationAdapter.addFragments(inboxFragment);
+
+                UserAccountFragment userAccountFragment = new UserAccountFragment();
+                bottomNavigationAdapter.addFragments(userAccountFragment);
+
+                mainPager.setAdapter(bottomNavigationAdapter);
+
+                /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
+                if (fromUserID!=null) {
+                    Bundle fromUserbundle = new Bundle();
+                    fromUserbundle.putString("otherUserID", fromUserID);
+                    UserProfilePublicFragment userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+                    userProfilePublicFragment.setArguments(fromUserbundle);
+                    cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
+                } else {
+                    // Start normally
+                }
+
+                prevTab = 0;
+
+                /** Setup Bottom navigation */
+                bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+                    @Override
+                    public boolean onTabSelected(int position, boolean wasSelected) {
+                        if (!wasSelected) {
+                            mainPager.setCurrentItem(position, false);
+                            if (position==0) {
+                                exploreFragment.OnRefreshSessions();
+                            }
+
+                            if (position==2) {
+                                bottomNavigation.setNotification("", 2);
+                            }
+                            if (position==2) {
+                                bottomNavigation.setNotification("", 2);
+                            }
+
+                            if (position!=2) {
+                                if (prevTab==2) {
+                                    FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
                                 }
-                                @Override
-                                public void onFinish() {
-                                    presentReview(snapshot.getKey());
-                                    countDownTimerHashMap.remove(snapshot.getKey());
+                            }
+                        }
+
+                        prevTab = position;
+
+                        return true;
+                    }
+                });
+
+
+
+                FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
+                LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                reviewsToWriteLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+                    @Override
+                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue()==null) {
+                            return;
+                        }
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            Long currentTimestamp = System.currentTimeMillis();
+                            Long reviewTimestamp = (Long)snapshot.getValue();
+                            if (reviewTimestamp<currentTimestamp) {
+                                presentReview(snapshot.getKey());
+                            } else {
+                                if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                        @Override
+                                        public void onTick(long l) {
+
+                                        }
+                                        @Override
+                                        public void onFinish() {
+                                            presentReview(snapshot.getKey());
+                                            countDownTimerHashMap.remove(snapshot.getKey());
+                                        }
+                                    }.start();
+                                    countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
                                 }
-                            }.start();
-                            countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
+                            }
                         }
                     }
-                }
+                });
+
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
 
         // check if maintenance
-        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(this).get(MaintenanceViewModel.class);
+        MaintenanceViewModel maintenanceViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(MaintenanceViewModel.class);
         LiveData<DataSnapshot> maintenanceLiveData = maintenanceViewModel.getDataSnapshotLiveData();
-        maintenanceLiveData.observe(this, new Observer<DataSnapshot>() {
+        maintenanceLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
@@ -402,6 +426,11 @@ public class MainPlayerActivity extends AppCompatActivity
                 }
             }
         });
+
+
+
+
+
     }
 
     private void presentReview(String advertisementId) {
@@ -473,7 +502,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);
     }
 
@@ -483,7 +512,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
@@ -825,19 +854,19 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2());
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
@@ -936,18 +965,10 @@ public class MainPlayerActivity extends AppCompatActivity
 
                     @Override
                     public void OnNegativePressed() {
-                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId);
+                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
                         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
                     }
                 });
-    }
-
-    @Override
-    public void OnNextDayWithSessionsClicked(Integer currentDay) {
-        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        if (exploreFragment!=null) {
-            exploreFragment.navigateToNextDayWithSessions(currentDay);
-        }
     }
 
     @Override
