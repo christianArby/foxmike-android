@@ -238,6 +238,7 @@ public class SortAndFilterFragment extends DialogFragment {
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("16 km"), 30);
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("8 km"), 20);
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("3 km"), 10);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1 km"), 1);
 
         distanceSeekbar.setMaxValue(60).setSteps(10).setMinStartValue(seekbarDistanceValuesMap.get(mFilterDistance)).apply();
 

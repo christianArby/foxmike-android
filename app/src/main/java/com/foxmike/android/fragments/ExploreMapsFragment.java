@@ -121,6 +121,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
     private Map<MyItem, String> markers = new HashMap<>();
     private CustomMapClusterRenderer customMapClusterRenderer;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public Location getmLastKnownLocation() {
         return mLastKnownLocation;
@@ -130,9 +131,10 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         // Required empty public constructor
     }
 
-    public static ExploreMapsFragment newInstance() {
+    public static ExploreMapsFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         ExploreMapsFragment fragment = new ExploreMapsFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -141,7 +143,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
 
         locationCallback = new LocationCallback() {
@@ -375,15 +377,18 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
             @Override
             public boolean onClusterItemClick(MyItem myItem) {
-                Marker clickedMarker = customMapClusterRenderer.getMarker(myItem);
+                if (selectedMarker!=null) {
+                    selectedMarker.setIcon(defaultIcon);
+                }
+                selectedMarker = customMapClusterRenderer.getMarker(myItem);
                 String sessionId = markers.get(myItem);
                 FragmentManager fragmentManager = getChildFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.smallMapSessionFragmentContainer, SmallMapSessionFragment.newInstance(sessionId)).commit();
+                fragmentManager.beginTransaction().replace(R.id.smallMapSessionFragmentContainer, SmallMapSessionFragment.newInstance(sessionId, sessionTypeDictionary, mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude())).commit();
                 ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", 0);
                 animation.setDuration(500);
                 animation.start();
                 mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
-                clickedMarker.setIcon(selectedIcon);
+                selectedMarker.setIcon(selectedIcon);
                 return false;
             }
         });
@@ -441,6 +446,9 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+                if (selectedMarker!=null) {
+                    selectedMarker.setIcon(defaultIcon);
+                }
                 // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
                 ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", horizontalSessionHeight);
                 animation.setDuration(500);

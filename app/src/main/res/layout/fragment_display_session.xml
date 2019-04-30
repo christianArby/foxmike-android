@@ -240,7 +240,30 @@
 
     </android.support.v4.widget.NestedScrollView>
 
+    <FrameLayout
+        android:visibility="visible"
+        android:id="@+id/dotProgressBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/color_background_light"
+        android:layout_gravity="bottom">
+
+        <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+            android:visibility="visible"
+            android:id="@+id/progressBar"
+            android:layout_width="80dp"
+            android:layout_height="19dp"
+            app:amount="3"
+            app:duration="@android:integer/config_mediumAnimTime"
+            app:endColor="@color/foxmikePrimaryColor"
+            app:startColor="@color/foxmikePrimaryDarkColor"
+            app:animationDirection="left"
+            android:layout_gravity="center_horizontal|center_vertical"
+            />
+    </FrameLayout>
+
     <android.support.constraint.ConstraintLayout
+        android:visibility="invisible"
         android:id="@+id/snackBar"
         android:background="@color/color_background_light"
         android:layout_width="match_parent"

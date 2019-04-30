@@ -32,7 +32,7 @@
                 android:layout_width="80dp"
                 android:layout_height="19dp"
                 android:layout_gravity=""
-                app:amount="4"
+                app:amount="3"
                 app:duration="@android:integer/config_mediumAnimTime"
                 app:endColor="@color/foxmikePrimaryColor"
                 app:startColor="@color/foxmikePrimaryDarkColor"

@@ -344,7 +344,7 @@ public class MainPlayerActivity extends AppCompatActivity
                         if (!wasSelected) {
                             mainPager.setCurrentItem(position, false);
                             if (position==0) {
-                                exploreFragment.OnRefreshSessions();
+                                // Refresh sessions?
                             }
 
                             if (position==2) {
@@ -840,9 +840,9 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnRefreshSessions() {
+    public void OnRefreshSessions(int weekday) {
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-        exploreFragment.OnRefreshSessions();
+        exploreFragment.OnRefreshSessions(weekday);
     }
 
     @Override

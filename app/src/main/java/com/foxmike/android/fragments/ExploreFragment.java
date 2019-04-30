@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -145,6 +146,7 @@ public class ExploreFragment extends Fragment{
     private boolean fragmentsLoaded;
     private boolean geoFireNodesAndFragmentsUsed;
     private ArrayList<String> geoFireNodesKeys = new ArrayList<>();
+    private long mLastGeoFireQueryUpdated = 0;
 
     public HashMap<String, Boolean> getSessionTypeChosen() {
         return sessionTypeChosen;
@@ -349,7 +351,7 @@ public class ExploreFragment extends Fragment{
         exploreFragmentViewPager.setOffscreenPageLimit(4);
 
         if (fragmentManager.findFragmentByTag("ExploreMapsFragment")==null) {
-            fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(), "ExploreMapsFragment").commit();
+            fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(sessionTypeDictionary), "ExploreMapsFragment").commit();
         }
 
         geoFireNodesAndFragmentsUsed = false;
@@ -562,8 +564,17 @@ public class ExploreFragment extends Fragment{
     }
 
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
-    public void OnRefreshSessions() {
-        //setupListAndMapWithSessions();
+    public void OnRefreshSessions(int weekday) {
+
+        if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
+            if (listSessionsFragment!=null) {
+                listSessionsFragment.stopSwipeRefreshingSymbol();
+            }
+            return;
+        }
+        geoFireNodesLoaded = false;
+        checkIfGeoFireNodesAreLoaded();
     }
 
     /** INTERFACE triggered when list is scrolled setting behaviour of buttons */
@@ -772,14 +783,18 @@ public class ExploreFragment extends Fragment{
     }
 
     private void loadGeoFireNodes() {
+        geoFireNodesLoaded = true;
+
+        mLastGeoFireQueryUpdated = SystemClock.elapsedRealtime();
 
         geoFireNodes.clear();
         lastKeyEnteredTime = 0;
         firstKey = true;
         ArrayList<Task<?>> geoQueryTasks  = new ArrayList<>();
+        geoQueryTasks.clear();
 
         Long todayTimestamp = System.currentTimeMillis();
-        for (int weekday = 0; weekday < 13; weekday++) {
+        for (int weekday = 0; weekday < 14; weekday++) {
             TaskCompletionSource<Boolean> geoQuerySource = new TaskCompletionSource<>();
             Task geoQueryTask = geoQuerySource.getTask();
             geoQueryTasks.add(geoQueryTask);
@@ -794,7 +809,6 @@ public class ExploreFragment extends Fragment{
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
                     geoFireNodes.put(key, location);
-                    //Log.d("FOXMIKE_LOG", "KEYENTERED day is " + currentDay + " key is " + key);
                 }
 
                 @Override
@@ -810,8 +824,6 @@ public class ExploreFragment extends Fragment{
                 @Override
                 public void onGeoQueryReady() {
                     geoQuerySource.trySetResult(true);
-                    Log.d("NYTT_TEST", "GeoFire Query finished");
-
                 }
 
                 @Override
@@ -831,7 +843,6 @@ public class ExploreFragment extends Fragment{
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     geoFireNodesAndFragmentsUsed = false;
-                    geoFireNodesLoaded = true;
                     checkIfToLoadFragmentsWithData();
                 }
             }
@@ -846,7 +857,6 @@ public class ExploreFragment extends Fragment{
     }
 
     private void filterGeoFireNodesAndPopulateListAndMap(boolean updateSingleFragment, int weekday) {
-        Log.d("FILTERING", "STARTING FILTERING");
         geoFireNodesFiltered.clear();
         if (geoFireNodes.size()>0) {
             for (String geoFireNodeKey: geoFireNodes.keySet()) {
@@ -895,7 +905,6 @@ public class ExploreFragment extends Fragment{
 
         // FILTERING DONE
 
-        Log.d("FILTERING", "FILTERING READY");
         geoFireNodesKeys.clear();
         geoFireNodesKeys = new ArrayList<>(geoFireNodesFiltered.keySet());
         Collections.sort(geoFireNodesKeys);
