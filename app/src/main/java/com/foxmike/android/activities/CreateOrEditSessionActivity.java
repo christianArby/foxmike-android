@@ -177,9 +177,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private ArrayList<String> sessionTypeArray;
     private boolean sessionTypesLoaded;
     private boolean uiLoaded;
-    private EditText nrOfSessions;
-    private double plusLat;
-    private double plusLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,7 +226,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         adRecyclerView = createSession.findViewById(R.id.advertisementsRV);
         recyclerViewContainer = createSession.findViewById(R.id.recyclerViewContainer);
         addAdvertisement = createSession.findViewById(R.id.addAdvertisement);
-        nrOfSessions = createSession.findViewById(R.id.nrOfSessions);
 
         adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -407,8 +403,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 updateSessionObjectFromUI(new OnSessionUpdatedListener() {
                     @Override
                     public void OnSessionUpdated(final Map sessionMap) {
-
-                        payoutsEnabled = true;
 
                         if (!payoutsEnabled && (int) sessionMap.get("price")!=0) {
 
@@ -714,7 +708,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.toString().length()<1) {
+                if (editable.toString().length()<51) {
                     mWhatTIL.setError(getString(R.string.please_write_longer_session_description));
                     infoIsValid = false;
                 } else {
@@ -971,26 +965,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     /**Send session object to database */
     private void sendSession(Map sendSession) {
 
-        int nrOfSessionsInt = Integer.parseInt(nrOfSessions.getText().toString());
-        plusLat = 0.0002;
-        plusLong = 0.0002;
-        boolean hasBeenOdd = false;
-
-        // AUTOMATED CREATION
-        int x = 0;
-        String sessionName = (String) sendSession.get("sessionName");
-        while (x<nrOfSessionsInt) {
-            x++;
-            mSessionId = rootDbRef.child("sessions").push().getKey();
-            advertisements.clear();
-            sendSession.put("sessionName", sessionName + Integer.toString(x));
-            sendSession.put("sessionId", mSessionId);
-
-            ArrayList<String> writeReferences = new ArrayList<>();
-            // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
-            // Loop through the timestamps created by clicking and making events in the calendar
-            for (Advertisement advertisement: mAdvertisementArrayList) {
-                advertisement.setAdvertisementTimestamp(advertisement.getAdvertisementTimestamp() + x);
+        ArrayList<String> writeReferences = new ArrayList<>();
+        // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
+        // Loop through the timestamps created by clicking and making events in the calendar
+        for (Advertisement advertisement: mAdvertisementArrayList) {
+            if (advertisement.getSessionId()==null) {
                 // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
                 String advertisementKey = rootDbRef.child("advertisements").push().getKey();
 
@@ -998,7 +977,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 advertisement.setStatus("active");
                 advertisement.setSessionId((String) sendSession.get("sessionId"));
                 advertisement.setHost((String) sendSession.get("host"));
-                advertisement.setSessionId(mSessionId);
                 advertisement.setSessionName((String) sendSession.get("sessionName"));
                 advertisement.setImageUrl((String) sendSession.get("imageUrl"));
                 advertisement.setCurrency(accountCurrency);
@@ -1015,7 +993,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     }
                 });
                 // create geoFire reference
-                    /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
+                /* Create Geofire object in order to store latitude and longitude under in Geofire structure */
 
                 String geoFireDateNode = TextTimestamp.textSDF(advertisement.getAdvertisementTimestamp());
 
@@ -1026,7 +1004,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 String rating = "99";
 
                 String stringPrice = Integer.toString(advertisement.getPrice());
-
                 switch(stringPrice.length()) {
                     case 0:
                         break;
@@ -1053,41 +1030,18 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
                 String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + sessionType + currency + price + rating;
 
-                DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(String.valueOf(geoFireDateNode));
+                DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(geoFireDateNode);
                 geoFire = new GeoFire(mGeofireDbRef);
-
-
-
-                if ( (x & 1) == 0 ) {
-                    if (hasBeenOdd) {
-                        plusLat = -plusLat;
-                        hasBeenOdd = false;
-                    } else {
-                        hasBeenOdd = true;
-                    }
-
-                }
-                else {
-                    plusLong = -plusLong;
-
-                }
-
-
-
-                geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude") + (plusLat * x), (double)sendSession.get("longitude") + (plusLong * x)));
+                geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
             }
-            // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
-            rootDbRef.child("sessionAdvertisements").child(mSessionId).updateChildren(advertisements);
-            // Update the session (with 'updateChildren' so not all child nodes are overwritten)
-            rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
-            // Update user object with sessionsHosting
-            rootDbRef.child("sessionHosts").child(currentFirebaseUser.getUid()).child(mSessionId).setValue(true);
-
-
         }
+        // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
+        rootDbRef.child("sessionAdvertisements").child(mSessionId).updateChildren(advertisements);
+        // Update the session (with 'updateChildren' so not all child nodes are overwritten)
+        rootDbRef.child("sessions").child(mSessionId).updateChildren(sendSession);
+        // Update user object with sessionsHosting
+        rootDbRef.child("sessionHosts").child(currentFirebaseUser.getUid()).child(mSessionId).setValue(true);
         finish();
-
-
     }
 
     // Function retrieveStripeAccount
