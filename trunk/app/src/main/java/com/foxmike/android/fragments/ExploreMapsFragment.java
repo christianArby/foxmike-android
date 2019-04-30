@@ -120,6 +120,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private FrameLayout smallMapsSessionFragmentContainer;
 
     private Map<MyItem, String> markers = new HashMap<>();
+    private CustomMapClusterRenderer customMapClusterRenderer;
 
     public Location getmLastKnownLocation() {
         return mLastKnownLocation;
@@ -368,7 +369,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), mMap);
-        CustomMapClusterRenderer customMapClusterRenderer = new CustomMapClusterRenderer<>(getActivity().getApplicationContext(),mMap, mClusterManager);
+        customMapClusterRenderer = new CustomMapClusterRenderer<>(getActivity().getApplicationContext(),mMap, mClusterManager);
         mClusterManager.setRenderer(customMapClusterRenderer);
 
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
@@ -491,6 +492,8 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
 
                 }
             }
+
+            mClusterManager.cluster();
 
         }
 
