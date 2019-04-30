@@ -10,10 +10,12 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,9 +23,15 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.TextTimestamp;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.SessionViewModel;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,6 +52,16 @@ public class SmallMapSessionFragment extends Fragment {
     private TextView distanceTV;
     private ImageView sessionIV;
     private OnSessionClickedListener onSessionClickedListener;
+    private HashMap<String, String> sessionTypeDictionary;
+    private Session mSession;
+    private boolean nextSessionLoaded;
+    private boolean sessionLoaded;
+    private boolean uIupdated;
+    private Long nextSession;
+    private Double currentLatitude;
+    private Double currentLongitude;
+    private FrameLayout dotProgressBarContainer;
+    private ConstraintLayout content;
 
 
     public SmallMapSessionFragment() {
@@ -51,10 +69,13 @@ public class SmallMapSessionFragment extends Fragment {
     }
 
 
-    public static SmallMapSessionFragment newInstance(String sessionId) {
+    public static SmallMapSessionFragment newInstance(String sessionId, HashMap<String,String> sessionTypeDictionary, Double currentLatitude, Double currentLongitude) {
         SmallMapSessionFragment fragment = new SmallMapSessionFragment();
         Bundle args = new Bundle();
         args.putString(SESSIONID, sessionId);
+        args.putDouble("currentLatitude", currentLatitude);
+        args.putDouble("currentLongitude", currentLongitude);
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,6 +85,9 @@ public class SmallMapSessionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             sessionId = getArguments().getString(SESSIONID);
+            currentLatitude = getArguments().getDouble("currentLatitude");
+            currentLongitude = getArguments().getDouble("currentLongitude");
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
     }
 
@@ -79,6 +103,8 @@ public class SmallMapSessionFragment extends Fragment {
         sessionAddressTV = (TextView) mView.findViewById(R.id.text3);
         distanceTV = (TextView) mView.findViewById(R.id.text4);
         sessionIV = (ImageView) mView.findViewById(R.id.session_image);
+        dotProgressBarContainer = mView.findViewById(R.id.dotProgressBarContainer);
+        content = mView.findViewById(R.id.content);
 
         mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,16 +122,71 @@ public class SmallMapSessionFragment extends Fragment {
         SessionViewModel sessionViewModel = ViewModelProviders.of(this).get(SessionViewModel.class);
         LiveData<Session> sessionLiveData = sessionViewModel.getSessionLiveData(sessionId);
         sessionLiveData.observe(getViewLifecycleOwner(), new Observer<Session>() {
+
             @Override
             public void onChanged(@Nullable Session session) {
-                text0TV.setText(session.getSessionType());
-                sessionNameTV.setText(session.getSessionName());
-                sessionTypeAndDateTV.setText("Here goes filtered info");
-                sessionAddressTV.setText(getAddress(session.getLatitude(), session.getLongitude()));
-                distanceTV.setText(getDistance(session.getLatitude(), session.getLongitude()));
-                Glide.with(getActivity().getApplicationContext()).load(session.getImageUrl()).into(sessionIV);
+                mSession = session;
+                sessionLoaded = true;
+                uIupdated = false;
+                updateUI();
+
             }
         });
+
+        Long currentTimestamp = System.currentTimeMillis();
+        // Create query to get all the advertisement keys from the current mSession
+        Query keyQuery = FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(sessionId).orderByValue().startAt(currentTimestamp);
+
+        FirebaseDatabaseViewModel sessionsComingViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> sessionsComingLiveData = sessionsComingViewModel.getDataSnapshotLiveData(keyQuery);
+        sessionsComingLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                        nextSession = (Long) snapshot.getValue();
+                        break;
+                    }
+                } else {
+                    nextSession = 0L;
+                }
+                nextSessionLoaded = true;
+                uIupdated = false;
+                updateUI();
+            }
+        });
+
+
+
+
+
+    }
+
+    private void updateUI() {
+        if (!uIupdated && nextSessionLoaded && sessionLoaded) {
+            uIupdated = true;
+
+            if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
+                text0TV.setText(getResources().getString(R.string.unknown));
+            } else {
+                text0TV.setText(sessionTypeDictionary.get(mSession.getSessionType()));
+            }
+            sessionNameTV.setText(mSession.getSessionName());
+
+            if (!nextSession.equals(0L)) {
+                sessionTypeAndDateTV.setText(getResources().getString(R.string.next_session) + TextTimestamp.textSessionDateAndTime(nextSession));
+            } else {
+                sessionTypeAndDateTV.setText(getResources().getString(R.string.no_upcoming_sessions));
+            }
+
+            sessionAddressTV.setText(getAddress(mSession.getLatitude(), mSession.getLongitude()));
+            distanceTV.setText(" | " + getDistance(mSession.getLatitude(), mSession.getLongitude()));
+            Glide.with(getActivity().getApplicationContext()).load(mSession.getImageUrl()).into(sessionIV);
+
+            dotProgressBarContainer.setVisibility(View.GONE);
+            content.setVisibility(View.VISIBLE);
+
+        }
 
     }
 
@@ -157,40 +238,27 @@ public class SmallMapSessionFragment extends Fragment {
     /**Method get distance from current location to a certain point with latitude, longitude */
     private String getDistance(double latitude, double longitude){
         String distanceString;
-        ExploreMapsFragment exploreMapsFragment = ((ExploreMapsFragment) SmallMapSessionFragment.this.getParentFragment());
-        if (exploreMapsFragment!=null) {
-            Location currentLocation = exploreMapsFragment.getmLastKnownLocation();
 
 
-            if (currentLocation!=null) {
-                Location locationA = new Location("point A");
+        Location locationA = new Location("point A");
 
-                locationA.setLatitude(currentLocation.getLatitude());
-                locationA.setLongitude(currentLocation.getLongitude());
+        locationA.setLatitude(currentLatitude);
+        locationA.setLongitude(currentLongitude);
 
-                Location locationB = new Location("point B");
+        Location locationB = new Location("point B");
 
-                locationB.setLatitude(latitude);
-                locationB.setLongitude(longitude);
+        locationB.setLatitude(latitude);
+        locationB.setLongitude(longitude);
 
-                float distance = locationA.distanceTo(locationB);
+        float distance = locationA.distanceTo(locationB);
 
-                float b = (float)Math.round(distance);
-                distanceString = Float.toString(b).replaceAll("\\.?0*$", "") + " m";
+        float b = (float)Math.round(distance);
+        distanceString = Float.toString(b).replaceAll("\\.?0*$", "") + " m";
 
-                if (b>1000) {
-                    b=b/1000;
-                    distanceString = String.format("%.1f", b) + " km";
-                }
-            } else {
-                distanceString = "";
-            }
-        } else {
-            distanceString = "";
+        if (b>1000) {
+            b=b/1000;
+            distanceString = String.format("%.1f", b) + " km";
         }
-
-
-
 
         return  distanceString;
     }

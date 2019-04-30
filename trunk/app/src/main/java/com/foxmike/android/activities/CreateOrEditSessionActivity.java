@@ -178,6 +178,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private boolean sessionTypesLoaded;
     private boolean uiLoaded;
     private EditText nrOfSessions;
+    private double plusLat;
+    private double plusLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -970,6 +972,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void sendSession(Map sendSession) {
 
         int nrOfSessionsInt = Integer.parseInt(nrOfSessions.getText().toString());
+        plusLat = 0.0002;
+        plusLong = 0.0002;
+        boolean hasBeenOdd = false;
 
         // AUTOMATED CREATION
         int x = 0;
@@ -977,6 +982,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         while (x<nrOfSessionsInt) {
             x++;
             mSessionId = rootDbRef.child("sessions").push().getKey();
+            advertisements.clear();
             sendSession.put("sessionName", sessionName + Integer.toString(x));
             sendSession.put("sessionId", mSessionId);
 
@@ -1049,7 +1055,26 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
                 DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(String.valueOf(geoFireDateNode));
                 geoFire = new GeoFire(mGeofireDbRef);
-                geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
+
+
+
+                if ( (x & 1) == 0 ) {
+                    if (hasBeenOdd) {
+                        plusLat = -plusLat;
+                        hasBeenOdd = false;
+                    } else {
+                        hasBeenOdd = true;
+                    }
+
+                }
+                else {
+                    plusLong = -plusLong;
+
+                }
+
+
+
+                geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude") + (plusLat * x), (double)sendSession.get("longitude") + (plusLong * x)));
             }
             // Save the hashmap of ad Ids and timestamps under sessionAdvertisements
             rootDbRef.child("sessionAdvertisements").child(mSessionId).updateChildren(advertisements);

@@ -173,7 +173,7 @@ public class  ListSessionsFragment extends Fragment {
         listSessionsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                onRefreshSessionsListener.OnRefreshSessions();
+                onRefreshSessionsListener.OnRefreshSessions(weekday);
             }
         });
 
@@ -224,6 +224,8 @@ public class  ListSessionsFragment extends Fragment {
 
     public void geoFireNodesUpdated(ArrayList<String> geoFireNodesKeys, Location currentLocation, Integer day) {
 
+        listSessionsSwipeRefreshLayout.setRefreshing(false);
+
         this.currentLocation = currentLocation;
         this.geoFireNodesKeys = geoFireNodesKeys;
 
@@ -263,6 +265,7 @@ public class  ListSessionsFragment extends Fragment {
             totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
             TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
             firstLoad = true;
+            isLoading = true;
             loadPage();
         }
 
@@ -274,11 +277,14 @@ public class  ListSessionsFragment extends Fragment {
     private void loadPage() {
         ArrayList<Task<?>> sessionAdvertisementFirstLoadTasks  = new ArrayList<>();
         sessionAdvertisementFirstLoadTasks.clear();
+        advertisementIdsAndTimestampsFilteredArrayList.clear();
         while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
-            advertisementIdsAndTimestampsFilteredArrayList.clear();
 
+            Long timestamp = Long.parseLong(CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 0, 13).toString());
             String adId = CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 13, 33).toString();
             String sessionId = CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 33, 53).toString();
+
+            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(adId, timestamp));
 
             TaskCompletionSource<Boolean> sessionSource = new TaskCompletionSource<>();
             Task sessionTask = sessionSource.getTask();
@@ -311,7 +317,6 @@ public class  ListSessionsFragment extends Fragment {
                         Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
                         if (!advertisement.getStatus().equals("cancelled")) {
                             advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
-                            advertisementIdsAndTimestampsFilteredArrayList.add(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class).getAdvertisementTimestamp()));
                         }
                     }
                     adSource.trySetResult(true);
@@ -345,8 +350,10 @@ public class  ListSessionsFragment extends Fragment {
                         // IF MORE THAN ONE PAGE AND THIS IS FIRST PAGE
                         if (firstLoad) {
                             stopSwipeRefreshingSymbol();
+
                             firsLoadProgressBar.setVisibility(View.GONE);
                             sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
+                            isLoading = false;
 
                             if (currentPage <= TOTAL_PAGES) sessionsAdapter.addLoadingFooter();
                             else isLastPage = true;
@@ -384,7 +391,7 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public void stopSwipeRefreshingSymbol() {
-        //onAsyncTaskFinished();
+        listSessionsSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -433,7 +440,7 @@ public class  ListSessionsFragment extends Fragment {
     }
 
     public interface OnRefreshSessionsListener {
-        void OnRefreshSessions();
+        void OnRefreshSessions(int weekday);
     }
 
     public interface OnListSessionsScrollListener {

@@ -233,6 +233,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private String foxmikeUid;
     private AppCompatTextView whatHeadingTW;
     private HashMap<String, String> sessionTypeDictionary;
+    private FrameLayout dotProgressBarContainer;
+    private ConstraintLayout snackBar;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -724,6 +726,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         ratingText = view.findViewById(R.id.ratingsAndReviewsText);
         ratingContainer = view.findViewById(R.id.reviewContainer);
         newFlag = view.findViewById(R.id.newFlag);
+        dotProgressBarContainer = view.findViewById(R.id.dotProgressBarContainer);
+        snackBar = view.findViewById(R.id.snackBar);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -1064,6 +1068,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
         if (getView()!=null && paymentMethodLoaded && adSelectedReady && !paymentMethodAdSelectedAndViewUsed) {
             paymentMethodAdSelectedAndViewUsed = true;
+
+            dotProgressBarContainer.setVisibility(View.GONE);
+            snackBar.setVisibility(View.VISIBLE);
+
+
             // When view has been loaded, payment source has been checked and which ad has been selected in the ad list has been saved in the variable adSelected the following
             // method will run which updates all the views in the snackbar (if it hasn't already been executed with the current variables)
             // if adSelected is null snackbar will show the text no upcoming ads and when the text is clicked it will scroll the view down to the list

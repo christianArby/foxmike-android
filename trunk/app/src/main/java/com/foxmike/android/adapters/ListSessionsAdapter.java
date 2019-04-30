@@ -21,7 +21,6 @@ import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.AdvertisementIdsAndTimestamps;
 import com.foxmike.android.utils.HeaderItemDecoration;
 import com.foxmike.android.utils.TextTimestamp;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.joda.time.DateTime;
 
@@ -126,7 +125,6 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 Session session = sessionHashMap.get(advertisement.getSessionId());
 
                 /**Fill the cardview with information of the session" */
-                final LatLng sessionLatLng = new LatLng(session.getLatitude(), session.getLongitude());
                 String addressName = getAddress(session.getLatitude(),session.getLongitude());
                 if (addressName.length()>40) {
                     addressName = addressName.substring(0,40)+ "...";
