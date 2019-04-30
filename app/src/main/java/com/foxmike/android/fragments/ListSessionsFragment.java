@@ -352,11 +352,14 @@ public class  ListSessionsFragment extends Fragment {
                             else isLastPage = true;
                         } else {
                             // ALL NEXT PAGES
-                            sessionsAdapter.removeLoadingFooter();  // 2
-                            isLoading = false;   // 3
-                            sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);   // 4
-                            if (currentPage != TOTAL_PAGES) sessionsAdapter.addLoadingFooter();  // 5
-                            else isLastPage = true;
+                            if (sessionsAdapter.getItemCount()>0) {
+                                sessionsAdapter.removeLoadingFooter();  // 2
+                                isLoading = false;   // 3
+                                sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);   // 4
+                                if (currentPage != TOTAL_PAGES) sessionsAdapter.addLoadingFooter();  // 5
+                                else isLastPage = true;
+                            }
+
                         }
                     }
                     firstLoad = false;

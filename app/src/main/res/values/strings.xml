@@ -570,6 +570,6 @@
     <string name="foxmike_tip">Foxmike tip!</string>
     <string name="foxmike_tip_text">Tip on free session, see more info below.</string>
     <string name="information">Information</string>
-    <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day, showing nearest day with sessions below.</string>
+    <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>
     <string name="unknown">Unknown</string>
 </resources>
