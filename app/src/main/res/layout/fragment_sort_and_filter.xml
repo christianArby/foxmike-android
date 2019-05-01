@@ -1,10 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/edit_name"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@color/color_background_dark"
+    android:background="@drawable/dialog_rounded_bg"
     android:orientation="vertical">
 
     <android.support.v4.widget.NestedScrollView
@@ -22,8 +22,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:background="@color/color_background_dark"
-                android:paddingTop="@dimen/margin_minimum"
-                android:paddingEnd="@dimen/margin_minimum"
+                android:layout_marginTop="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_left"
                 android:src="@drawable/ic_close_black_24dp" />
 
             <TextView
@@ -39,8 +39,8 @@
                 android:id="@+id/sessionTypeProgress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
                 android:background="@drawable/round_corners"
                 android:orientation="vertical">
@@ -78,8 +78,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
                 android:background="@drawable/round_corners"
                 android:orientation="vertical">
@@ -105,8 +105,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
                 android:background="@drawable/round_corners"
                 android:orientation="horizontal">
@@ -145,8 +145,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
                 android:background="@drawable/round_corners"
                 android:orientation="vertical">
@@ -203,18 +203,20 @@
 
             <TextView
                 android:id="@+id/filterText"
-                android:layout_width="wrap_content"
+                android:layout_width="290dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginEnd="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
                 android:text="@string/filter_on_distance_text"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_minimum"
-                android:layout_marginStart="@dimen/margin_minimum"
+                android:layout_marginEnd="@dimen/margin_left"
+                android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
+                android:layout_marginBottom="@dimen/margin_left"
                 android:background="@drawable/round_corners"
                 android:orientation="vertical">
 
