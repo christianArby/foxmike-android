@@ -85,7 +85,7 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
         android:padding="4dp"
         android:textAllCaps="true"
-        android:text="NEW"
+        android:text="@string/new_text"
         android:textStyle="bold"
         android:textColor="@color/primaryTextColor"
         android:layout_marginTop="@dimen/marginVertical"

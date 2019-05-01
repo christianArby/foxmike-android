@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,10 +20,16 @@ import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.SmallAdvertisementViewHolder;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 
 public class HostListSmallAdvertisementsFragment extends Fragment {
 
@@ -37,15 +44,18 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     private TextView noContent;
     private TextView upcomingHeading;
     private TextView pastHeading;
+    private HashMap<String, String> sessionTypeDictionary;
+    private DotProgressBar loading;
 
 
     public HostListSmallAdvertisementsFragment() {
         // Required empty public constructor
     }
 
-    public static HostListSmallAdvertisementsFragment newInstance() {
+    public static HostListSmallAdvertisementsFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         HostListSmallAdvertisementsFragment fragment = new HostListSmallAdvertisementsFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,6 +64,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
         //initData();
 
@@ -66,7 +77,22 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
+
+        futureAdsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
 
         comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -82,11 +108,26 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
             }
         });
 
-        Query pastAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp);
+        Query pastAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp).limitToLast(100);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
+
+        pastAdsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
 
         pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -104,6 +145,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     }
 
     private void updateHeadings() {
+        loading.setVisibility(View.GONE);
         if (comingFirebaseAdvertisementsAdapter.getItemCount()>0) {
             noContent.setVisibility(View.GONE);
             upcomingHeading.setVisibility(View.VISIBLE);
@@ -156,6 +198,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
 
 
         noContent = view.findViewById(R.id.noContent);
+        loading = view.findViewById(R.id.firstLoadProgressBar);
         return view;
     }
 

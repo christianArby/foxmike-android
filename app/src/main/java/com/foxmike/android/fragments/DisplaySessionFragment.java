@@ -114,7 +114,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private ConstraintLayout sessionImageCardView;
-    private TextView mDuration;
     private TextView mDisplaySessionBtn;
     private CircleImageView mHostImage;
     private CircleImageView mCurrentUserPostImage;
@@ -235,6 +234,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private HashMap<String, String> sessionTypeDictionary;
     private FrameLayout dotProgressBarContainer;
     private ConstraintLayout snackBar;
+    private ImageView shareIcon;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -550,7 +550,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // set the text of each row in the list of advertisements
                 int maxParticipants = model.getMaxParticipants();
                 holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
-                holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()));
+
+
+                Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
+
+                holder.advertisementRowDateAndTimeText.setText(TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp()) + "-" + TextTimestamp.textTime(endTimestamp));
                 // set the click listener on each row
                 holder.setAdvertisementRowClickedListener(new AdvertisementRowClickedListener() {
                     @Override
@@ -674,7 +678,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         displaySessionContainer = view.findViewById(R.id.display_session_container);
         displaySession = inflater.inflate(R.layout.display_session,displaySessionContainer,false);
 
-        mDuration = view.findViewById(R.id.durationTV);
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
         mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
@@ -728,6 +731,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         newFlag = view.findViewById(R.id.newFlag);
         dotProgressBarContainer = view.findViewById(R.id.dotProgressBarContainer);
         snackBar = view.findViewById(R.id.snackBar);
+        shareIcon = view.findViewById(R.id.shareIcon);
+
+        shareIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Spana in foxmikeappen: https://foxmike.alpa.online/");
+                sendIntent.setType("text/plain");
+                startActivity(Intent.createChooser(sendIntent, "Dela"));
+            }
+        });
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -775,8 +790,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (Math.abs(verticalOffset)>Math.abs(appBarLayout.getTotalScrollRange()/2)) {
                     toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.primaryTextColor), PorterDuff.Mode.SRC_ATOP);
+                    shareIcon.setColorFilter(getResources().getColor(R.color.primaryTextColor), PorterDuff.Mode.SRC_ATOP);
                 } else {
                     toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.secondaryTextColor), PorterDuff.Mode.SRC_ATOP);
+                    shareIcon.setColorFilter(getResources().getColor(R.color.secondaryTextColor), PorterDuff.Mode.SRC_ATOP);
                 }
             }
         };
@@ -1026,7 +1043,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 mSessionType.setText(sessionTypeDictionary.get(mSession.getSessionType()));
             }
 
-            mDuration.setText(mSession.getDurationInMin() + getString(R.string.minutes_append));
             ratingBar.setRating(mSession.getRating());
             String ratingTextFormatted = String.format("%.1f", mSession.getRating());
             if (mSession.getNrOfRatings()==0) {

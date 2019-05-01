@@ -37,18 +37,20 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
     private OnSessionClickedListener onSessionClickedListener;
     private long mLastClickTime = 0;
     private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap = new HashMap<>();
+    private HashMap<String, String> sessionTypeDictionary;
   
     
-    public ListSmallSessionsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<Session> options, Context context, OnSessionClickedListener onSessionClickedListener) {
+    public ListSmallSessionsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<Session> options, Context context, HashMap<String,String> sessionTypeDictionary, OnSessionClickedListener onSessionClickedListener) {
         super(options);
         this.context = context;
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull ListSmallSessionsViewHolder holder, int position, @NonNull Session model) {
         holder.setSessionImage(model.getImageUrl(), context);
-        holder.setText0(model.getSessionType());
+        holder.setText0(sessionTypeDictionary.get(model.getSessionType()));
         holder.setText1(model.getSessionName());
         String address = getAddress(model.getLatitude(),model.getLongitude());
         holder.setText3(address);

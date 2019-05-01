@@ -131,7 +131,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private long mLastClickTime = 0;
 
 
-    private HashMap<String, CountDownTimer> countDownTimerHashMap = new HashMap<>();
+    private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
@@ -313,7 +313,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary);
                 bottomNavigationAdapter.addFragments(exploreFragment);
 
-                PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance();
+                PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance(sessionTypeDictionary);
                 bottomNavigationAdapter.addFragments(playerSessionsFragment);
 
                 InboxFragment inboxFragment = InboxFragment.newInstance();
@@ -378,12 +378,17 @@ public class MainPlayerActivity extends AppCompatActivity
                             return;
                         }
                         for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            if (snapshot.getValue()==null) {
+                                return;
+                            }
                             Long currentTimestamp = System.currentTimeMillis();
                             Long reviewTimestamp = (Long)snapshot.getValue();
                             if (reviewTimestamp<currentTimestamp) {
                                 presentReview(snapshot.getKey());
                             } else {
-                                if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
+                                if (!countDownTimerHashMap.containsValue(snapshot.getKey())) {
+
+
                                     CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
                                         @Override
                                         public void onTick(long l) {
@@ -391,11 +396,11 @@ public class MainPlayerActivity extends AppCompatActivity
                                         }
                                         @Override
                                         public void onFinish() {
-                                            presentReview(snapshot.getKey());
-                                            countDownTimerHashMap.remove(snapshot.getKey());
+                                            presentReview(countDownTimerHashMap.get(this));
+                                            countDownTimerHashMap.remove(this);
                                         }
                                     }.start();
-                                    countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
+                                    countDownTimerHashMap.put(reviewPending,snapshot.getKey());
                                 }
                             }
                         }
@@ -771,7 +776,7 @@ public class MainPlayerActivity extends AppCompatActivity
             startActivity(welcomeIntent);
             finish();
         }
-        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.keySet()) {
             countDownTimer.start();
         }
     }
@@ -779,7 +784,7 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.keySet()) {
             countDownTimer.cancel();
         }
 

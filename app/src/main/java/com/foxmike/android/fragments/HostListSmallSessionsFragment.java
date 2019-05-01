@@ -2,6 +2,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,10 +17,16 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsFirebaseAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 
 public class HostListSmallSessionsFragment extends Fragment {
 
@@ -29,15 +36,18 @@ public class HostListSmallSessionsFragment extends Fragment {
     private RecyclerView smallSessionsListRV;
     private ListSmallSessionsFirebaseAdapter listSmallSessionsFirebaseAdapter;
     private TextView noContent;
+    private HashMap<String, String> sessionTypeDictionary;
+    private DotProgressBar loading;
 
 
     public HostListSmallSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static HostListSmallSessionsFragment newInstance() {
+    public static HostListSmallSessionsFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         HostListSmallSessionsFragment fragment = new HostListSmallSessionsFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,6 +56,7 @@ public class HostListSmallSessionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
 
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -56,11 +67,28 @@ public class HostListSmallSessionsFragment extends Fragment {
         FirebaseRecyclerOptions<Session> sessionsOptions = new FirebaseRecyclerOptions.Builder<Session>()
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
-        listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getActivity().getApplicationContext(), onSessionClickedListener);
+
+        sessionsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getActivity().getApplicationContext(), sessionTypeDictionary, onSessionClickedListener);
         listSmallSessionsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (listSmallSessionsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -71,6 +99,7 @@ public class HostListSmallSessionsFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (listSmallSessionsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -102,6 +131,7 @@ public class HostListSmallSessionsFragment extends Fragment {
         smallSessionsListRV.setAdapter(listSmallSessionsFirebaseAdapter);
         ((SimpleItemAnimator) smallSessionsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         noContent = view.findViewById(R.id.noContent);
+        loading = view.findViewById(R.id.firstLoadProgressBar);
         return view;
     }
 

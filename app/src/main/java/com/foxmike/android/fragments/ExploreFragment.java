@@ -891,6 +891,7 @@ public class ExploreFragment extends Fragment{
 
                 if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km")) {
                     float distanceRadiusFloat = (float) distanceRadius;
+                    float test = getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation);
                     if (getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation) > distanceRadiusFloat*1000) {
                         show = false;
                     }

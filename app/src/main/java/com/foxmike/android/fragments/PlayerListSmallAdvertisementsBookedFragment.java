@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,10 +19,16 @@ import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 
 public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
 
@@ -30,16 +37,19 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
     private OnSessionClickedListener onSessionClickedListener;
     private RecyclerView smallAdvertisementsListRV;
     private TextView noContent;
+    private DotProgressBar loading;
     private ListSmallAdvertisementsFirebaseAdapter bookedAdvertisementsFirebaseAdapter;
     private AlertOccasionCancelledListener alertOccasionCancelledListener;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public PlayerListSmallAdvertisementsBookedFragment() {
         // Required empty public constructor
     }
 
-    public static PlayerListSmallAdvertisementsBookedFragment newInstance() {
+    public static PlayerListSmallAdvertisementsBookedFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         PlayerListSmallAdvertisementsBookedFragment fragment = new PlayerListSmallAdvertisementsBookedFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -48,6 +58,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
         //initData();
 
@@ -60,12 +71,28 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
+
+        futureAdsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary, onSessionClickedListener);
 
         bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (bookedAdvertisementsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -76,6 +103,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (bookedAdvertisementsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -108,6 +136,7 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         ((SimpleItemAnimator) smallAdvertisementsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         smallAdvertisementsListRV.setAdapter(bookedAdvertisementsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
+        loading = view.findViewById(R.id.firstLoadProgressBar);
         return view;
     }
 

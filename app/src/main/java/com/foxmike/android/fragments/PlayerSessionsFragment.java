@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
+
+import java.util.HashMap;
+
 /**
  * This fragment lists all the sessions the current user has attended
  */
@@ -21,14 +24,16 @@ public class PlayerSessionsFragment extends Fragment {
     private ViewPager playerSessionsPager;
     private SmallSessionsPagerAdapter playerSessionsPagerAdapter;
     private TabLayout tabLayout;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public PlayerSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static PlayerSessionsFragment newInstance() {
+    public static PlayerSessionsFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         PlayerSessionsFragment fragment = new PlayerSessionsFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -37,6 +42,7 @@ public class PlayerSessionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
     }
 
@@ -48,7 +54,7 @@ public class PlayerSessionsFragment extends Fragment {
         playerSessionsPager = (ViewPager) view.findViewById(R.id.player_sessions_pager);
         tabLayout = (TabLayout) view.findViewById(R.id.player_sessions_tabs);
 
-        playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), false, getString(R.string.booked_text), getString(R.string.booked_history_text));
+        playerSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), false, getString(R.string.booked_text), getString(R.string.booked_history_text), sessionTypeDictionary);
         playerSessionsPager.setAdapter(playerSessionsPagerAdapter);
         tabLayout.setupWithViewPager(playerSessionsPager);
 

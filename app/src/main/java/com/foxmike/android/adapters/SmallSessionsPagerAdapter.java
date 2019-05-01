@@ -9,6 +9,8 @@ import com.foxmike.android.fragments.HostListSmallSessionsFragment;
 import com.foxmike.android.fragments.PlayerListSmallAdvertisementsBookedFragment;
 import com.foxmike.android.fragments.PlayerListSmallAdvertisementsHistoryFragment;
 
+import java.util.HashMap;
+
 /**
  * This adapter takes two arraylists of sessions and creates two fragments of ListSmallSessionsFragment and populates a viewpager with these two fragments
  */
@@ -18,12 +20,14 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
     private boolean trainerMode;
     private String headerOne;
     private String headerTwo;
+    private HashMap<String, String> sessionTypeDictionary;
 
-    public SmallSessionsPagerAdapter(FragmentManager fm, boolean trainerMode, String headerOne, String headerTwo) {
+    public SmallSessionsPagerAdapter(FragmentManager fm, boolean trainerMode, String headerOne, String headerTwo, HashMap<String,String> sessionTypeDictionary) {
         super(fm);
         this.trainerMode = trainerMode;
         this.headerOne = headerOne;
         this.headerTwo = headerTwo;
+        this.sessionTypeDictionary = sessionTypeDictionary;
     }
 
     @Override
@@ -31,17 +35,17 @@ public class SmallSessionsPagerAdapter extends FragmentStatePagerAdapter {
         Fragment fragment = null;
         if (trainerMode) {
             if (position == 0) {
-                fragment = HostListSmallSessionsFragment.newInstance();
+                fragment = HostListSmallSessionsFragment.newInstance(sessionTypeDictionary);
             }
             if (position == 1) {
-                fragment = HostListSmallAdvertisementsFragment.newInstance();
+                fragment = HostListSmallAdvertisementsFragment.newInstance(sessionTypeDictionary);
             }
         } else {
             if (position == 0) {
-                fragment = PlayerListSmallAdvertisementsBookedFragment.newInstance();
+                fragment = PlayerListSmallAdvertisementsBookedFragment.newInstance(sessionTypeDictionary);
             }
             if (position == 1) {
-                fragment = PlayerListSmallAdvertisementsHistoryFragment.newInstance();
+                fragment = PlayerListSmallAdvertisementsHistoryFragment.newInstance(sessionTypeDictionary);
             }
         }
         return fragment;
