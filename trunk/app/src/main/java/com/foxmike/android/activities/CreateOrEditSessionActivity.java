@@ -868,7 +868,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         sessionMap.put("who", mWho.getText().toString());
         sessionMap.put("whereAt", mWhere.getText().toString());
         sessionMap.put("maxParticipants", maxParticipants);
-        sessionMap.put("address", address);
         sessionMap.put("durationInMin", duration);
         sessionMap.put("maxParticipants", maxParticipants);
         if (payoutsEnabled) {
@@ -883,6 +882,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         sessionMap.put("latitude", clickedLatLng.latitude);
         sessionMap.put("host", currentFirebaseUser.getUid());
         sessionMap.put("stripeAccountId", stripeAccountId);
+        sessionMap.put("address", mLocation.getText().toString());
 
         if (TextUtils.isEmpty(mSessionName.getText().toString())) {
             mSessionNameTIL.setError(getString(R.string.please_choose_session_name));
