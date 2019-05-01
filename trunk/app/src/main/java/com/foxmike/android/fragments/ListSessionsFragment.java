@@ -45,6 +45,7 @@ import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * This fragment creates a list of sessions based on an arraylist of session objects given as arguments. It also
@@ -315,9 +316,10 @@ public class  ListSessionsFragment extends Fragment {
                 public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()!=null) {
                         Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                        if (!advertisement.getStatus().equals("cancelled")) {
-                            advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                        if (advertisement.getStatus().equals("cancelled")) {
+                            notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(advertisement.getAdvertisementId(), advertisement.getAdvertisementTimestamp()));
                         }
+                        advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
                     }
                     adSource.trySetResult(true);
                 }
@@ -338,6 +340,16 @@ public class  ListSessionsFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Collections.sort(advertisementIdsAndTimestampsFilteredArrayList);
+
+                    // Remove cancelled sessions
+                    Iterator<AdvertisementIdsAndTimestamps> i = advertisementIdsAndTimestampsFilteredArrayList.iterator();
+                    while (i.hasNext()) {
+                        AdvertisementIdsAndTimestamps ad = i.next();
+                        if (advertisementHashMap.get(ad.getAdvertisementId()).getStatus().equals("cancelled")) {
+                            i.remove();
+                        }
+                    }
+
 
                     if (currentPage==PAGE_START && PAGE_START==TOTAL_PAGES) {
                         // IF ONLY ONE PAGE
