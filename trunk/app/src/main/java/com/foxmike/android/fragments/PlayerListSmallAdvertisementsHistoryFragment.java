@@ -3,6 +3,7 @@ package com.foxmike.android.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,10 +19,16 @@ import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 
 public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
 
@@ -32,14 +39,17 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
     private TextView noContent;
     private ListSmallAdvertisementsFirebaseAdapter pastAdvertisementsFirebaseAdapter;
     private AlertOccasionCancelledListener alertOccasionCancelledListener;
+    private HashMap<String, String> sessionTypeDictionary;
+    private DotProgressBar loading;
 
     public PlayerListSmallAdvertisementsHistoryFragment() {
         // Required empty public constructor
     }
 
-    public static PlayerListSmallAdvertisementsHistoryFragment newInstance() {
+    public static PlayerListSmallAdvertisementsHistoryFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         PlayerListSmallAdvertisementsHistoryFragment fragment = new PlayerListSmallAdvertisementsHistoryFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -48,6 +58,7 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
         //initData();
         Long currentTimestamp = System.currentTimeMillis();
@@ -55,16 +66,33 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
 
-        Query pastAdsQuery = rootDbRef.child("advertisementAttendees").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp);
+        Query pastAdsQuery = rootDbRef.child("advertisementAttendees").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp).limitToLast(100);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
-        pastAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, onSessionClickedListener);
+
+        pastAdsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        pastAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary, onSessionClickedListener);
 
         pastAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (pastAdvertisementsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -75,6 +103,7 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (pastAdvertisementsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -103,10 +132,14 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
         // Inflate the layout for this fragment and setup recylerview and adapter
         View view = inflater.inflate(R.layout.fragment_player_list_small_advertisements_history, container, false);
         smallAdvertisementsListRV = (RecyclerView) view.findViewById(R.id.small_advertisement_list_RV);
-        smallAdvertisementsListRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
+        smallAdvertisementsListRV.setLayoutManager(linearLayoutManager);
         ((SimpleItemAnimator) smallAdvertisementsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         smallAdvertisementsListRV.setAdapter(pastAdvertisementsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
+        loading = view.findViewById(R.id.firstLoadProgressBar);
         return view;
     }
 

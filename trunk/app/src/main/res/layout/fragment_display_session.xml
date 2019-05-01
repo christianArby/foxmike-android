@@ -37,10 +37,21 @@
                 app:layout_collapseMode="pin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
+                android:layout_gravity="center_horizontal"
                 android:textSize="18sp"
                 android:text="@string/edit"
                 android:textColor="@color/foxmikePrimaryColor"/>
+
+            <ImageView
+                android:id="@+id/shareIcon"
+                android:elevation="1dp"
+                android:layout_margin="@dimen/margin_left"
+                app:layout_collapseMode="pin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_share_black_24"
+                android:layout_gravity="end"
+                android:tint="@color/secondaryTextColor"/>
 
             <RelativeLayout
                 app:layout_constraintTop_toTopOf="parent"
@@ -118,7 +129,8 @@
                 android:textColor="@color/primaryTextColor"
                 android:layout_marginTop="@dimen/marginVertical"
                 android:layout_marginEnd="@dimen/margin_left"
-                android:layout_gravity="end|top"
+                android:layout_marginBottom="@dimen/margin_left"
+                android:layout_gravity="end|bottom"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -130,7 +142,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginEnd="@dimen/margin_right"
-                android:layout_gravity="end|top">
+                android:layout_marginBottom="@dimen/margin_left"
+                android:layout_gravity="end|bottom">
 
                 <android.support.v7.widget.AppCompatRatingBar
                     android:id="@+id/ratingBar"
@@ -186,21 +199,6 @@
                     android:layout_marginStart="@dimen/margin_left"
                     android:layout_marginTop="@dimen/marginVertical"
                     android:text="@string/address"/>
-
-                <TextView
-                    android:id="@+id/durationTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_right"
-                    android:layout_marginTop="@dimen/marginVertical"
-                    android:gravity="center_vertical"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/secondaryTextColor"
-                    android:drawableTint="@color/secondaryTextColor"
-                    android:drawableStart="@mipmap/ic_timelapse_black_24dp"
-                    android:drawablePadding="@dimen/margin_left"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
             </android.support.constraint.ConstraintLayout>
 

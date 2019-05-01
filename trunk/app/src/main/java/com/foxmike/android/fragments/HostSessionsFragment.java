@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 /**
  * This fragment lists all sessions the current user is hosting
  */
@@ -35,14 +37,16 @@ public class HostSessionsFragment extends Fragment {
     private SmallSessionsPagerAdapter hostSessionsPagerAdapter;
     private TabLayout tabLayout;
     private long mLastClickTime = 0;
+    private HashMap<String, String> sessionTypeDictionary;
 
     public HostSessionsFragment() {
         // Required empty public constructor
     }
 
-    public static HostSessionsFragment newInstance() {
+    public static HostSessionsFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
         HostSessionsFragment fragment = new HostSessionsFragment();
         Bundle args = new Bundle();
+        args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,6 +55,7 @@ public class HostSessionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
     }
 
@@ -95,9 +100,9 @@ public class HostSessionsFragment extends Fragment {
 
 
 
-        /*hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
+        hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements), sessionTypeDictionary);
         hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
-        tabLayout.setupWithViewPager(hostSessionsPager);*/
+        tabLayout.setupWithViewPager(hostSessionsPager);
 
 
         return view;
@@ -123,7 +128,7 @@ public class HostSessionsFragment extends Fragment {
     public void loadPages(final boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
         if (!update) {
-            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements));
+            hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements), sessionTypeDictionary);
             hostSessionsPager.setAdapter(hostSessionsPagerAdapter);
             tabLayout.setupWithViewPager(hostSessionsPager);
         } else {

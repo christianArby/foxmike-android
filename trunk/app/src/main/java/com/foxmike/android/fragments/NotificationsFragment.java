@@ -23,11 +23,14 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListNotificationsFirebaseAdapter;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -42,6 +45,7 @@ public class NotificationsFragment extends Fragment {
     private RecyclerView.AdapterDataObserver dataObserver;
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private DotProgressBar loading;
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -63,6 +67,20 @@ public class NotificationsFragment extends Fragment {
         // Set database reference to chat id in message root and build query
         DatabaseReference notificationsRef = rootDbRef.child("notifications").child(currentUserId);
         Query notificationsQuery = notificationsRef.limitToLast(100);
+        notificationsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    loading.setVisibility(View.GONE);
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         FirebaseRecyclerOptions<FoxmikeNotification> options =
                 new FirebaseRecyclerOptions.Builder<FoxmikeNotification>()
                         .setQuery(notificationsQuery, new SnapshotParser<FoxmikeNotification>() {
@@ -95,6 +113,7 @@ public class NotificationsFragment extends Fragment {
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 super.onItemRangeChanged(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (listNotificationsFirebaseAdapter.getItemCount()>0) {
                     noContent.setVisibility(View.GONE);
                 } else {
@@ -105,6 +124,7 @@ public class NotificationsFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
                 if (listNotificationsFirebaseAdapter.getItemCount()>0) {
                     notificationsListRV.smoothScrollToPosition(listNotificationsFirebaseAdapter.getItemCount() - 1);
                     noContent.setVisibility(View.GONE);
@@ -182,6 +202,7 @@ public class NotificationsFragment extends Fragment {
         ((SimpleItemAnimator) notificationsListRV.getItemAnimator()).setSupportsChangeAnimations(false);
         notificationsListRV.setAdapter(listNotificationsFirebaseAdapter);
         noContent = view.findViewById(R.id.noContent);
+        loading = view.findViewById(R.id.firstLoadProgressBar);
 
 
 

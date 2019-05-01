@@ -103,7 +103,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private int unreadFriendRequests = 0;
     private long mLastClickTime = 0;
     private String currentUserId;
-    private HashMap<String, CountDownTimer> countDownTimerHashMap = new HashMap<>();
+    private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
     private HashMap<String, String> sessionTypeDictionary;
 
 
@@ -161,7 +161,7 @@ public class MainHostActivity extends AppCompatActivity implements
                 InboxFragment hostInboxFragment = InboxFragment.newInstance();
                 bottomNavigationAdapter.addFragments(hostInboxFragment);
 
-                HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance();
+                HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance(sessionTypeDictionary);
                 bottomNavigationAdapter.addFragments(hostSessionsFragment);
 
                 UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
@@ -193,33 +193,35 @@ public class MainHostActivity extends AppCompatActivity implements
                 reviewsToWriteLiveData.observe(MainHostActivity.this, new Observer<DataSnapshot>() {
                     @Override
                     public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue()!=null) {
-                            if (dataSnapshot.getValue()==null) {
+                        if (dataSnapshot.getValue()==null) {
+                            return;
+                        }
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                            if (snapshot.getValue()==null) {
                                 return;
                             }
-                            for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                                Long currentTimestamp = System.currentTimeMillis();
-                                Long reviewTimestamp = (Long)snapshot.getValue();
-                                if (reviewTimestamp<currentTimestamp) {
-                                    presentReview(snapshot.getKey());
-                                } else {
-                                    if (!countDownTimerHashMap.containsKey(snapshot.getKey())) {
-                                        CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                            @Override
-                                            public void onTick(long l) {
+                            Long currentTimestamp = System.currentTimeMillis();
+                            Long reviewTimestamp = (Long)snapshot.getValue();
+                            if (reviewTimestamp<currentTimestamp) {
+                                presentReview(snapshot.getKey());
+                            } else {
+                                if (!countDownTimerHashMap.containsValue(snapshot.getKey())) {
 
-                                            }
-                                            @Override
-                                            public void onFinish() {
-                                                presentReview(snapshot.getKey());
-                                                countDownTimerHashMap.remove(snapshot.getKey());
-                                            }
-                                        }.start();
-                                        countDownTimerHashMap.put(snapshot.getKey(), reviewPending);
-                                    }
+
+                                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
+                                        @Override
+                                        public void onTick(long l) {
+
+                                        }
+                                        @Override
+                                        public void onFinish() {
+                                            presentReview(countDownTimerHashMap.get(this));
+                                            countDownTimerHashMap.remove(this);
+                                        }
+                                    }.start();
+                                    countDownTimerHashMap.put(reviewPending,snapshot.getKey());
                                 }
                             }
-
                         }
                     }
                 });
@@ -461,7 +463,7 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.keySet()) {
             countDownTimer.cancel();
         }
     }
@@ -479,7 +481,7 @@ public class MainHostActivity extends AppCompatActivity implements
             startActivity(welcomeIntent);
             finish();
         }
-        for (CountDownTimer countDownTimer: countDownTimerHashMap.values()) {
+        for (CountDownTimer countDownTimer: countDownTimerHashMap.keySet()) {
             countDownTimer.start();
         }
     }

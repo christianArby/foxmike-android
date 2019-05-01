@@ -232,15 +232,15 @@ public class SortAndFilterFragment extends DialogFragment {
         });
 
         HashMap<Integer, Integer> seekbarDistanceValuesMap = new HashMap<>();
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1000 km"), 60);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("80 km"), 50);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("40 km"), 40);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("16 km"), 30);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("8 km"), 20);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("3 km"), 10);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1 km"), 1);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1000 km"), 70);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("80 km"), 60);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("40 km"), 50);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("16 km"), 40);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("8 km"), 30);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("3 km"), 20);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1 km"), 10);
 
-        distanceSeekbar.setMaxValue(60).setSteps(10).setMinStartValue(seekbarDistanceValuesMap.get(mFilterDistance)).apply();
+        distanceSeekbar.setMaxValue(70).setSteps(10).setMinStartValue(seekbarDistanceValuesMap.get(mFilterDistance)).apply();
 
         distanceSeekbar.setOnSeekbarFinalValueListener(new OnSeekbarFinalValueListener() {
             @Override

@@ -95,7 +95,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     private BitmapDescriptor defaultIcon;
     private BitmapDescriptor selectedIcon;
     private ArrayList<Marker> markerArray = new ArrayList<>();
-    private Marker selectedMarker;
+    private MyItem selectedItem;
     private HashMap<String, GeoLocation> sessionLocationsMap = new HashMap<>();
     private int leftMargin;
 
@@ -377,10 +377,10 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<MyItem>() {
             @Override
             public boolean onClusterItemClick(MyItem myItem) {
-                if (selectedMarker!=null) {
-                    selectedMarker.setIcon(defaultIcon);
+                if (selectedItem!=null) {
+                    customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
                 }
-                selectedMarker = customMapClusterRenderer.getMarker(myItem);
+                selectedItem = myItem;
                 String sessionId = markers.get(myItem);
                 FragmentManager fragmentManager = getChildFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.smallMapSessionFragmentContainer, SmallMapSessionFragment.newInstance(sessionId, sessionTypeDictionary, mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude())).commit();
@@ -388,7 +388,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                 animation.setDuration(500);
                 animation.start();
                 mMap.setPadding(leftMargin,0,leftMargin,horizontalSessionHeight);
-                selectedMarker.setIcon(selectedIcon);
+                customMapClusterRenderer.getMarker(selectedItem).setIcon(selectedIcon);
                 return false;
             }
         });
@@ -446,8 +446,8 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (selectedMarker!=null) {
-                    selectedMarker.setIcon(defaultIcon);
+                if (selectedItem!=null) {
+                    customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
                 }
                 // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
                 ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", horizontalSessionHeight);
@@ -482,7 +482,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
             // Clear the map of markers and clear set the array of the new array
             mMap.clear();
             mClusterManager.clearItems();
-            selectedMarker = null;
+            selectedItem = null;
             currentSessionInt = 0;
             markerArray.clear();
 

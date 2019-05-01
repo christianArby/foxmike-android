@@ -41,15 +41,17 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
     private OnSessionClickedListener onSessionClickedListener;
     private long mLastClickTime = 0;
     private HashMap<String, Session> sessionHashMap = new HashMap<>();
+    private HashMap<String, String> sessionTypeDictionary;
     /**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListSmallAdvertisementsFirebaseAdapter(FirebaseRecyclerOptions<Advertisement> options, Context context, AlertOccasionCancelledListener alertOccasionCancelledListener, OnSessionClickedListener onSessionClickedListener) {
+    public ListSmallAdvertisementsFirebaseAdapter(FirebaseRecyclerOptions<Advertisement> options, Context context, AlertOccasionCancelledListener alertOccasionCancelledListener, HashMap<String,String> sessionTypeDictionary, OnSessionClickedListener onSessionClickedListener) {
         super(options);
         this.context = context;
         this.alertOccasionCancelledListener = alertOccasionCancelledListener;
+        this.sessionTypeDictionary = sessionTypeDictionary;
         this.onSessionClickedListener = onSessionClickedListener;
     }
 
@@ -67,13 +69,14 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
         holder.setText1(model.getSessionName());
         String advDateAndTime = TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp());
         advDateAndTime = advDateAndTime.substring(0,1).toUpperCase() + advDateAndTime.substring(1);
-        holder.setText2(advDateAndTime);
+        Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
+        holder.setText2(advDateAndTime + "-" + TextTimestamp.textTime(endTimestamp));
         populateSessionHashMap(model.getSessionId(), new OnSessionsLoadedListener() {
             @Override
             public void OnSessionsLoaded() {
                 Session session = sessionHashMap.get(model.getSessionId());
                 holder.setSessionImage(session.getImageUrl(), context);
-                holder.setText3(session.getSessionType().toUpperCase() + " | " + getAddress(session.getLatitude(), session.getLongitude()));
+                holder.setText3(sessionTypeDictionary.get(session.getSessionType()).toUpperCase() + " | " + getAddress(session.getLatitude(), session.getLongitude()));
             }
         });
         holder.itemView.setOnClickListener(new View.OnClickListener() {

@@ -13,6 +13,7 @@ public class Distance {
     static {
         DISTANCE_INTEGERS_SE.put("Min", 0);
         DISTANCE_INTEGERS_SE.put("1 km", 1);
+        DISTANCE_INTEGERS_SE.put("3 km", 3);
         DISTANCE_INTEGERS_SE.put("8 km", 8);
         DISTANCE_INTEGERS_SE.put("16 km", 16);
         DISTANCE_INTEGERS_SE.put("40 km", 40);
