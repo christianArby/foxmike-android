@@ -73,6 +73,16 @@
             android:inputType="textPassword" />
     </android.support.design.widget.TextInputLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar_cyclic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/height_progressBar"
+        android:minWidth="@dimen/width_progressBar"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"/>
+
     <android.support.design.widget.FloatingActionButton
         app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/secondaryTextColor"

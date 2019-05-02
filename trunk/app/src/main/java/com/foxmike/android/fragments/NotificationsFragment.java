@@ -71,8 +71,10 @@ public class NotificationsFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
-                    loading.setVisibility(View.GONE);
-                    noContent.setVisibility(View.VISIBLE);
+                    if (isAdded()) {
+                        loading.setVisibility(View.GONE);
+                        noContent.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 

@@ -22,10 +22,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
@@ -193,9 +195,24 @@ public class WelcomeActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onCancel() {
+                        Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later. Error code 101", Toast.LENGTH_LONG).show();
+                        myProgressBar.stopProgressBar();
+                        facebookLoginButton.setEnabled(true);
                     }
                     @Override
                     public void onError(FacebookException error) {
+                        if (error instanceof FacebookAuthorizationException) {
+                            if (AccessToken.getCurrentAccessToken() != null) {
+                                Toast.makeText(WelcomeActivity.this, "Already logged in as different user, logging out current user from Foxmike, please try to login again.", Toast.LENGTH_LONG).show();
+                                LoginManager.getInstance().logOut();
+                                myProgressBar.stopProgressBar();
+                                facebookLoginButton.setEnabled(true);
+                                return;
+                            }
+                        }
+                        Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later. Error code 101", Toast.LENGTH_LONG).show();
+                        myProgressBar.stopProgressBar();
+                        facebookLoginButton.setEnabled(true);
                     }
                 });
             }
