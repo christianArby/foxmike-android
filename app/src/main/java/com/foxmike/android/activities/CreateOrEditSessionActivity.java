@@ -1025,7 +1025,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
                 if (existingSession!=null) {
                     int ratingInt = Math.round(existingSession.getRating()*10) ;
-                    rating = Integer.toString(ratingInt);
+                    if (ratingInt<10) {
+                        rating = "0" + Integer.toString(ratingInt);
+                    } else {
+                        rating = Integer.toString(ratingInt);
+                    }
                 }
 
                 String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + sessionType + currency + price + rating;

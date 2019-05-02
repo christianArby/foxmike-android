@@ -378,7 +378,9 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public boolean onClusterItemClick(MyItem myItem) {
                 if (selectedItem!=null) {
-                    customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
+                    if (customMapClusterRenderer.getMarker(selectedItem)!=null) {
+                        customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
+                    }
                 }
                 selectedItem = myItem;
                 String sessionId = markers.get(myItem);
@@ -447,7 +449,9 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onMapClick(LatLng latLng) {
                 if (selectedItem!=null) {
-                    customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
+                    if (customMapClusterRenderer.getMarker(selectedItem)!=null) {
+                        customMapClusterRenderer.getMarker(selectedItem).setIcon(defaultIcon);
+                    }
                 }
                 // When map is clicked, animate the recyclerview off the map (by same distance as the height of the current recyclerView
                 ObjectAnimator animation = ObjectAnimator.ofFloat(smallMapsSessionFragmentContainer, "translationY", horizontalSessionHeight);
