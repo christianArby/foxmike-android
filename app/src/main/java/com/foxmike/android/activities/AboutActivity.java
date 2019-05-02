@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +46,7 @@ public class AboutActivity extends AppCompatActivity {
     private long mLastAdminClickCounter = 0;
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
+    private TextView openSourceTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,17 @@ public class AboutActivity extends AppCompatActivity {
         }
 
         versionTV = findViewById(R.id.versionName);
+        openSourceTV = findViewById(R.id.openSourceTV);
+
+        openSourceTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // When the user selects an option to see the licenses:
+                OssLicensesMenuActivity.setActivityTitle(getString(R.string.open_source_notices));
+                startActivity(new Intent(AboutActivity.this, OssLicensesMenuActivity.class));
+            }
+        });
+
         versionTV.setText(version);
 
         versionTV.setOnClickListener(new View.OnClickListener() {

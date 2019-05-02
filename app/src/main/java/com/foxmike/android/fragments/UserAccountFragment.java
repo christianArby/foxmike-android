@@ -150,6 +150,7 @@ public class UserAccountFragment extends Fragment {
                 mLastClickTime = SystemClock.elapsedRealtime();
                 Intent aboutIntent = new Intent(getActivity().getApplicationContext(), AboutActivity.class);
                 startActivity(aboutIntent);
+
             }
         });
 

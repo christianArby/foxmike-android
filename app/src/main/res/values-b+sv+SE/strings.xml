@@ -572,4 +572,5 @@
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">Inga pass den här dagen.</string>
     <string name="unknown">Okänd</string>
+    <string name="open_source_notices">Licenser för öppen källkod</string>
 </resources>

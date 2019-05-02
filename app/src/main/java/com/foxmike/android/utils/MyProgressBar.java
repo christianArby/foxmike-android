@@ -1,5 +1,6 @@
 package com.foxmike.android.utils;
 // Checked
+
 import android.app.Activity;
 import android.view.View;
 import android.view.WindowManager;

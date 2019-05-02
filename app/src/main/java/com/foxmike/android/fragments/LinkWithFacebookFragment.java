@@ -11,11 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foxmike.android.R;
 import com.foxmike.android.activities.WelcomeActivity;
+import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -37,6 +39,8 @@ public class LinkWithFacebookFragment extends DialogFragment {
     private String mEmail;
     private FirebaseAuth mAuth;
     private long mLastClickTime = 0;
+    private ProgressBar progressBar;
+    private MyProgressBar myProgressBar;
 
 
     public LinkWithFacebookFragment() {
@@ -78,6 +82,8 @@ public class LinkWithFacebookFragment extends DialogFragment {
         mLoginBtn = view.findViewById(R.id.loginBtn);
         mLinkAccountText = view.findViewById(R.id.linkAccountText);
         resetText = view.findViewById(R.id.resetText);
+        progressBar = view.findViewById(R.id.progressBar_cyclic);
+        myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         mLoginEmailField.setText(mEmail);
         mLoginEmailField.setFocusable(false
@@ -90,6 +96,9 @@ public class LinkWithFacebookFragment extends DialogFragment {
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                     return;
                 }
+                mLinkAccountText.setCursorVisible(false);
+
+                myProgressBar.startProgressBar();
                 mLastClickTime = SystemClock.elapsedRealtime();
                 mAuth = FirebaseAuth.getInstance();
                 final WelcomeActivity welcomeActivity = (WelcomeActivity)getActivity();
@@ -105,12 +114,15 @@ public class LinkWithFacebookFragment extends DialogFragment {
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             if (task.isSuccessful()) {
                                                 welcomeActivity.checkIfUserExistsInDb();
+                                                myProgressBar.stopProgressBar();
                                             } else {
+                                                myProgressBar.stopProgressBar();
                                                 Toast.makeText(getActivity(), R.string.authentication_failed, Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
                         } else {
+                            myProgressBar.stopProgressBar();
                             Toast.makeText(getActivity(), R.string.authentication_failed, Toast.LENGTH_SHORT).show();
                         }
                     }

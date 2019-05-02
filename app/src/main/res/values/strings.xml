@@ -572,4 +572,5 @@
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>
     <string name="unknown">Unknown</string>
+    <string name="open_source_notices">Open source notices</string>
 </resources>
