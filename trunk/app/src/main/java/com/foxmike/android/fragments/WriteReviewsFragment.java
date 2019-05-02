@@ -107,6 +107,10 @@ public class WriteReviewsFragment extends DialogFragment {
                         return;
                     }
 
+                    if (!isAdded()) {
+                        return;
+                    }
+
                     Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
                     reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + getString(R.string.leave_your_review_below));
                     ratingTitle.setText(R.string.Rate);

@@ -799,6 +799,7 @@ public class ExploreFragment extends Fragment{
             Task geoQueryTask = geoQuerySource.getTask();
             geoQueryTasks.add(geoQueryTask);
             currentDay = weekday;
+            Log.d("TESTSPEED","START");
 
             Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
             String geoFireDateNode = TextTimestamp.textSDF(dayTimestamp);
@@ -823,6 +824,7 @@ public class ExploreFragment extends Fragment{
 
                 @Override
                 public void onGeoQueryReady() {
+                    Log.d("TESTSPEED","KLAR");
                     geoQuerySource.trySetResult(true);
                 }
 
@@ -841,6 +843,7 @@ public class ExploreFragment extends Fragment{
         Tasks.whenAll(geoQueryTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                Log.d("TESTSPEED","KLAR");
                 if (task.isSuccessful()) {
                     geoFireNodesAndFragmentsUsed = false;
                     checkIfToLoadFragmentsWithData();
@@ -891,7 +894,6 @@ public class ExploreFragment extends Fragment{
 
                 if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km")) {
                     float distanceRadiusFloat = (float) distanceRadius;
-                    float test = getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation);
                     if (getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation) > distanceRadiusFloat*1000) {
                         show = false;
                     }
