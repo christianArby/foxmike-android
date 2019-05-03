@@ -7,6 +7,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -99,6 +101,8 @@ public class  ListSessionsFragment extends Fragment {
     private OnDimCurrentDayListener onDimCurrentDayListener;
     private boolean currentDayIsDimmed;
     private OnFragmentAttachedNeedNewDataListener onFragmentAttachedNeedNewDataListener;
+    private boolean geoFireUsed;
+    private Long lastLoadingStart;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -229,36 +233,74 @@ public class  ListSessionsFragment extends Fragment {
 
         this.currentLocation = currentLocation;
         this.geoFireNodesKeys = geoFireNodesKeys;
+        this.weekday = day;
 
         geoFireLoaded = true;
-        Long todayTimestamp = System.currentTimeMillis();
+        geoFireUsed = false;
 
-        Long thisDayTimestamp = 0L;
-        if (day == 0) {
-            thisDayTimestamp = new DateTime(todayTimestamp).plusDays(day).getMillis();
-        } else {
-            DateTime thisDayDateTime = new DateTime(todayTimestamp).plusDays(day);
-            thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
-        }
-
-        geoFireNodesKeysFromThisDay.clear();
-
-        for (String nodeKey: geoFireNodesKeys) {
-            Long timestamp = Long.parseLong(CharBuffer.wrap(nodeKey, 0, 13).toString());
-            if (timestamp>thisDayTimestamp) {
-                geoFireNodesKeysFromThisDay.add(nodeKey);
-            }
-        }
-        // TODO CHECK THIS WITH ISADDED
-        if (sessionsAdapter!=null) {
-            sessionsAdapter.clear();
-        }
-        checkIfToLoadList();
+        checkIfToLoadListFromScratch();
     }
 
-    private void checkIfToLoadList() {
+    private void checkIfToLoadListFromScratch() {
 
-        if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
+        if (isAdded() && !isLoading && !geoFireUsed) {
+            isLoading = true;
+            lastLoadingStart = SystemClock.elapsedRealtime();
+            geoFireUsed = true;
+            firsLoadProgressBar.setVisibility(View.VISIBLE);
+
+            CountDownTimer countDownTimer = new CountDownTimer(5000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    if (SystemClock.elapsedRealtime() - lastLoadingStart > 4900 && isLoading) {
+                        isLoading = false;
+                        geoFireUsed = false;
+                        checkIfToLoadListFromScratch();
+                    }
+                }
+            }.start();
+
+            Long todayTimestamp = System.currentTimeMillis();
+            Long thisDayTimestamp = 0L;
+            if (this.weekday == 0) {
+                thisDayTimestamp = new DateTime(todayTimestamp).plusDays(this.weekday).getMillis();
+            } else {
+                DateTime thisDayDateTime = new DateTime(todayTimestamp).plusDays(this.weekday);
+                thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
+            }
+            geoFireNodesKeysFromThisDay.clear();
+            for (String nodeKey: geoFireNodesKeys) {
+                Long timestamp = Long.parseLong(CharBuffer.wrap(nodeKey, 0, 13).toString());
+                if (timestamp>thisDayTimestamp) {
+                    geoFireNodesKeysFromThisDay.add(nodeKey);
+                }
+            }
+            // TODO CHECK THIS WITH ISADDED
+            if (sessionsAdapter!=null) {
+                sessionsAdapter.clear();
+            }
+
+            if (geoFireNodesKeysFromThisDay.size() >0) {
+                loadedthisDay = 0;
+                currentPage = PAGE_START;
+                isLastPage = false;
+                totalAdsToLoadThisDay = loadedthisDay + itemsToLoadPerDayEachTime;
+                TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
+                firstLoad = true;
+                loadPage();
+            } else {
+                isLoading = false;
+                firsLoadProgressBar.setVisibility(View.GONE);
+            }
+
+        }
+
+        /*if (isAdded() && geoFireNodesKeysFromThisDay.size()>0 && sessionsAdapter.getItemCount()==0) {
             loadedthisDay = 0;
             currentPage = PAGE_START;
             isLastPage = false;
@@ -267,10 +309,11 @@ public class  ListSessionsFragment extends Fragment {
             TOTAL_PAGES = (int) Math.ceil((double) geoFireNodesKeysFromThisDay.size()/(double)itemsToLoadPerDayEachTime);
             firstLoad = true;
             isLoading = true;
+            onListSessionsLoadingListener.OnListSessionsLoading(isLoading);
             loadPage();
-        }
+        }*/
 
-        if (isAdded() && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
+        if (isAdded() && !isLoading && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
             firsLoadProgressBar.setVisibility(View.GONE);
         }
     }
@@ -320,6 +363,8 @@ public class  ListSessionsFragment extends Fragment {
                             notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(advertisement.getAdvertisementId(), advertisement.getAdvertisementTimestamp()));
                         }
                         advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                    } else {
+                        int test = 0;
                     }
                     adSource.trySetResult(true);
                 }
@@ -345,6 +390,9 @@ public class  ListSessionsFragment extends Fragment {
                     Iterator<AdvertisementIdsAndTimestamps> i = advertisementIdsAndTimestampsFilteredArrayList.iterator();
                     while (i.hasNext()) {
                         AdvertisementIdsAndTimestamps ad = i.next();
+                        if (advertisementHashMap.get(ad.getAdvertisementId())==null) {
+                            int test = 0;
+                        }
                         if (advertisementHashMap.get(ad.getAdvertisementId()).getStatus().equals("cancelled")) {
                             i.remove();
                         }
@@ -353,11 +401,12 @@ public class  ListSessionsFragment extends Fragment {
 
                     if (currentPage==PAGE_START && PAGE_START==TOTAL_PAGES) {
                         // IF ONLY ONE PAGE
-                        isLoading = false;
                         stopSwipeRefreshingSymbol();
                         firsLoadProgressBar.setVisibility(View.GONE);
                         sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
                         isLastPage = true;
+                        isLoading = false;
+                        checkIfToLoadListFromScratch();
                     } else {
                         // IF MORE THAN ONE PAGE AND THIS IS FIRST PAGE
                         if (firstLoad) {
@@ -366,6 +415,7 @@ public class  ListSessionsFragment extends Fragment {
                             firsLoadProgressBar.setVisibility(View.GONE);
                             sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
                             isLoading = false;
+                            checkIfToLoadListFromScratch();
 
                             if (currentPage <= TOTAL_PAGES) sessionsAdapter.addLoadingFooter();
                             else isLastPage = true;
@@ -373,8 +423,10 @@ public class  ListSessionsFragment extends Fragment {
                             // ALL NEXT PAGES
                             if (sessionsAdapter.getItemCount()>0) {
                                 sessionsAdapter.removeLoadingFooter();  // 2
-                                isLoading = false;   // 3
-                                sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);   // 4
+                                sessionsAdapter.addAll(advertisementIdsAndTimestampsFilteredArrayList, advertisementHashMap, sessionHashMap, currentLocation);
+                                isLoading = false;
+                                firsLoadProgressBar.setVisibility(View.GONE);
+                                checkIfToLoadListFromScratch();// 4
                                 if (currentPage != TOTAL_PAGES) sessionsAdapter.addLoadingFooter();  // 5
                                 else isLastPage = true;
                             }

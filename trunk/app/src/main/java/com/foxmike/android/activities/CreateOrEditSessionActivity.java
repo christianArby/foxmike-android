@@ -23,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
@@ -259,16 +260,16 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             public void onDayClick(Date dateClicked) {
 
                 selectedDate = new DateTime(dateClicked);
-                boolean hasAds = false;
+                boolean currentDayHasAds = false;
 
                 for (Advertisement advertisement: mAdvertisementArrayList) {
                     DateTime adDateTime = new DateTime(advertisement.getAdvertisementTimestamp());
                     if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
-                        hasAds = true;
+                        currentDayHasAds = true;
                     }
                 }
 
-                if (hasAds) {
+                if (currentDayHasAds) {
                     if (listCreateAdvertisementsAdapter==null) {
                         listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mAdvertisementArrayList, selectedDate, new OnAdvertisementArrayListChangedListener() {
                             @Override
@@ -571,6 +572,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()!=null) {
+                        setupAdDependentViews(true);
+                    } else {
+                        setupAdDependentViews(false);
+                    }
                     ArrayList<Task<?>> tasks = new ArrayList<>();
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
@@ -617,6 +623,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mWhere.setText(existingSession.getWhereAt());
 
         } else {
+            setupAdDependentViews(false);
             advertisementsIsLoaded = true;
             tryLoadCalendar();
         }
@@ -652,46 +659,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View view, boolean b) {
                 mSessionNameTIL.setError(null);
-            }
-        });
-
-        mSessionName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-        // Setup location icon click listener
-        mLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                    return;
-                }
-                mLastClickTime = SystemClock.elapsedRealtime();
-
-                mLocationTIL.setError(null);
-
-                Intent chooseLocatonIntent = new Intent(CreateOrEditSessionActivity.this, ChooseLocationActivity.class);
-                startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
-
-            }
-        });
-
-        /** When item is clicked create a dialog where use can choose between different session types */
-        mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSessionTypeTIL.setError(null);
-                createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
-            }
-        });
-        mSessionType.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSessionTypeTIL.setError(null);
-                createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
             }
         });
 
@@ -732,6 +699,71 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 mWhereTIL.setError(null);
             }
         });
+
+    }
+
+    private void setupAdDependentViews(boolean hasAds) {
+        if (hasAds) {
+            /** When item is clicked create a dialog where use can choose between different session types */
+            mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialogOk(getString(R.string.not_editable), getString(R.string.not_editable_session_type));
+                }
+            });
+            mSessionType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialogOk(getString(R.string.not_editable), getString(R.string.not_editable_session_type));
+                }
+            });
+            mSessionName.setInputType(InputType.TYPE_NULL);
+            mSessionName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialogOk(getString(R.string.not_editable), getString(R.string.not_editable_session_name));
+                }
+            });
+            // Setup location icon click listener
+            mLocation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialogOk(getString(R.string.not_editable), getString(R.string.not_editable_location));
+                }
+            });
+        } else {
+            /** When item is clicked create a dialog where use can choose between different session types */
+            mSessionTypeTIL.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mSessionTypeTIL.setError(null);
+                    createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                }
+            });
+            mSessionType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mSessionTypeTIL.setError(null);
+                    createDialogWithArray(getString(R.string.choose_session_type), sessionTypeArray, mSessionType);
+                }
+            });
+            // Setup location icon click listener
+            mLocation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+
+                    mLocationTIL.setError(null);
+
+                    Intent chooseLocatonIntent = new Intent(CreateOrEditSessionActivity.this, ChooseLocationActivity.class);
+                    startActivityForResult(chooseLocatonIntent, UPDATE_SESSION_LOCATION_REQUEST);
+
+                }
+            });
+        }
 
     }
 
@@ -1248,5 +1280,21 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     public interface OnSessionUpdatedListener {
         void OnSessionUpdated(Map sessionMap);
+    }
+
+    public void alertDialogOk(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
