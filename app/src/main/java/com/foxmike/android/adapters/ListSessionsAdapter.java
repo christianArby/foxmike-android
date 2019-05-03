@@ -122,6 +122,9 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         switch (getItemViewType(position)) {
             case ITEM:
                 Advertisement advertisement = advertisementHashMap.get(advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId());
+                if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("footer")) {
+                    return;
+                }
                 Session session = sessionHashMap.get(advertisement.getSessionId());
 
                 /**Fill the cardview with information of the session" */
@@ -289,7 +292,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public void addLoadingFooter() {
         isLoadingAdded = true;
-        add(new AdvertisementIdsAndTimestamps("sadsa",0L));
+        add(new AdvertisementIdsAndTimestamps("footer",0L));
     }
 
     public void removeLoadingFooter() {

@@ -361,14 +361,6 @@ public class ExploreFragment extends Fragment{
         exploreFragmentViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
-                /*if (listIsVisible) {
-                    mapOrListBtn
-                            .animate()
-                            .translationY(0)
-                            .withLayer()
-                            .start();
-                    sortAndFilterFAB.show();
-                }*/
                 if (!defaultColors) {
                     tabLayout.setTabTextColors(getResources().getColor(R.color.primaryTextColor), getResources().getColor(R.color.foxmikePrimaryColor));
                     defaultColors = true;
@@ -486,20 +478,6 @@ public class ExploreFragment extends Fragment{
 
         }
 
-    }
-
-
-
-    public void navigateToNextDayWithSessions(Integer currentDay) {
-        Long todayTimestamp = System.currentTimeMillis();
-
-        for (int weekday = currentDay; weekday < 13; weekday++) {
-            Long itereatedDayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
-            String itereatedDayNode = TextTimestamp.textSDF(itereatedDayTimestamp);
-            if (advertismentsPerDayMap.containsKey(itereatedDayNode)) {
-                exploreFragmentViewPager.setCurrentItem(weekday);
-            }
-        }
     }
 
     private void switchMapOrListUI(boolean mapIsVisible) {
