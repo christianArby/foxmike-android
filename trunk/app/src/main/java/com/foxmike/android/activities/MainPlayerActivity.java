@@ -593,7 +593,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -617,6 +617,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             bookIntent.putExtra("hostId", hostId);
                             bookIntent.putExtra("amount",amount);
                             bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
+                            bookIntent.putExtra("sessionType",sessionType);
                             startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
                         }
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -636,6 +637,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("hostId", hostId);
         bookIntent.putExtra("amount",amount);
         bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
+        bookIntent.putExtra("sessionType",sessionType);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
 
     }

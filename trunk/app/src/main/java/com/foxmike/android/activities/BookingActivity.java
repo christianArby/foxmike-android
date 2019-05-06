@@ -13,6 +13,7 @@ import com.foxmike.android.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -34,6 +35,8 @@ public class BookingActivity extends AppCompatActivity {
     private View mainView;
     private int amount;
     private int advertisementDurationInMin;
+    private  String sessionType;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class BookingActivity extends AppCompatActivity {
         advertisementId = getIntent().getStringExtra("advertisementId");
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp", 0L);
         hostId = getIntent().getStringExtra("hostId");
+        sessionType = getIntent().getStringExtra("sessionType");
         amount = getIntent().getIntExtra("amount", 0);
         advertisementDurationInMin = getIntent().getIntExtra("advertisementDurationInMin", 0);
         // If advertisement is free, just add the participant to the participant list
@@ -80,6 +84,14 @@ public class BookingActivity extends AppCompatActivity {
                     HashMap<String, Object> result = task.getResult();
 
                     if (result.get("operationResult").toString().equals("success")) {
+
+                        Bundle bundle = new Bundle();
+                        bundle.putDouble(FirebaseAnalytics.Param.PRICE, (double) amount);
+                        bundle.putString(FirebaseAnalytics.Param.CURRENCY, "SEK");
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, sessionType);
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_BRAND, hostId);
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ECOMMERCE_PURCHASE, bundle);
+
                         setResult(RESULT_OK, null);
                         // close activity
                         finish();
@@ -116,6 +128,14 @@ public class BookingActivity extends AppCompatActivity {
                 HashMap<String, Object> result = task.getResult();
                 if (result.get("operationResult").toString().equals("success")) {
                     progressBar.setVisibility(View.GONE);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(FirebaseAnalytics.Param.PRICE, (double) amount);
+                    bundle.putString(FirebaseAnalytics.Param.CURRENCY, "SEK");
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, sessionType);
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_BRAND, hostId);
+                    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ECOMMERCE_PURCHASE, bundle);
+
                     setResult(RESULT_OK, null);
                     // close activity
                     finish();
