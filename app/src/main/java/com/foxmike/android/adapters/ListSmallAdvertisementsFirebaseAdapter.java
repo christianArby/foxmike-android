@@ -70,7 +70,11 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
         String advDateAndTime = TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp());
         advDateAndTime = advDateAndTime.substring(0,1).toUpperCase() + advDateAndTime.substring(1);
         Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
-        holder.setText2(advDateAndTime + "-" + TextTimestamp.textTime(endTimestamp));
+        if (model.getStatus().equals("cancelled")) {
+            holder.setText2(advDateAndTime);
+        } else {
+            holder.setText2(advDateAndTime + "-" + TextTimestamp.textTime(endTimestamp));
+        }
         populateSessionHashMap(model.getSessionId(), new OnSessionsLoadedListener() {
             @Override
             public void OnSessionsLoaded() {
@@ -103,6 +107,8 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
         });
         if (model.getStatus().equals("cancelled")) {
             holder.setCancelled(true);
+        } else {
+            holder.setCancelled(false);
         }
 
     }

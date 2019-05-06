@@ -12,6 +12,7 @@
 
     <color name="darkIconColor">#8d8d8d</color>
     <color name="red">#FF0000</color>
+    <color name="redCancelled">#d32f2f</color>
     <color name="lightGrayLine">#eeeeee</color>
 
 

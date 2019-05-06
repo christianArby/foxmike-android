@@ -49,6 +49,8 @@ public class BookingActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         mainView = findViewById(R.id.mainView);
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         // Get data from previous activity
         advertisementId = getIntent().getStringExtra("advertisementId");
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp", 0L);
