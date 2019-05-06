@@ -1,3 +1,4 @@
+/*
 package com.foxmike.android.adapters;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
@@ -36,9 +37,11 @@ import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+*/
 /**
  * Created by chris on 2018-09-22.
- */
+ *//*
+
 
 
 public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<FoxmikeNotification, ListNotificationsFirebaseAdapter.NotificationsViewHolder> {
@@ -50,11 +53,13 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
     private DataSnapshot unreadNotifications;
     private int unreadColor;
     private int readColor;
-    /**
+    */
+/**
      * This Firebase recycler adapter takes a firebase query and an boolean in order to populate a list of messages (chat).
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
-     */
+     *//*
+
     public ListNotificationsFirebaseAdapter(FirebaseRecyclerOptions<FoxmikeNotification> options, HashMap<String, String> stringHashMap, DataSnapshot unreadNotifications, int readColor, int unreadColor, NotificationsFragment.OnNotificationClickedListener onNotificationClickedListener) {
         super(options);
         this.onNotificationClickedListener = onNotificationClickedListener;
@@ -660,3 +665,4 @@ public class ListNotificationsFirebaseAdapter extends FirebaseRecyclerAdapter<Fo
         this.notifyDataSetChanged();
     }
 }
+*/

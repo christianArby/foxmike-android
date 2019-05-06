@@ -235,6 +235,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private FrameLayout dotProgressBarContainer;
     private ConstraintLayout snackBar;
     private ImageView shareIcon;
+    private RecyclerView.AdapterDataObserver recyclerListObserver;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -630,7 +631,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // set the adapter to the recyclerview.
         upcomingSessionsRV.setAdapter(fbAdDateAndTimeAdapter);
         // --------- LISTEN TO CHANGES IN THE DATABASE) ---------
-        fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        // If an item has been inserted, call the function updateListViews() which updates the showMore text
+// If an item has been removed that was selected and if the list only contained that item set the adSelected to null and update snackbar
+// else set the adSelected to the first item in the list instead and update snackbar.
+// TODO maybe better to set the snackbar to show availability
+// If an item has been removed, call the function updateListViews() which updates the showMore text
+        recyclerListObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
@@ -662,7 +668,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // If an item has been removed, call the function updateListViews() which updates the showMore text
                 updateListViews();
             }
-        });
+        };
+
+        fbAdDateAndTimeAdapter.registerAdapterDataObserver(recyclerListObserver);
         // start listening to changes in the database
         fbAdDateAndTimeAdapter.startListening();
     }
@@ -1381,10 +1389,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // Payment method has been checked above (method return if no payment method)
                         // Now user will book mSession if button is pressed, if free send parameters to book mSession with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType());
                         } else {
                             // mSession costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType());
                         }
                     }
                     // If the current user is the mSession host, button will show cancel mSession, if clicked start cancellation process
@@ -1701,6 +1709,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onStop() {
         super.onStop();
+        if (recyclerListObserver!=null) {
+            fbAdDateAndTimeAdapter.unregisterAdapterDataObserver(recyclerListObserver);
+        }
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.stopListening();
         }
@@ -1713,6 +1724,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     public void onStart() {
         super.onStart();
         getDefaultSourceMap();
+        if (recyclerListObserver!=null) {
+            fbAdDateAndTimeAdapter.registerAdapterDataObserver(recyclerListObserver);
+        }
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.startListening();
         }

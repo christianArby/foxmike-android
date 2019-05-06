@@ -363,8 +363,6 @@ public class  ListSessionsFragment extends Fragment {
                             notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(advertisement.getAdvertisementId(), advertisement.getAdvertisementTimestamp()));
                         }
                         advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
-                    } else {
-                        int test = 0;
                     }
                     adSource.trySetResult(true);
                 }
@@ -390,14 +388,10 @@ public class  ListSessionsFragment extends Fragment {
                     Iterator<AdvertisementIdsAndTimestamps> i = advertisementIdsAndTimestampsFilteredArrayList.iterator();
                     while (i.hasNext()) {
                         AdvertisementIdsAndTimestamps ad = i.next();
-                        if (advertisementHashMap.get(ad.getAdvertisementId())==null) {
-                            int test = 0;
-                        }
                         if (advertisementHashMap.get(ad.getAdvertisementId()).getStatus().equals("cancelled")) {
                             i.remove();
                         }
                     }
-
 
                     if (currentPage==PAGE_START && PAGE_START==TOTAL_PAGES) {
                         // IF ONLY ONE PAGE
