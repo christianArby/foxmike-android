@@ -1,10 +1,10 @@
 package com.foxmike.android.utils;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +21,6 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     public TextView text1TV;
     public TextView text2TV;
     public TextView text3TV;
-    public TextView cancelledTV;
     public TextView cancelledFlag;
 
 
@@ -31,7 +30,6 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
         text1TV = (TextView) itemView.findViewById(R.id.text1);
         text2TV = (TextView) itemView.findViewById(R.id.text2);
         text3TV = (TextView) itemView.findViewById(R.id.text3);
-        cancelledTV = (TextView) itemView.findViewById(R.id.cancelledCaption);
         cancelledFlag = (TextView) itemView.findViewById(R.id.cancelledFlag);
     }
 
@@ -54,13 +52,11 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
 
     public void setCancelled(boolean cancelled) {
         if (cancelled) {
-            cancelledTV.setVisibility(View.VISIBLE);
-            cancelledFlag.setVisibility(View.VISIBLE);
-            sessionIV.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+
         } else {
-            cancelledTV.setVisibility(View.GONE);
-            cancelledFlag.setVisibility(View.GONE);
-            sessionIV.clearColorFilter();
+            cancelledFlag.setText("");
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+            cancelledFlag.setLayoutParams(params);
         }
     }
 }
