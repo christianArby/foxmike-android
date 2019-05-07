@@ -360,7 +360,7 @@
     <string name="invalid_cvc">Säkerhetskoden är ogiltig.</string>
     <string name="credit_card_information">Kortinformation</string>
     <string name="you_have_no_stripe_account">Du behöver lägga till en utbetalningsmetod för att kunna skapa ett pass. Lägg till utbetalningsmetod i ditt konto.</string>
-    <string name="become_trainer">Bli Foxmikeledare</string>
+    <string name="become_trainer">Bli Foxmiketränare</string>
     <string name="not_possible_to_edit_as_participant">Det är inte möjligt att ändra passet i deltagarläge. Ändra till ledare under kontoinställningar.</string>
     <string name="about">Om</string>
     <string name="just_now">alldeles nyss</string>
@@ -577,4 +577,7 @@
     <string name="not_editable_session_type">Det är inte möjligt att ändra typ på passet då det har kommande tillfällen.</string>
     <string name="not_editable_session_name">Det är inte möjligt att ändra namn på passet då det har kommande tillfällen.</string>
     <string name="not_editable_location">Det är inte möjligt att ändra plats på passet då det har kommande tillfällen.</string>
+    <string name="foxmike_trainer_question">Vill du bli Foxmiketränare?</string>
+    <string name="foxmike_trainer_question_text">Skicka ett mail till\u0020<a href="info@foxmike.se">info@foxmike.se</a>\u0020så hör vi av oss och berättar mer. Ange gärna i vilket område och vad för typ av pass du vill hålla.</string>
+    <string name="greetings_from_foxmike">Hälsningar från oss på Foxmike</string>
 </resources>

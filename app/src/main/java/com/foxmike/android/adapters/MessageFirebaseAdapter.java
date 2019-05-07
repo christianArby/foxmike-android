@@ -96,7 +96,9 @@ public class MessageFirebaseAdapter extends FirebaseRecyclerAdapter<Message, Rec
             ((OtherMessageViewHolder) holder).messageText.setTextColor(Color.BLACK);
             ((OtherMessageViewHolder) holder).profileImage.setVisibility(View.VISIBLE);
             ((OtherMessageViewHolder) holder).messageText.setText(model.getMessage());
-            ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.GONE);
+            if (slalom) {
+                ((OtherMessageViewHolder) holder).messageUser.setVisibility(View.GONE);
+            }
 
             TextTimestamp textTimestamp = new TextTimestamp(model.getTime());
             String timeText = textTimestamp.textDateAndTime();

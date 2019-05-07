@@ -577,4 +577,7 @@
     <string name="not_editable_session_type">It is not possible to change the session type since there are upcoming sessions.</string>
     <string name="not_editable_session_name">It is not possible to change the name since there are upcoming sessions.</string>
     <string name="not_editable_location">It is not possible to change the location since there are upcoming sessions.</string>
+    <string name="foxmike_trainer_question">Do you want to be a Foxmiketrainer?</string>
+    <string name="foxmike_trainer_question_text">Send us an email to\u0020<a href="info@foxmike.se">info@foxmike.se</a>\u0020and we will reach out to you. Please specify in what area and what type of session you are interested in hosting.</string>
+    <string name="greetings_from_foxmike">Greetings from the team at Foxmike</string>
 </resources>

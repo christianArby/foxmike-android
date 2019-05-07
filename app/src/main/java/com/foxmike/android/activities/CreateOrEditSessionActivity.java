@@ -70,6 +70,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -178,6 +179,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private ArrayList<String> sessionTypeArray;
     private boolean sessionTypesLoaded;
     private boolean uiLoaded;
+    private Query sessionAdRef;
+    private ValueEventListener sessionAdListener;
+    private boolean calendarLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -569,7 +573,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mSessionType.setText(sessionTypeFilterMap.get(existingSession.getSessionType()));
             // Existing advertisements
             Long currentTimestamp = System.currentTimeMillis();
-            rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp).addListenerForSingleValueEvent(new ValueEventListener() {
+            sessionAdRef = rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp);
+            sessionAdListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()!=null) {
@@ -616,7 +621,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     advertisementsIsLoaded = true;
                     tryLoadCalendar();
                 }
-            });
+            };
+            sessionAdRef.addValueEventListener(sessionAdListener);
 
             mWhat.setText(existingSession.getWhat());
             mWho.setText(existingSession.getWho());
@@ -768,7 +774,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     }
 
     private void tryLoadCalendar() {
-        if (stripeAccountIsLoaded && advertisementsIsLoaded) {
+        if (stripeAccountIsLoaded && advertisementsIsLoaded && !calendarLoaded) {
+            calendarLoaded = true;
             if (mAdvertisementArrayList !=null) {
                 for (Advertisement advertisement: mAdvertisementArrayList) {
                     if (advertisement.getSessionId()!=null) {
@@ -1199,6 +1206,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         adapter = null;
         alertDialogBuilder=null;
         dlg =null;
+
+        if (sessionAdRef!=null) {
+            sessionAdRef.removeEventListener(sessionAdListener);
+        }
+
     }
 
     private String getAddress(double latitude, double longitude) {

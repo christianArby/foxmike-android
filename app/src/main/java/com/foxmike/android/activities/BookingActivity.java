@@ -88,11 +88,11 @@ public class BookingActivity extends AppCompatActivity {
                     if (result.get("operationResult").toString().equals("success")) {
 
                         Bundle bundle = new Bundle();
-                        bundle.putDouble(FirebaseAnalytics.Param.PRICE, (double) amount);
-                        bundle.putString(FirebaseAnalytics.Param.CURRENCY, "SEK");
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, sessionType);
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_BRAND, hostId);
-                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ECOMMERCE_PURCHASE, bundle);
+                        bundle.putDouble("session_price", (double) amount);
+                        bundle.putString("session_currency", "SEK");
+                        bundle.putString("session_type", sessionType);
+                        bundle.putString("session_host", hostId);
+                        mFirebaseAnalytics.logEvent("booking", bundle);
 
                         setResult(RESULT_OK, null);
                         // close activity
@@ -132,11 +132,11 @@ public class BookingActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
 
                     Bundle bundle = new Bundle();
-                    bundle.putDouble(FirebaseAnalytics.Param.PRICE, (double) amount);
-                    bundle.putString(FirebaseAnalytics.Param.CURRENCY, "SEK");
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, sessionType);
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_BRAND, hostId);
-                    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ECOMMERCE_PURCHASE, bundle);
+                    bundle.putDouble("session_price", (double) amount);
+                    bundle.putString("session_currency", "SEK");
+                    bundle.putString("session_type", sessionType);
+                    bundle.putString("session_host", hostId);
+                    mFirebaseAnalytics.logEvent("booking", bundle);
 
                     setResult(RESULT_OK, null);
                     // close activity
