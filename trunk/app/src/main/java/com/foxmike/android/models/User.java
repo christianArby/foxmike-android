@@ -24,9 +24,10 @@ public class User implements Comparable<User>{
     private float rating;
     private int nrOfRatings;
     private int nrOfReviews;
+    private boolean admin;
 
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -43,10 +44,19 @@ public class User implements Comparable<User>{
         this.rating = rating;
         this.nrOfRatings = nrOfRatings;
         this.nrOfReviews = nrOfReviews;
+        this.admin = admin;
     }
 
     public User() {
 
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     public float getRating() {

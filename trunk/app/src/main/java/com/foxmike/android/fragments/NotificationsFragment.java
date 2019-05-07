@@ -648,8 +648,6 @@ public class NotificationsFragment extends Fragment {
                     }
                 }
             });
-
-
         }
         if (foxmikeNotification.getType().equals("adminNotification")) {
 
@@ -749,12 +747,8 @@ public class NotificationsFragment extends Fragment {
                 if (listNotificationsAdapter!=null) {
                     listNotificationsAdapter.updateUnreadNotifications(dataSnapshot);
                 }
-
             }
         });
-
-
-
         return view;
     }
 

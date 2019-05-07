@@ -42,7 +42,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_foxmike_launcher" />
@@ -160,7 +159,8 @@
         <activity android:name=".activities.SetDurationActivity" />
         <activity android:name=".activities.SetMaxParticipantsActivity" />
         <activity android:name=".activities.SetPriceActivity" />
-        <activity android:name=".activities.FilteringActivity"></activity>
+        <activity android:name=".activities.FilteringActivity" />
+        <activity android:name=".activities.BecomeFTActivity"></activity>
     </application>
 
 </manifest>

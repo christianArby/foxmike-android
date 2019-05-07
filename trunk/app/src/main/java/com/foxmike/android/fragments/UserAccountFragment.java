@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.AboutActivity;
+import com.foxmike.android.activities.BecomeFTActivity;
 import com.foxmike.android.activities.CreateStripeAccountActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
@@ -223,34 +224,45 @@ public class UserAccountFragment extends Fragment {
 
             setCircleImage(currentUser.getImage(), (CircleImageView) profile.findViewById(R.id.profileIV));
 
-            if (currentUser.getStripeAccountId()!=null) {
-                switchModeTV.setText(R.string.switch_to_host_mode_text);
-            } else {
+            if (!currentUser.isAdmin()) {
                 switchModeTV.setText(R.string.become_trainer);
-            }
 
-            switchModeTV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                switchModeTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-                    if (!connected) {
-                        Toast.makeText(getActivity().getApplicationContext(),"No internet connection", Toast.LENGTH_LONG).show();
-                        return;
+                        Intent becomeFtIntent = new Intent(getActivity().getApplicationContext(),BecomeFTActivity.class);
+                        startActivity(becomeFtIntent);
                     }
-
-                    if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
-                        Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateStripeAccountActivity.class);
-                        startActivityForResult(createIntent, 1);
-                        return;
-                    }
-
-                    Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
-                    fadeIntent.putExtra("trainerMode", false);
-                    startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
+                });
+            } else {
+                if (currentUser.getStripeAccountId()!=null) {
+                    switchModeTV.setText(R.string.switch_to_host_mode_text);
+                } else {
+                    switchModeTV.setText(R.string.become_trainer);
                 }
-            });
 
+                switchModeTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
+                        if (!connected) {
+                            Toast.makeText(getActivity().getApplicationContext(),"No internet connection", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
+                            Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateStripeAccountActivity.class);
+                            startActivityForResult(createIntent, 1);
+                            return;
+                        }
+
+                        Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
+                        fadeIntent.putExtra("trainerMode", false);
+                        startActivity(fadeIntent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
+                    }
+                });
+            }
 
         }
     }
