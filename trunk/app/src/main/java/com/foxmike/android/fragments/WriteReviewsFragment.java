@@ -21,6 +21,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Rating;
 import com.foxmike.android.models.Review;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -112,7 +113,7 @@ public class WriteReviewsFragment extends DialogFragment {
                     }
 
                     Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                    reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + getString(R.string.leave_your_review_below));
+                    reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + " " + TextTimestamp.textSessionDate(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
                     ratingTitle.setText(R.string.Rate);
 
                     ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {

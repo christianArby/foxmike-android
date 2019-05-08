@@ -27,6 +27,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -50,9 +51,11 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListCreateAdvertisementsAdapter;
+import com.foxmike.android.interfaces.IImageCompressTaskListener;
 import com.foxmike.android.interfaces.OnAdvertisementArrayListChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.utils.ImageCompressTask;
 import com.foxmike.android.utils.TextTimestamp;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
@@ -82,6 +85,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.joda.time.DateTime;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -91,6 +95,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CreateOrEditSessionActivity extends AppCompatActivity {
 
@@ -182,6 +188,16 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private Query sessionAdRef;
     private ValueEventListener sessionAdListener;
     private boolean calendarLoaded;
+
+
+    private static final int REQUEST_STORAGE_PERMISSION = 100;
+    private static final int REQUEST_PICK_PHOTO = 101;
+
+    //create a single thread pool to our image compression class.
+    private ExecutorService mExecutorService = Executors.newFixedThreadPool(1);
+
+    private ImageCompressTask imageCompressTask;
+    private Uri compressedImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -956,9 +972,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/
-        if(mImageUri != null && infoIsValid){
-            StorageReference filepath = mStorageSessionImage.child(mImageUri.getLastPathSegment());
-            filepath.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+        if(compressedImageUri != null && infoIsValid){
+            StorageReference filepath = mStorageSessionImage.child(mSessionId);
+            filepath.putFile(compressedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
@@ -1179,14 +1196,55 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 mImageUri = result.getUri();
-                mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mSessionImageButton.setImageURI(mImageUri);
+
+                /*Cursor cursor = getContentResolver().query(mImageUri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+
+                //Cursor cursor = MediaStore.Images.Media.query(getContentResolver(), mImageUri, new String[]{MediaStore.Images.Media.DATA});
+
+                if(cursor != null && cursor.moveToFirst()) {
+                    String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+
+                    //Create ImageCompressTask and execute with Executor.
+                    imageCompressTask = new ImageCompressTask(this, path, iImageCompressTaskListener);
+
+                    mExecutorService.execute(imageCompressTask);
+                }*/
+
+                imageCompressTask = new ImageCompressTask(this, mImageUri.getPath(), iImageCompressTaskListener);
+
+                mExecutorService.execute(imageCompressTask);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
         }
     }
+
+    //image compress task callback
+    private IImageCompressTaskListener iImageCompressTaskListener = new IImageCompressTaskListener() {
+        @Override
+        public void onComplete(List<File> compressed) {
+            //photo compressed. Yay!
+
+            //prepare for uploads. Use an Http library like Retrofit, Volley or async-http-client (My favourite)
+
+            File file = compressed.get(0);
+
+            compressedImageUri = Uri.fromFile(file);
+
+            Log.d("ImageCompressor", "New photo size ==> " + file.length()); //log new file size.
+
+            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            mSessionImageButton.setImageURI(compressedImageUri);
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            //very unlikely, but it might happen on a device with extremely low storage.
+            //log it, log.WhatTheFuck?, or show a dialog asking the user to delete some files....etc, etc
+            Log.wtf("ImageCompressor", "Error occurred", error);
+        }
+    };
 
     /**Method setImage scales the chosen image*/
     private void setImage(String image, ImageView imageView) {
@@ -1210,6 +1268,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         if (sessionAdRef!=null) {
             sessionAdRef.removeEventListener(sessionAdListener);
         }
+
+        //clean up!
+        mExecutorService.shutdown();
+
+        mExecutorService = null;
+        imageCompressTask = null;
 
     }
 
