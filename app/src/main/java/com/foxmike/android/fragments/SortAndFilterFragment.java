@@ -54,7 +54,7 @@ public class SortAndFilterFragment extends DialogFragment {
     private static final String ARG_SORT= "sort";
     private static final String ARG_FILTER = "filter";
     private String mSortType;
-    private int mFilterDistance = DISTANCE_INTEGERS_SE.get("1000 km");
+    private int mFilterDistance = DISTANCE_INTEGERS_SE.get("100 mil");
     private ImageButton closeButton;
     private int minClicked = 0;
     private int maxClicked = 0;
@@ -240,9 +240,9 @@ public class SortAndFilterFragment extends DialogFragment {
         });
 
         HashMap<Integer, Integer> seekbarDistanceValuesMap = new HashMap<>();
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("1000 km"), 70);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("80 km"), 60);
-        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("40 km"), 50);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("100 mil"), 70);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("6 mil"), 60);
+        seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("4 mil"), 50);
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("16 km"), 40);
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("8 km"), 30);
         seekbarDistanceValuesMap.put(DISTANCE_INTEGERS_SE.get("3 km"), 20);
@@ -261,38 +261,40 @@ public class SortAndFilterFragment extends DialogFragment {
             @Override
             public void valueChanged(Number value) {
                 switch (value.intValue()) {
+                    case 70:
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("100 mil")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("100 mil");
+                        break;
                     case 60:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1000 km")));
-                        if (mFilterDistance!=DISTANCE_INTEGERS_SE.get("1000 km")) {
-                            mFilterDistance = DISTANCE_INTEGERS_SE.get("1000 km");
-                        }
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("6 mil")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("6 mil");
                         break;
                     case 50:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(80));
-                        mFilterDistance = 80;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("4 mil")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("4 mil");
                         break;
                     case 40:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(40));
-                        mFilterDistance = 40;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("16 km")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("16 km");
                         break;
                     case 30:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(16));
-                        mFilterDistance = 16;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("8 km")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("8 km");
                         break;
                     case 20:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(8));
-                        mFilterDistance = 8;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("3 km")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("3 km");
                         break;
                     case 10:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(3));
-                        mFilterDistance = 3;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1 km")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("1 km");
                         break;
                     case 0:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(1));
-                        mFilterDistance = 1;
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1 km")));
+                        mFilterDistance = DISTANCE_INTEGERS_SE.get("1 km");
                         break;
                     default:
-                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(DISTANCE_INTEGERS_SE.get("1000 km")));
+                        chosenDistance.setText(DISTANCE_STRINGS_SE.get(mFilterDistance));
                         break;
                 }
             }
