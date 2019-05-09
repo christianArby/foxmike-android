@@ -440,10 +440,14 @@ public class MainPlayerActivity extends AppCompatActivity
 
     private void presentReview(String advertisementId) {
 
-        WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        writeReviewsFragment.show(transaction,advertisementId);
+        if (advertisementId!=null) {
+            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            writeReviewsFragment.show(transaction,advertisementId);
+        }
+
+
     }
 
     private void updateStripeCustomerInfo() {
