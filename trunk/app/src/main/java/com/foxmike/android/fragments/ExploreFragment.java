@@ -127,7 +127,9 @@ public class ExploreFragment extends Fragment{
     private int minMinute = minDefaultMinute;
     private int maxHour = maxDefaultHour;
     private int maxMinute = maxDefaultMinute;
-    private int distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
+    private final int DEFAULT_DISTANCE = DISTANCE_INTEGERS_SE.get("6 mil");
+    private int currentDefaultDistanceRadius = DISTANCE_INTEGERS_SE.get("6 mil");
+    private int currentDistanceRadius = DISTANCE_INTEGERS_SE.get("6 mil");
     private ArrayList<String> sessionIdsFiltered;
     private TreeMap<String, GeoLocation> geoFireNodes = new TreeMap<>();
     private TreeMap<String, GeoLocation> geoFireNodesFiltered = new TreeMap<>();
@@ -152,9 +154,6 @@ public class ExploreFragment extends Fragment{
         return sessionTypeChosen;
     }
 
-    public int getDistanceRadius() {
-        return distanceRadius;
-    }
 
     public int getMinPrice() {
         return minPrice;
@@ -285,7 +284,6 @@ public class ExploreFragment extends Fragment{
 
         /** Setup List and Map with sessions*/
         sortType = "date";
-        distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
     }
 
     private void checkIfGeoFireNodesAreLoaded() {
@@ -405,8 +403,7 @@ public class ExploreFragment extends Fragment{
                         onFilterChangedListener.OnMaxPriceChanged(maxPrice);
                     }
                     if (filterType.equals("distance")) {
-                        distanceRadius = DISTANCE_INTEGERS_SE.get("1000 km");
-                        onFilterChangedListener.OnDistanceFilterChanged(distanceRadius);
+                        onFilterChangedListener.OnDistanceFilterChanged(currentDefaultDistanceRadius);
                     }
                 }
             });
@@ -443,7 +440,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, distanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, distanceRadius, sessionTypeChosen, sessionTypeDictionary);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, currentDistanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, currentDistanceRadius, sessionTypeChosen, sessionTypeDictionary);
                 sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
@@ -576,9 +573,15 @@ public class ExploreFragment extends Fragment{
     }
     /** INTERFACE triggered when filter buttons are clicked, FILTERS sessions*/
     public void OnFilterByDistance(int filterDistance) {
-        distanceRadius = filterDistance;
-        if (filterDistance!= DISTANCE_INTEGERS_SE.get("1000 km")) {
-            showFilteredItem("distance", getString(R.string.distance_colon) + DISTANCE_STRINGS_SE.get(distanceRadius));
+        if (filterDistance> currentDefaultDistanceRadius) {
+            currentDefaultDistanceRadius = filterDistance;
+            currentDistanceRadius = currentDefaultDistanceRadius;
+            loadGeoFireNodes();
+            return;
+        }
+        currentDistanceRadius = filterDistance;
+        if (filterDistance!= currentDefaultDistanceRadius && filterDistance!=DEFAULT_DISTANCE) {
+            showFilteredItem("distance", getString(R.string.distance_colon) + DISTANCE_STRINGS_SE.get(currentDistanceRadius));
         } else {
             removeFilteredItem("distance");
         }
@@ -783,7 +786,7 @@ public class ExploreFragment extends Fragment{
             String geoFireDateNode = TextTimestamp.textSDF(dayTimestamp);
             DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(geoFireDateNode);
             GeoFire geoFire = new GeoFire(mGeofireDbRef);
-            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), distanceRadius);
+            GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), currentDefaultDistanceRadius);
             GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
@@ -808,6 +811,7 @@ public class ExploreFragment extends Fragment{
 
                 @Override
                 public void onGeoQueryError(DatabaseError error) {
+                    Log.d("TESTSPEED",error.getMessage());
 
                 }
             };
@@ -821,6 +825,15 @@ public class ExploreFragment extends Fragment{
         Tasks.whenAll(geoQueryTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                if (geoFireNodes.size()==0) {
+                    if (currentDefaultDistanceRadius !=DISTANCE_INTEGERS_SE.get("100 mil")) {
+                        currentDefaultDistanceRadius = DISTANCE_INTEGERS_SE.get("100 mil");
+                        currentDistanceRadius = currentDefaultDistanceRadius;
+                        loadGeoFireNodes();
+                    }
+                }
+
+
                 Log.d("TESTSPEED","KLAR");
                 if (task.isSuccessful()) {
                     geoFireNodesAndFragmentsUsed = false;
@@ -870,8 +883,8 @@ public class ExploreFragment extends Fragment{
                     }
                 }
 
-                if (distanceRadius!=DISTANCE_INTEGERS_SE.get("1000 km")) {
-                    float distanceRadiusFloat = (float) distanceRadius;
+                if (currentDistanceRadius!= currentDefaultDistanceRadius) {
+                    float distanceRadiusFloat = (float) currentDistanceRadius;
                     if (getDistance(geoFireNodes.get(geoFireNodeKey).latitude, geoFireNodes.get(geoFireNodeKey).longitude, mLastKnownLocation) > distanceRadiusFloat*1000) {
                         show = false;
                     }
