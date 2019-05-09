@@ -244,6 +244,7 @@ public class  ListSessionsFragment extends Fragment {
     private void checkIfToLoadListFromScratch() {
 
         if (isAdded() && !isLoading && !geoFireUsed) {
+            ArrayList<String> geoFireNodesKeysUsing = geoFireNodesKeys;
             isLoading = true;
             lastLoadingStart = SystemClock.elapsedRealtime();
             geoFireUsed = true;
@@ -274,7 +275,7 @@ public class  ListSessionsFragment extends Fragment {
                 thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
             }
             geoFireNodesKeysFromThisDay.clear();
-            for (String nodeKey: geoFireNodesKeys) {
+            for (String nodeKey: geoFireNodesKeysUsing) {
                 Long timestamp = Long.parseLong(CharBuffer.wrap(nodeKey, 0, 13).toString());
                 if (timestamp>thisDayTimestamp) {
                     geoFireNodesKeysFromThisDay.add(nodeKey);

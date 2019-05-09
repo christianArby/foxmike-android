@@ -59,7 +59,7 @@ public class Util {
             Where Quality ranges from 1 - 100.
          */
         // TODO FIX IF > 400 000
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, byteArrayOutputStream);
 
 
         /*

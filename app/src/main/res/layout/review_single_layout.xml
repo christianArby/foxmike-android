@@ -44,13 +44,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="This is the review text."
+        android:paddingStart="@dimen/margin_left"
+        android:paddingEnd="@dimen/margin_left"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintTop_toBottomOf="@id/reviewerName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/margin_minimum"
-        android:layout_marginEnd="@dimen/margin_right"
         android:layout_marginBottom="@dimen/marginVertical"/>
 
     <View

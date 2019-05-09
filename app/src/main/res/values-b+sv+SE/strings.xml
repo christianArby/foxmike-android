@@ -402,7 +402,7 @@
     <string name="booking_failed">Bokningen misslyckades</string>
     <string name="choose_location">Välj plats</string>
     <string name="booking_session">Bokar pass…</string>
-    <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="http://foxmike.se/anvandarvillkor/">användarvillkor</a>.</string>
+    <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="http://foxmike.app/anvandarvillkor/">användarvillkor</a>.</string>
     <string name="cancellation_not_possible">Passet går ej att avboka</string>
     <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
     <string name="refund_not_possible">Återbetalning ej möjlig</string>
@@ -578,6 +578,6 @@
     <string name="not_editable_session_name">Det är inte möjligt att ändra namn på passet då det har kommande tillfällen.</string>
     <string name="not_editable_location">Det är inte möjligt att ändra plats på passet då det har kommande tillfällen.</string>
     <string name="foxmike_trainer_question">Vill du bli Foxmiketränare?</string>
-    <string name="foxmike_trainer_question_text">Skicka ett mail till\u0020<a href="info@foxmike.se">info@foxmike.se</a>\u0020så hör vi av oss och berättar mer. Ange gärna i vilket område och vad för typ av pass du vill hålla.</string>
+    <string name="foxmike_trainer_question_text">Skicka ett mail till\u0020<a href="info@foxmike.app">info@foxmike.app</a>\u0020så hör vi av oss och berättar mer. Ange gärna i vilket område och vad för typ av pass du vill hålla.</string>
     <string name="greetings_from_foxmike">Hälsningar från oss på Foxmike</string>
 </resources>
