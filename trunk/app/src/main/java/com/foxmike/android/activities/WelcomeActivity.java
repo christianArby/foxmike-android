@@ -171,12 +171,10 @@ public class WelcomeActivity extends AppCompatActivity {
                         // Logged in to Facebook success
                         // -- getting stuff from fb ----
                         String accessToken = loginResult.getAccessToken().getToken();
-                        Log.i("accessToken", accessToken);
                         GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
 
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
-                                Log.i("LoginActivity", response.toString());
                                 // Get facebook data from login, to be used in AddUserToDatabaseWithUniqueUsername later on
                                 Bundle bFacebookData = getFacebookData(object);
                                 firstName = bFacebookData.getString("first_name");
@@ -315,7 +313,6 @@ public class WelcomeActivity extends AppCompatActivity {
         lastName = acct.getFamilyName();
         imageURL = acct.getPhotoUrl().toString();
         email = acct.getEmail();
-        Log.d("min app", "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -439,7 +436,6 @@ public class WelcomeActivity extends AppCompatActivity {
             String id = object.getString("id");
             try {
                 URL profile_pic = new URL("https://graph.facebook.com/" + id + "/picture?width=400&height=400");
-                Log.i("profile_pic", profile_pic + "");
                 bundle.putString("profile_pic", profile_pic.toString());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -461,7 +457,7 @@ public class WelcomeActivity extends AppCompatActivity {
             return bundle;
         }
         catch(JSONException e) {
-            Log.d("min app","Error parsing JSON");
+
         }
         return null;
     }

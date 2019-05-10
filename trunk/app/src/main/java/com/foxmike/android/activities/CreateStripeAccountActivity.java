@@ -357,7 +357,6 @@ public class CreateStripeAccountActivity extends AppCompatActivity implements
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         String ip = Formatter.formatIpAddress(inetAddress.hashCode());
-                        Log.i(TAG, "***** IP="+ ip);
                         return ip;
                     }
                 }

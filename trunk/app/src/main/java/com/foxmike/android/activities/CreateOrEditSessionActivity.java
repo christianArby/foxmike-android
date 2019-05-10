@@ -27,7 +27,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -1098,6 +1097,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 geoFire = new GeoFire(mGeofireDbRef);
                 geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
 
+                // Save the reference so it is easy to remove from geofire if cancelled
+                FirebaseDatabase.getInstance().getReference().child("advertisementGeoFireReference").child(advertisement.getAdvertisementId()).setValue(geoFireDateNode + "/" +geoFireKey);
+
                 Bundle bundle = new Bundle();
                 bundle.putString("session_id", advertisement.getSessionId());
                 bundle.putString("advertisement_id", advertisement.getAdvertisementId());
@@ -1247,8 +1249,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
             compressedImageUri = Uri.fromFile(file);
 
-            Log.d("ImageCompressor", "New photo size ==> " + file.length()); //log new file size.
-
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mSessionImageButton.setImageURI(compressedImageUri);
         }
@@ -1256,8 +1256,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         @Override
         public void onError(Throwable error) {
             //very unlikely, but it might happen on a device with extremely low storage.
-            //log it, log.WhatTheFuck?, or show a dialog asking the user to delete some files....etc, etc
-            Log.wtf("ImageCompressor", "Error occurred", error);
         }
     };
 
