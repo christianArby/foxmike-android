@@ -40,13 +40,6 @@
         app:layout_constraintStart_toStartOf="parent"
         />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="hej"
-        app:layout_constraintTop_toBottomOf="@id/session_list"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
     <com.github.silvestrpredko.dotprogressbar.DotProgressBar
         android:visibility="visible"
         android:id="@+id/dotProgressBar"

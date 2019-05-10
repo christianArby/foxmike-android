@@ -259,7 +259,7 @@
     <string name="CD_time_icon">Tidikonen</string>
     <string name="what_hint">Vad vi kommer att göra</string>
     <string name="who_hint">Vem som kan vara med</string>
-    <string name="where_hint">Var vi kommer att vara</string>
+    <string name="where_hint">Var vi samlas</string>
     <string name="location_loading">Plats laddas ...</string>
     <string name="advertised_text">Annonserade</string>
     <string name="advertised_not_text">Ej annonserad</string>
@@ -268,7 +268,7 @@
     <string name="send_message_text">Skicka meddelande</string>
     <string name="what_heading">Vad vi kommer att göra</string>
     <string name="who_heading">Vem som kan vara med</string>
-    <string name="where_heading">Var vi kommer att vara</string>
+    <string name="where_heading">Var vi samlas</string>
     <string name="pick_location_text">Välj en plats genom att klicka på kartan!</string>
     <string name="Sort_on_text">I listan, sortera passen baserat på:</string>
     <string name="filter_on_distance_text">Avstånd från mig</string>
@@ -458,7 +458,7 @@
     <string name="please_choose_maximum_nr_of_participants">Välj maximalt antal deltagare</string>
     <string name="please_write_longer_session_description">Skriv en längre beskrivning</string>
     <string name="please_write_session_who">Skriv vem som kan vara med på passet</string>
-    <string name="please_explain_session_where">Förklara var någonstans passet kommer att hållas</string>
+    <string name="please_explain_session_where">Förklara var någonstans ni samlas</string>
     <string name="please_set_session_price">Välj ett pris för passet</string>
     <string name="no_studios_text">Skapa en träningsgrupp där du kan lägga ut pass, klicka på plusknappen nedan!.</string>
     <string name="you_must_agree_to_above">Du måste godkänna Stripe Connected Account Agreement för att registrera ett konto.</string>
@@ -495,7 +495,7 @@
     <string name="could_not_find_payment_method">Kunde inte hitta betalningsmetod, försök igen senare.</string>
     <string name="minutes_append">\u0020min</string>
     <string name="search_for_name_or_username">Sök namn eller @användarnamn</string>
-    <string name="no_sessions_this_time">Inga pass tillgängliga den här tidsperioden.</string>
+    <string name="no_sessions_this_time">Inga pass den här tidsperioden.</string>
     <string name="you_have_no_notifications_yet">Du har inga notiser än.</string>
     <string name="notifications">Notiser</string>
     <string name="has_made_a_post_in">\u0020har gjort ett inlägg i\u0020</string>
@@ -571,7 +571,7 @@
     <string name="foxmike_tip_text">Tips på gratispass, se mer information om arrangör och passet nedan.</string>
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">Inga pass den här dagen.</string>
-    <string name="unknown">Okänd</string>
+    <string name="unknown">Annat</string>
     <string name="open_source_notices">Licenser för öppen källkod</string>
     <string name="not_editable">Ej redigerbar</string>
     <string name="not_editable_session_type">Det är inte möjligt att ändra typ på passet då det har kommande tillfällen.</string>

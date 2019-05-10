@@ -441,13 +441,37 @@ public class MainPlayerActivity extends AppCompatActivity
     private void presentReview(String advertisementId) {
 
         if (advertisementId!=null) {
-            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            writeReviewsFragment.show(transaction,advertisementId);
+            FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisementId));
+            reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
+
+                    rootDbRef.child("advertisements").child(advertisementId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            writeReviewsFragment.show(transaction,advertisementId);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            });
         }
-
-
     }
 
     private void updateStripeCustomerInfo() {
@@ -597,7 +621,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -622,6 +646,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             bookIntent.putExtra("amount",amount);
                             bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
                             bookIntent.putExtra("sessionType",sessionType);
+                            bookIntent.putExtra("currentNrOfParticipants",currentNrOfParticipants);
                             startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
                         }
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -642,6 +667,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("amount",amount);
         bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
         bookIntent.putExtra("sessionType",sessionType);
+        bookIntent.putExtra("currentNrOfParticipants",currentNrOfParticipants);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
 
     }

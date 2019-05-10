@@ -67,6 +67,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -198,11 +199,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private ImageCompressTask imageCompressTask;
     private Uri compressedImageUri = null;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_or_edit_session);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         checkIfPayOutsIsEnabled();
 
@@ -1093,6 +1097,17 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(geoFireDateNode);
                 geoFire = new GeoFire(mGeofireDbRef);
                 geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
+
+                Bundle bundle = new Bundle();
+                bundle.putString("session_id", advertisement.getSessionId());
+                bundle.putString("advertisement_id", advertisement.getAdvertisementId());
+                bundle.putString("advertisement_date", TextTimestamp.textSDF(advertisement.getAdvertisementTimestamp()));
+                bundle.putString("session_name", (String) sendSession.get("sessionName"));
+                bundle.putString("session_type", (String) sendSession.get("sessionType"));
+                bundle.putDouble("session_price", (double) advertisement.getPrice());
+                bundle.putString("session_currency", advertisement.getCurrency());
+                bundle.putString("session_host", advertisement.getHost());
+                mFirebaseAnalytics.logEvent("advertisement", bundle);
             }
         }
         // Save the hashmap of ad Ids and timestamps under sessionAdvertisements

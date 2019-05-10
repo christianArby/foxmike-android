@@ -479,8 +479,8 @@ public class ExploreFragment extends Fragment{
 
     private void switchMapOrListUI(boolean mapIsVisible) {
 
-        int width = mainView.getRight();
-        int height = mainView.getBottom();
+        int width = mainView.getMeasuredWidth();
+        int height = mainView.getMeasuredHeight();
         float fabDiameter = convertDpToPx(getActivity().getApplicationContext(), 56);
 
         if (width>0 && height>0 && fabDiameter>0) {

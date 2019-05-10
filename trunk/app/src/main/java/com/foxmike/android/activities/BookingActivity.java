@@ -37,6 +37,7 @@ public class BookingActivity extends AppCompatActivity {
     private int advertisementDurationInMin;
     private  String sessionType;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private int currentNrOfParticipants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class BookingActivity extends AppCompatActivity {
         sessionType = getIntent().getStringExtra("sessionType");
         amount = getIntent().getIntExtra("amount", 0);
         advertisementDurationInMin = getIntent().getIntExtra("advertisementDurationInMin", 0);
+        currentNrOfParticipants = getIntent().getIntExtra("currentNrOfParticipants", 0);
         // If advertisement is free, just add the participant to the participant list
         if (amount==0) {
             addCurrentUserToSessionParticipantList();
@@ -86,12 +88,14 @@ public class BookingActivity extends AppCompatActivity {
                     HashMap<String, Object> result = task.getResult();
 
                     if (result.get("operationResult").toString().equals("success")) {
-
                         Bundle bundle = new Bundle();
                         bundle.putDouble("session_price", (double) amount);
                         bundle.putString("session_currency", "SEK");
                         bundle.putString("session_type", sessionType);
-                        bundle.putString("session_host", hostId);
+                        bundle.putString("session_host_id", hostId);
+                        bundle.putString("participant_email", mAuth.getCurrentUser().getEmail());
+                        bundle.putString("participant_id", mAuth.getCurrentUser().getUid());
+                        bundle.putDouble("currentNrOfParticipants", currentNrOfParticipants);
                         mFirebaseAnalytics.logEvent("booking", bundle);
 
                         setResult(RESULT_OK, null);
@@ -135,7 +139,10 @@ public class BookingActivity extends AppCompatActivity {
                     bundle.putDouble("session_price", (double) amount);
                     bundle.putString("session_currency", "SEK");
                     bundle.putString("session_type", sessionType);
-                    bundle.putString("session_host", hostId);
+                    bundle.putString("session_host_id", hostId);
+                    bundle.putString("participant_email", mAuth.getCurrentUser().getEmail());
+                    bundle.putString("participant_id", mAuth.getCurrentUser().getUid());
+                    bundle.putDouble("currentNrOfParticipants", currentNrOfParticipants);
                     mFirebaseAnalytics.logEvent("booking", bundle);
 
                     setResult(RESULT_OK, null);

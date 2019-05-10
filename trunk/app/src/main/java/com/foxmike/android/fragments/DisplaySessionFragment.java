@@ -741,7 +741,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         snackBar = view.findViewById(R.id.snackBar);
         shareIcon = view.findViewById(R.id.shareIcon);
 
-        shareIcon.setOnClickListener(new View.OnClickListener() {
+        shareIcon.setVisibility(View.GONE);
+        /*shareIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent sendIntent = new Intent();
@@ -750,7 +751,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, "Dela"));
             }
-        });
+        });*/
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -1389,10 +1390,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // Payment method has been checked above (method return if no payment method)
                         // Now user will book mSession if button is pressed, if free send parameters to book mSession with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size());
                         } else {
                             // mSession costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size());
                         }
                     }
                     // If the current user is the mSession host, button will show cancel mSession, if clicked start cancellation process
