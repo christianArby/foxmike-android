@@ -24,18 +24,18 @@ android {
         targetSdkVersion 28
         versionCode generateVersionCode() // 190010203
         versionName generateVersionName() // 1.2.3-SNAPSHOT
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.display_session_card.runner.AndroidJUnitRunner"
         multiDexEnabled true //important
         lintOptions {
             disable 'MissingTranslation'
         }
         // If debuggable true
-        signingConfig signingConfigs.config
+        //signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             // If debuggable true
-            debuggable true
+            //debuggable true
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -116,7 +116,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
     androidTestImplementation 'com.android.support:support-annotations:28.0.0'
     androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-oss-licenses:16.0.2'
     //
     implementation 'android.arch.lifecycle:extensions:1.1.0'

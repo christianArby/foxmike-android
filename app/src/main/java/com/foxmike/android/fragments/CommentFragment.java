@@ -3,7 +3,6 @@ package com.foxmike.android.fragments;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -172,10 +171,7 @@ public class CommentFragment extends Fragment {
                 postSendBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                            return;
-                        }
-                        mLastClickTime = SystemClock.elapsedRealtime();
+                        postSendBtn.setEnabled(false);
                         refreshTriggeredByScroll = false;
                         sendMessage(currentUser.getFirstName());
                     }
@@ -254,10 +250,13 @@ public class CommentFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             postMessage.setText("");
+                            postSendBtn.setEnabled(true);
                         }
                     });
                 }
             });
+        } else {
+            postSendBtn.setEnabled(true);
         }
     }
 

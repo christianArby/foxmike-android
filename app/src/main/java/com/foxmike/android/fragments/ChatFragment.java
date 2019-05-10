@@ -6,7 +6,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,7 +31,6 @@ import com.foxmike.android.activities.FoxmikeApplication;
 import com.foxmike.android.adapters.MessageFirebaseAdapter;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Message;
-import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -226,29 +224,14 @@ public class ChatFragment extends Fragment {
                         messagesListRV.setAdapter(messageFirebaseAdapter);
 
                         // Setup send button, when button is clicked send message to database
-                        rootDbRef.child("usersPublic").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        chatSendBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.getValue()==null) {
-                                    return;
-                                }
-                                UserPublic currentUser = dataSnapshot.getValue(UserPublic.class);
-                                chatSendBtn.setOnClickListener(view1 -> {
-                                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                        return;
-                                    }
-                                    mLastClickTime = SystemClock.elapsedRealtime();
-
-                                    refreshTriggeredByScroll = false;
-                                    sendMessage(currentUser.getFirstName(), currentUser.getImage());
-                                });
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                            public void onClick(View v) {
+                                refreshTriggeredByScroll = false;
+                                chatSendBtn.setEnabled(false);
+                                sendMessage();
                             }
                         });
-
                         // Start listening to changes in database
                         messageFirebaseAdapter.startListening();
 
@@ -393,7 +376,7 @@ public class ChatFragment extends Fragment {
     }
 
     /* This function writes the message and its parameters to the database */
-    private void sendMessage(String userName, String userThumbImage) {
+    private void sendMessage() {
         // get message from EditText
         String message = chatMessage.getText().toString();
         if (!TextUtils.isEmpty(message)) {
@@ -430,12 +413,15 @@ public class ChatFragment extends Fragment {
                             }
                             // Clear the input field
                             chatMessage.setText("");
+                            chatSendBtn.setEnabled(true);
                         }
                     });
 
 
                 }
             });
+        } else {
+            chatSendBtn.setEnabled(true);
         }
     }
     @Override

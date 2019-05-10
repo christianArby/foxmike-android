@@ -264,7 +264,6 @@ public class ExploreFragment extends Fragment{
                             checkIfGeoFireNodesAreLoaded();
                             // ELLER HÄR '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
                         } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
                         }
                     }
@@ -780,7 +779,6 @@ public class ExploreFragment extends Fragment{
             Task geoQueryTask = geoQuerySource.getTask();
             geoQueryTasks.add(geoQueryTask);
             currentDay = weekday;
-            Log.d("TESTSPEED","START");
 
             Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
             String geoFireDateNode = TextTimestamp.textSDF(dayTimestamp);
@@ -805,13 +803,11 @@ public class ExploreFragment extends Fragment{
 
                 @Override
                 public void onGeoQueryReady() {
-                    Log.d("TESTSPEED","KLAR");
                     geoQuerySource.trySetResult(true);
                 }
 
                 @Override
                 public void onGeoQueryError(DatabaseError error) {
-                    Log.d("TESTSPEED",error.getMessage());
 
                 }
             };
@@ -833,8 +829,6 @@ public class ExploreFragment extends Fragment{
                     }
                 }
 
-
-                Log.d("TESTSPEED","KLAR");
                 if (task.isSuccessful()) {
                     geoFireNodesAndFragmentsUsed = false;
                     checkIfToLoadFragmentsWithData();
