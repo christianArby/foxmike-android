@@ -19,6 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
@@ -72,6 +73,7 @@ public class  ListSessionsFragment extends Fragment {
     private int itemsToLoadPerDayEachTime = 20;
     private int totalAdsToLoadThisDay;
     private HashMap<String, String> sessionTypeDictionary;
+    private TextView noContent;
 
     private HashMap<GeoQuery, GeoQueryEventListener> geofireListeners = new HashMap<>();
     private int weekday;
@@ -142,6 +144,7 @@ public class  ListSessionsFragment extends Fragment {
         HeaderItemDecoration headerItemDecoration = new HeaderItemDecoration(mSessionList, (HeaderItemDecoration.StickyHeaderInterface) sessionsAdapter);
         mSessionList.addItemDecoration(headerItemDecoration);
         mSessionList.setAdapter(sessionsAdapter);
+        noContent = mainView.findViewById(R.id.noContent);
 
         Long todayTimestamp = System.currentTimeMillis();
         Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
@@ -244,6 +247,7 @@ public class  ListSessionsFragment extends Fragment {
     private void checkIfToLoadListFromScratch() {
 
         if (isAdded() && !isLoading && !geoFireUsed) {
+            noContent.setVisibility(View.GONE);
             ArrayList<String> geoFireNodesKeysUsing = geoFireNodesKeys;
             isLoading = true;
             lastLoadingStart = SystemClock.elapsedRealtime();
@@ -315,6 +319,7 @@ public class  ListSessionsFragment extends Fragment {
         }*/
 
         if (isAdded() && !isLoading && geoFireLoaded && geoFireNodesKeysFromThisDay.size()==0 && sessionsAdapter.getItemCount()==0) {
+            noContent.setVisibility(View.VISIBLE);
             firsLoadProgressBar.setVisibility(View.GONE);
         }
     }

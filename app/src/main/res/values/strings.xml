@@ -259,7 +259,7 @@
     <string name="CD_time_icon">Time icon</string>
     <string name="what_hint">What will you do</string>
     <string name="who_hint">Who can attend</string>
-    <string name="where_hint">Where will you be</string>
+    <string name="where_hint">Where we’ll meet up</string>
     <string name="location_loading">Location loading…</string>
     <string name="advertised_text">Advertised</string>
     <string name="advertised_not_text">Not advertised</string>
@@ -268,7 +268,7 @@
     <string name="send_message_text">Send message</string>
     <string name="what_heading">What we’ll do</string>
     <string name="who_heading">Who can come</string>
-    <string name="where_heading">Where we’ll be</string>
+    <string name="where_heading">Where we’ll meet up</string>
     <string name="pick_location_text">Pick a location by clicking on map!</string>
     <string name="Sort_on_text">In the list, sort sessions by:</string>
     <string name="filter_on_distance_text">Only show sessions within this distance from my location:</string>
@@ -458,7 +458,7 @@
     <string name="please_choose_maximum_nr_of_participants">Please choose maximum number of participants for your sesssion</string>
     <string name="please_write_longer_session_description">Please write a longer description of what you will be doing.</string>
     <string name="please_write_session_who">Please write who can attend your session</string>
-    <string name="please_explain_session_where">Please explain where your session will take place</string>
+    <string name="please_explain_session_where">Please explain where you will meet up</string>
     <string name="please_set_session_price">Please set a price for your session</string>
     <string name="no_studios_text">Add a training group so that you can advertise sessions, click on plus button below!</string>
     <string name="you_must_agree_to_above">You must agree to the above in order to register your account.</string>
@@ -571,7 +571,7 @@
     <string name="foxmike_tip_text">Tip on free session, see more info below.</string>
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>
-    <string name="unknown">Unknown</string>
+    <string name="unknown">Other</string>
     <string name="open_source_notices">Open source notices</string>
     <string name="not_editable">Not editable</string>
     <string name="not_editable_session_type">It is not possible to change the session type since there are upcoming sessions.</string>

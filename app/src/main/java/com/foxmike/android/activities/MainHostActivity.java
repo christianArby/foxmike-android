@@ -322,11 +322,38 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     private void presentReview(String advertisementId) {
+
         if (advertisementId!=null) {
-            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisementId);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            writeReviewsFragment.show(transaction,advertisementId);
+            FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisementId));
+            reviewsToWriteLiveData.observe(this, new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        return;
+                    }
+
+                    rootDbRef.child("advertisements").child(advertisementId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
+                            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            writeReviewsFragment.show(transaction,advertisementId);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -494,7 +521,7 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType) {
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants) {
         // Not applicable in Host environment
     }
 
