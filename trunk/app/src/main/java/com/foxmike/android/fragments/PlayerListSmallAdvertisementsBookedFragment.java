@@ -41,6 +41,8 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
     private ListSmallAdvertisementsFirebaseAdapter bookedAdvertisementsFirebaseAdapter;
     private AlertOccasionCancelledListener alertOccasionCancelledListener;
     private HashMap<String, String> sessionTypeDictionary;
+    private Query futureAdsQuery;
+    private boolean hasContent;
 
     public PlayerListSmallAdvertisementsBookedFragment() {
         // Required empty public constructor
@@ -67,25 +69,30 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
         DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
 
-        Query futureAdsQuery = rootDbRef.child("advertisementAttendees").child(currentUserId).orderByValue().startAt(currentTimestamp);
+        futureAdsQuery = rootDbRef.child("advertisementAttendees").child(currentUserId).orderByValue().startAt(currentTimestamp);
         FirebaseRecyclerOptions<Advertisement> futureOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(futureAdsQuery, adDbRef, Advertisement.class)
                 .build();
 
-        futureAdsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        ValueEventListener futureAdsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
-                    loading.setVisibility(View.GONE);
-                    noContent.setVisibility(View.VISIBLE);
+                    hasContent = false;
+                } else {
+                    hasContent = true;
                 }
+                checkIfHasContent();
+                loading.setVisibility(View.GONE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        futureAdsQuery.addValueEventListener(futureAdsListener);
+
         bookedAdvertisementsFirebaseAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary, onSessionClickedListener);
 
         bookedAdvertisementsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -110,14 +117,34 @@ public class PlayerListSmallAdvertisementsBookedFragment extends Fragment {
                     noContent.setVisibility(View.VISIBLE);
                 }
             }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
+                if (bookedAdvertisementsFirebaseAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                } else {
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
         });
 
+    }
+
+    private void checkIfHasContent() {
+        if (hasContent && isAdded()) {
+            noContent.setVisibility(View.GONE);
+        } else {
+            noContent.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         bookedAdvertisementsFirebaseAdapter.startListening();
+        checkIfHasContent();
     }
 
     @Override

@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="web_client_id_for_google">1001204278871-19j8f8k78gfbqa7j6143btrqvj5qpcfo.apps.googleusercontent.com</string>
-    <string name="stripe_publishable_key">pk_test_6IcNIdHpN4LegxE3t8KzvmHx</string>
-    <string name="release_type">debug</string>
+    <!--RELEASE VERSION-->
+    <string name="web_client_id_for_google">961444435312-eaav2hag9uq96v875hplvia2t4p3kkdf.apps.googleusercontent.com</string>
+    <string name="stripe_publishable_key">pk_live_5O1AVRcme5TRAwSiAYHmuVm8</string>
+    <string name="release_type">release</string>
 
 </resources>
