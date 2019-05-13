@@ -58,6 +58,56 @@ public class Util {
 
             Where Quality ranges from 1 - 100.
          */
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, byteArrayOutputStream);
+
+        /*
+        Right now, we have our bitmap inside byteArrayOutputStream Object, all we need next is to write it to the compressed file we created earlier,
+        java.io.FileOutputStream can help us do just That!
+
+         */
+        FileOutputStream fileOutputStream = new FileOutputStream(compressed);
+        fileOutputStream.write(byteArrayOutputStream.toByteArray());
+        fileOutputStream.flush();
+
+        fileOutputStream.close();
+
+        //File written, return to the caller. Done!
+        return compressed;
+    }
+
+    public static File getCompressedHiRes(Context context, String path) throws IOException {
+
+        if(context == null)
+            throw new NullPointerException("Context must not be null.");
+        //getting device external cache directory, might not be available on some devices,
+        // so our code fall back to internal storage cache directory, which is always available but in smaller quantity
+        File cacheDir = context.getExternalCacheDir();
+        if(cacheDir == null)
+            //fall back
+            cacheDir = context.getCacheDir();
+
+        String rootDir = cacheDir.getAbsolutePath() + "/ImageCompressorHighRes";
+        File root = new File(rootDir);
+
+        //Create ImageCompressor folder if it doesnt already exists.
+        if(!root.exists())
+            root.mkdirs();
+
+        //decode and resize the original bitmap from @param path.
+        Bitmap bitmap = decodeImageFromFiles(path, /* your desired width*/1600, /*your desired height*/ 960);
+
+        //create placeholder for the compressed image file
+        File compressed = new File(root, SDF.format(new Date()) + ".jpg" /*Your desired format*/);
+
+        //convert the decoded bitmap to stream
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        /*compress bitmap into byteArrayOutputStream
+            Bitmap.compress(Format, Quality, OutputStream)
+
+            Where Quality ranges from 1 - 100.
+         */
         // TODO FIX IF > 400 000
         bitmap.compress(Bitmap.CompressFormat.JPEG, 95, byteArrayOutputStream);
 

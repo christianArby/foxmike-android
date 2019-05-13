@@ -46,6 +46,10 @@ public class ImageCompressTask implements Runnable {
                 File file = Util.getCompressed(mContext, path);
                 //add it!
                 result.add(file);
+
+                File fileHiRes = Util.getCompressedHiRes(mContext, path);
+
+                result.add(fileHiRes);
             }
             //use Handler to post the result back to the main Thread
             mHandler.post(new Runnable() {

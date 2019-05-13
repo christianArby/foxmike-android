@@ -238,67 +238,9 @@ public class AllUsersFragment extends Fragment {
 
                         allUsersList.setAdapter(firebaseRecyclerAdapter);
                         firebaseRecyclerAdapter.startListening();
-
                     }
                 });
-
             }
-            // TEMPORARY TODO DELETE
-        } else {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    if (firebaseRecyclerAdapter!=null) {
-                        firebaseRecyclerAdapter.stopListening();
-                    }
-
-                    mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
-                    Query query = mUsersDatabase.orderByChild("fullName").startAt(searchText).endAt(searchText + "\uf8ff").limitToFirst(100);
-
-                    FirebaseRecyclerOptions<User> options =
-                            new FirebaseRecyclerOptions.Builder<User>()
-                                    .setQuery(query, User.class)
-                                    .build();
-
-                    firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User, UsersViewHolder>(options) {
-                        @Override
-                        public UsersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                            View view = LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.users_list_single_layout, parent, false);
-                            return new UsersViewHolder(view);
-                        }
-                        @Override
-                        protected void onBindViewHolder(UsersViewHolder holder, int position, User model) {
-                            holder.setHeading(model.getFullName());
-                            holder.setText(model.getUserName(),true);
-                            holder.setUserImage(model.getThumb_image(), getActivity().getApplicationContext());
-
-                            final String userId = getRef(position).getKey();
-
-                            holder.mView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                        return;
-                                    }
-                                    mLastClickTime = SystemClock.elapsedRealtime();
-                                    if (userId.equals(currentUserID)) {
-                                        Toast.makeText(getActivity().getApplicationContext(), "This is you", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        onUserClickedListener.OnUserClicked(userId);
-                                    }
-
-                                }
-                            });
-                        }
-                    };
-
-                    allUsersList.setAdapter(firebaseRecyclerAdapter);
-                    firebaseRecyclerAdapter.startListening();
-
-                }
-            });
         }
     }
 
