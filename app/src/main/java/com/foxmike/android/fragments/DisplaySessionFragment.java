@@ -739,18 +739,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         snackBar = view.findViewById(R.id.snackBar);
         shareIcon = view.findViewById(R.id.shareIcon);
 
-        shareIcon.setVisibility(View.GONE);
-        /*shareIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "Spana in foxmikeappen: https://foxmike.alpa.online/");
-                sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sendIntent, "Dela"));
-            }
-        });*/
-
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
         priceTV.setVisibility(View.GONE);
@@ -894,6 +882,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // ---------------- SESSION && VIEW-----------------
         if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
             sessionAndViewUsed = true;
+
+            shareIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, "https://foxmike.app/explore/" + mSession.getSessionId());
+                    sendIntent.setType("text/plain");
+                    startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.share)));
+                }
+            });
 
             String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
             mAddress.setText(address);

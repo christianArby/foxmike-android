@@ -140,7 +140,7 @@
             android:textAllCaps="true"
             android:text="@string/new_text"
             android:textStyle="bold"
-            android:padding="@dimen/margin_minimum"
+            android:padding="4dp"
             android:textColor="@color/primaryTextColor"
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginBottom="@dimen/margin_left"
