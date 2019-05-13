@@ -17,8 +17,9 @@ public class UserPublic implements Comparable<UserPublic> {
     public String userName;
     private float rating;
     private int nrOfRatings;
+    private int nrOfReviews;
 
-    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings) {
+    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings, int nrOfReviews) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -29,6 +30,7 @@ public class UserPublic implements Comparable<UserPublic> {
         this.userName = userName;
         this.rating = rating;
         this.nrOfRatings = nrOfRatings;
+        this.nrOfReviews = nrOfReviews;
     }
 
     public void setRating(float rating) {
@@ -36,6 +38,18 @@ public class UserPublic implements Comparable<UserPublic> {
     }
 
     public UserPublic() {
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public int getNrOfReviews() {
+        return nrOfReviews;
+    }
+
+    public void setNrOfReviews(int nrOfReviews) {
+        this.nrOfReviews = nrOfReviews;
     }
 
     public int getNrOfRatings() {
