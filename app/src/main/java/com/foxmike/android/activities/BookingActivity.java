@@ -90,6 +90,7 @@ public class BookingActivity extends AppCompatActivity {
                     if (result.get("operationResult").toString().equals("success")) {
                         Bundle bundle = new Bundle();
                         bundle.putDouble("session_price", (double) amount);
+                        bundle.putString("session_price_string", Integer.toString(amount));
                         bundle.putString("session_currency", "SEK");
                         bundle.putString("session_type", sessionType);
                         bundle.putString("session_host_id", hostId);

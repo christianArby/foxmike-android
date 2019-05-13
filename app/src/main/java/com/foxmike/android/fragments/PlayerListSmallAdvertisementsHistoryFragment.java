@@ -110,6 +110,17 @@ public class PlayerListSmallAdvertisementsHistoryFragment extends Fragment {
                     noContent.setVisibility(View.VISIBLE);
                 }
             }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                loading.setVisibility(View.GONE);
+                if (pastAdvertisementsFirebaseAdapter.getItemCount()>0) {
+                    noContent.setVisibility(View.GONE);
+                } else {
+                    noContent.setVisibility(View.VISIBLE);
+                }
+            }
         });
 
     }
