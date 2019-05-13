@@ -15,6 +15,7 @@ public class Session implements Comparable<Session>, Serializable {
     private double latitude;
     private double longitude;
     private String imageUrl;
+    private String imageUrlHiRes;
     private String what;
     private String who;
     private String whereAt;
@@ -26,7 +27,7 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
 
-    public Session(String sessionId, String host, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
+    public Session(String sessionId, String host, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
         this.sessionId = sessionId;
         this.host = host;
         this.sessionName = sessionName;
@@ -36,6 +37,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageUrl = imageUrl;
+        this.imageUrlHiRes = imageUrlHiRes;
         this.what = what;
         this.who = who;
         this.whereAt = whereAt;
@@ -61,6 +63,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.latitude = sessionToCopy.latitude;
         this.longitude = sessionToCopy.longitude;
         this.imageUrl = sessionToCopy.imageUrl;
+        this.imageUrl = sessionToCopy.imageUrlHiRes;
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
         this.whereAt = sessionToCopy.whereAt;
@@ -81,6 +84,14 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setRepresentingAdTimestamp(long representingAdTimestamp) {
         this.representingAdTimestamp = representingAdTimestamp;
+    }
+
+    public String getImageUrlHiRes() {
+        return imageUrlHiRes;
+    }
+
+    public void setImageUrlHiRes(String imageUrlHiRes) {
+        this.imageUrlHiRes = imageUrlHiRes;
     }
 
     public String getAddress() {

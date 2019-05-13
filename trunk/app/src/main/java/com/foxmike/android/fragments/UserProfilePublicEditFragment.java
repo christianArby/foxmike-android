@@ -131,7 +131,9 @@ public class UserProfilePublicEditFragment extends Fragment {
                     userLastNameET.setText(currentUser.getLastName());
                     userAboutMeET.setText(currentUser.getAboutMe());
                     userNameET.setText(currentUser.getUserName());
-                    setImageButton(currentUser.getImage(), profileImageButton);
+                    if(mImageUri==null) {
+                        setImageButton(currentUser.getImage(), profileImageButton);
+                    }
                 }
             }
         });

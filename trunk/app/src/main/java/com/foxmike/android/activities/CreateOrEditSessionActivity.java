@@ -198,6 +198,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private ImageCompressTask imageCompressTask;
     private Uri compressedImageUri = null;
+    private Uri compressedImageHiResUri = null;
     private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
@@ -990,11 +991,26 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                              * to the main activity*/
                             sessionMap.put("imageUrl", downloadUri);
 
-                            if (infoIsValid){
-                                onSessionUpdatedListener.OnSessionUpdated(sessionMap);
-                            }
-                            mProgress.dismiss();
+                            StorageReference hiResfFilepath = mStorageSessionImage.child(mSessionId + "hiRes");
 
+                            hiResfFilepath.putFile(compressedImageHiResUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                    hiResfFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            String downloadUri = uri.toString();
+                                            sessionMap.put("imageUrlHiRes", downloadUri);
+                                            if (infoIsValid){
+                                                onSessionUpdatedListener.OnSessionUpdated(sessionMap);
+                                            }
+                                            mProgress.dismiss();
+
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
                 }
@@ -1248,6 +1264,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             File file = compressed.get(0);
 
             compressedImageUri = Uri.fromFile(file);
+            compressedImageHiResUri = Uri.fromFile(compressed.get(1));
 
             mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mSessionImageButton.setImageURI(compressedImageUri);
