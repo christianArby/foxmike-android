@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "961444435312-ako7k31p42kq0g8jjr3ar2jklrpcg5bm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.foxmike.android",
-            "certificate_hash": "1c14b798619cecd1208ed52af255740290d7b7d5"
-          }
-        },
-        {
           "client_id": "961444435312-eaav2hag9uq96v875hplvia2t4p3kkdf.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -33,20 +25,20 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "961444435312-eaav2hag9uq96v875hplvia2t4p3kkdf.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "961444435312-06o89jktmhrib0h6psmvo2u9f2bbe11i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.foxmike.ios"
+              }
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

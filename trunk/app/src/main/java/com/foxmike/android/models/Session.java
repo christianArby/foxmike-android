@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class Session implements Comparable<Session>, Serializable {
     private String sessionId;
     private String host;
+    private String secondaryHostId;
     private String sessionName;
     private String sessionType;
     private String address;
@@ -27,9 +28,10 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
 
-    public Session(String sessionId, String host, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
+    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
         this.sessionId = sessionId;
         this.host = host;
+        this.secondaryHostId = secondaryHostId;
         this.sessionName = sessionName;
         this.sessionType = sessionType;
         this.address = address;
@@ -56,6 +58,7 @@ public class Session implements Comparable<Session>, Serializable {
     public Session(Session sessionToCopy) {
         this.sessionId = sessionToCopy.sessionId;
         this.host = sessionToCopy.host;
+        this.secondaryHostId = sessionToCopy.secondaryHostId;
         this.sessionName = sessionToCopy.sessionName;
         this.sessionType = sessionToCopy.sessionType;
         this.address = sessionToCopy.address;
@@ -84,6 +87,14 @@ public class Session implements Comparable<Session>, Serializable {
 
     public void setRepresentingAdTimestamp(long representingAdTimestamp) {
         this.representingAdTimestamp = representingAdTimestamp;
+    }
+
+    public String getSecondaryHostId() {
+        return secondaryHostId;
+    }
+
+    public void setSecondaryHostId(String secondaryHostId) {
+        this.secondaryHostId = secondaryHostId;
     }
 
     public String getImageUrlHiRes() {
