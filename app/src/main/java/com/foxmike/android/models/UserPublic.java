@@ -18,8 +18,9 @@ public class UserPublic implements Comparable<UserPublic> {
     private float rating;
     private int nrOfRatings;
     private int nrOfReviews;
+    private boolean superAdmin;
 
-    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings, int nrOfReviews) {
+    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings, int nrOfReviews, boolean superAdmin) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -31,6 +32,15 @@ public class UserPublic implements Comparable<UserPublic> {
         this.rating = rating;
         this.nrOfRatings = nrOfRatings;
         this.nrOfReviews = nrOfReviews;
+        this.superAdmin = superAdmin;
+    }
+
+    public boolean isSuperAdmin() {
+        return superAdmin;
+    }
+
+    public void setSuperAdmin(boolean superAdmin) {
+        this.superAdmin = superAdmin;
     }
 
     public void setRating(float rating) {

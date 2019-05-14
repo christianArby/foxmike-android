@@ -567,7 +567,7 @@
     <string name="session_is_full">Session is full</string>
     <string name="max_number_of_participants_reached">The maximum number of participants has been reached, session cannot be booked.</string>
     <string name="no_written_reviews_yet">No written reviews yet.</string>
-    <string name="foxmike_tip">Foxmike tip!</string>
+    <string name="foxmike_tip">tip!</string>
     <string name="foxmike_tip_text">Tip on free session, see more info below.</string>
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>

@@ -149,7 +149,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private OnUserClickedListener onUserClickedListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private android.support.v7.widget.Toolbar toolbar;
-    private User host;
+    private UserPublic host;
     private boolean currentUserLoaded;
     private boolean sessionLoaded;
     private boolean hostLoaded;
@@ -169,12 +169,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean currentUserAndViewUsed;
     private boolean sessionUsed;
     private boolean currentUserAndSessionAndViewAndMapUsed;
-    private boolean hostAndFoxmikeUidAndViewUsed;
+    private boolean hostAndSessionAndViewUsed;
     private boolean postsUsed;
     private boolean postCommentsUsed;
     private boolean paymentMethodLoaded;
     private boolean sessionAndPaymentAndViewUsed;
-    private boolean foxmikeUidLoaded;
     private RecyclerView upcomingSessionsRV;
     private List<SessionDateAndTime> sessionDateAndTimeList = new ArrayList<>();
     private LinearLayoutManager sessionDateAndTimeLLManager;
@@ -305,21 +304,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
-        // GET FOXMIKE UID FROM DATABASE
-        FirebaseDatabaseViewModel foxmikeUIDViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> foxmikeUIDLiveData = foxmikeUIDViewModel.getDataSnapshotLiveData(rootDbRef.child("foxmikeUID"));
-        foxmikeUIDLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null) {
-                    foxmikeUid = dataSnapshot.getValue().toString();
-                    foxmikeUidLoaded = true;
-                    hostAndFoxmikeUidAndViewUsed = false;
-                    onAsyncTaskFinished();
-                }
-            }
-        });
-
         // GET SESSION FROM DATABASE
         if(!sessionID.equals("")) {
             FirebaseDatabaseViewModel sessionViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
@@ -337,6 +321,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         sessionLatitude = session.getLatitude();
                         sessionID = session.getSessionId();
                         currentUserAndSessionAndViewAndMapUsed = false;
+                        hostAndSessionAndViewUsed = false;
                         sessionAndPaymentAndViewUsed = false;
                         sessionUsed = false;
                         sessionLoaded = true;
@@ -397,9 +382,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 if (dataSnapshot.getValue()==null) {
                     return;
                 }
-                host = dataSnapshot.getValue(User.class);
+                host = dataSnapshot.getValue(UserPublic.class);
                 hostLoaded = true;
-                hostAndFoxmikeUidAndViewUsed = false;
+                hostAndSessionAndViewUsed = false;
                 onAsyncTaskFinished();
             }
 
@@ -897,49 +882,76 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
             mAddress.setText(address);
 
+            if (mSession.getSecondaryHostId()!=null) {
 
-            if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
-
-                // -------------------- HOST -----------------------------
-                editTop.setVisibility(View.VISIBLE);
-                ratingText.setVisibility(View.GONE);
-                newFlag.setVisibility(View.GONE);
-                for (TextView editTV: editTVArrayList) {
-                    editTV.setVisibility(View.VISIBLE);
-                }
-                addDates.setVisibility(View.VISIBLE);
-                mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
-                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                            return;
-                        }
-                        mLastClickTime = SystemClock.elapsedRealtime();
-                        onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                if (mSession.getSecondaryHostId().equals(currentFirebaseUser.getUid())) {
+                    // -------------------- SECONDARY HOST -----------------------------
+                    editTop.setVisibility(View.GONE);
+                    for (TextView editTV: editTVArrayList) {
+                        editTV.setVisibility(View.GONE);
                     }
-                });
+                    addDates.setVisibility(View.GONE);
+                    mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
+                            onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                        }
+                    });
 
+                }
             } else {
-
-                // -------------------- PLAYER -----------------------------
-                editTop.setVisibility(View.GONE);
-                for (TextView editTV: editTVArrayList) {
-                    editTV.setVisibility(View.GONE);
-                }
-                addDates.setVisibility(View.GONE);
-                mSendMessageToHost.setText(R.string.show_profile);
-                mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                            return;
-                        }
-                        mLastClickTime = SystemClock.elapsedRealtime();
-                        onUserClickedListener.OnUserClicked(mSession.getHost());
+                if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
+                    // -------------------- HOST -----------------------------
+                    editTop.setVisibility(View.VISIBLE);
+                    ratingText.setVisibility(View.GONE);
+                    newFlag.setVisibility(View.GONE);
+                    for (TextView editTV: editTVArrayList) {
+                        editTV.setVisibility(View.VISIBLE);
                     }
-                });
+                    addDates.setVisibility(View.VISIBLE);
+                    mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
+                            onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                        }
+                    });
+                } else {
+                    // -------------------- PLAYER -----------------------------
+                    editTop.setVisibility(View.GONE);
+                    for (TextView editTV: editTVArrayList) {
+                        editTV.setVisibility(View.GONE);
+                    }
+                    addDates.setVisibility(View.GONE);
+                    mSendMessageToHost.setText(R.string.show_profile);
+                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
+                            if (mSession.getSecondaryHostId()!=null) {
+                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
+                            } else {
+                                onUserClickedListener.OnUserClicked(mSession.getHost());
+                            }
+                        }
+                    });
+                }
             }
+
+
+
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -952,17 +964,35 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
 
         // ---------------- HOST && VIEW-----------------
-        if (hostLoaded && getView()!=null && foxmikeUidLoaded && !hostAndFoxmikeUidAndViewUsed) {
-            hostAndFoxmikeUidAndViewUsed =true;
+        if (hostLoaded && getView()!=null && sessionLoaded && !hostAndSessionAndViewUsed) {
+            hostAndSessionAndViewUsed =true;
             setImage(host.getThumb_image(), mHostImage);
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
 
-            if (host.getUserId().equals(foxmikeUid)) {
-                whatHeadingTW.setText(R.string.information);
-                mHost.setText(R.string.foxmike_tip);
-                mHostAboutTV.setText(R.string.foxmike_tip_text);
+            if (host.isSuperAdmin()) {
+                if (mSession.getSecondaryHostId()!=null) {
+                    FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
+                    LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("usersPublic").child(mSession.getSecondaryHostId()));
+                    firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                        @Override
+                        public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue()==null) {
+                                return;
+                            }
+                            UserPublic secondaryHost = dataSnapshot.getValue(UserPublic.class);
+                            setImage(secondaryHost.getThumb_image(), mHostImage);
+                            String hostText = getString(R.string.hosted_by_text) + " " + secondaryHost.getFirstName();
+                            mHost.setText(hostText);
+                            mHostAboutTV.setText(secondaryHost.getAboutMe());
+                        }
+                    });
+                } else {
+                    whatHeadingTW.setText(R.string.information);
+                    mHost.setText(host.getFirstName() + " " + getResources().getString(R.string.foxmike_tip));
+                    mHostAboutTV.setText(R.string.foxmike_tip_text);
+                }
             }
         }
 
@@ -1612,7 +1642,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionAndViewUsed = false;
         currentUserAndViewUsed = false;
         currentUserAndSessionAndViewAndMapUsed = false;
-        hostAndFoxmikeUidAndViewUsed = false;
+        hostAndSessionAndViewUsed = false;
         sessionUsed = false;
         sessionAndPaymentAndViewUsed = false;
         postsUsed = false;
