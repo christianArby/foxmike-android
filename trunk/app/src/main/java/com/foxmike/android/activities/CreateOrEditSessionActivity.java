@@ -1,6 +1,9 @@
 package com.foxmike.android.activities;
 
 import android.app.ProgressDialog;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -54,8 +58,10 @@ import com.foxmike.android.interfaces.IImageCompressTaskListener;
 import com.foxmike.android.interfaces.OnAdvertisementArrayListChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.User;
 import com.foxmike.android.utils.ImageCompressTask;
 import com.foxmike.android.utils.TextTimestamp;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 import com.github.sundeepk.compactcalendarview.domain.Event;
@@ -125,6 +131,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private ImageButton mSessionImageButton;
     private static final int GALLERY_REQUEST = 1;
     private static final int PAYOUT_METHOD_REQUEST = 2;
+    static final int GET_USER_REQUEST = 5;
     private static final int UPDATE_SESSION_LOCATION_REQUEST = 3;
     private static final int CREATE_ADVERTISEMENT = 4;
     private Uri mImageUri = null;
@@ -188,6 +195,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private Query sessionAdRef;
     private ValueEventListener sessionAdListener;
     private boolean calendarLoaded;
+    private TextView secondaryHostTV;
 
 
     private static final int REQUEST_STORAGE_PERMISSION = 100;
@@ -200,6 +208,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private Uri compressedImageUri = null;
     private Uri compressedImageHiResUri = null;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private boolean userIsLoaded;
+    private User currentUser;
+    private String secondaryHostId;
+    private String secondaryHostFullName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -251,6 +263,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         adRecyclerView = createSession.findViewById(R.id.advertisementsRV);
         recyclerViewContainer = createSession.findViewById(R.id.recyclerViewContainer);
         addAdvertisement = createSession.findViewById(R.id.addAdvertisement);
+        secondaryHostTV = createSession.findViewById(R.id.secondaryHost);
 
         adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -274,6 +287,20 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+
+        mAuth = FirebaseAuth.getInstance();
+        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(currentUserRef);
+        firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                currentUser = dataSnapshot.getValue(User.class);
+                userIsLoaded = true;
+                setupUI();
+            }
+        });
+
 
         Formatter fmt = new Formatter();
         fmt.format("%tB", compactCalendarView.getFirstDayOfCurrentMonth());
@@ -339,9 +366,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
 
         mCreateSessionBtn.setVisibility(View.GONE);
-
-        mAuth = FirebaseAuth.getInstance();
-        currentUserDbRef = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         // Add view to create session container
         createSessionContainer.addView(createSession);
@@ -579,11 +603,27 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
     private void setupUI() {
 
-        if (!sessionLoadedIfAny || !sessionTypesLoaded || uiLoaded) {
+        if (!sessionLoadedIfAny || !sessionTypesLoaded || uiLoaded || !userIsLoaded) {
             return;
+        }
+        uiLoaded = true;
+
+        if (currentUser.isSuperAdmin()) {
+            secondaryHostTV.setVisibility(View.VISIBLE);
+            secondaryHostTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent getUserIntent = new Intent(CreateOrEditSessionActivity.this, GetUserActivity.class);
+                    startActivityForResult(getUserIntent, GET_USER_REQUEST);
+                }
+            });
         }
 
         if (existingSession!=null) {
+
+            if (existingSession.getSecondaryHostId()!=null) {
+                secondaryHostTV.setText("Has secondary host");
+            }
 
             clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
             address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
@@ -910,6 +950,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             mSessionId = mMarkerDbRef.push().getKey();
         }
 
+        if (secondaryHostId!=null) {
+            sessionMap.put("secondaryHostId", secondaryHostId);
+        }
+
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         String sessionTypeCode = "000";
@@ -1182,6 +1226,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     /** When user has selected an image from the gallery get that imageURI and save it in mImageUri and set the image to the imagebutton  */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == GET_USER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                secondaryHostId = data.getStringExtra("secondaryHostId");
+                secondaryHostFullName = data.getStringExtra("secondaryHostFullName");
+                secondaryHostTV.setText("Secondary host: " + secondaryHostFullName);
+            }
+        }
 
         if (requestCode == CREATE_ADVERTISEMENT) {
             payoutsEnabled = data.getBooleanExtra("payoutsEnabled", payoutsEnabled);

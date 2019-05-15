@@ -38,6 +38,17 @@
 
         </RelativeLayout>
 
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/secondaryHost"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primaryTextColor"
+            android:hint="Secondary host (if any, could be empty)"
+            android:layout_margin="@dimen/margin_left"/>
+
         <android.support.design.widget.TextInputLayout
             app:errorEnabled="true"
             android:layout_marginTop="@dimen/marginVertical"
