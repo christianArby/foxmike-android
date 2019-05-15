@@ -882,56 +882,50 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
             mAddress.setText(address);
 
-            if (mSession.getSecondaryHostId()!=null) {
+            // -------------------
 
-                if (mSession.getSecondaryHostId().equals(currentFirebaseUser.getUid())) {
-                    // -------------------- SECONDARY HOST -----------------------------
-                    editTop.setVisibility(View.GONE);
-                    for (TextView editTV: editTVArrayList) {
-                        editTV.setVisibility(View.GONE);
-                    }
-                    addDates.setVisibility(View.GONE);
-                    mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
-                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                return;
-                            }
-                            mLastClickTime = SystemClock.elapsedRealtime();
-                            onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
-                        }
-                    });
+            if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
 
+                // -------------------- HOST -----------------------------
+                editTop.setVisibility(View.VISIBLE);
+                ratingText.setVisibility(View.GONE);
+                newFlag.setVisibility(View.GONE);
+                for (TextView editTV: editTVArrayList) {
+                    editTV.setVisibility(View.VISIBLE);
                 }
-            } else {
-                if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
-                    // -------------------- HOST -----------------------------
-                    editTop.setVisibility(View.VISIBLE);
-                    ratingText.setVisibility(View.GONE);
-                    newFlag.setVisibility(View.GONE);
-                    for (TextView editTV: editTVArrayList) {
-                        editTV.setVisibility(View.VISIBLE);
-                    }
-                    addDates.setVisibility(View.VISIBLE);
-                    mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
-                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                return;
+                addDates.setVisibility(View.VISIBLE);
+
+                if (mSession.getSecondaryHostId()!=null) {
+                    if (mSession.getSecondaryHostId().equals(currentFirebaseUser.getUid())) {
+                        // -------------------- HOST AND SECONDARY HOST -----------------------------
+                        mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+                        mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
                             }
-                            mLastClickTime = SystemClock.elapsedRealtime();
-                            onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
-                        }
-                    });
-                } else {
-                    // -------------------- PLAYER -----------------------------
-                    editTop.setVisibility(View.GONE);
-                    for (TextView editTV: editTVArrayList) {
-                        editTV.setVisibility(View.GONE);
+                        });
+                    } else {
+                        // -------------------- HOST BUT NOT SECONDARY HOST -----------------------------
+                        mSendMessageToHost.setText(R.string.show_profile);
+                        mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                onUserClickedListener.OnUserClicked(mSession.getHost());
+                            }
+                        });
                     }
-                    addDates.setVisibility(View.GONE);
+
+                } else {
+                    // -------------------- HOST BUT NOT SECONDARY HOST -----------------------------
                     mSendMessageToHost.setText(R.string.show_profile);
                     mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -940,18 +934,70 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                 return;
                             }
                             mLastClickTime = SystemClock.elapsedRealtime();
-                            if (mSession.getSecondaryHostId()!=null) {
-                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
-                            } else {
-                                onUserClickedListener.OnUserClicked(mSession.getHost());
-                            }
+                            onUserClickedListener.OnUserClicked(mSession.getHost());
                         }
                     });
+
                 }
+
+            } else {
+
+                // -------------------- PLAYER -----------------------------
+                editTop.setVisibility(View.GONE);
+                for (TextView editTV: editTVArrayList) {
+                    editTV.setVisibility(View.GONE);
+                }
+                addDates.setVisibility(View.GONE);
+
+                if (mSession.getSecondaryHostId()!=null) {
+                    if (mSession.getSecondaryHostId().equals(currentFirebaseUser.getUid())) {
+                        // -------------------- PLAYER AND SECONDARY HOST -----------------------------
+                        mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
+                        mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                onUserAccountFragmentInteractionListener.OnUserAccountFragmentInteraction("edit");
+                            }
+                        });
+                    } else {
+                        // -------------------- PLAYER BUT NOT SECONDARY HOST -----------------------------
+                        mSendMessageToHost.setText(R.string.show_profile);
+                        mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                onUserClickedListener.OnUserClicked(mSession.getHost());
+                            }
+                        });
+                    }
+
+                } else {
+                    // -------------------- PLAYER BUT NOT SECONDARY HOST -----------------------------
+                    mSendMessageToHost.setText(R.string.show_profile);
+                    mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
+                            onUserClickedListener.OnUserClicked(mSession.getHost());
+                        }
+                    });
+
+                }
+
+
             }
 
-
-
+            // ------------------------------
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
