@@ -56,39 +56,51 @@
 
     </RelativeLayout>
 
-    <TextView
-        style="@style/FoxmikeTitle"
-        android:textColor="@color/secondaryTextColor"
-        android:id="@+id/sessionName"
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:text="test2"
-        app:layout_scrollFlags="scroll"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:textAlignment="center"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:ellipsize="end"
-        android:maxLines="2"/>
+        android:layout_gravity="center_horizontal|center_vertical">
 
-    <TextView
-        android:textColor="@color/secondaryTextColor"
-        android:id="@+id/sessionDateHeading"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:text="test2"
-        android:textAllCaps="true"
-        app:layout_collapseMode="pin"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_right"
-        android:layout_marginBottom="68dp"
-        android:textAlignment="center"
-        android:layout_gravity="center_horizontal|bottom"
-        android:ellipsize="end"
-        android:maxLines="1"/>
+        <TextView
+            style="@style/FoxmikeTitle"
+            android:textColor="@color/secondaryTextColor"
+            android:id="@+id/sessionName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:text="test2"
+            app:layout_scrollFlags="scroll"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_centerHorizontal="true"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="2"/>
+
+        <TextView
+            android:textColor="@color/secondaryTextColor"
+            android:id="@+id/sessionDateHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:text="test2"
+            android:textAllCaps="true"
+            app:layout_collapseMode="pin"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sessionName"
+            android:textAlignment="center"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+
+    </RelativeLayout>
+
+
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

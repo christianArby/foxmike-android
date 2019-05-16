@@ -135,7 +135,7 @@ public class WelcomeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         versionNameTV.setText(version);
-        //versionNameTV.setVisibility(View.GONE);
+        versionNameTV.setVisibility(View.GONE);
 
         getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
 

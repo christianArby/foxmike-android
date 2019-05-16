@@ -36,6 +36,7 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
+import com.foxmike.android.fragments.CreateTrainerDepositionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
@@ -135,11 +136,12 @@ public class MainPlayerActivity extends AppCompatActivity
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
+    public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
+    public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
+
+
     private int prevTab;
     private HashMap<String, String> sessionTypeDictionary;
-
-    public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
-    public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -558,6 +560,14 @@ public class MainPlayerActivity extends AppCompatActivity
                 userProfileFragment = UserProfileFragment.newInstance();
             }
             cleanMainFullscreenActivityAndSwitch(userProfileFragment, true,UserProfileFragment.TAG);
+        }
+        if (type.equals("DEPOSITION")) {
+            CreateTrainerDepositionFragment createTrainerDepositionFragment = (CreateTrainerDepositionFragment) fragmentManager.findFragmentByTag(CreateTrainerDepositionFragment.TAG);
+            if (createTrainerDepositionFragment ==null) {
+                createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance();
+            }
+            cleanMainFullscreenActivityAndSwitch(createTrainerDepositionFragment, true, CreateTrainerDepositionFragment.TAG);
+
         }
     }
     /* Listener, when edit "button" in user profile is clicked show edit user profile */

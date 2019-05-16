@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@color/color_background_dark"
+    tools:context="com.foxmike.android.activities.DepositionActivity"
+    android:id="@+id/mainView">
+
+    <TextView
+        android:id="@+id/depExplanation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="@dimen/margin_left"
+        android:text="Välkommen in till klubben,förklarar, listar regler, användarvillkoren, beskriver deposition och anledningen till det."/>
+
+    <LinearLayout
+        android:id="@+id/paymentMethodContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/depExplanation"
+        android:layout_margin="@dimen/margin_left">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:visibility="visible"
+            android:id="@+id/paymentMethod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:drawablePadding="@dimen/margin_left"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="**** 4444"
+            android:drawableStart="@drawable/ic_visa_card"
+            android:drawableEnd="@mipmap/ic_arrow_drop_down_black_24dp" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:visibility="gone"
+            android:textColor="@color/foxmikePrimaryColor"
+            android:id="@+id/addPaymentMethodTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:drawablePadding="@dimen/margin_left"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="@string/add_payment_method"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:visibility="visible"
+        android:id="@+id/dotProgressBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/color_background_light"
+        app:layout_constraintTop_toBottomOf="@id/depExplanation">
+
+        <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+            android:visibility="visible"
+            android:id="@+id/progressBar"
+            android:layout_width="80dp"
+            android:layout_height="19dp"
+            app:amount="3"
+            app:duration="@android:integer/config_mediumAnimTime"
+            app:endColor="@color/foxmikePrimaryColor"
+            app:startColor="@color/foxmikePrimaryDarkColor"
+            app:animationDirection="left"
+            android:layout_gravity="start|center_vertical"
+            />
+    </FrameLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:textAllCaps="false"
+        android:id="@+id/makeDepositionBtn"
+        android:background="@drawable/square_button_primary"
+        android:padding="@dimen/margin_minimum"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="@color/color_background_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Deponera 200 kr"
+        app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:textAllCaps="false"
+        android:id="@+id/addDepostionLaterBtn"
+        android:background="@drawable/square_button_transparent"
+        android:padding="@dimen/margin_minimum"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="@color/foxmikePrimaryColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/makeDepositionBtn"
+        android:text="@string/later"
+        />
+
+
+
+</android.support.constraint.ConstraintLayout>

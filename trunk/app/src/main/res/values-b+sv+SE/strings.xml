@@ -580,4 +580,5 @@
     <string name="foxmike_trainer_question">Vill du bli Foxmiketränare?</string>
     <string name="foxmike_trainer_question_text">Skicka ett mail till\u0020<a href="info@foxmike.app">info@foxmike.app</a>\u0020så hör vi av oss och berättar mer. Ange gärna i vilket område och vad för typ av pass du vill hålla.</string>
     <string name="greetings_from_foxmike">Hälsningar från oss på Foxmike</string>
+    <string name="later">Senare</string>
 </resources>

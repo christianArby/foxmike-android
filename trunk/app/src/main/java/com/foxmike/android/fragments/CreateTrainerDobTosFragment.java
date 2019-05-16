@@ -16,7 +16,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +29,8 @@ import android.widget.TextView;
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyProgressBar;
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
@@ -42,13 +39,13 @@ import java.util.Map;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CreateStripeAccountDobTosFragment extends Fragment {
+public class CreateTrainerDobTosFragment extends Fragment {
 
-    public static final String TAG = CreateStripeAccountDobTosFragment.class.getSimpleName();
+    public static final String TAG = CreateTrainerDobTosFragment.class.getSimpleName();
 
     private FirebaseFunctions mFunctions;
     private View view;
-    private HashMap<String, Object> accountData;
+    private HashMap<String, Object> accountDataDoB = new HashMap<>();
     private Button createAccountBtn;
     private TextView agreeServiceAgreementTV;
     private CheckBox TOSCheckBox;
@@ -59,10 +56,10 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     private boolean infoIsValid;
     private InputMethodManager imm;
 
-    private OnStripeAccountCreatedListener onStripeAccountCreatedListener;
+    private OnCreateTrainerDobTosListener onCreateTrainerDobTosListener;
 
 
-    public CreateStripeAccountDobTosFragment() {
+    public CreateTrainerDobTosFragment() {
         // Required empty public constructor
     }
 
@@ -71,17 +68,14 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Get data sent from previous activity
         if (getArguments() != null) {
-            Bundle bundle = getArguments();
-            if(bundle.getSerializable("accountData") != null)
-                accountData = (HashMap<String, Object>)bundle.getSerializable("accountData");
         }
     }
 
-    public static CreateStripeAccountDobTosFragment newInstance() {
+    public static CreateTrainerDobTosFragment newInstance() {
 
         Bundle args = new Bundle();
 
-        CreateStripeAccountDobTosFragment fragment = new CreateStripeAccountDobTosFragment();
+        CreateTrainerDobTosFragment fragment = new CreateTrainerDobTosFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -90,7 +84,7 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_create_stripe_account_dob_tos, container, false);
+        view = inflater.inflate(R.layout.fragment_create_trainer_dob_tos, container, false);
 
         createAccountBtn = view.findViewById(R.id.createStripeAccountBtn);
         agreeServiceAgreementTV = view.findViewById(R.id.agreeTermsPrivacyTV);
@@ -187,42 +181,15 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
                     int dobMonth = Integer.parseInt(dob.substring(5,7));
                     int dobDay = Integer.parseInt(dob.substring(8,10));
 
-                    accountData.put("dobYear",dobYear);
-                    accountData.put("dobMonth",dobMonth);
-                    accountData.put("dobDay",dobDay);
+                    accountDataDoB.put("dobYear",dobYear);
+                    accountDataDoB.put("dobMonth",dobMonth);
+                    accountDataDoB.put("dobDay",dobDay);
 
                     final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                     myProgressBar.startProgressBar();
 
-                    createStripeAccount(accountData).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                            // If not succesful, show error
-                            if (!task.isSuccessful()) {
-                                Exception e = task.getException();
-                                if (e instanceof FirebaseFunctionsException) {
-                                    FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                                    FirebaseFunctionsException.Code code = ffe.getCode();
-                                    Object details = ffe.getDetails();
-                                }
-                                // [START_EXCLUDE]
-                                Log.w(TAG, "create:onFailure", e);
-                                showSnackbar("An error occurred.");
-                                return;
-                                // [END_EXCLUDE]
-                            }
-                            // If successful, extract
-                            HashMap<String, Object> result = task.getResult();
-                            if (result.get("resultType").toString().equals("accountId")) {
-                                myProgressBar.stopProgressBar();
-                                onStripeAccountCreatedListener.OnStripeAccountCreated(result.get("accountId").toString());
+                    onCreateTrainerDobTosListener.onCreateTrainerDobTos(accountDataDoB);
 
-                            } else {
-                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                showSnackbar(error.get("message").toString());
-                            }
-                        }
-                    });
                 }
             }
         });
@@ -270,22 +237,22 @@ public class CreateStripeAccountDobTosFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnStripeAccountCreatedListener) {
-            onStripeAccountCreatedListener = (OnStripeAccountCreatedListener) context;
+        if (context instanceof OnCreateTrainerDobTosListener) {
+            onCreateTrainerDobTosListener = (OnCreateTrainerDobTosListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnStripeAccountCreatedListener");
+                    + " must implement OnCreateTrainerDobTosListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onStripeAccountCreatedListener = null;
+        onCreateTrainerDobTosListener = null;
     }
 
-    public interface OnStripeAccountCreatedListener {
-        void OnStripeAccountCreated(String accountId);
+    public interface OnCreateTrainerDobTosListener {
+        void onCreateTrainerDobTos(HashMap<String, Object> accountDataDoB);
     }
 
 }

@@ -133,7 +133,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.CreateStripeAccountActivity"
+            android:name=".activities.CreateCreateTrainerAccountActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.PayoutPreferencesActivity"
@@ -168,7 +168,9 @@
         <activity android:name=".activities.SetPriceActivity" />
         <activity android:name=".activities.FilteringActivity" />
         <activity android:name=".activities.BecomeFTActivity" />
-        <activity android:name=".activities.GetUserActivity"></activity>
+        <activity android:name=".activities.GetUserActivity" />
+        <activity android:name=".activities.DepositionActivity" />
+        <activity android:name=".activities.CreateTrainerActivity"></activity>
     </application>
 
 </manifest>

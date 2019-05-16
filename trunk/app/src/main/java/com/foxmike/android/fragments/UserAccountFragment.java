@@ -25,7 +25,7 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.activities.AboutActivity;
 import com.foxmike.android.activities.BecomeFTActivity;
-import com.foxmike.android.activities.CreateStripeAccountActivity;
+import com.foxmike.android.activities.CreateTrainerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
 import com.foxmike.android.activities.WelcomeActivity;
@@ -252,7 +252,7 @@ public class UserAccountFragment extends Fragment {
                         }
 
                         if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
-                            Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateStripeAccountActivity.class);
+                            Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateTrainerActivity.class);
                             startActivityForResult(createIntent, 1);
                             return;
                         }
