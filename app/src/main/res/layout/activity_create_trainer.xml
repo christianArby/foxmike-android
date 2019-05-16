@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.foxmike.android.activities.CreateTrainerActivity">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <FrameLayout
+        android:id="@+id/create_trainer_fragments_container"
+        android:elevation="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="Foxmike Tränare"
+                android:fontFamily="@font/montserrat_semi_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
+                android:textColor="@color/primaryTextColor"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginTop="@dimen/margin_left"/>
+
+
+            <TextView
+                android:id="@+id/becomeFtText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_left"
+                android:text="Awesome! Världen blir friskare och förhoppningsvis lyckligare med mer träning. Grymt att du vill vara med och hjälpa andra med träning.\n\nTänk på att alla pass måste vara träningsrelaterade som löpning, crosstraining, styrka eller Yoga. Du får gärna vara kreativ men det ska vara träning. Vi har lagt våra hjärtan på att den här appen ska vara användarvänlig och snygg. Bra bilder på passen och dig gör vårt jobb lättare plus att det underlättar för dig att få många deltagare.\n\nPassen får vara gratis men du kan också ta betalt för dina pass genom att ta ett pris per deltagare på max 100kr. Ta betalt ser vi gärna att du gör. Om inga tar betalt blir vi tvugna syssla med något annat än att hjälpa människor att träna mer. För att kunna erbjuda och marknadsföra den här appen behöver vi ta en avgift. På pass som kostar 100 kr för en deltagare får du 86kr per deltagare. På billigare pass tar vi något mer. Även om vi tar en bit av din kaka så hoppas vi att den är enklare att baka och större än tidigare.\n\nFör att kunna lägga ut pass måste du deponera 200 kr. Detta gör vi för att försäkra oss om att du kommer till passet som du lagt ut och att det är någorlunda som du beskrev det. Även om 9 av 10 personer kanske aldrig nödvändigtvis inte behövt deponera vet vi av tidigare erfarenheter att några få skulle förstöra för de flesta om vi inte har deposition.\n\nSkriv en så trevlig och utförlig text som möjligt om passet. Många vill veta detaljer om vad passen innehåller. Passen behöver inte vara utomhus men vi tycker att utomhus är bättre.\n\nLäs våra användarvillkor för mer info kring våra regler.\n\nVälkommen till Foxmike Tränare!"
+                app:layout_constraintTop_toBottomOf="@id/heading"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <android.support.v7.widget.AppCompatButton
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textAllCaps="false"
+                android:id="@+id/nextBtn"
+                android:background="@drawable/square_button_primary"
+                android:padding="@dimen/margin_minimum"
+                android:layout_margin="@dimen/margin_left"
+                android:textColor="@color/color_background_light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/next"
+                app:layout_constraintTop_toBottomOf="@id/becomeFtText"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+
+        </android.support.constraint.ConstraintLayout>
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+    
+
+
+</android.support.constraint.ConstraintLayout>

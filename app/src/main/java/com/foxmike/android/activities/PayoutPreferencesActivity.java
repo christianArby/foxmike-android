@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPayoutMethodsAdapter;
-import com.foxmike.android.fragments.CreateStripeExternalAccountFragment;
+import com.foxmike.android.fragments.CreateTrainerExternalAccountFragment;
 import com.foxmike.android.fragments.UpdateStripeExternalAccountFragment;
 import com.foxmike.android.interfaces.OnPayoutMethodClickedListener;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
@@ -46,7 +46,7 @@ import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
-public class PayoutPreferencesActivity extends AppCompatActivity implements UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener, CreateStripeExternalAccountFragment.OnStripeExternalAccountCreatedListener{
+public class PayoutPreferencesActivity extends AppCompatActivity implements UpdateStripeExternalAccountFragment.OnStripeAccountUpdatedListener, CreateTrainerExternalAccountFragment.OnCreateTrainerExternalAccountListener {
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -111,19 +111,19 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                             return;
                         }
                         mLastClickTime = SystemClock.elapsedRealtime();
-                        CreateStripeExternalAccountFragment createStripeExternalAccountFragment = new CreateStripeExternalAccountFragment();
+                        CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = new CreateTrainerExternalAccountFragment();
 
                         HashMap<String, Object> accountData = new HashMap<>();
 
                         Bundle bundle = new Bundle();
                         accountData.put("stripeAccountId",stripeAccountId);
                         bundle.putSerializable("accountData",accountData);
-                        createStripeExternalAccountFragment.setArguments(bundle);
+                        createTrainerExternalAccountFragment.setArguments(bundle);
 
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         FragmentTransaction transaction = fragmentManager.beginTransaction();
                         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
-                        transaction.add(R.id.container_update_fragment, createStripeExternalAccountFragment, "update").addToBackStack(null);
+                        transaction.add(R.id.container_update_fragment, createTrainerExternalAccountFragment, "update").addToBackStack(null);
                         transaction.commit();
 
                         progressBar.setVisibility(View.GONE);
@@ -238,13 +238,6 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     }
 
     @Override
-    public void OnStripeExternalAccountCreated() {
-        Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
-        startActivity(refresh);
-        this.finish();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         // check if maintenance
@@ -265,5 +258,22 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                 }
             }
         });
+    }
+
+    @Override
+    public void OnCreateTrainerExternalAccountCreated() {
+        Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+
+    @Override
+    public void OnCreateTrainerExternalAccountFailed() {
+
+    }
+
+    @Override
+    public void OnCreateTrainerExternalAccountLater() {
+
     }
 }

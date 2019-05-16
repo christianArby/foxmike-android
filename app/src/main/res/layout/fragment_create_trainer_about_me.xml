@@ -2,9 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
     android:background="@color/color_background_dark"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.foxmike.android.fragments.AboutUserFragment">
+    tools:context="com.foxmike.android.fragments.CreateTrainerAboutMeFragment">
 
     <android.support.design.widget.TextInputLayout
         android:focusedByDefault="false"

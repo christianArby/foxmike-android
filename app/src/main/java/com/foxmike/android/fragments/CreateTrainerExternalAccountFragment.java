@@ -40,9 +40,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class CreateStripeExternalAccountFragment extends Fragment {
+public class CreateTrainerExternalAccountFragment extends Fragment {
 
-    public static final String TAG = CreateStripeExternalAccountFragment.class.getSimpleName();
+    public static final String TAG = CreateTrainerExternalAccountFragment.class.getSimpleName();
 
     private FirebaseFunctions mFunctions;
     private View mainView;
@@ -53,11 +53,22 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     private ProgressBar progressBar;
     private long mLastClickTime = 0;
     private InputMethodManager imm;
+    private String stripeAccountId;
 
-    private OnStripeExternalAccountCreatedListener onStripeExternalAccountCreatedListener;
+    private OnCreateTrainerExternalAccountListener onCreateTrainerExternalAccountListener;
 
-    public CreateStripeExternalAccountFragment() {
+    public CreateTrainerExternalAccountFragment() {
         // Required empty public constructor
+    }
+
+
+    public static CreateTrainerExternalAccountFragment newInstance(String stripeAccountId) {
+
+        Bundle args = new Bundle();
+        args.putString("stripeAccountId", stripeAccountId);
+        CreateTrainerExternalAccountFragment fragment = new CreateTrainerExternalAccountFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -65,26 +76,16 @@ public class CreateStripeExternalAccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Get data sent from previous activity
         if (getArguments() != null) {
-            Bundle bundle = getArguments();
-            if(bundle.getSerializable("accountData") != null)
-                accountData = (HashMap<String, Object>)bundle.getSerializable("accountData");
+            stripeAccountId = getArguments().getString("stripeAccountId");
         }
     }
 
-    public static CreateStripeExternalAccountFragment newInstance() {
-
-        Bundle args = new Bundle();
-
-        CreateStripeExternalAccountFragment fragment = new CreateStripeExternalAccountFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_create_stripe_external_account, container, false);
+        View view = inflater.inflate(R.layout.fragment_create_trainer_external_account, container, false);
 
         mainView = view.findViewById(R.id.mainView);
         createAccountBtn = view.findViewById(R.id.createStripeAccountBtn);
@@ -186,7 +187,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                onStripeExternalAccountCreatedListener.OnStripeExternalAccountCreated();
+                onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountLater();
             }
         });
 
@@ -230,6 +231,7 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                     }
                     @Override
                     public void onSuccess(Token token) {
+                        accountData.put("stripeAccountId", stripeAccountId);
                         accountData.put("account_token", token.getId());
                         accountData.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
                         // If successfully created Bank Account create Stripe Account with all the collected info
@@ -249,6 +251,8 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                                         Object details = ffe.getDetails();
                                     }
                                     // [START_EXCLUDE]
+                                    myProgressBar.stopProgressBar();
+                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
                                     Log.w(TAG, "create:onFailure", e);
                                     showSnackbar(e.getMessage());
                                     return;
@@ -259,9 +263,11 @@ public class CreateStripeExternalAccountFragment extends Fragment {
                                 String result = task.getResult();
                                 if (result.equals("success")) {
                                     myProgressBar.stopProgressBar();
-                                    onStripeExternalAccountCreatedListener.OnStripeExternalAccountCreated();
+                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountCreated();
+
                                 } else {
                                     myProgressBar.stopProgressBar();
+                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
                                     showSnackbar("An error occurred:" + " " + result);
                                 }
                             }
@@ -317,21 +323,23 @@ public class CreateStripeExternalAccountFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnStripeExternalAccountCreatedListener) {
-            onStripeExternalAccountCreatedListener = (OnStripeExternalAccountCreatedListener) context;
+        if (context instanceof OnCreateTrainerExternalAccountListener) {
+            onCreateTrainerExternalAccountListener = (OnCreateTrainerExternalAccountListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnStripeExternalAccountCreatedListener");
+                    + " must implement OnCreateTrainerExternalAccountListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onStripeExternalAccountCreatedListener = null;
+        onCreateTrainerExternalAccountListener = null;
     }
 
-    public interface OnStripeExternalAccountCreatedListener {
-        void OnStripeExternalAccountCreated();
+    public interface OnCreateTrainerExternalAccountListener {
+        void OnCreateTrainerExternalAccountCreated();
+        void OnCreateTrainerExternalAccountFailed();
+        void OnCreateTrainerExternalAccountLater();
     }
 }

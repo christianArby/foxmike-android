@@ -22,23 +22,23 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-public class AboutUserFragment extends Fragment {
+public class CreateTrainerAboutMeFragment extends Fragment {
 
-    public static final String TAG = AboutUserFragment.class.getSimpleName();
+    public static final String TAG = CreateTrainerAboutMeFragment.class.getSimpleName();
 
     private TextInputLayout aboutMeTIL;
     private TextInputEditText aboutMeET;
     private Button nextBtn;
     private boolean infoIsValid = true;
-    private OnAboutMeInteractionListener onAboutMeInteractionListener;
+    private OnCreateTrainerAboutMeListener onCreateTrainerAboutMeListener;
     private long mLastClickTime = 0;
 
-    public AboutUserFragment() {
+    public CreateTrainerAboutMeFragment() {
         // Required empty public constructor
     }
 
-    public static AboutUserFragment newInstance(String param1, String param2) {
-        AboutUserFragment fragment = new AboutUserFragment();
+    public static CreateTrainerAboutMeFragment newInstance(String param1, String param2) {
+        CreateTrainerAboutMeFragment fragment = new CreateTrainerAboutMeFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -55,7 +55,7 @@ public class AboutUserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_about_user, container, false);
+        View view = inflater.inflate(R.layout.fragment_create_trainer_about_me, container, false);
 
         aboutMeTIL = view.findViewById(R.id.aboutMeTIL);
         aboutMeET = view.findViewById(R.id.aboutMeET);
@@ -101,7 +101,7 @@ public class AboutUserFragment extends Fragment {
                         FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid()).child("aboutMe").setValue(aboutMeET.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                onAboutMeInteractionListener.onAboutMeInteraction();
+                                onCreateTrainerAboutMeListener.onCreateTrainerAboutMe();
                             }
                         });
                     }
@@ -116,21 +116,21 @@ public class AboutUserFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnAboutMeInteractionListener) {
-            onAboutMeInteractionListener = (OnAboutMeInteractionListener) context;
+        if (context instanceof OnCreateTrainerAboutMeListener) {
+            onCreateTrainerAboutMeListener = (OnCreateTrainerAboutMeListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnCreateTrainerAboutMeListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        onAboutMeInteractionListener = null;
+        onCreateTrainerAboutMeListener = null;
     }
 
-    public interface OnAboutMeInteractionListener {
-        void onAboutMeInteraction();
+    public interface OnCreateTrainerAboutMeListener {
+        void onCreateTrainerAboutMe();
     }
 }

@@ -580,4 +580,5 @@
     <string name="foxmike_trainer_question">Do you want to be a Foxmiketrainer?</string>
     <string name="foxmike_trainer_question_text">Send us an email to\u0020<a href="info@foxmike.app">info@foxmike.app</a>\u0020and we will reach out to you. Please specify in what area and what type of session you are interested in hosting.</string>
     <string name="greetings_from_foxmike">Greetings from the team at Foxmike</string>
+    <string name="later">Later</string>
 </resources>
