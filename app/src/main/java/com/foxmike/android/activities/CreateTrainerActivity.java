@@ -263,15 +263,6 @@ public class CreateTrainerActivity extends AppCompatActivity implements
                 }
             }
         });
-
-
-
-
-
-        
-
-
-
     }
 
     @Override
