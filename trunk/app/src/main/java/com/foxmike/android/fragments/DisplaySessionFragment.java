@@ -910,7 +910,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             }
                         });
                     } else {
-                        // -------------------- HOST BUT NOT SECONDARY HOST -----------------------------
+                        // -------------------- HOST BUT IS NOT SECONDARY HOST -----------------------------
                         mSendMessageToHost.setText(R.string.show_profile);
                         mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -919,13 +919,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     return;
                                 }
                                 mLastClickTime = SystemClock.elapsedRealtime();
-                                onUserClickedListener.OnUserClicked(mSession.getHost());
+                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
                             }
                         });
                     }
 
                 } else {
-                    // -------------------- HOST BUT NOT SECONDARY HOST -----------------------------
+                    // -------------------- HOST -----------------------------
                     mSendMessageToHost.setText(R.string.show_profile);
                     mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -951,7 +951,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 if (mSession.getSecondaryHostId()!=null) {
                     if (mSession.getSecondaryHostId().equals(currentFirebaseUser.getUid())) {
-                        // -------------------- PLAYER AND SECONDARY HOST -----------------------------
+                        // -------------------- PLAYER AND IS SECONDARY HOST -----------------------------
                         mSendMessageToHost.setText(R.string.show_and_edit_profile_text);
                         mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -964,7 +964,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             }
                         });
                     } else {
-                        // -------------------- PLAYER BUT NOT SECONDARY HOST -----------------------------
+                        // -------------------- PLAYER BUT IS NOT SECONDARY HOST -----------------------------
                         mSendMessageToHost.setText(R.string.show_profile);
                         mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -973,13 +973,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                                     return;
                                 }
                                 mLastClickTime = SystemClock.elapsedRealtime();
-                                onUserClickedListener.OnUserClicked(mSession.getHost());
+                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
                             }
                         });
                     }
 
                 } else {
-                    // -------------------- PLAYER BUT NOT SECONDARY HOST -----------------------------
+                    // -------------------- PLAYER -----------------------------
                     mSendMessageToHost.setText(R.string.show_profile);
                     mSendMessageToHost.setOnClickListener(new View.OnClickListener() {
                         @Override
