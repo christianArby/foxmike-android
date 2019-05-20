@@ -2,18 +2,25 @@ package com.foxmike.android.adapters;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
@@ -475,7 +482,20 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public void setImage(Context ctx, String image){
             ImageView session_image = mView.findViewById(R.id.session_image);
-            Glide.with(ctx).load(image).into(session_image);
+
+            Glide.with(ctx).load(image).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    FrameLayout dotProgress = mView.findViewById(R.id.dotProgressBarContainer);
+                    dotProgress.setVisibility(View.GONE);
+                    return false;
+                }
+            }).into(session_image);
             session_image.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
         }
 

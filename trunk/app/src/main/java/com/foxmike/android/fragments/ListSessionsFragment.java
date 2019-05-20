@@ -7,7 +7,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -254,7 +253,7 @@ public class  ListSessionsFragment extends Fragment {
             geoFireUsed = true;
             firsLoadProgressBar.setVisibility(View.VISIBLE);
 
-            CountDownTimer countDownTimer = new CountDownTimer(5000, 1000) {
+            /*CountDownTimer countDownTimer = new CountDownTimer(5000, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
 
@@ -268,7 +267,7 @@ public class  ListSessionsFragment extends Fragment {
                         checkIfToLoadListFromScratch();
                     }
                 }
-            }.start();
+            }.start();*/
 
             Long todayTimestamp = System.currentTimeMillis();
             Long thisDayTimestamp = 0L;
@@ -328,7 +327,7 @@ public class  ListSessionsFragment extends Fragment {
         ArrayList<Task<?>> sessionAdvertisementFirstLoadTasks  = new ArrayList<>();
         sessionAdvertisementFirstLoadTasks.clear();
         advertisementIdsAndTimestampsFilteredArrayList.clear();
-        while (loadedthisDay <totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size()>loadedthisDay) {
+        while (loadedthisDay < totalAdsToLoadThisDay && geoFireNodesKeysFromThisDay.size() > loadedthisDay) {
 
             Long timestamp = Long.parseLong(CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 0, 13).toString());
             String adId = CharBuffer.wrap(geoFireNodesKeysFromThisDay.get(loadedthisDay), 13, 33).toString();
@@ -369,11 +368,14 @@ public class  ListSessionsFragment extends Fragment {
                             notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(advertisement.getAdvertisementId(), advertisement.getAdvertisementTimestamp()));
                         }
                         advertisementHashMap.put(dataSnapshot.getKey(), dataSnapshot.getValue(Advertisement.class));
+                    } else {
+                        if (advertisementHashMap.containsKey(dataSnapshot.getKey())) {
+                            notifyAdvertisementRemoved(new AdvertisementIdsAndTimestamps(dataSnapshot.getKey(), advertisementHashMap.get(dataSnapshot.getKey()).getAdvertisementTimestamp()));
+                        }
                     }
                     adSource.trySetResult(true);
                 }
             });
-
             loadedthisDay++;
         }
 

@@ -31,7 +31,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -40,7 +39,6 @@ import com.google.firebase.functions.HttpsCallableResult;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -157,48 +155,24 @@ public class SetupAccountActivity extends AppCompatActivity {
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {
-                            FirebaseDatabase.getInstance().getReference().child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
+                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
+                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getValue()!=null) {
-                                        String foxmikeUID = dataSnapshot.getValue().toString();
-                                        if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
-
-
-
-
-                                            String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
-                                            friendsData.put("foxmikeUID", foxmikeUID);
-                                            friendsData.put("currentDate", currentDate);
-                                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<String> task) {
-                                                    // If not succesful, show error
-                                                    if (!task.isSuccessful()) {
-                                                        Exception e = task.getException();
-                                                        myProgressBar.stopProgressBar();
-                                                        showSnackbar("An error occurred." + e.getMessage());
-                                                        return;
-                                                    }
-                                                    // Show the string passed from the Firebase server if task/function call on server is successful
-                                                    String result = task.getResult();
-                                                    if (result.equals("success")) {
-                                                        finishSetup(myProgressBar);
-                                                    } else {
-                                                        showSnackbar(result);
-                                                    }
-                                                }
-                                            });
-                                        } else {
-                                            finishSetup(myProgressBar);
-                                        }
-                                    } else {
-                                        finishSetup(myProgressBar);
+                                public void onComplete(@NonNull Task<String> task) {
+                                    // If not succesful, show error
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        myProgressBar.stopProgressBar();
+                                        showSnackbar("An error occurred." + e.getMessage());
+                                        return;
                                     }
-                                }
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // Show the string passed from the Firebase server if task/function call on server is successful
+                                    String result = task.getResult();
+                                    if (result.equals("success")) {
+                                        finishSetup(myProgressBar);
+                                    } else {
+                                        showSnackbar(result);
+                                    }
                                 }
                             });
                         }

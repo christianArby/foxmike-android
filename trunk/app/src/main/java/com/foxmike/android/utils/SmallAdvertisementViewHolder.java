@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -50,13 +49,23 @@ public class SmallAdvertisementViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-    public void setCancelled(boolean cancelled) {
+    public void setCancelled(boolean cancelled, Context context) {
         if (cancelled) {
+            cancelledFlag.setText(context.getResources().getString(R.string.cancelled));
+            cancelledFlag.setPadding(16,8,16,8);
+            /*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, );
+            cancelledFlag.setLayoutParams(params);*/
 
         } else {
             cancelledFlag.setText("");
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
-            cancelledFlag.setLayoutParams(params);
+            cancelledFlag.setPadding(0,0,0,0);
+
+            /*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+            cancelledFlag.setLayoutParams(params);*/
         }
+    }
+
+    public float convertDpToPx(Context context, float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
     }
 }

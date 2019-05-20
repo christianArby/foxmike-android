@@ -34,9 +34,14 @@
             android:layout_gravity="start|top"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/leadSub2Body"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/trainer_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/displaySessionHostImage" />
+            app:layout_constraintTop_toTopOf="@id/displaySessionHostImage"
+            app:layout_constraintEnd_toStartOf="@id/displaySessionHostImage"
+            app:layout_constraintHorizontal_bias="0"/>
 
         <TextView
             android:id="@+id/sendMessageToHost"

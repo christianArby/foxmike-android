@@ -68,7 +68,6 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -135,7 +134,7 @@ public class WelcomeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         versionNameTV.setText(version);
-        versionNameTV.setVisibility(View.GONE);
+        //versionNameTV.setVisibility(View.GONE);
 
         getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
 
@@ -164,56 +163,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
                 myProgressBar.startProgressBar();
                 facebookLoginButton.setEnabled(false);
-
-                LoginManager.getInstance().logInWithReadPermissions(WelcomeActivity.this, Arrays.asList("email", "public_profile"));
-                LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(final LoginResult loginResult) {
-                        // Logged in to Facebook success
-                        // -- getting stuff from fb ----
-                        String accessToken = loginResult.getAccessToken().getToken();
-                        GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                // Get facebook data from login, to be used in AddUserToDatabaseWithUniqueUsername later on
-                                Bundle bFacebookData = getFacebookData(object);
-                                firstName = bFacebookData.getString("first_name");
-                                lastName = bFacebookData.getString("last_name");
-                                imageURL = bFacebookData.getString("profile_pic");
-                                email = bFacebookData.getString("email");
-                                // Continue login process with token
-                                handleFacebookAccessToken(loginResult.getAccessToken());
-                            }
-                        });
-                        Bundle parameters = new Bundle();
-                        parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location");
-                        request.setParameters(parameters);
-                        request.executeAsync();
-                        // -- end --
-                    }
-                    @Override
-                    public void onCancel() {
-                        Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later. Error code 101", Toast.LENGTH_LONG).show();
-                        myProgressBar.stopProgressBar();
-                        facebookLoginButton.setEnabled(true);
-                    }
-                    @Override
-                    public void onError(FacebookException error) {
-                        if (error instanceof FacebookAuthorizationException) {
-                            if (AccessToken.getCurrentAccessToken() != null) {
-                                Toast.makeText(WelcomeActivity.this, "Already logged in as different user, logging out current user from Foxmike, please try to login again.", Toast.LENGTH_LONG).show();
-                                LoginManager.getInstance().logOut();
-                                myProgressBar.stopProgressBar();
-                                facebookLoginButton.setEnabled(true);
-                                return;
-                            }
-                        }
-                        Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later. Error code 101", Toast.LENGTH_LONG).show();
-                        myProgressBar.stopProgressBar();
-                        facebookLoginButton.setEnabled(true);
-                    }
-                });
+                loginWithFB();
             }
         });
 
@@ -260,6 +210,57 @@ public class WelcomeActivity extends AppCompatActivity {
         });
         // ----------------------------------------------------------------------
     }
+
+    private void loginWithFB() {
+        LoginManager.getInstance().logInWithReadPermissions(WelcomeActivity.this, Arrays.asList("email", "public_profile"));
+        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(final LoginResult loginResult) {
+                // Logged in to Facebook success
+                // -- getting stuff from fb ----
+                String accessToken = loginResult.getAccessToken().getToken();
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        // Get facebook data from login, to be used in AddUserToDatabaseWithUniqueUsername later on
+                        Bundle bFacebookData = getFacebookData(object);
+                        firstName = bFacebookData.getString("first_name");
+                        lastName = bFacebookData.getString("last_name");
+                        imageURL = bFacebookData.getString("profile_pic");
+                        email = bFacebookData.getString("email");
+                        // Continue login process with token
+                        handleFacebookAccessToken(loginResult.getAccessToken());
+                    }
+                });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location");
+                request.setParameters(parameters);
+                request.executeAsync();
+                // -- end --
+            }
+            @Override
+            public void onCancel() {
+                Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later. Error code 101", Toast.LENGTH_LONG).show();
+                myProgressBar.stopProgressBar();
+                facebookLoginButton.setEnabled(true);
+            }
+            @Override
+            public void onError(FacebookException error) {
+                if (error instanceof FacebookAuthorizationException) {
+                    if (AccessToken.getCurrentAccessToken() != null) {
+                        LoginManager.getInstance().logOut();
+                        loginWithFB();
+                        return;
+                    }
+                }
+                Toast.makeText(WelcomeActivity.this, "Something went wrong, please try again later.", Toast.LENGTH_LONG).show();
+                myProgressBar.stopProgressBar();
+                facebookLoginButton.setEnabled(true);
+            }
+        });
+    }
+
     // --------------- Handle Facebook result -----------------
     // Sign in to Firebase with Facebook token
     private void handleFacebookAccessToken(AccessToken token) {
@@ -354,47 +355,24 @@ public class WelcomeActivity extends AppCompatActivity {
                     addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                         @Override
                         public void OnUserAddedToDatabase() {
-                            FirebaseDatabase.getInstance().getReference().child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
+                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
+                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getValue()!=null) {
-                                        String foxmikeUID = dataSnapshot.getValue().toString();
-                                        if (!mAuth.getCurrentUser().getUid().equals(foxmikeUID)) {
-
-                                            String currentDate = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                                            friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
-                                            friendsData.put("foxmikeUID", foxmikeUID);
-                                            friendsData.put("currentDate", currentDate);
-
-                                            makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<String> task) {
-                                                    // If not succesful, show error
-                                                    if (!task.isSuccessful()) {
-                                                        Exception e = task.getException();
-                                                        myProgressBar.stopProgressBar();
-                                                        showSnackbar("An error occurred." + e.getMessage());
-                                                        return;
-                                                    }
-                                                    // Show the string passed from the Firebase server if task/function call on server is successful
-                                                    String result = task.getResult();
-                                                    if (result.equals("success")) {
-                                                        registrationFinished();
-                                                    } else {
-                                                        showSnackbar(result);
-                                                    }
-                                                }
-                                            });
-
-                                        } else {
-                                            registrationFinished();
-                                        }
-                                    } else {
-                                        registrationFinished();
+                                public void onComplete(@NonNull Task<String> task) {
+                                    // If not succesful, show error
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        myProgressBar.stopProgressBar();
+                                        showSnackbar("An error occurred." + e.getMessage());
+                                        return;
                                     }
-                                }
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // Show the string passed from the Firebase server if task/function call on server is successful
+                                    String result = task.getResult();
+                                    if (result.equals("success")) {
+                                        registrationFinished();
+                                    } else {
+                                        showSnackbar(result);
+                                    }
                                 }
                             });
                         }

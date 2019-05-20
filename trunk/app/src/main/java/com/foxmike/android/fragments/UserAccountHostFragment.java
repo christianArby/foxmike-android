@@ -76,6 +76,7 @@ public class UserAccountHostFragment extends Fragment {
     private TextView userNameTV;
     private TextView switchModeTV;
     private long mLastClickTime = 0;
+    private TextView depositionTV;
 
     public UserAccountHostFragment() {
         // Required empty public constructor
@@ -119,6 +120,7 @@ public class UserAccountHostFragment extends Fragment {
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         progressBackground = view.findViewById(R.id.progressBackground);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
+        depositionTV = profile.findViewById(R.id.depositionTV);
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         switchModeTV = view.findViewById(R.id.switchModeTV);
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);
@@ -151,6 +153,13 @@ public class UserAccountHostFragment extends Fragment {
                     userAndViewUsed = false;
                     onAsyncTaskFinished();
                 }
+            }
+        });
+
+        depositionTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.OnUserAccountFragmentInteraction("DEPOSITION");
             }
         });
 
