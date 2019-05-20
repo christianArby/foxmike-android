@@ -72,8 +72,10 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
         Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
         if (model.getStatus().equals("cancelled")) {
             holder.setText2(advDateAndTime);
+            holder.setCancelled(true, context);
         } else {
             holder.setText2(advDateAndTime + "-" + TextTimestamp.textTime(endTimestamp));
+            holder.setCancelled(false, context);
         }
         populateSessionHashMap(model.getSessionId(), new OnSessionsLoadedListener() {
             @Override
@@ -105,11 +107,6 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
                 }
             }
         });
-        if (model.getStatus().equals("cancelled")) {
-            holder.setCancelled(true);
-        } else {
-            holder.setCancelled(false);
-        }
 
     }
 

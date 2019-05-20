@@ -200,7 +200,8 @@ public class ChatFragment extends Fragment {
 
                         // Set database reference to chat id in message root and build query
                         DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
-                        messageQuery = messageRef.limitToLast(getResources().getInteger(R.integer.TOTAL_ITEMS_TO_LOAD));
+                        // TODO FIX PAGINATION
+                        messageQuery = messageRef.limitToLast(150);
                         FirebaseRecyclerOptions<Message> options =
                                 new FirebaseRecyclerOptions.Builder<Message>()
                                         .setQuery(messageQuery, Message.class)
@@ -370,7 +371,7 @@ public class ChatFragment extends Fragment {
             }
         };
 
-        swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
+        //swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
 
         return view;
     }
@@ -379,6 +380,8 @@ public class ChatFragment extends Fragment {
     private void sendMessage() {
         // get message from EditText
         String message = chatMessage.getText().toString();
+        // Clear the input field
+        chatMessage.setText("");
         if (!TextUtils.isEmpty(message)) {
             Map chatsMap = new HashMap();
             Map userMap = new HashMap();
@@ -408,11 +411,9 @@ public class ChatFragment extends Fragment {
                     rootDbRef.child("messages").child(chatID).child(messageID).setValue(sendMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (messageFirebaseAdapter.getItemCount()==0) {
+                            /*if (messageFirebaseAdapter.getItemCount()==0) {
                                 onRefreshListener.onRefresh();
-                            }
-                            // Clear the input field
-                            chatMessage.setText("");
+                            }*/
                             chatSendBtn.setEnabled(true);
                         }
                     });

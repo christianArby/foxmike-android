@@ -174,6 +174,33 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/depositionTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center"
+        android:paddingStart="@dimen/margin_left"
+        android:paddingEnd="@dimen/margin_left"
+        android:paddingTop="@dimen/marginVertical"
+        android:paddingBottom="@dimen/marginVertical"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/primaryTextColor"
+        android:text="Deposition"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toBottomOf="@id/payoutMethodContainer"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <View
+        android:id="@+id/spaceView5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_right"
+        app:layout_constraintTop_toBottomOf="@id/depositionTV"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
         android:id="@+id/aboutTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -186,11 +213,11 @@
         android:textColor="@color/primaryTextColor"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/payoutMethodContainer"
+        app:layout_constraintTop_toBottomOf="@id/spaceView5"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <View
-        android:id="@+id/spaceView5"
+        android:id="@+id/spaceView6"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/color_divider"

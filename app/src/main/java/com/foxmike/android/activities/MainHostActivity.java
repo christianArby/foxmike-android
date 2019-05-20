@@ -105,6 +105,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private String currentUserId;
     private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
     private HashMap<String, String> sessionTypeDictionary;
+    private DataSnapshot reviewsToWrite;
 
 
     @Override
@@ -173,6 +174,7 @@ public class MainHostActivity extends AppCompatActivity implements
                 bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
                     @Override
                     public boolean onTabSelected(int position, boolean wasSelected) {
+                        checkReviews();
                         if (!wasSelected)
                             mainPager.setCurrentItem(position, false);
                         return true;
@@ -196,33 +198,7 @@ public class MainHostActivity extends AppCompatActivity implements
                         if (dataSnapshot.getValue()==null) {
                             return;
                         }
-                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                            if (snapshot.getValue()==null) {
-                                return;
-                            }
-                            Long currentTimestamp = System.currentTimeMillis();
-                            Long reviewTimestamp = (Long)snapshot.getValue();
-                            if (reviewTimestamp<currentTimestamp) {
-                                presentReview(snapshot.getKey());
-                            } else {
-                                if (!countDownTimerHashMap.containsValue(snapshot.getKey())) {
-
-
-                                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                        @Override
-                                        public void onTick(long l) {
-
-                                        }
-                                        @Override
-                                        public void onFinish() {
-                                            presentReview(countDownTimerHashMap.get(this));
-                                            countDownTimerHashMap.remove(this);
-                                        }
-                                    }.start();
-                                    countDownTimerHashMap.put(reviewPending,snapshot.getKey());
-                                }
-                            }
-                        }
+                        reviewsToWrite = dataSnapshot;
                     }
                 });
             }
@@ -319,6 +295,21 @@ public class MainHostActivity extends AppCompatActivity implements
                 }
             }
         });
+    }
+
+    private void checkReviews() {
+        if (reviewsToWrite!=null) {
+            for (DataSnapshot snapshot: reviewsToWrite.getChildren()) {
+                if (snapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)snapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(snapshot.getKey());
+                }
+            }
+        }
     }
 
     private void presentReview(String advertisementId) {
@@ -562,6 +553,7 @@ public class MainHostActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         resumed = true;
+        checkReviews();
     }
 
     public void hideKeyboard() {

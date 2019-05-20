@@ -102,7 +102,7 @@ public class WriteReviewsFragment extends DialogFragment {
             }
         });
 
-        reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + " " + TextTimestamp.textSessionDate(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
+        reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + " " + TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
         ratingTitle.setText(R.string.Rate);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {

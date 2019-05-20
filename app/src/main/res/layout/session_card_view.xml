@@ -5,6 +5,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <FrameLayout
+        android:elevation="4dp"
+        android:visibility="visible"
+        android:id="@+id/dotProgressBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.github.silvestrpredko.dotprogressbar.DotProgressBar
+            android:visibility="visible"
+            android:id="@+id/progressBar"
+            android:layout_width="80dp"
+            android:layout_height="19dp"
+            app:amount="3"
+            app:duration="@android:integer/config_mediumAnimTime"
+            app:endColor="@color/foxmikePrimaryColor"
+            app:startColor="@color/foxmikePrimaryDarkColor"
+            app:animationDirection="left"
+            android:layout_gravity="center_horizontal|center_vertical"
+            />
+    </FrameLayout>
+
     <ImageView
         android:contentDescription="@string/session_image"
         android:id="@+id/session_image"
@@ -30,7 +55,6 @@
             android:id="@+id/session_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/session_name_goes_here"
             android:ellipsize="end"
             android:maxLines="2"
             android:layout_marginStart="@dimen/margin_left"
@@ -44,7 +68,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/address"
             android:textColor="@color/secondaryTextColor"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_centerHorizontal="true"
@@ -55,7 +78,6 @@
     <TextView
         android:id="@+id/priceTV"
         android:layout_width="wrap_content"
-        android:text="asdas"
         android:elevation="1dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,7 +91,6 @@
         android:id="@+id/session_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/description_goes_here"
         android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_marginBottom="@dimen/marginVertical"
@@ -78,6 +99,7 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/newFlag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -124,7 +146,6 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/margin_minimum"
             android:textColor="@color/secondaryTextColor"
-            android:text="60 omdömen"
             app:layout_constraintTop_toTopOf="@id/ratingBar"
             app:layout_constraintBottom_toBottomOf="@id/ratingBar"
             app:layout_constraintStart_toEndOf="@id/ratingBar"
@@ -136,7 +157,6 @@
         android:id="@+id/session_date_and_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/date_goes_here"
         android:textColor="@color/secondaryTextColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_marginBottom="@dimen/marginVertical"

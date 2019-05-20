@@ -43,7 +43,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -315,44 +314,24 @@ public class RegisterActivity extends AppCompatActivity {
                                 addUserToDatabase.setOnUserAddedToDatabaseListener(new AddUserToDatabase.OnUserAddedToDatabaseListener() {
                                     @Override
                                     public void OnUserAddedToDatabase() {
-                                        rootDbRef.child("foxmikeUID").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
+                                        makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
                                             @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                if (dataSnapshot.getValue()!=null) {
-                                                    String foxmikeUID = dataSnapshot.getValue().toString();
-                                                    if (!currentUserID.equals(foxmikeUID)) {
-
-                                                        friendsData.put("currentUserId", mAuth.getCurrentUser().getUid());
-                                                        friendsData.put("foxmikeUID", foxmikeUID);
-                                                        makeUserFriendWithFoxmike(friendsData).addOnCompleteListener(new OnCompleteListener<String>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<String> task) {
-                                                                // If not succesful, show error
-                                                                if (!task.isSuccessful()) {
-                                                                    Exception e = task.getException();
-                                                                    myProgressBar.stopProgressBar();
-                                                                    showSnackbar("An error occurred." + e.getMessage());
-                                                                    return;
-                                                                }
-                                                                // Show the string passed from the Firebase server if task/function call on server is successful
-                                                                String result = task.getResult();
-                                                                if (result.equals("success")) {
-                                                                    registerFinished(myProgressBar);
-                                                                } else {
-                                                                    showSnackbar(result);
-                                                                }
-                                                            }
-                                                        });
-                                                    } else {
-                                                        registerFinished(myProgressBar);
-                                                    }
-                                                } else {
-                                                    registerFinished(myProgressBar);
+                                            public void onComplete(@NonNull Task<String> task) {
+                                                // If not succesful, show error
+                                                if (!task.isSuccessful()) {
+                                                    Exception e = task.getException();
+                                                    myProgressBar.stopProgressBar();
+                                                    showSnackbar("An error occurred." + e.getMessage());
+                                                    return;
                                                 }
-                                            }
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                                registerFinished(myProgressBar);
+                                                // Show the string passed from the Firebase server if task/function call on server is successful
+                                                String result = task.getResult();
+                                                if (result.equals("success")) {
+                                                    registerFinished(myProgressBar);
+                                                } else {
+                                                    showSnackbar(result);
+                                                }
                                             }
                                         });
                                     }

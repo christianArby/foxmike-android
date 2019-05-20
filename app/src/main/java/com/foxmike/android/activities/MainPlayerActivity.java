@@ -136,6 +136,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
+    private DataSnapshot reviewsToWrite;
+
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
 
@@ -343,28 +345,25 @@ public class MainPlayerActivity extends AppCompatActivity
                 bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
                     @Override
                     public boolean onTabSelected(int position, boolean wasSelected) {
+                        checkReviews();
                         if (!wasSelected) {
                             mainPager.setCurrentItem(position, false);
                             if (position==0) {
                                 // Refresh sessions?
                             }
-
                             if (position==2) {
                                 bottomNavigation.setNotification("", 2);
                             }
                             if (position==2) {
                                 bottomNavigation.setNotification("", 2);
                             }
-
                             if (position!=2) {
                                 if (prevTab==2) {
                                     FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
                                 }
                             }
                         }
-
                         prevTab = position;
-
                         return true;
                     }
                 });
@@ -379,33 +378,8 @@ public class MainPlayerActivity extends AppCompatActivity
                         if (dataSnapshot.getValue()==null) {
                             return;
                         }
-                        for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                            if (snapshot.getValue()==null) {
-                                return;
-                            }
-                            Long currentTimestamp = System.currentTimeMillis();
-                            Long reviewTimestamp = (Long)snapshot.getValue();
-                            if (reviewTimestamp<currentTimestamp) {
-                                presentReview(snapshot.getKey());
-                            } else {
-                                if (!countDownTimerHashMap.containsValue(snapshot.getKey())) {
+                        reviewsToWrite = dataSnapshot;
 
-
-                                    CountDownTimer reviewPending = new CountDownTimer(reviewTimestamp-currentTimestamp, reviewTimestamp-currentTimestamp) {
-                                        @Override
-                                        public void onTick(long l) {
-
-                                        }
-                                        @Override
-                                        public void onFinish() {
-                                            presentReview(countDownTimerHashMap.get(this));
-                                            countDownTimerHashMap.remove(this);
-                                        }
-                                    }.start();
-                                    countDownTimerHashMap.put(reviewPending,snapshot.getKey());
-                                }
-                            }
-                        }
                     }
                 });
 
@@ -438,6 +412,21 @@ public class MainPlayerActivity extends AppCompatActivity
 
 
 
+    }
+
+    private void checkReviews() {
+        if (reviewsToWrite!=null) {
+            for (DataSnapshot snapshot: reviewsToWrite.getChildren()) {
+                if (snapshot.getValue()==null) {
+                    return;
+                }
+                Long currentTimestamp = System.currentTimeMillis();
+                Long reviewTimestamp = (Long)snapshot.getValue();
+                if (reviewTimestamp<currentTimestamp) {
+                    presentReview(snapshot.getKey());
+                }
+            }
+        }
     }
 
     private void presentReview(String advertisementId) {
@@ -855,7 +844,7 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         resumed=true;
-
+        checkReviews();
     }
 
     public void hideKeyboard() {
