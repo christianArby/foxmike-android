@@ -111,14 +111,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                             return;
                         }
                         mLastClickTime = SystemClock.elapsedRealtime();
-                        CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = new CreateTrainerExternalAccountFragment();
-
-                        HashMap<String, Object> accountData = new HashMap<>();
-
-                        Bundle bundle = new Bundle();
-                        accountData.put("stripeAccountId",stripeAccountId);
-                        bundle.putSerializable("accountData",accountData);
-                        createTrainerExternalAccountFragment.setArguments(bundle);
+                        CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = CreateTrainerExternalAccountFragment.newInstance(stripeAccountId);
 
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         FragmentTransaction transaction = fragmentManager.beginTransaction();

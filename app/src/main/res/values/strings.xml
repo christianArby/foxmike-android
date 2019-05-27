@@ -293,7 +293,7 @@
     <string name="welcome_to_foxmike_text">Welcome to Foxmike</string>
     <string name="continue_to_facebook_text">Continue with Facebook</string>
     <string name="create_account_text">Create account</string>
-    <string name="foxmike_policy_text">By tapping Continue or Create Account, I agree to Foxmike\'s\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Privacy Policy</a>.</string>
+    <string name="foxmike_policy_text">By tapping Continue or Create Account, I agree to Foxmike\'s\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Privacy Policy</a>\u0020and\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>.</string>
     <string name="aboutMe_text">Write something about yourself</string>
     <string name="first_name_text">First name</string>
     <string name="last_name_text">Last name</string>
@@ -572,6 +572,7 @@
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>
     <string name="unknown">Other</string>
+    <string name="other">Other</string>
     <string name="open_source_notices">Open source notices</string>
     <string name="not_editable">Not editable</string>
     <string name="not_editable_session_type">It is not possible to change the session type since there are upcoming sessions.</string>
@@ -581,4 +582,5 @@
     <string name="foxmike_trainer_question_text">Send us an email to\u0020<a href="info@foxmike.app">info@foxmike.app</a>\u0020and we will reach out to you. Please specify in what area and what type of session you are interested in hosting.</string>
     <string name="greetings_from_foxmike">Greetings from the team at Foxmike</string>
     <string name="later">Later</string>
+    <string name="booking_cancelled">Booking cancelled.</string>
 </resources>

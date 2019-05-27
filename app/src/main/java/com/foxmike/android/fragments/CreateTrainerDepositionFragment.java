@@ -11,11 +11,11 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.foxmike.android.R;
 import com.foxmike.android.activities.CreateTrainerActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
-import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
@@ -42,7 +42,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
     @BindView(R.id.makeDepositionBtn)
     AppCompatButton makeDepositionBtn;
     @BindView(R.id.addDepostionLaterBtn) AppCompatButton addDepostionLaterBtn;
-    @BindView(R.id.dotProgressBarContainer) DotProgressBar dotProgressBarContainer;
+    @BindView(R.id.dotProgressBarContainer) FrameLayout dotProgressBarContainer;
     private HashMap defaultSourceMap;
     private boolean hasPaymentMethod;
     private OnCreateTrainerDepositionListener onCreateTrainerDepositionListener;

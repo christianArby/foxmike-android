@@ -58,6 +58,7 @@ import com.foxmike.android.interfaces.IImageCompressTaskListener;
 import com.foxmike.android.interfaces.OnAdvertisementArrayListChangedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionTypeDictionary;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.ImageCompressTask;
 import com.foxmike.android.utils.TextTimestamp;
@@ -269,19 +270,41 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         selectedDate = new DateTime().minusMonths(2);
 
-        Locale current = getResources().getConfiguration().locale;
-        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        String language = getResources().getConfiguration().locale.getLanguage();
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(language);
         sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                sessionTypeFilterMap = new HashMap<>();
+                sessionTypeFilterMap = new SessionTypeDictionary(getResources().getString(R.string.other));
                 sessionTypeArray = new ArrayList<>();
-                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                    sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
-                    sessionTypeArray.add(sessionTypeSnap.getValue().toString());
+                if (dataSnapshot.getValue()!=null) {
+                    for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                        sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                        sessionTypeArray.add(sessionTypeSnap.getValue().toString());
+                    }
+                    sessionTypesLoaded = true;
+                    setupUI();
+                } else {
+                    DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child("en");
+                    sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                                sessionTypeFilterMap.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                                sessionTypeArray.add(sessionTypeSnap.getValue().toString());
+                            }
+                            sessionTypesLoaded = true;
+                            setupUI();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }
-                sessionTypesLoaded = true;
-                setupUI();
+
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

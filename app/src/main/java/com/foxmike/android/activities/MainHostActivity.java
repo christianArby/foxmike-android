@@ -54,6 +54,7 @@ import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionTypeDictionary;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,7 +67,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
 
@@ -149,58 +149,36 @@ public class MainHostActivity extends AppCompatActivity implements
 
         // Add fragments to container and hide them
 
-        Locale current = getResources().getConfiguration().locale;
-        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        String language = getResources().getConfiguration().locale.getLanguage();
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(language);
         sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                sessionTypeDictionary = new HashMap<>();
-                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                    sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                sessionTypeDictionary = new SessionTypeDictionary(getResources().getString(R.string.other));
+                if (dataSnapshot.getValue()!=null) {
+                    for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                        sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                    }
+                    setupUI();
+                } else {
+                    DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child("en");
+                    sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                                sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                            }
+                            setupUI();
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
-                InboxFragment hostInboxFragment = InboxFragment.newInstance();
-                bottomNavigationAdapter.addFragments(hostInboxFragment);
-
-                HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance(sessionTypeDictionary);
-                bottomNavigationAdapter.addFragments(hostSessionsFragment);
-
-                UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
-                bottomNavigationAdapter.addFragments(hostUserAccountFragment);
-
-                mainPager.setAdapter(bottomNavigationAdapter);
-
-                // Listen to bottom navigation and switch to corresponding fragment
-                bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
-                    @Override
-                    public boolean onTabSelected(int position, boolean wasSelected) {
-                        checkReviews();
-                        if (!wasSelected)
-                            mainPager.setCurrentItem(position, false);
-                        return true;
-                    }
-                });
-
-                getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-                    @Override
-                    public void onBackStackChanged() {
-                        if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible()){
-                            bottomNavigation.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-
-                FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainHostActivity.this).get(FirebaseDatabaseViewModel.class);
-                LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-                reviewsToWriteLiveData.observe(MainHostActivity.this, new Observer<DataSnapshot>() {
-                    @Override
-                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue()==null) {
-                            return;
-                        }
-                        reviewsToWrite = dataSnapshot;
-                    }
-                });
             }
 
             @Override
@@ -293,6 +271,51 @@ public class MainHostActivity extends AppCompatActivity implements
                         FirebaseAuth.getInstance().signOut();
                     }
                 }
+            }
+        });
+    }
+
+    private void setupUI() {
+        InboxFragment hostInboxFragment = InboxFragment.newInstance();
+        bottomNavigationAdapter.addFragments(hostInboxFragment);
+
+        HostSessionsFragment hostSessionsFragment = HostSessionsFragment.newInstance(sessionTypeDictionary);
+        bottomNavigationAdapter.addFragments(hostSessionsFragment);
+
+        UserAccountHostFragment hostUserAccountFragment = UserAccountHostFragment.newInstance();
+        bottomNavigationAdapter.addFragments(hostUserAccountFragment);
+
+        mainPager.setAdapter(bottomNavigationAdapter);
+
+        // Listen to bottom navigation and switch to corresponding fragment
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                checkReviews();
+                if (!wasSelected)
+                    mainPager.setCurrentItem(position, false);
+                return true;
+            }
+        });
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if (hostUserAccountFragment.isVisible() | hostSessionsFragment.isVisible() | hostInboxFragment.isVisible()){
+                    bottomNavigation.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainHostActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        reviewsToWriteLiveData.observe(MainHostActivity.this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                reviewsToWrite = dataSnapshot;
             }
         });
     }

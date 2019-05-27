@@ -293,7 +293,7 @@
     <string name="welcome_to_foxmike_text">Välkommen till Foxmike</string>
     <string name="continue_to_facebook_text">Fortsätt med Facebook</string>
     <string name="create_account_text">Skapa konto</string>
-    <string name="foxmike_policy_text">Genom att klicka på Fortsätt med Facebook, Fortsätt med Google eller Skapa konto godkänner jag Foxmikes\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Integritetspolicy</a>.</string>
+    <string name="foxmike_policy_text">Genom att klicka på Fortsätt med Facebook, Fortsätt med Google eller Skapa konto godkänner jag Foxmikes\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Integritetspolicy</a>\u0020och\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>.</string>
     <string name="aboutMe_text">Skriv något om dig själv</string>
     <string name="first_name_text">Förnamn</string>
     <string name="last_name_text">Efternamn</string>
@@ -572,6 +572,7 @@
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">Inga pass den här dagen.</string>
     <string name="unknown">Annat</string>
+    <string name="other">Annat</string>
     <string name="open_source_notices">Licenser för öppen källkod</string>
     <string name="not_editable">Ej redigerbar</string>
     <string name="not_editable_session_type">Det är inte möjligt att ändra typ på passet då det har kommande tillfällen.</string>
@@ -581,4 +582,5 @@
     <string name="foxmike_trainer_question_text">Skicka ett mail till\u0020<a href="info@foxmike.app">info@foxmike.app</a>\u0020så hör vi av oss och berättar mer. Ange gärna i vilket område och vad för typ av pass du vill hålla.</string>
     <string name="greetings_from_foxmike">Hälsningar från oss på Foxmike</string>
     <string name="later">Senare</string>
+    <string name="booking_cancelled">Bookning avbruten.</string>
 </resources>

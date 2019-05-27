@@ -245,9 +245,8 @@ public class CreateTrainerActivity extends AppCompatActivity implements
                     // ACCOUNT CREATED
 
                     stripeAccountCreated = true;
-                    accountData.put("stripeAccountId", result.get("accountId").toString());
 
-                    CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = new CreateTrainerExternalAccountFragment();
+                    CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = CreateTrainerExternalAccountFragment.newInstance(result.get("accountId").toString());
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);

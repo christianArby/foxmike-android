@@ -1,25 +1,20 @@
 package com.foxmike.android.adapters;
 
 import android.content.Context;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.foxmike.android.R;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
-import com.stripe.android.model.Card;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 /**
@@ -28,16 +23,16 @@ import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 
 public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentMethodsAdapter.ListPaymentMethodsViewHolder>{
 
-    private ArrayList<HashMap<String,Object>> sourcesDataList;
+    private ArrayList<HashMap<String,Object>> paymentMethodDataList;
     private Context context;
     private OnPaymentMethodClickedListener onPaymentMethodClickedListener;
-    private String defaultSource;
+    private String defaultPaymentMethod;
 
-    public ListPaymentMethodsAdapter(ArrayList<HashMap<String,Object>> sourcesDataList, Context context, String defaultSource, OnPaymentMethodClickedListener onPaymentMethodClickedListener) {
-        this.sourcesDataList = sourcesDataList;
+    public ListPaymentMethodsAdapter(ArrayList<HashMap<String,Object>> paymentMethodDataList, Context context, String defaultPaymentMethod, OnPaymentMethodClickedListener onPaymentMethodClickedListener) {
+        this.paymentMethodDataList = paymentMethodDataList;
         this.context = context;
         this.onPaymentMethodClickedListener = onPaymentMethodClickedListener;
-        this.defaultSource = defaultSource;
+        this.defaultPaymentMethod = defaultPaymentMethod;
     }
 
 
@@ -53,26 +48,27 @@ public class ListPaymentMethodsAdapter extends RecyclerView.Adapter<ListPaymentM
     @Override
     public void onBindViewHolder(@NonNull ListPaymentMethodsAdapter.ListPaymentMethodsViewHolder holder, int position) {
 
-        if (sourcesDataList.get(position).get("object").equals("card")) {
-            String sourceId = sourcesDataList.get(position).get("id").toString();
-            String cardBrand = sourcesDataList.get(position).get("brand").toString();
-            String last4 = sourcesDataList.get(position).get("last4").toString();
+        if (paymentMethodDataList.get(position).get("type").equals("card")) {
+            String paymentMethodId = paymentMethodDataList.get(position).get("id").toString();
+            HashMap<String,Object> card = (HashMap<String,Object>) paymentMethodDataList.get(position).get("card");
+            String cardBrand = card.get("brand").toString();
+            String last4 = card.get("last4").toString();
             boolean isDefault;
             holder.setCard(BRAND_CARD_RESOURCE_MAP.get(cardBrand), cardBrand, last4);
-            if (sourceId.equals(defaultSource)) {
+            if (paymentMethodId.equals(defaultPaymentMethod)) {
                 isDefault = true;
                 holder.setPaymentMethodStandard(true);
             } else {
                 isDefault = false;
                 holder.setPaymentMethodStandard(false);
             }
-            holder.setPaymentMethodClickedListener(sourceId,cardBrand,last4,isDefault);
+            holder.setPaymentMethodClickedListener(paymentMethodId,cardBrand,last4,isDefault);
         }
     }
 
     @Override
     public int getItemCount() {
-        return sourcesDataList.size();
+        return paymentMethodDataList.size();
     }
 
     public class ListPaymentMethodsViewHolder extends RecyclerView.ViewHolder {

@@ -27,6 +27,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListPaymentMethodsAdapter;
 import com.foxmike.android.fragments.UpdateStripeSourceFragment;
 import com.foxmike.android.interfaces.OnPaymentMethodClickedListener;
+import com.foxmike.android.models.User;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
@@ -54,10 +55,10 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
     private ListPaymentMethodsAdapter listPaymentMethodsAdapter;
     private ProgressBar progressBar;
     private TextView addPaymentMethodTV;
-    private String stripeCustomerId;
     private long mLastClickTime = 0;
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,28 +99,48 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(PaymentPreferencesActivity.this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()).child("stripeCustomerId"));
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(mAuth.getCurrentUser().getUid()));
         firebaseDatabaseLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.getValue().toString();
-                    retrieveStripeCustomerSources(stripeCustomerId);
-                    addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
-                    addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                return;
+                    currentUser = dataSnapshot.getValue(User.class);
+                    if (currentUser.getStripeCustomerId()!=null) {
+                        retrieveStripeCustomerSources(currentUser.getStripeCustomerId());
+                        addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
+                        addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
+                                HashMap<String, Object> customerData = new HashMap<>();
+                                customerData.put("customerId", currentUser.getStripeCustomerId());
+                                createIntent.putExtra("customerData",customerData);
+                                startActivityForResult(createIntent, 1);
                             }
-                            mLastClickTime = SystemClock.elapsedRealtime();
-                            Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
-                            HashMap<String, Object> customerData = new HashMap<>();
-                            customerData.put("updateWithCustomerId", stripeCustomerId);
-                            createIntent.putExtra("customerData",customerData);
-                            startActivityForResult(createIntent, 1);
-                        }
-                    });
+                        });
+                    } else {
+                        addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
+                        // If no stripe account exist, show add payout method text
+                        addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                Intent createIntent = new Intent(PaymentPreferencesActivity.this,CreateStripeCustomerActivity.class);
+                                startActivityForResult(createIntent, 1);
+                            }
+                        });
+                        progressBar.setVisibility(View.GONE);
+                        addPaymentMethodTV.setVisibility(View.VISIBLE);
+
+                    }
+
                 } else {
                     addPaymentMethodTV.setText(getResources().getString(R.string.add_payment_method));
                     // If no stripe account exist, show add payout method text
@@ -154,7 +175,7 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
 
     private void retrieveStripeCustomerSources(String customerID) {
         // Retrieve Stripe Account
-        retrieveStripeCustomer(customerID).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+        retrieveCustomerPaymentMethods(customerID).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override
             public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
                 // If not succesful, show error and return from function, will trigger if account ID does not exist
@@ -179,26 +200,19 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
                 }
                 // If successful, extract
                 HashMap<String, Object> result = task.getResult();
-                if (result.get("resultType").toString().equals("customer")) {
-                    HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
-                    ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
-                    String defaultSource;
-                    if (result.get("default_source")!= null) {
-                        defaultSource = result.get("default_source").toString();
-                    } else {
-                        defaultSource = null;
-                    }
+                if (result.get("resultType").toString().equals("paymentMethods")) {
+                    HashMap<String, Object> paymentMethods = (HashMap<String, Object>) result.get("paymentMethods");
+                    ArrayList<HashMap<String,Object>> paymentMethodDataList = (ArrayList<HashMap<String,Object>>) paymentMethods.get("data");
                     listPaymentMethodsRV.setLayoutManager(new LinearLayoutManager(PaymentPreferencesActivity.this));
-                    listPaymentMethodsAdapter = new ListPaymentMethodsAdapter(sourcesDataList, PaymentPreferencesActivity.this, defaultSource, new OnPaymentMethodClickedListener() {
+                    listPaymentMethodsAdapter = new ListPaymentMethodsAdapter(paymentMethodDataList, PaymentPreferencesActivity.this, currentUser.getStripeDefaultPaymentMethod(), new OnPaymentMethodClickedListener() {
                         @Override
-                        public void OnPaymentMethodClicked(String sourceId, String cardBrand, String last4, Boolean isDefault) {
-                            UpdateStripeSourceFragment updateStripeSourceFragment = UpdateStripeSourceFragment.newInstance(stripeCustomerId, sourceId, cardBrand, last4, isDefault);
+                        public void OnPaymentMethodClicked(String paymentMethodId, String cardBrand, String last4, Boolean isDefault) {
+                            UpdateStripeSourceFragment updateStripeSourceFragment = UpdateStripeSourceFragment.newInstance(currentUser.getStripeCustomerId(), paymentMethodId, cardBrand, last4, isDefault);
                             FragmentManager fragmentManager = getSupportFragmentManager();
                             FragmentTransaction transaction = fragmentManager.beginTransaction();
                             transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
                             transaction.add(R.id.container_update_fragment, updateStripeSourceFragment, "updateSource").addToBackStack(null);
                             transaction.commit();
-
                         }
                     });
                     listPaymentMethodsRV.setAdapter(listPaymentMethodsAdapter);
@@ -221,11 +235,11 @@ public class PaymentPreferencesActivity extends AppCompatActivity implements Upd
         });
     }
 
-    // Function retrieveStripeCustomer
-    private Task<HashMap<String, Object>> retrieveStripeCustomer(String customerID) {
+    // Function retrieveCustomerPaymentMethods
+    private Task<HashMap<String, Object>> retrieveCustomerPaymentMethods(String customerID) {
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable("retrieveCustomer")
+                .getHttpsCallable("retrieveCustomerPaymentMethods")
                 .call(customerID)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override

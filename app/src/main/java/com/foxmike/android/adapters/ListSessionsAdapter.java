@@ -144,7 +144,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 if (sessionTypeDictionary.containsKey(session.getSessionType())) {
                     ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(sessionTypeDictionary.get(session.getSessionType()));
                 } else {
-                    ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(context.getString(R.string.unknown));
+                    ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(context.getString(R.string.other));
                 }
                 ((ListSessionsAdapter.SessionViewHolder) holder).setDesc(sessionTypeDictionary.get(session.getSessionType()));
                 ((ListSessionsAdapter.SessionViewHolder) holder).setDateAndTime(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));

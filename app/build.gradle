@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 ext.versionMajor = 1
-ext.versionMinor = 2
-ext.versionPatch = 14
+ext.versionMinor = 3
+ext.versionPatch = 0
 ext.versionClassifier = null
 ext.isSnapshot = true
 ext.minimumSdkVersion = 21
@@ -79,7 +79,7 @@ dependencies {
     implementation 'android.arch.core:runtime:1.1.1'
     implementation 'android.arch.core:common:1.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.stripe:stripe-android:7.0.0'
+    implementation 'com.stripe:stripe-android:9.0.1'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-places:16.0.0'
