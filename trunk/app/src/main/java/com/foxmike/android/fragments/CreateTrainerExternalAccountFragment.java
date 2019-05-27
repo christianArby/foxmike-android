@@ -46,7 +46,7 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
 
     private FirebaseFunctions mFunctions;
     private View mainView;
-    private HashMap<String, Object> accountData;
+    private HashMap<String, Object> accountData = new HashMap<>();
     private Button createAccountBtn;
     private Button addPayoutMethodLaterBtn;
     private EditText ibanET;

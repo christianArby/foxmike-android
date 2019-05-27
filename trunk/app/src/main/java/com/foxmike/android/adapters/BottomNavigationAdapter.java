@@ -1,5 +1,6 @@
 package com.foxmike.android.adapters;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
@@ -12,6 +13,12 @@ import java.util.List;
 
 public class BottomNavigationAdapter extends SmartFragmentStatePagerAdapter {
     private final List<Fragment> fragments = new ArrayList<>();
+
+    // TODO Check so that this is not slowing down lists, added because app crashed when it tried to reatin state of old fragments, has to do with backstack
+    @Override
+    public Parcelable saveState() {
+        return null;
+    }
 
     public BottomNavigationAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);

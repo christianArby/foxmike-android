@@ -87,6 +87,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.stripe.android.model.PaymentMethod;
 
 import org.joda.time.DateTime;
 
@@ -160,7 +162,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean hasPaymentSystem;
     private TextView addPaymentMethodTV;
     private LinearLayout paymentFrame;
-    private HashMap defaultSourceMap;
+    //private HashMap defaultSourceMap;
     private boolean mapReady;
     BitmapDescriptor selectedIcon;
     private TextView addDates;
@@ -233,7 +235,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private FrameLayout dotProgressBarContainer;
     private ConstraintLayout snackBar;
     private ImageView shareIcon;
-    private RecyclerView.AdapterDataObserver recyclerListObserver;
+    private PaymentMethod mPaymentMethod;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -281,7 +283,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
 
         // GET THE PAYMENT INFO FROM CURRENT USER
-        getDefaultSourceMap();
+        getPaymentMethod();
     }
 
     @Override
@@ -338,7 +340,43 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         }
     }
 
-    private void getDefaultSourceMap () {
+    private void getPaymentMethod () {
+        try {
+            MainPlayerActivity mainPlayerActivity = (MainPlayerActivity) getActivity();
+            subscription = mainPlayerActivity.paymentMethodSubject.subscribe(new Consumer<HashMap>() {
+                @Override
+                public void accept(HashMap hashMap) throws Exception {
+                    if (hashMap.get("card")!=null) {
+                        Gson gson = new Gson();
+                        String json = gson.toJson(hashMap);
+                        PaymentMethod paymentMethod = PaymentMethod.fromString(json);
+                        mPaymentMethod = paymentMethod;
+                        hasPaymentSystem = true;
+                        sessionAndPaymentAndViewUsed = false;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        paymentMethodLoaded = true;
+                        onAsyncTaskFinished();
+                    } else {
+                        hasPaymentSystem = false;
+                        sessionAndPaymentAndViewUsed = false;
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        paymentMethodLoaded = true;
+                        onAsyncTaskFinished();
+                    }
+
+
+                }
+            });
+            return;
+        } catch (RuntimeException e){
+            sessionAndPaymentAndViewUsed = false;
+            paymentMethodAdSelectedAndViewUsed = false;
+            paymentMethodLoaded = true;
+            onAsyncTaskFinished();
+        }
+    }
+
+    /*private void getDefaultSourceMap () {
         try {
             MainPlayerActivity mainPlayerActivity = (MainPlayerActivity) getActivity();
             subscription = mainPlayerActivity.subject.subscribe(new Consumer<HashMap>() {
@@ -370,7 +408,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             paymentMethodLoaded = true;
             onAsyncTaskFinished();
         }
-    }
+    }*/
 
     private void getSessionHost() {
         /*
@@ -620,12 +658,16 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 // else set the adSelected to the first item in the list instead and update snackbar.
 // TODO maybe better to set the snackbar to show availability
 // If an item has been removed, call the function updateListViews() which updates the showMore text
-        recyclerListObserver = new RecyclerView.AdapterDataObserver() {
+
+        fbAdDateAndTimeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 // If an item has been inserted, call the function updateListViews() which updates the showMore text
-                updateListViews();
+                if (isAdded()) {
+                    updateListViews();
+                }
+
             }
 
             @Override
@@ -650,11 +692,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                 }
                 // If an item has been removed, call the function updateListViews() which updates the showMore text
-                updateListViews();
-            }
-        };
+                if (isAdded()) {
+                    updateListViews();
+                }
 
-        fbAdDateAndTimeAdapter.registerAdapterDataObserver(recyclerListObserver);
+            }
+        });
         // start listening to changes in the database
         fbAdDateAndTimeAdapter.startListening();
     }
@@ -1120,7 +1163,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mWhoTW.setText(mSession.getWho());
             mWhereTW.setText(mSession.getWhereAt());
             if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
-                mSessionType.setText(getResources().getString(R.string.unknown));
+                mSessionType.setText(getResources().getString(R.string.other));
             } else {
                 mSessionType.setText(sessionTypeDictionary.get(mSession.getSessionType()));
             }
@@ -1255,10 +1298,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     } else {
                         // If the ad costs money find out if the current user has a payment source and if so show that payment method
                         // else display add payment method link to PaymentPreferencesActivity
-                        if (defaultSourceMap.get("brand")!=null) {
-                            String last4 = defaultSourceMap.get("last4").toString();
+                        if (mPaymentMethod!=null) {
+                            String last4 = mPaymentMethod.card.last4;
                             paymentMethodTV.setText("**** " + last4);
-                            String cardBrand = defaultSourceMap.get("brand").toString();
+                            String cardBrand = mPaymentMethod.card.brand;
                             int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
                             paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
 
@@ -1783,9 +1826,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onStop() {
         super.onStop();
-        if (recyclerListObserver!=null) {
-            fbAdDateAndTimeAdapter.unregisterAdapterDataObserver(recyclerListObserver);
-        }
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.stopListening();
         }
@@ -1797,10 +1837,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onStart() {
         super.onStart();
-        getDefaultSourceMap();
-        if (recyclerListObserver!=null) {
-            fbAdDateAndTimeAdapter.registerAdapterDataObserver(recyclerListObserver);
-        }
+        getPaymentMethod();
         if (fbAdDateAndTimeAdapter!=null) {
             fbAdDateAndTimeAdapter.startListening();
         }

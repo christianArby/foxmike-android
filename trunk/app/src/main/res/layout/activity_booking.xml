@@ -8,6 +8,7 @@
     android:id="@+id/mainView">
 
     <TextView
+        android:id="@+id/bookingText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/progressBar"

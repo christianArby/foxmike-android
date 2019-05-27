@@ -62,6 +62,7 @@ import com.foxmike.android.interfaces.SessionListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionTypeDictionary;
 import com.foxmike.android.utils.Price;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
@@ -80,7 +81,6 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import butterknife.ButterKnife;
 import io.reactivex.subjects.BehaviorSubject;
@@ -133,13 +133,18 @@ public class MainPlayerActivity extends AppCompatActivity
 
 
     private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
+    private DataSnapshot reviewsToWrite;
+    private String stripeDefaultPaymentMethodId;
 
     // rxJava
     public final BehaviorSubject<HashMap> subject = BehaviorSubject.create();
-    private DataSnapshot reviewsToWrite;
-
     public void setStripeDefaultSource(HashMap value) { subject.onNext(value);     }
     public HashMap  getStripeDefaultSource()          { return subject.getValue(); }
+
+    // rxJava
+    public final BehaviorSubject<HashMap> paymentMethodSubject = BehaviorSubject.create();
+    public void setPaymentMethod(HashMap paymentMethodMap) { paymentMethodSubject.onNext(paymentMethodMap);     }
+    public HashMap  getPaymentMethod()          { return paymentMethodSubject.getValue(); }
 
 
     private int prevTab;
@@ -156,6 +161,7 @@ public class MainPlayerActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         setStripeDefaultSource(new HashMap());
+        setPaymentMethod(new HashMap());
         mainView = findViewById(R.id.activity_main_player);
         mFunctions = FirebaseFunctions.getInstance();
 
@@ -194,27 +200,43 @@ public class MainPlayerActivity extends AppCompatActivity
         sessionTypeDictionary = new HashMap<>();
 
         // --------------------------  SETUP LISTENER TO STRIPE CUSTOMER -------------------------------------
-        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabaseViewModel stripeDefaultPaymentMethodViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> stripeDefaultPaymentMethodLiveData = stripeDefaultPaymentMethodViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod"));
+        stripeDefaultPaymentMethodLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    stripeDefaultPaymentMethodId = dataSnapshot.getValue().toString();
+                    updateStripeCustomerInfo();
+                } else {
+                    setPaymentMethod(new HashMap());
+                }
+
+            }
+        });
+
+        /*rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()!=null) {
-                    stripeCustomerId = dataSnapshot.getValue().toString();
+                    stripeDefaultPaymentMethodId = dataSnapshot.getValue().toString();
+                    updateStripeCustomerInfo();
                 }
 
                 FirebaseDatabaseViewModel stripeLastChangeViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
-                LiveData<DataSnapshot> StripeLastChangeLiveData = stripeLastChangeViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeLastChange"));
+                LiveData<DataSnapshot> StripeLastChangeLiveData = stripeLastChangeViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod"));
                 StripeLastChangeLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
                     @Override
                     public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                        if (stripeCustomerId==null) {
+                        if (stripeDefaultPaymentMethodId==null) {
 
                             FirebaseDatabaseViewModel stripeCustomerViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
-                            LiveData<DataSnapshot> stripeCustomerLiveData = stripeCustomerViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId"));
+                            LiveData<DataSnapshot> stripeCustomerLiveData = stripeCustomerViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod"));
                             stripeCustomerLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
                                 @Override
                                 public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue()!=null) {
-                                        stripeCustomerId = dataSnapshot.getValue().toString();
+                                        stripeDefaultPaymentMethodId = dataSnapshot.getValue().toString();
                                         updateStripeCustomerInfo();
                                     }
 
@@ -233,7 +255,7 @@ public class MainPlayerActivity extends AppCompatActivity
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        });*/
 
         // --------------------------  LISTEN TO CHATS -------------------------------------
         // Check if there are unread chatmessages and if so set inboxNotifications to the bottom navigation bar
@@ -303,87 +325,36 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-        Locale current = getResources().getConfiguration().locale;
-        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(current.toString());
+        String language = getResources().getConfiguration().locale.getLanguage();
+        DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(language);
         sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                sessionTypeDictionary = new HashMap<>();
-                for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
-                    sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
-                }
+                sessionTypeDictionary = new SessionTypeDictionary(getResources().getString(R.string.other));
 
-                ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary);
-                bottomNavigationAdapter.addFragments(exploreFragment);
-
-                PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance(sessionTypeDictionary);
-                bottomNavigationAdapter.addFragments(playerSessionsFragment);
-
-                InboxFragment inboxFragment = InboxFragment.newInstance();
-                bottomNavigationAdapter.addFragments(inboxFragment);
-
-                UserAccountFragment userAccountFragment = new UserAccountFragment();
-                bottomNavigationAdapter.addFragments(userAccountFragment);
-
-                mainPager.setAdapter(bottomNavigationAdapter);
-
-                /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
-                if (fromUserID!=null) {
-                    Bundle fromUserbundle = new Bundle();
-                    fromUserbundle.putString("otherUserID", fromUserID);
-                    UserProfilePublicFragment userProfilePublicFragment = UserProfilePublicFragment.newInstance();
-                    userProfilePublicFragment.setArguments(fromUserbundle);
-                    cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
+                if (dataSnapshot.getValue()!=null) {
+                    for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                        sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                    }
+                    setupUI();
                 } else {
-                    // Start normally
+                    DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child("en");
+                    sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
+                                sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
+                            }
+                            setupUI();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
-
-                prevTab = 0;
-
-                /** Setup Bottom navigation */
-                bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
-                    @Override
-                    public boolean onTabSelected(int position, boolean wasSelected) {
-                        checkReviews();
-                        if (!wasSelected) {
-                            mainPager.setCurrentItem(position, false);
-                            if (position==0) {
-                                // Refresh sessions?
-                            }
-                            if (position==2) {
-                                bottomNavigation.setNotification("", 2);
-                            }
-                            if (position==2) {
-                                bottomNavigation.setNotification("", 2);
-                            }
-                            if (position!=2) {
-                                if (prevTab==2) {
-                                    FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                                }
-                            }
-                        }
-                        prevTab = position;
-                        return true;
-                    }
-                });
-
-
-
-                FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
-                LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-                reviewsToWriteLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
-                    @Override
-                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue()==null) {
-                            return;
-                        }
-                        reviewsToWrite = dataSnapshot;
-
-                    }
-                });
-
-
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -412,6 +383,76 @@ public class MainPlayerActivity extends AppCompatActivity
 
 
 
+    }
+
+    private void setupUI() {
+        ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary);
+        bottomNavigationAdapter.addFragments(exploreFragment);
+
+        PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance(sessionTypeDictionary);
+        bottomNavigationAdapter.addFragments(playerSessionsFragment);
+
+        InboxFragment inboxFragment = InboxFragment.newInstance();
+        bottomNavigationAdapter.addFragments(inboxFragment);
+
+        UserAccountFragment userAccountFragment = new UserAccountFragment();
+        bottomNavigationAdapter.addFragments(userAccountFragment);
+
+        mainPager.setAdapter(bottomNavigationAdapter);
+
+        /** Check if activity has been started due to notification, if so get from user ID and open up profile*/
+        if (fromUserID!=null) {
+            Bundle fromUserbundle = new Bundle();
+            fromUserbundle.putString("otherUserID", fromUserID);
+            UserProfilePublicFragment userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+            userProfilePublicFragment.setArguments(fromUserbundle);
+            cleanMainFullscreenActivityAndSwitch(userProfilePublicFragment, true,"");
+        } else {
+            // Start normally
+        }
+
+        prevTab = 0;
+
+        /** Setup Bottom navigation */
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                checkReviews();
+                if (!wasSelected) {
+                    mainPager.setCurrentItem(position, false);
+                    if (position==0) {
+                        // Refresh sessions?
+                    }
+                    if (position==2) {
+                        bottomNavigation.setNotification("", 2);
+                    }
+                    if (position==2) {
+                        bottomNavigation.setNotification("", 2);
+                    }
+                    if (position!=2) {
+                        if (prevTab==2) {
+                            FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
+                        }
+                    }
+                }
+                prevTab = position;
+                return true;
+            }
+        });
+
+
+        FirebaseDatabaseViewModel reviewsToWriteUserIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> reviewsToWriteLiveData = reviewsToWriteUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        reviewsToWriteLiveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()==null) {
+                    return;
+                }
+                reviewsToWrite = dataSnapshot;
+
+            }
+        });
     }
 
     private void checkReviews() {
@@ -466,7 +507,40 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     private void updateStripeCustomerInfo() {
-        // Retrieve Stripe Account
+
+        if (stripeDefaultPaymentMethodId==null) {
+            setPaymentMethod(new HashMap());
+        }
+
+        retrievePaymentMethod(stripeDefaultPaymentMethodId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+            @Override
+            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                // If not succesful, show error and return from function, will trigger if account ID does not exist
+                if (!task.isSuccessful()) {
+                    Exception e = task.getException();
+                    // [START_EXCLUDE]
+                    Log.w(TAG, "retrieve:onFailure", e);
+                    showSnackbar(getString(R.string.bad_internet));
+                    setPaymentMethod(new HashMap());
+                    return;
+                    // [END_EXCLUDE]
+                }
+                // If successful, extract
+                HashMap<String, Object> result = task.getResult();
+                if (result.get("resultType").toString().equals("paymentMethod")) {
+                    setPaymentMethod((HashMap) result.get("paymentMethod"));
+                } else {
+                    setPaymentMethod(new HashMap());
+                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                    showSnackbar(error.get("message").toString());
+                }
+
+            }
+        });
+
+
+
+        /*// Retrieve Stripe Account
         retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override
             public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
@@ -502,7 +576,7 @@ public class MainPlayerActivity extends AppCompatActivity
                 }
                 // [END_EXCLUDE]
             }
-        });
+        });*/
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
@@ -862,6 +936,19 @@ public class MainPlayerActivity extends AppCompatActivity
         return mFunctions
                 .getHttpsCallable("retrieveCustomer")
                 .call(customerID)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    private Task<HashMap<String, Object>> retrievePaymentMethod(String paymentMethodId) {
+        return mFunctions
+                .getHttpsCallable("retrievePaymentMethod")
+                .call(paymentMethodId)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override
                     public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {

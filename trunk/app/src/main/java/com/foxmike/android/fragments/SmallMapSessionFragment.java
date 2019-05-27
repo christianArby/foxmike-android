@@ -167,7 +167,7 @@ public class SmallMapSessionFragment extends Fragment {
             uIupdated = true;
 
             if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
-                text0TV.setText(getResources().getString(R.string.unknown));
+                text0TV.setText(getResources().getString(R.string.other));
             } else {
                 text0TV.setText(sessionTypeDictionary.get(mSession.getSessionType()));
             }

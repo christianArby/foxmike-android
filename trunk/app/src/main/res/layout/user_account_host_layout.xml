@@ -239,7 +239,7 @@
         android:textColor="@color/primaryTextColor"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/spaceView5"
+        app:layout_constraintTop_toBottomOf="@id/spaceView6"
         app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

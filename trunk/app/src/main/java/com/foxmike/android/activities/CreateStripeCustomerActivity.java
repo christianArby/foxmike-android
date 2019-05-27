@@ -129,30 +129,55 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
                                 customerData.put("email", mAuth.getCurrentUser().getEmail());
                                 customerData.put("tokenId", token.getId());
                                 customerData.put("userID", mAuth.getCurrentUser().getUid());
-                                createStripeCustomer(customerData).addOnCompleteListener(new OnCompleteListener<String>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<String> task) {
-                                        // If not succesful, show error
-                                        if (!task.isSuccessful()) {
-                                            Exception e = task.getException();
-                                            myProgressBar.stopProgressBar();
-                                            showSnackbar("An error occurred." + e.getMessage());
-                                            return;
+                                if (customerData.get("customerId")!=null) {
+                                    addPaymentMethod(customerData).addOnCompleteListener(new OnCompleteListener<String>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<String> task) {
+                                            // If not succesful, show error
+                                            if (!task.isSuccessful()) {
+                                                Exception e = task.getException();
+                                                myProgressBar.stopProgressBar();
+                                                showSnackbar("An error occurred." + e.getMessage());
+                                                return;
+                                            }
+                                            // Show the string passed from the Firebase server if task/function call on server is successful
+                                            String result = task.getResult();
+                                            if (result.equals("success")) {
+                                                myProgressBar.stopProgressBar();
+                                                setResult(RESULT_OK, null);
+                                                finish();
+                                            } else {
+                                                hideKeyboard();
+                                                myProgressBar.stopProgressBar();
+                                                showSnackbar(getString(R.string.the_card_could_not_be_added));
+                                            }
                                         }
-                                        // Show the string passed from the Firebase server if task/function call on server is successful
-                                        String result = task.getResult();
-                                        if (result.equals("success")) {
-                                            myProgressBar.stopProgressBar();
-                                            setResult(RESULT_OK, null);
-                                            finish();
-                                        } else {
-                                            hideKeyboard();
-                                            myProgressBar.stopProgressBar();
-                                            showSnackbar(getString(R.string.the_card_could_not_be_added));
+                                    });
+                                } else {
+                                    createCustomerSCA(customerData).addOnCompleteListener(new OnCompleteListener<String>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<String> task) {
+                                            // If not succesful, show error
+                                            if (!task.isSuccessful()) {
+                                                Exception e = task.getException();
+                                                myProgressBar.stopProgressBar();
+                                                showSnackbar("An error occurred." + e.getMessage());
+                                                return;
+                                            }
+                                            // Show the string passed from the Firebase server if task/function call on server is successful
+                                            String result = task.getResult();
+                                            if (result.equals("success")) {
+                                                myProgressBar.stopProgressBar();
+                                                setResult(RESULT_OK, null);
+                                                finish();
+                                            } else {
+                                                hideKeyboard();
+                                                myProgressBar.stopProgressBar();
+                                                showSnackbar(getString(R.string.the_card_could_not_be_added));
+                                            }
                                         }
-                                    }
-                                });
-
+                                    });
+                                }
                             }
                             public void onError(Exception error) {
                                 myProgressBar.stopProgressBar();
@@ -170,14 +195,28 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     }
 
     // Function createStripeAccount
-    private Task<String> createStripeCustomer(Map<String, Object> customerData) {
-        String function = "createCustomer";
-        if (customerData.get("updateWithCustomerId")!=null) {
-            function = "addSourceForCustomer";
-        }
+    private Task<String> createCustomerSCA(Map<String, Object> customerData) {
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable(function)
+                .getHttpsCallable("createCustomerSCA")
+                .call(customerData)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
+                        return (String) result.get("operationResult");
+                    }
+                });
+    }
+
+    // Function createStripeAccount
+    private Task<String> addPaymentMethod(Map<String, Object> customerData) {
+        // Call the function and extract the operation from the result which is a String
+        return mFunctions
+                .getHttpsCallable("addPaymentMethodForCustomer")
                 .call(customerData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override

@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -38,7 +39,7 @@ public class UpdateStripeSourceFragment extends Fragment {
     public static final String TAG = UpdateStripeSourceFragment.class.getSimpleName();
 
     private String customerId;
-    private String sourceId;
+    private String paymentMethodId;
     private String cardBrand;
     private String last4;
     private boolean isDefault;
@@ -60,12 +61,12 @@ public class UpdateStripeSourceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static UpdateStripeSourceFragment newInstance(String customerId, String sourceId, String cardBrand, String last4, Boolean isDefault) {
+    public static UpdateStripeSourceFragment newInstance(String customerId, String paymentMethodId, String cardBrand, String last4, Boolean isDefault) {
 
         Bundle args = new Bundle();
 
         args.putString("customerId", customerId);
-        args.putString("sourceId", sourceId);
+        args.putString("paymentMethodId", paymentMethodId);
         args.putString("cardBrand", cardBrand);
         args.putString("last4", last4);
         args.putBoolean("isDefault", isDefault);
@@ -92,7 +93,7 @@ public class UpdateStripeSourceFragment extends Fragment {
 
 
         customerId = getArguments().getString("customerId");
-        sourceId = getArguments().getString("sourceId");
+        paymentMethodId = getArguments().getString("paymentMethodId");
         cardBrand = getArguments().getString("cardBrand");
         last4 = getArguments().getString("last4");
         isDefault = getArguments().getBoolean("isDefault");
@@ -101,7 +102,7 @@ public class UpdateStripeSourceFragment extends Fragment {
 
         customerData = new HashMap<>();
         customerData.put("customerId", customerId);
-        customerData.put("sourceId", sourceId);
+        customerData.put("paymentMethodId", paymentMethodId);
         customerData.put("userID", userId);
 
         cardTV.setText(cardBrand + " " + last4);
@@ -121,7 +122,7 @@ public class UpdateStripeSourceFragment extends Fragment {
                     return;
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
-                updateSource("deleteCardForCustomer");
+                updatePaymentMethod("deleteCardForCustomer");
             }
         });
 
@@ -133,61 +134,76 @@ public class UpdateStripeSourceFragment extends Fragment {
                 }
                 mLastClickTime = SystemClock.elapsedRealtime();
 
-                updateSource("setDefaultSourceForCustomer");
+                updatePaymentMethod("setDefaultPaymentMethod");
             }
         });
 
         return view;
     }
 
-    private void updateSource(String type) {
+    private void updatePaymentMethod(String type) {
         final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
         myProgressBar.startProgressBar();
 
-        updateStripeCustomerSource(customerData, type).addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                // If not succesful, show error
-
-                if (!task.isSuccessful()) {
-                    Exception e = task.getException();
-                    if (e instanceof FirebaseFunctionsException) {
-                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                        // Function error code, will be INTERNAL if the failure
-                        // was not handled properly in the function call.
-                        FirebaseFunctionsException.Code code = ffe.getCode();
-                        // Arbitrary error details passed back from the function,
-                        // usually a Map<String, Object>.
-                        Object details = ffe.getDetails();
-                    }
-
-                    myProgressBar.stopProgressBar();
-
-                    // [START_EXCLUDE]
-                    Log.w(TAG, "createCustomer:onFailure", e);
-                    showSnackbar("An error occurred." + e.getMessage());
-                    return;
-                    // [END_EXCLUDE]
-                }
-
-                // Show the string passed from the Firebase server if task/function call on server is successful
-                String result = task.getResult();
-                if (result.equals("success")) {
+        if (type.equals("setDefaultPaymentMethod")) {
+            FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod").setValue(paymentMethodId).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
                     myProgressBar.stopProgressBar();
                     onStripeCustomerUpdatedListener.OnStripeCustomerUpdated();
-                } else {
-                    myProgressBar.stopProgressBar();
-                    showSnackbar("An error occurred:" + " " + result);
                 }
-            }
-        });
+            });
+        } else {
+
+            deletePaymentMethodForCustomer(customerData).addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    // If not succesful, show error
+
+                    if (!task.isSuccessful()) {
+                        Exception e = task.getException();
+                        if (e instanceof FirebaseFunctionsException) {
+                            FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                            // Function error code, will be INTERNAL if the failure
+                            // was not handled properly in the function call.
+                            FirebaseFunctionsException.Code code = ffe.getCode();
+                            // Arbitrary error details passed back from the function,
+                            // usually a Map<String, Object>.
+                            Object details = ffe.getDetails();
+                        }
+
+                        myProgressBar.stopProgressBar();
+
+                        // [START_EXCLUDE]
+                        Log.w(TAG, "createCustomer:onFailure", e);
+                        showSnackbar("An error occurred." + e.getMessage());
+                        return;
+                        // [END_EXCLUDE]
+                    }
+
+                    // Show the string passed from the Firebase server if task/function call on server is successful
+                    String result = task.getResult();
+                    if (result.equals("success")) {
+                        myProgressBar.stopProgressBar();
+                        onStripeCustomerUpdatedListener.OnStripeCustomerUpdated();
+                    } else {
+                        myProgressBar.stopProgressBar();
+                        showSnackbar("An error occurred:" + " " + result);
+                    }
+
+                }
+            });
+
+        }
+
+
     }
 
     // Function createStripeAccount
-    private Task<String> updateStripeCustomerSource(Map<String, Object> customerData, String function) {
+    private Task<String> deletePaymentMethodForCustomer(Map<String, Object> customerData) {
         // Call the function and extract the operation from the result which is a String
         return mFunctions
-                .getHttpsCallable(function)
+                .getHttpsCallable("deletePaymentMethodForCustomer")
                 .call(customerData)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
