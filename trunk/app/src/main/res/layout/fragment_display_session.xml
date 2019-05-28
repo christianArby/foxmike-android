@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -13,14 +13,14 @@
         android:layout_height="match_parent"
         android:layout_alignParentStart="true" />
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/displaySessionAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:fitsSystemWindows="true">
 
-        <android.support.design.widget.CollapsingToolbarLayout
+        <com.google.android.material.appbar.CollapsingToolbarLayout
             app:titleEnabled="false"
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
@@ -30,7 +30,7 @@
             app:contentScrim="@color/color_background_light"
             android:fitsSystemWindows="true">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/editTop"
                 android:layout_margin="@dimen/margin_left"
                 android:elevation="1dp"
@@ -60,7 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/sessionImageCardView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </RelativeLayout>
 
@@ -128,7 +128,7 @@
 
 
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom">
@@ -186,9 +186,9 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:gravity="center_vertical"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -197,14 +197,14 @@
                 android:paddingEnd="40dp"
                 app:title=" "
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-            </android.support.v7.widget.Toolbar>
+            </androidx.appcompat.widget.Toolbar>
 
-        </android.support.design.widget.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/displaySessionSV"
         android:descendantFocusability="blocksDescendants"
         android:layout_width="match_parent"
@@ -222,7 +222,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"/>
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:visibility="visible"
@@ -246,7 +246,7 @@
             />
     </FrameLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:visibility="invisible"
         android:id="@+id/snackBar"
         android:background="@color/color_background_light"
@@ -275,7 +275,7 @@
             app:layout_constraintTop_toTopOf="@id/displaySessionBtn"
             app:layout_constraintBottom_toBottomOf="@id/displaySessionBtn">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/snackBarDateAndTimeTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -286,7 +286,7 @@
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:id="@+id/priceTV"
                 android:layout_width="wrap_content"
@@ -308,7 +308,7 @@
                 android:layout_marginTop="2dp"
                 />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:visibility="gone"
                 android:id="@+id/paymentMethod"
                 android:layout_width="match_parent"
@@ -319,7 +319,7 @@
                 android:text="**** 4444"
                 android:drawableStart="@drawable/ic_visa_card" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:visibility="gone"
                 android:textColor="@color/foxmikePrimaryColor"
                 android:id="@+id/addPaymentMethodTV"
@@ -332,7 +332,7 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:textStyle="bold"
             android:textSize="16sp"
             android:enabled="false"
@@ -389,6 +389,6 @@
 
         </LinearLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

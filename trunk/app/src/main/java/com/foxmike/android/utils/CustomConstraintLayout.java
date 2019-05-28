@@ -1,8 +1,9 @@
 package com.foxmike.android.utils;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 /**
  * Created by chris on 2019-03-20.

@@ -1,6 +1,6 @@
 package com.foxmike.android.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by chris on 2019-02-08.

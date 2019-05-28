@@ -80,7 +80,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities=".com.example.chris.kungsbrostrand.provider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -132,6 +132,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activities.CreateCreateTrainerAccountActivity"
             android:screenOrientation="portrait" />
@@ -146,23 +147,55 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.BookingActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask">
-
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="booking"
-                    android:scheme="foxmike"/>
+                    android:scheme="foxmike" />
             </intent-filter>
-
         </activity>
+
+        <activity
+            android:name=".activities.DepositionActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="deposition"
+                    android:scheme="foxmike" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.CreateTrainerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="create.trainer"
+                    android:scheme="foxmike" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".activities.AboutActivity"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.CancelBookingActivity"
             android:screenOrientation="portrait" />
@@ -182,8 +215,6 @@
         <activity android:name=".activities.FilteringActivity" />
         <activity android:name=".activities.BecomeFTActivity" />
         <activity android:name=".activities.GetUserActivity" />
-        <activity android:name=".activities.DepositionActivity" />
-        <activity android:name=".activities.CreateTrainerActivity"></activity>
     </application>
 
 </manifest>

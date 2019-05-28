@@ -1,7 +1,8 @@
 package com.foxmike.android.utils;
 
-import android.arch.lifecycle.LiveData;
 import android.util.Log;
+
+import androidx.lifecycle.LiveData;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

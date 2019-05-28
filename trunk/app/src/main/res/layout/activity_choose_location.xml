@@ -24,7 +24,7 @@ tools:context="com.foxmike.android.activities.ChooseLocationActivity">
         android:background="@drawable/square_button_transparent"
         android:text="@string/pick_location_text"/>
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textAllCaps="false"
         android:id="@+id/chooseLocation"

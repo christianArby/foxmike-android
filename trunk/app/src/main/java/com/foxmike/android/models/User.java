@@ -1,6 +1,6 @@
 package com.foxmike.android.models;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by chris on 2017-06-28.
@@ -27,8 +27,9 @@ public class User implements Comparable<User>{
     private boolean admin;
     private boolean superAdmin;
     private String stripeDefaultPaymentMethod;
+    private String stripeDepositionPaymentIntentId;
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -48,10 +49,21 @@ public class User implements Comparable<User>{
         this.admin = admin;
         this.superAdmin = superAdmin;
         this.stripeDefaultPaymentMethod = stripeDefaultPaymentMethod;
+        this.stripeDepositionPaymentIntentId = stripeDepositionPaymentIntentId;
     }
+
+
 
     public User() {
 
+    }
+
+    public String getStripeDepositionPaymentIntentId() {
+        return stripeDepositionPaymentIntentId;
+    }
+
+    public void setStripeDepositionPaymentIntentId(String stripeDepositionPaymentIntentId) {
+        this.stripeDepositionPaymentIntentId = stripeDepositionPaymentIntentId;
     }
 
     public String getStripeDefaultPaymentMethod() {

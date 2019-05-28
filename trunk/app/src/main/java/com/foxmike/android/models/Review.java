@@ -1,6 +1,6 @@
 package com.foxmike.android.models;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by chris on 2019-03-18.

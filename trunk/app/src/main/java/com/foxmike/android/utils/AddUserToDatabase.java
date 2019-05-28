@@ -1,8 +1,9 @@
 package com.foxmike.android.utils;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;

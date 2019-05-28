@@ -18,7 +18,7 @@
         android:tint="@color/primaryTextColor"
         android:src="@drawable/ic_close_black_24dp"/>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -37,7 +37,7 @@
                 android:textColor="@color/primaryTextColor"
                 android:text="@string/participants_on"/>
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_below="@id/participantsHeading"
                 android:id="@+id/participants_listRV"
                 android:layout_width="match_parent"
@@ -47,7 +47,7 @@
 
 
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
 

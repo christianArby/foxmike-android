@@ -1,8 +1,8 @@
 package com.foxmike.android.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.foxmike.android.utils.FirebaseQueryLiveData;
 import com.google.firebase.database.DataSnapshot;

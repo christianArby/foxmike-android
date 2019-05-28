@@ -1,6 +1,6 @@
 package com.foxmike.android.utils;
 
-import android.support.design.widget.AppBarLayout;
+import com.google.android.material.appbar.AppBarLayout;
 
 /**
  * Created by chris on 2019-03-04.
