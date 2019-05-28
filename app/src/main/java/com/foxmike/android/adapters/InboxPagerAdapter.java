@@ -1,9 +1,9 @@
 package com.foxmike.android.adapters;
 //Checked
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.foxmike.android.fragments.ChatsFragment;
 import com.foxmike.android.fragments.FriendsFragment;

@@ -1,4 +1,4 @@
-<android.support.constraint.ConstraintLayout android:id="@+id/sessionCardViewFrame"
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/sessionCardViewFrame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -50,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             style="@style/FoxmikeTitle"
             android:id="@+id/session_title"
             android:layout_width="wrap_content"
@@ -117,7 +117,7 @@
 
 
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reviewContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.v7.widget.AppCompatRatingBar
+        <androidx.appcompat.widget.AppCompatRatingBar
             android:id="@+id/ratingBar"
             style="@style/Base.Widget.AppCompat.RatingBar.Small"
             android:progressTint="@color/white"
@@ -151,7 +151,7 @@
             app:layout_constraintStart_toEndOf="@id/ratingBar"
             />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/session_date_and_time"
@@ -163,4 +163,4 @@
         android:layout_marginEnd="@dimen/marginHorizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

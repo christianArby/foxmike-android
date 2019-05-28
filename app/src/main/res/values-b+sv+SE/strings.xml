@@ -300,7 +300,7 @@
     <string name="today_filter_text">Idag</string>
     <string name="tomorrow_text">Imorgon</string>
     <string name="today_text">Idag</string>
-    <string name="userName_cannotContain_text">Användarnamnet kan inte innehålla följande tecken \ '. \', \ '# \', \ '$ \', \ '[\', Eller \ '] \'</string>
+    <string name="userName_cannotContain_text">Användarnamnet kan inte innehålla följande tecken \'. \', \'# \', \'$ \', \'[\', Eller \'] \'</string>
     <string name="please_fill_in_email_and_password_text">Oj, du glömde fylla i e-post och/eller löserord..</string>
     <string name="email_or_password_incorrect_text">Oj, e-post och/eller lösenord stämmer inte.</string>
     <string name="cannot_be_blank_text">Måste fyllas i.</string>
@@ -583,4 +583,6 @@
     <string name="greetings_from_foxmike">Hälsningar från oss på Foxmike</string>
     <string name="later">Senare</string>
     <string name="booking_cancelled">Bookning avbruten.</string>
+    <string name="payment_canelled">Betalning avbruten</string>
+    <string name="claim_deposition">Kräv tillbaka deposition</string>
 </resources>

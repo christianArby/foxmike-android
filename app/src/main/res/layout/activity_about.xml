@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.foxmike.android.activities.AboutActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_background_light"
@@ -16,7 +16,7 @@
         app:titleTextColor="@color/primaryTextColor"
         app:title="@string/about"
         app:layout_constraintTop_toTopOf="parent">
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <TextView
         android:id="@+id/openSourceTV"
@@ -43,7 +43,7 @@
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -79,7 +79,7 @@
 
 
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:id="@+id/spaceView1"

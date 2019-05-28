@@ -1,9 +1,6 @@
 package com.foxmike.android.activities;
 //Checked
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,15 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.transition.Fade;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +15,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
@@ -36,7 +36,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.CreateTrainerDepositionFragment;
 import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
@@ -69,6 +68,7 @@ import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -537,46 +537,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
             }
         });
-
-
-
-        /*// Retrieve Stripe Account
-        retrieveStripeCustomer(stripeCustomerId).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-            @Override
-            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                // If not succesful, show error and return from function, will trigger if account ID does not exist
-                if (!task.isSuccessful()) {
-                    Exception e = task.getException();
-                    // [START_EXCLUDE]
-                    Log.w(TAG, "retrieve:onFailure", e);
-                    showSnackbar(getString(R.string.bad_internet));
-                    return;
-                    // [END_EXCLUDE]
-                }
-                // If successful, extract
-                HashMap<String, Object> result = task.getResult();
-                if (result.get("resultType").toString().equals("customer")) {
-                    HashMap<String, Object> sources = (HashMap<String, Object>) result.get("sources");
-                    ArrayList<HashMap<String,Object>> sourcesDataList = (ArrayList<HashMap<String,Object>>) sources.get("data");
-                    String defaultSource;
-                    if (result.get("default_source")!= null) {
-                        defaultSource = result.get("default_source").toString();
-                    } else {
-                        defaultSource = null;
-                        setStripeDefaultSource(new HashMap());
-                    }
-                    for(int i=0; i<sourcesDataList.size(); i++){
-                        if (sourcesDataList.get(i).get("id").toString().equals(defaultSource)) {
-                            setStripeDefaultSource(sourcesDataList.get(i));
-                        }
-                    }
-                } else {
-                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                    showSnackbar(error.get("message").toString());
-                }
-                // [END_EXCLUDE]
-            }
-        });*/
     }
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
@@ -623,14 +583,6 @@ public class MainPlayerActivity extends AppCompatActivity
                 userProfileFragment = UserProfileFragment.newInstance();
             }
             cleanMainFullscreenActivityAndSwitch(userProfileFragment, true,UserProfileFragment.TAG);
-        }
-        if (type.equals("DEPOSITION")) {
-            CreateTrainerDepositionFragment createTrainerDepositionFragment = (CreateTrainerDepositionFragment) fragmentManager.findFragmentByTag(CreateTrainerDepositionFragment.TAG);
-            if (createTrainerDepositionFragment ==null) {
-                createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance();
-            }
-            cleanMainFullscreenActivityAndSwitch(createTrainerDepositionFragment, true, CreateTrainerDepositionFragment.TAG);
-
         }
     }
     /* Listener, when edit "button" in user profile is clicked show edit user profile */

@@ -8,12 +8,12 @@
     <include layout="@layout/app_bar_layout"
         android:id="@+id/search_users_bar"/>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:background="@color/color_background_light"
         android:id="@+id/allUsersList"
         android:layout_below="@id/search_users_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 </RelativeLayout>

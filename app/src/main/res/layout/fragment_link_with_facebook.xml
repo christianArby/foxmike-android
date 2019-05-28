@@ -26,7 +26,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:focusable="false"
         android:id="@+id/emailTIL"
         android:theme="@style/TextLabelDark"
@@ -48,9 +48,9 @@
             android:textColor="@color/primaryTextColor"
             android:textColorHint="@color/primaryTextColor"
             android:backgroundTint="@color/primaryTextColor"/>
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_below="@id/emailTIL"
         android:id="@+id/passwordTIL"
         android:theme="@style/TextLabelDark"
@@ -71,7 +71,7 @@
             android:backgroundTint="@color/primaryTextColor"
             android:hint="@string/password"
             android:inputType="textPassword" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
@@ -83,7 +83,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"/>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         app:backgroundTint="@color/foxmikePrimaryColor"
         android:tint="@color/secondaryTextColor"
         android:src="@mipmap/ic_keyboard_arrow_right_black_24dp"

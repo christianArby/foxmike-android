@@ -1,8 +1,8 @@
 package com.foxmike.android.adapters;
 //Checked
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.foxmike.android.fragments.HostListSmallAdvertisementsFragment;
 import com.foxmike.android.fragments.HostListSmallSessionsFragment;

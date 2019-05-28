@@ -2,14 +2,13 @@ package com.foxmike.android.activities;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.transition.Explode;
 import android.transition.Fade;
-import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;

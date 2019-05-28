@@ -16,6 +16,8 @@ public class StaticResources {
     public static int maxDefaultHour = 23;
     public static int maxDefaultMinute = 45;
 
+    public static HashMap<String, Integer> DEPOSITION_AMOUNT_INTEGERS = new HashMap<>();
+
     static {
         DURATION_INTEGERS.put("10 min", 10);
         DURATION_INTEGERS.put("20 min", 20);
@@ -42,6 +44,8 @@ public class StaticResources {
         DURATION_STRINGS.put(100, "100 min");
         DURATION_STRINGS.put(110, "110 min");
         DURATION_STRINGS.put(120, "120 min");
+
+        DEPOSITION_AMOUNT_INTEGERS.put("sek", 20000);
 
         FILTER_SESSION_TYPE_STRINGS.put("Running", "AAA");
         FILTER_SESSION_TYPE_STRINGS.put("Yoga", "BBB");

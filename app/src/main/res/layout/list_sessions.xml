@@ -1,4 +1,4 @@
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -29,7 +29,7 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:clipToPadding="false"
         android:background="@color/color_background_light"
         android:id="@+id/session_list"
@@ -104,5 +104,5 @@
         app:layout_constraintTop_toBottomOf="@id/listSessionsDateHeader"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
-</android.support.constraint.ConstraintLayout
+</androidx.constraintlayout.widget.ConstraintLayout
    >

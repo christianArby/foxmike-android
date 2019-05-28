@@ -5,31 +5,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.foxmike.android.fragments.InboxFragment">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:background="@color/color_background_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:stateListAnimator="@animator/foxmike_app_bar_elevation"
         android:id="@+id/inboxBar">
 
-        <android.support.design.widget.TabLayout
+        <com.google.android.material.tabs.TabLayout
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
             app:tabSelectedTextColor="@color/foxmikePrimaryColor"
             app:tabTextColor="@color/primaryTextColor"
             android:id="@+id/inbox_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/inboxPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/inboxBar">
 
-    </android.support.v4.view.ViewPager>
+    </androidx.viewpager.widget.ViewPager>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:src="@mipmap/ic_search_white_24dp"
         android:id="@+id/searchFAB"
         android:layout_alignParentBottom="true"
