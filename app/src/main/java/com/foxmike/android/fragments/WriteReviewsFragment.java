@@ -18,12 +18,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Rating;
 import com.foxmike.android.models.Review;
+import com.foxmike.android.models.Session;
 import com.foxmike.android.utils.TextTimestamp;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -103,53 +108,68 @@ public class WriteReviewsFragment extends DialogFragment {
             }
         });
 
-        reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ advertisement.getSessionName() + " " + TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
-        ratingTitle.setText(R.string.Rate);
-
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessions").child(advertisement.getSessionId()));
+        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
-            public void onRatingChanged(RatingBar ratingBar, final float v, boolean b) {
-                if (b) {
-                    thisRating = (float)Math.ceil(v);
+            public void onChanged(DataSnapshot dataSnapshot) {
+                Session session = dataSnapshot.getValue(Session.class);
 
-                    rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue()!=null) {
-                                Long currentTimestamp = System.currentTimeMillis();
-                                String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
-                                Rating rating = new Rating(advertisement.getHost(),currentUserId, advertisement.getAdvertisementId(), advertisement.getSessionId(), (int) thisRating, currentTimestamp);
-                                rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
+                reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ session.getSessionName() + " " + TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
+                ratingTitle.setText(R.string.Rate);
 
-                                if (reviewText.getText().toString().length()>0) {
-                                    Review review = new Review(advertisement.getHost(), currentUserId, advertisement.getAdvertisementId(), advertisement.getSessionId(), reviewText.getText().toString(), (int) thisRating, currentTimestamp);
-                                    rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
-                                }
-                                rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
+                ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                    @Override
+                    public void onRatingChanged(RatingBar ratingBar, final float v, boolean b) {
+                        if (b) {
+                            thisRating = (float)Math.ceil(v);
+
+                            rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue()!=null) {
+                                        Long currentTimestamp = System.currentTimeMillis();
+                                        String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
+                                        Rating rating = new Rating(advertisement.getHost(),currentUserId, advertisement.getAdvertisementId(), advertisement.getSessionId(), (int) thisRating, currentTimestamp);
+                                        rootDbRef.child("ratings").child(ratingAndReviewId).setValue(rating);
+
+                                        if (reviewText.getText().toString().length()>0) {
+                                            Review review = new Review(advertisement.getHost(), currentUserId, advertisement.getAdvertisementId(), advertisement.getSessionId(), reviewText.getText().toString(), (int) thisRating, currentTimestamp);
+                                            rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
+                                        }
+                                        rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                hideKeyboard();
+                                                dismiss();
+                                            }
+                                        });
+                                    } else {
                                         hideKeyboard();
                                         dismiss();
                                     }
-                                });
-                            } else {
-                                hideKeyboard();
-                                dismiss();
-                            }
-                        }
+                                }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getActivity().getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                            hideKeyboard();
-                            dismiss();
-                        }
-                    });
-/**/
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    Toast.makeText(getActivity().getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                    hideKeyboard();
+                                    dismiss();
+                                }
+                            });
+                            /**/
 
-                }
+                        }
+                    }
+                });
+
+
             }
         });
+
+
+
+
 
         return view;
     }

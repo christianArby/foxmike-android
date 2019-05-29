@@ -1668,7 +1668,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void setImage(String image, ImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
+        Glide.with(getActivity().getApplicationContext()).load(image).into(imageView);
     }
 
     private String getAddress(double latitude, double longitude) {

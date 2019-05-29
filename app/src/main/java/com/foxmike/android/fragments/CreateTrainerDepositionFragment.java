@@ -13,8 +13,11 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.foxmike.android.R;
@@ -67,6 +70,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
     private FirebaseAnalytics mFirebaseAnalytics;
     private PaymentMethod paymentMethod;
     private String returnURL;
+    private boolean paymentMethodLoaded;
 
 
     //private OnDepositionFragmentInteractionListener onDepositionFragmentInteractionListener;
@@ -105,6 +109,13 @@ public class CreateTrainerDepositionFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_create_trainer_deposition, container, false);
         ButterKnife.bind(this, mainView);
 
+        // Setup toolbar
+        Toolbar toolbar = mainView.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
         myProgressBar = new MyProgressBar(depProgressBar, getActivity());
 
 
@@ -129,9 +140,11 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         Gson gson = new Gson();
                         String json = gson.toJson(hashMap);
                         paymentMethod = PaymentMethod.fromString(json);
+                        paymentMethodLoaded = true;
                         hasPaymentMethod = true;
                         setupUI(hasPaymentMethod);
                     } else {
+                        paymentMethodLoaded = true;
                         hasPaymentMethod = false;
                         setupUI(hasPaymentMethod);
                     }
@@ -148,9 +161,11 @@ public class CreateTrainerDepositionFragment extends Fragment {
                             Gson gson = new Gson();
                             String json = gson.toJson(hashMap);
                             paymentMethod = PaymentMethod.fromString(json);
+                            paymentMethodLoaded = true;
                             hasPaymentMethod = true;
                             setupUI(hasPaymentMethod);
                         } else {
+                            paymentMethodLoaded = true;
                             hasPaymentMethod = false;
                             setupUI(hasPaymentMethod);
                         }
@@ -158,6 +173,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
                 });
                 return;
             } catch (RuntimeException e2){
+                paymentMethodLoaded = true;
                 hasPaymentMethod = false;
                 setupUI(hasPaymentMethod);
             }
@@ -172,105 +188,105 @@ public class CreateTrainerDepositionFragment extends Fragment {
 
     private void setupUI(boolean hasPaymentSystem) {
 
-        if (isAdded()) {
+        if (isAdded() && paymentMethodLoaded) {
             if (hasPaymentSystem) {
-            paymentMethodTV.setVisibility(View.VISIBLE);
-            addPaymentMethodTV.setVisibility(View.GONE);
-            dotProgressBarContainer.setVisibility(View.GONE);
+                paymentMethodTV.setVisibility(View.VISIBLE);
+                addPaymentMethodTV.setVisibility(View.GONE);
+                dotProgressBarContainer.setVisibility(View.GONE);
 
-            makeDepositionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
+                makeDepositionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_primary));
 
-            String last4 = paymentMethod.card.last4;
-            paymentMethodTV.setText("**** " + last4);
-            String cardBrand = paymentMethod.card.brand;
-            int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
-            paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
+                String last4 = paymentMethod.card.last4;
+                paymentMethodTV.setText("**** " + last4);
+                String cardBrand = paymentMethod.card.brand;
+                int resourceId = BRAND_CARD_RESOURCE_MAP.get(cardBrand);
+                paymentMethodTV.setCompoundDrawablesWithIntrinsicBounds(resourceId, 0, 0, 0);
 
-            makeDepositionBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    myProgressBar.startProgressBar();
-                    // MAKE DEPOSITION
-                    HashMap<String, Object> depositionMap = new HashMap<>();
-                    depositionMap.put("amount", DEPOSITION_AMOUNT_INTEGERS.get("sek"));
-                    depositionMap.put("currency", "sek");
-                    depositionMap.put("customerFirebaseId", FirebaseAuth.getInstance().getCurrentUser().getUid());
-                    depositionMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                    depositionMap.put("returnURL", returnURL);
+                makeDepositionBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        myProgressBar.startProgressBar();
+                        // MAKE DEPOSITION
+                        HashMap<String, Object> depositionMap = new HashMap<>();
+                        depositionMap.put("amount", DEPOSITION_AMOUNT_INTEGERS.get("sek"));
+                        depositionMap.put("currency", "sek");
+                        depositionMap.put("customerFirebaseId", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        depositionMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                        depositionMap.put("returnURL", returnURL);
 
-                    submitDeposition(depositionMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                            // If error
-                            if (!task.isSuccessful()) {
-                                Exception e = task.getException();
-                                myProgressBar.startProgressBar();
-                                Log.w(TAG, "retrieve:onFailure", e);
-                                showSnackbar(getString(R.string.bad_internet));
-                                return;
-                            }
-                            // If successful the variable "operationResult" will say "success,
-                            // If so finish the activity with a result ok so the previous activity knows it's a success
-                            HashMap<String, Object> result = task.getResult();
-
-                            if (result.get("resultType").toString().equals("paymentIntentParameters")) {
-                                String status = (String) result.get("paymentIntentStatus");
-                                if (status.equals(PaymentIntent.Status.RequiresAction.toString())) {
-                                    Uri redirectUrl = Uri.parse((String) result.get("redirectUrl"));
-                                    if (redirectUrl != null) {
-                                        startActivity(new Intent(Intent.ACTION_VIEW, redirectUrl));
-                                    }
+                        submitDeposition(depositionMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                // If error
+                                if (!task.isSuccessful()) {
+                                    Exception e = task.getException();
+                                    myProgressBar.startProgressBar();
+                                    Log.w(TAG, "retrieve:onFailure", e);
+                                    showSnackbar(getString(R.string.bad_internet));
                                     return;
-                                } else if (status.equals(PaymentIntent.Status.Succeeded.toString())){
-                                    myProgressBar.stopProgressBar();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("sek"));
-                                    bundle.putString("deposition_currency", "SEK");
-                                    bundle.putString("trainer_email", mAuth.getCurrentUser().getEmail());
-                                    bundle.putString("trainer_id", mAuth.getCurrentUser().getUid());
-                                    mFirebaseAnalytics.logEvent("deposition", bundle);
-
-                                    onCreateTrainerDepositionListener.OnCreateTrainerDeposition();
-                                } else {
-                                    myProgressBar.stopProgressBar();
-                                    showSnackbar("Payment cancelled");
                                 }
-                            } else {
-                                // If error, show error in snackbar
-                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                showSnackbar(error.get("message").toString());
+                                // If successful the variable "operationResult" will say "success,
+                                // If so finish the activity with a result ok so the previous activity knows it's a success
+                                HashMap<String, Object> result = task.getResult();
+
+                                if (result.get("resultType").toString().equals("paymentIntentParameters")) {
+                                    String status = (String) result.get("paymentIntentStatus");
+                                    if (status.equals(PaymentIntent.Status.RequiresAction.toString())) {
+                                        Uri redirectUrl = Uri.parse((String) result.get("redirectUrl"));
+                                        if (redirectUrl != null) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW, redirectUrl));
+                                        }
+                                        return;
+                                    } else if (status.equals(PaymentIntent.Status.Succeeded.toString())){
+                                        myProgressBar.stopProgressBar();
+                                        Bundle bundle = new Bundle();
+                                        bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("sek"));
+                                        bundle.putString("deposition_currency", "SEK");
+                                        bundle.putString("trainer_email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                                        bundle.putString("trainer_id", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                        mFirebaseAnalytics.logEvent("deposition", bundle);
+
+                                        onCreateTrainerDepositionListener.OnCreateTrainerDeposition(true);
+                                    } else {
+                                        myProgressBar.stopProgressBar();
+                                        showSnackbar("Payment cancelled");
+                                    }
+                                } else {
+                                    // If error, show error in snackbar
+                                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                    showSnackbar(error.get("message").toString());
+                                }
+
                             }
+                        });
+                    }
+                });
 
-                        }
-                    });
-                }
-            });
+            } else {
+                paymentMethodTV.setVisibility(View.GONE);
+                addPaymentMethodTV.setVisibility(View.VISIBLE);
+                dotProgressBarContainer.setVisibility(View.GONE);
 
-        } else {
-            paymentMethodTV.setVisibility(View.GONE);
-            addPaymentMethodTV.setVisibility(View.VISIBLE);
-            dotProgressBarContainer.setVisibility(View.GONE);
+                makeDepositionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
 
-            makeDepositionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
+                makeDepositionBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // ADD PAYMENT METHOD
+                        Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PaymentPreferencesActivity.class);
+                        startActivity(paymentPreferencesIntent);
+                    }
+                });
 
-            makeDepositionBtn.setOnClickListener(new View.OnClickListener() {
+            }
+
+            addDepostionLaterBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // ADD PAYMENT METHOD
-                    Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PaymentPreferencesActivity.class);
-                    startActivity(paymentPreferencesIntent);
+                    // MOVE ON
+                    onCreateTrainerDepositionListener.OnCreateTrainerDeposition(false);
                 }
             });
-
-        }
-
-        addDepostionLaterBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // MOVE ON
-                onCreateTrainerDepositionListener.OnCreateTrainerDeposition();
-            }
-        });
 
         }
 
@@ -313,7 +329,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
     }
     public interface OnCreateTrainerDepositionListener {
 
-        void OnCreateTrainerDeposition();
+        void OnCreateTrainerDeposition(boolean deposit);
     }
 
     private void showSnackbar(String message) {

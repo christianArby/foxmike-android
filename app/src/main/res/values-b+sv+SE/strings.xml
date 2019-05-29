@@ -584,5 +584,16 @@
     <string name="later">Senare</string>
     <string name="booking_cancelled">Bookning avbruten.</string>
     <string name="payment_canelled">Betalning avbruten</string>
-    <string name="claim_deposition">Kräv tillbaka deposition</string>
+    <string name="claim_deposition">Ta tillbaka deposition</string>
+    <string name="amount">Belopp:\u0020</string>
+    <string name="date_colon">Datum:\u0020</string>
+    <string name="deposition_made">Du har lagt deposition och kan lägga ut pass.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Läs våra\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>\u0020för mer information.</string>
+    <string name="deposition">Deposition</string>
+    <string name="deposition_refunded_title">Deposition återbeltald</string>
+    <string name="your_deposition_text_1">Din deposition på</string>
+    <string name="your_deposition_text_2">har nu blivit återbetald. Det kan ta några dagar innan betalningen syns på ditt bankkonto.</string>
+    <string name="deposition_withdraw_question">Du kan ta tillbaka depositionen när som helst men du behöver ha deponerat för att kunna lägga ut pass.  Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du kan deponera och lägga ut pass igen.</string>
+    <string name="deposition_needed">Du behöver lägga en deposition för att skapa pass.</string>
+    <string name="go_to_deposition">Gå till deposition</string>
+    <string name="deposition_why">För att kunna lägga ut pass måste du lägga en deposition. Detta gör vi för att försäkra oss om att du kommer till passet du lagt ut och att det är någorlunda som du beskrev det. Även om 9 av 10 personer kanske aldrig nödvändigtvis behövt deponera vet vi av tidigare erfarenheter att några få skulle förstöra för de flesta om vi inte krävde deposition.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du får deponera och anordna pass igen. Läs våra\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>\u0020för mer information.</string>
 </resources>

@@ -585,4 +585,15 @@
     <string name="booking_cancelled">Booking cancelled.</string>
     <string name="payment_canelled">Payment cancelled</string>
     <string name="claim_deposition">Claim deposition</string>
+    <string name="amount">Amount:\u0020</string>
+    <string name="date_colon">Date:\u0020</string>
+    <string name="deposition_made">Deposition has been made and you can create sessions.\n\nYou are free to withdraw the deposition at anytime as long as you do not have upcoming sessions. Read our\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>\u0020for more information.</string>
+    <string name="deposition">Deposition</string>
+    <string name="deposition_refunded_title">Deposition refunded</string>
+    <string name="your_deposition_text_1">Your deposition on</string>
+    <string name="your_deposition_text_2">has now been refunded.</string>
+    <string name="deposition_withdraw_question">You can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days.</string>
+    <string name="deposition_needed">You need to make a deposit in order to create sessions.</string>
+    <string name="go_to_deposition">Go to deposition</string>
+    <string name="deposition_why">You need to make a deposition in order to create sessions. The main reason for this is to make sure you will attend your session and that the session is somewhat as you described it. Even though this is most of the time not necessary we know from experience that a few would ruin for the others if we did not require a deposit.\n\nYou can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days. Read our\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>\u0020for more information.</string>
 </resources>

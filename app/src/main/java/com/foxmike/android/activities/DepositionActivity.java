@@ -1,15 +1,23 @@
 package com.foxmike.android.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
@@ -20,6 +28,7 @@ import com.foxmike.android.R;
 import com.foxmike.android.fragments.CreateTrainerDepositionFragment;
 import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,9 +40,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+import com.google.gson.Gson;
 import com.stripe.android.model.PaymentIntent;
 
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,13 +77,36 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
     public void setPaymentMethod(HashMap paymentMethodMap) { paymentMethodSubject.onNext(paymentMethodMap);     }
     public HashMap  getPaymentMethod()          { return paymentMethodSubject.getValue(); }
 
+    @BindView(R.id.depositionAmount)
+    TextView depostionAmount;
+    @BindView(R.id.depositionDate) TextView depositionDate;
     @BindView(R.id.claimBtn) AppCompatButton claimBtn;
+    @BindView(R.id.dotProgressBarContainer)
+    FrameLayout dotProgressBarContainer;
+    @BindView(R.id.depositionText) TextView depositionText;
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deposition);
         ButterKnife.bind(this);
+
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+        depositionText.setMovementMethod(LinkMovementMethod.getInstance());
+
+
 
         fragmentManager = getSupportFragmentManager();
 
@@ -83,8 +118,6 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
         myProgressBar.startProgressBar();
 
         mainView = findViewById(R.id.mainView);
-
-        setPaymentMethod(new HashMap());
 
         mFunctions = FirebaseFunctions.getInstance();
 
@@ -108,8 +141,98 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
 
                 } else {
 
-                }
+                    retrievePaymentIntentAndChargeId(currentUser.getStripeDepositionPaymentIntentId()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                            // If not succesful, show error and return from function, will trigger if account ID does not exist
+                            if (!task.isSuccessful()) {
+                                Exception e = task.getException();
+                                // [START_EXCLUDE]
+                                Log.w(TAG, "retrieve:onFailure", e);
+                                showSnackbar(getString(R.string.bad_internet));
+                                return;
+                                // [END_EXCLUDE]
+                            }
+                            // If successful, extract
+                            HashMap<String, Object> result = task.getResult();
+                            if (result.get("resultType").toString().equals("paymentIntent")) {
+                                Gson gson = new Gson();
+                                String json = gson.toJson(result.get("paymentIntent"));
+                                PaymentIntent paymentIntent = PaymentIntent.fromString(json);
+                                depostionAmount.setText(getString(R.string.amount) + paymentIntent.getAmount()/100 + " " + paymentIntent.getCurrency());
+                                depositionDate.setText(getString(R.string.date_colon) + TextTimestamp.textSDF(paymentIntent.getCreated()*1000));
 
+
+                                dotProgressBarContainer.setVisibility(View.GONE);
+
+                                claimBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                        alertDialogPositiveOrNegative(getResources().getString(R.string.claim_deposition), getResources().getString(R.string.deposition_withdraw_question), getResources().getString(R.string.claim_deposition), getResources().getString(R.string.cancel), new OnPositiveOrNegativeButtonPressedListener() {
+                                            @Override
+                                            public void OnPositivePressed() {
+                                                myProgressBar.startProgressBar();
+
+                                                HashMap<String, Object> refundMap = new HashMap<>();
+                                                refundMap.put("customerFirebaseId", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                                refundMap.put("chargeId", result.get("chargeId"));
+
+                                                refundDeposition(refundMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                                        if (!task.isSuccessful()) {
+                                                            Exception e = task.getException();
+                                                            // [START_EXCLUDE]
+                                                            Log.w(TAG, "retrieve:onFailure", e);
+                                                            showSnackbar(getString(R.string.bad_internet));
+                                                            return;
+                                                            // [END_EXCLUDE]
+                                                        }
+                                                        // If successful, extract
+                                                        HashMap<String, Object> result = task.getResult();
+                                                        if (result.get("resultType").toString().equals("refund")) {
+
+                                                            Map<String,Object> refund = (Map) result.get("refund");
+                                                            int amount = (int) refund.get("amount");
+                                                            float sweAmount = amount;
+                                                            String refundAmount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
+                                                            String currency = (String) refund.get("currency");
+
+                                                            myProgressBar.stopProgressBar();
+
+                                                            alertDialogOk(getResources().getString(R.string.deposition_refunded_title), getResources().getString(R.string.your_deposition_text_1) + " " + refundAmount + " " + currency + " " + getResources().getString(R.string.your_deposition_text_2),true);
+
+                                                        } else {
+                                                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                                            showSnackbar(error.get("message").toString());
+                                                        }
+
+                                                    }
+                                                });
+
+                                            }
+
+                                            @Override
+                                            public void OnNegativePressed() {
+
+                                            }
+                                        });
+
+
+
+                                    }
+                                });
+
+                            } else {
+                                HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                showSnackbar(error.get("message").toString());
+                            }
+
+                        }
+                    });
+
+                }
 
 
                 myProgressBar.stopProgressBar();
@@ -133,9 +256,16 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
     }
 
     @Override
-    public void OnCreateTrainerDeposition() {
-        setResult(RESULT_OK, null);
-        finish();
+    public void OnCreateTrainerDeposition(boolean deposit) {
+        if (deposit) {
+            for (Fragment fragment:getSupportFragmentManager().getFragments()) {
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+        } else {
+            setResult(RESULT_OK, null);
+            finish();
+        }
+
     }
 
     // __________________________ STRIPE BELOW _____________________________
@@ -265,5 +395,83 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
                         return result;
                     }
                 });
+    }
+
+    private Task<HashMap<String, Object>> retrievePaymentIntentAndChargeId(String paymentIntentId) {
+        return mFunctions
+                .getHttpsCallable("retrievePaymentIntentAndChargeId")
+                .call(paymentIntentId)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    private Task<HashMap<String, Object>> refundDeposition(HashMap<String, Object> depositionRefundMap) {
+        return mFunctions
+                .getHttpsCallable("refundDeposition")
+                .call(depositionRefundMap)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+        dialog.show();
+    }
+
+    public void alertDialogPositiveOrNegative(String title, String message, String positiveButton, String negativeButton, OnPositiveOrNegativeButtonPressedListener onPositiveOrNegativeButtonPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                onPositiveOrNegativeButtonPressedListener.OnPositivePressed();
+            }
+        });
+        builder.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onPositiveOrNegativeButtonPressedListener.OnNegativePressed();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public interface OnPositiveOrNegativeButtonPressedListener {
+        void OnPositivePressed();
+        void OnNegativePressed();
     }
 }

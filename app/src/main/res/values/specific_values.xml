@@ -7,6 +7,9 @@
     <integer name="TOTAL_ITEMS_TO_LOAD">50</integer>
     <integer name="TOTAL_REVIEWS_TO_LOAD">5</integer>
 
+    <integer name="heightOfCreatedSessionImageNumerator">2</integer>
+    <integer name="heightOfCreatedSessionImageDenominator">3</integer>
+
     <integer name="heightOfSessionImageNumerator">3</integer>
     <integer name="heightOfSessionImageDenominator">5</integer>
 

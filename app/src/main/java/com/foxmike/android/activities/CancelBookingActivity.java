@@ -41,6 +41,7 @@ public class CancelBookingActivity extends AppCompatActivity {
     private String participantId;
     private String hostId;
     private int adPrice;
+    private HashMap<String, Object> cancelMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +71,12 @@ public class CancelBookingActivity extends AppCompatActivity {
         DateTime bookedTime = new DateTime(bookingTimestamp);
         Duration durationCurrentToSession = new Duration(currentTime, sessionTime);
         Duration durationBookedToCurrent = new Duration(bookedTime, currentTime);
+        cancelMap = new HashMap<>();
+        cancelMap.put("hostId", hostId);
+        cancelMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        cancelMap.put("advertisementId", advertisementId);
+        cancelMap.put("hostCancellation", "false");
+
         if (currentTimestamp> advertisementTimestamp) {
             alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed));
             return;
@@ -80,12 +87,6 @@ public class CancelBookingActivity extends AppCompatActivity {
                 return;
             }
         }
-
-        HashMap<String,Object> cancelMap = new HashMap<>();
-        cancelMap.put("hostId", hostId);
-        cancelMap.put("participantUserID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        cancelMap.put("advertisementId", advertisementId);
-        cancelMap.put("hostCancellation", "false");
 
         cancelBooking(cancelMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
             @Override
@@ -132,9 +133,29 @@ public class CancelBookingActivity extends AppCompatActivity {
                 .setTitle(title);
         builder.setPositiveButton(R.string.cancel_booking_anyway, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                adPrice = 0;
-                Long currentTimestamp = System.currentTimeMillis();
-                tryRefund(currentTimestamp);
+                cancelBookingWithoutRefund(cancelMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                        if (!task.isSuccessful()) {
+                            Exception e = task.getException();
+                            progressBarHorizontal.setProgress(100);
+                            Log.w(TAG, "retrieve:onFailure", e);
+                            Toast.makeText(CancelBookingActivity.this, getString(R.string.bad_internet), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        progressBarHorizontal.setProgress(80);
+                        // If successful, extract
+                        HashMap<String, Object> result = task.getResult();
+                        if (result.get("operationResult").toString().equals("success")) {
+                            progressBarHorizontal.setProgress(100);
+                            setResult(RESULT_OK, null);
+                            finish();
+                        } else {
+                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("err");
+                            Toast.makeText(CancelBookingActivity.this, error.get("message").toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -173,6 +194,20 @@ public class CancelBookingActivity extends AppCompatActivity {
         FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
         return mFunctions
                 .getHttpsCallable("cancelBooking")
+                .call(cancelMap)
+                .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
+                    @Override
+                    public HashMap<String, Object> then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
+
+    private Task<HashMap<String, Object>> cancelBookingWithoutRefund(HashMap<String, Object> cancelMap) {
+        FirebaseFunctions mFunctions = FirebaseFunctions.getInstance();
+        return mFunctions
+                .getHttpsCallable("cancelBookingWithoutRefund")
                 .call(cancelMap)
                 .continueWith(new Continuation<HttpsCallableResult, HashMap<String, Object>>() {
                     @Override

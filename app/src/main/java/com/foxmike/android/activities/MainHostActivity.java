@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 //Checked
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -107,6 +109,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
     private HashMap<String, String> sessionTypeDictionary;
     private DataSnapshot reviewsToWrite;
+    private boolean hasDeposition;
 
 
     @Override
@@ -145,6 +148,15 @@ public class MainHostActivity extends AppCompatActivity implements
         mainPager.setPagingEnabled(false);
         mainPager.setOffscreenPageLimit(3);
         bottomNavigationAdapter = new BottomNavigationAdapter(fragmentManager);
+
+        FirebaseDatabaseViewModel stripeDepositionPaymentIntentIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> stripeDepositionPaymentIntentIdLiveData = stripeDepositionPaymentIntentIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDepositionPaymentIntentId"));
+        stripeDepositionPaymentIntentIdLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                hasDeposition = dataSnapshot.getValue() != null;
+            }
+        });
 
         // Create instances of fragments
 
@@ -448,8 +460,24 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnCreateSessionClicked() {
-        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
-        startActivity(createOrEditSession);
+        if (hasDeposition) {
+            Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+            startActivity(createOrEditSession);
+        } else {
+            alertDialogPositiveOrNegative(getResources().getString(R.string.deposition), getResources().getString(R.string.deposition_needed), getResources().getString(R.string.go_to_deposition), getResources().getString(R.string.cancel), new OnPositiveOrNegativeButtonPressedListener() {
+                @Override
+                public void OnPositivePressed() {
+                    Intent depositionIntent = new Intent(MainHostActivity.this, DepositionActivity.class);
+                    startActivity(depositionIntent);
+                }
+
+                @Override
+                public void OnNegativePressed() {
+
+                }
+            });
+        }
+
     }
 
 
@@ -644,5 +672,32 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void AlertOccasionCancelled(boolean free, String sessionId) {
 
+    }
+
+    public void alertDialogPositiveOrNegative(String title, String message, String positiveButton, String negativeButton, OnPositiveOrNegativeButtonPressedListener onPositiveOrNegativeButtonPressedListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                onPositiveOrNegativeButtonPressedListener.OnPositivePressed();
+            }
+        });
+        builder.setNegativeButton(negativeButton, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                onPositiveOrNegativeButtonPressedListener.OnNegativePressed();
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public interface OnPositiveOrNegativeButtonPressedListener {
+        void OnPositivePressed();
+        void OnNegativePressed();
     }
 }
