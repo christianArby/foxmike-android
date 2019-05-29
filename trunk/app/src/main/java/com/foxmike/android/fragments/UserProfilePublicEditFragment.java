@@ -307,7 +307,7 @@ public class UserProfilePublicEditFragment extends Fragment {
 
     // Method to set and scale an image into an circular imageView
     private void setImageButton(String image, CircleImageView imageButton) {
-        Glide.with(this).load(image).into(imageButton);
+        Glide.with(getActivity().getApplicationContext()).load(image).into(imageButton);
     }
 
     @Override

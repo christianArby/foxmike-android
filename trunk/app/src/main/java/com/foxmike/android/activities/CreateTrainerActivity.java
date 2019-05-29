@@ -290,7 +290,7 @@ public class CreateTrainerActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnCreateTrainerDeposition() {
+    public void OnCreateTrainerDeposition(boolean deposit) {
         setResult(RESULT_OK, null);
         finish();
     }

@@ -398,7 +398,7 @@ public class UserProfilePublicFragment extends Fragment {
 
     // Method to set and scale an image into an circular imageView
     private void setCircleImage(String image, CircleImageView imageView) {
-        Glide.with(this).load(image).into(imageView);
+        Glide.with(getActivity().getApplicationContext()).load(image).into(imageView);
     }
 
     @Override

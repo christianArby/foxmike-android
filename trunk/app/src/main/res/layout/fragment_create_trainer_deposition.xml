@@ -8,6 +8,14 @@
     android:background="@color/color_background_dark"
     android:id="@+id/mainView">
 
+    <androidx.appcompat.widget.Toolbar
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar">
+    </androidx.appcompat.widget.Toolbar>
+
     <ProgressBar
         android:id="@+id/depProgressBar"
         android:visibility="gone"
@@ -18,14 +26,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/deposition"
+        android:fontFamily="@font/montserrat_semi_bold"
+        app:fontFamily="@font/montserrat_semi_bold"
+        android:textColor="@color/primaryTextColor"
+        style="@style/FoxmikeHeading"
+        android:layout_marginStart="@dimen/margin_left" />
+
     <TextView
         android:id="@+id/depExplanation"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/heading"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="@dimen/margin_left"
-        android:text="Välkommen in till klubben,förklarar, listar regler, användarvillkoren, beskriver deposition och anledningen till det."/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="@dimen/margin_left"
+        android:text="@string/deposition_why"/>
 
     <LinearLayout
         android:id="@+id/paymentMethodContainer"
@@ -64,15 +86,17 @@
         android:visibility="visible"
         android:id="@+id/dotProgressBarContainer"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@color/color_background_light"
-        app:layout_constraintTop_toBottomOf="@id/depExplanation">
+        android:layout_height="0dp"
+        android:background="@color/color_background_dark"
+        app:layout_constraintTop_toTopOf="@id/paymentMethodContainer"
+        app:layout_constraintBottom_toBottomOf="@id/paymentMethodContainer">
 
         <com.github.silvestrpredko.dotprogressbar.DotProgressBar
             android:visibility="visible"
             android:id="@+id/progressBar"
             android:layout_width="80dp"
             android:layout_height="19dp"
+            android:layout_marginStart="@dimen/margin_left"
             app:amount="3"
             app:duration="@android:integer/config_mediumAnimTime"
             app:endColor="@color/foxmikePrimaryColor"

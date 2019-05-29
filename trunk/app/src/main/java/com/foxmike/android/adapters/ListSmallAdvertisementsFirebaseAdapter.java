@@ -66,8 +66,6 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
 
     @Override
     protected void onBindViewHolder(@NonNull SmallAdvertisementViewHolder holder, int position, @NonNull Advertisement model) {
-        holder.setSessionImage(model.getImageUrl(), context);
-        holder.setText1(model.getSessionName());
         String advDateAndTime = TextTimestamp.textSessionDateAndTime(model.getAdvertisementTimestamp());
         advDateAndTime = advDateAndTime.substring(0,1).toUpperCase() + advDateAndTime.substring(1);
         Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
@@ -82,6 +80,7 @@ public class ListSmallAdvertisementsFirebaseAdapter extends FirebaseRecyclerAdap
             @Override
             public void OnSessionsLoaded() {
                 Session session = sessionHashMap.get(model.getSessionId());
+                holder.setText1(session.getSessionName());
                 holder.setSessionImage(session.getImageUrl(), context);
                 holder.setText3(sessionTypeDictionary.get(session.getSessionType()).toUpperCase() + " | " + getAddress(session.getLatitude(), session.getLongitude()));
             }

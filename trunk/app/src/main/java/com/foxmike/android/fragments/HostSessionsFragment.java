@@ -10,11 +10,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.SmallSessionsPagerAdapter;
 import com.foxmike.android.interfaces.OnCreateSessionClickedListener;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -71,34 +75,46 @@ public class HostSessionsFragment extends Fragment {
         // Setup create session button
         createSessionBtn = view.findViewById(R.id.add_session_btn);
 
-        createSessionBtn.setOnClickListener(new View.OnClickListener() {
+        FirebaseDatabaseViewModel stripeDepositionPaymentIntentIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> stripeDepositionPaymentIntentIdLiveData = stripeDepositionPaymentIntentIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDepositionPaymentIntentId"));
+        stripeDepositionPaymentIntentIdLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
-            public void onClick(View view) {
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                    return;
-                }
-                mLastClickTime = SystemClock.elapsedRealtime();
-
-                DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
-                rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onChanged(DataSnapshot dataSnapshot) {
+                createSessionBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        final boolean userHasStripeAccount;
-                        userHasStripeAccount = dataSnapshot.getValue() != null;
-                        if (userHasStripeAccount) {
-                            onCreateSessionClickedListener.OnCreateSessionClicked();
-                        } else {
-                            Toast.makeText(getActivity().getApplicationContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
+                    public void onClick(View view) {
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
                         }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                        mLastClickTime = SystemClock.elapsedRealtime();
+
+                        DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
+                        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                final boolean userHasStripeAccount;
+                                userHasStripeAccount = dataSnapshot.getValue() != null;
+                                if (userHasStripeAccount) {
+                                    onCreateSessionClickedListener.OnCreateSessionClicked();
+                                } else {
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.you_have_no_stripe_account, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                     }
                 });
 
             }
         });
+
+
+
+
 
 
 

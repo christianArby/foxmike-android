@@ -162,7 +162,7 @@ public class ChatFragment extends Fragment {
 
         // Fill toolbar
         titleView.setText(chatUserName);
-        Glide.with(this).load(chatThumbImage).into(profileImage);
+        Glide.with(getActivity().getApplicationContext()).load(chatThumbImage).into(profileImage);
 
         // if user info icon is clicked, display user profile
         action_bar_view.setOnClickListener(new View.OnClickListener() {

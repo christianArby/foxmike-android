@@ -1295,7 +1295,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
             CropImage.activity(imageUri)
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(getResources().getInteger(R.integer.heightOfSessionImageDenominator), getResources().getInteger(R.integer.heightOfSessionImageNumerator))
+                    .setAspectRatio(getResources().getInteger(R.integer.heightOfCreatedSessionImageDenominator), getResources().getInteger(R.integer.heightOfCreatedSessionImageNumerator))
                     .start(this);
         }
 
