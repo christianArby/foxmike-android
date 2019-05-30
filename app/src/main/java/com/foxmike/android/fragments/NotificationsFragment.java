@@ -29,6 +29,7 @@ import com.foxmike.android.models.InAppNotification;
 import com.foxmike.android.models.Message;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.utils.TextTimestamp;
+import com.foxmike.android.viewmodels.FirebaseDatabaseChildListenerViewModel;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -61,6 +62,8 @@ public class NotificationsFragment extends Fragment {
     private DotProgressBar loading;
     private HashMap<String, String> stringHashMap;
     private HashMap<String, InAppNotification> notificationHashMap = new HashMap<>();
+    private Query notificationsQuery;
+    private ChildEventListener notificationsChildEventListener;
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -83,7 +86,7 @@ public class NotificationsFragment extends Fragment {
 
         // Set database reference to chat id in message root and build query
         DatabaseReference notificationsRef = rootDbRef.child("notifications").child(currentUserId);
-        Query notificationsQuery = notificationsRef.limitToLast(100);
+        notificationsQuery = notificationsRef.limitToLast(100);
 
         notificationsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -101,8 +104,7 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
-
-        notificationsQuery.addChildEventListener(new ChildEventListener() {
+        /*notificationsChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 FoxmikeNotification foxmikeNotification = dataSnapshot.getValue(FoxmikeNotification.class);
@@ -136,7 +138,7 @@ public class NotificationsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };*/
 
         stringHashMap = new HashMap<>();
         stringHashMap.put("has_made_a_post_in", getResources().getString(R.string.has_made_a_post_in));
@@ -182,6 +184,28 @@ public class NotificationsFragment extends Fragment {
         listNotificationsAdapter = new ListNotificationsAdapter(stringHashMap, null, readColor, unreadColor, onNotificationClickedListener);
         listNotificationsAdapter.registerAdapterDataObserver(dataObserver);
 
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        FirebaseDatabaseChildListenerViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseChildListenerViewModel.class);
+        LiveData<DataSnapshot> notificationsLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(notificationsQuery);
+        notificationsLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                FoxmikeNotification foxmikeNotification = dataSnapshot.getValue(FoxmikeNotification.class);
+                foxmikeNotification.setNotificationId(dataSnapshot.getKey());
+                populateNotificationHashMap(foxmikeNotification, new OnNotificationLoadedListener() {
+                    @Override
+                    public void OnNotificationLoaded() {
+                        listNotificationsAdapter.updateNotificationHashMap(notificationHashMap);
+                        listNotificationsAdapter.add(foxmikeNotification);
+                    }
+                });
+            }
+        });
     }
 
     private void populateNotificationHashMap(FoxmikeNotification foxmikeNotification, OnNotificationLoadedListener onNotificationLoadedListener) {
@@ -700,7 +724,6 @@ public class NotificationsFragment extends Fragment {
         if (dataObserver!=null) {
             listNotificationsAdapter.unregisterAdapterDataObserver(dataObserver);
         }
-
     }
 
     @Override
