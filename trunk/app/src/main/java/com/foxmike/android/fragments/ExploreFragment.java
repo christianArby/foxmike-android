@@ -2,7 +2,6 @@ package com.foxmike.android.fragments;
 
 
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Path;
@@ -24,7 +23,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
@@ -218,18 +216,23 @@ public class ExploreFragment extends Fragment{
 
     private void updateFragmentsWithLocationPermission() {
         if (mLocationPermissionGranted) {
-            for (int x = 0; x < 14; x++) {
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
-                if (listSessionsFragment!=null) {
-                    listSessionsFragment.noLocationPermissionVisible(false);
-                    listSessionsFragment.noLocationVisible(false);
+            if (exploreFragmentAdapter!=null) {
+                for (int x = 0; x < 14; x++) {
+                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                    if (listSessionsFragment!=null) {
+                        listSessionsFragment.noLocationPermissionVisible(false);
+                        listSessionsFragment.noLocationVisible(false);
+                    }
                 }
             }
-            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
-            if (exploreMapsFragment==null) {
-                return;
+            if (fragmentManager!=null) {
+                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
+                if (exploreMapsFragment==null) {
+                    return;
+                }
+                exploreMapsFragment.locationPermissionChanged(true);
             }
-            exploreMapsFragment.locationPermissionChanged(true);
+
         } else {
             if (exploreFragmentAdapter!=null) {
                 for (int x = 0; x < 14; x++) {
@@ -597,16 +600,6 @@ public class ExploreFragment extends Fragment{
         return dp * context.getResources().getDisplayMetrics().density;
     }
 
-    /** INTERFACE to change weekday hashmaps based on inputs */
-    public void OnWeekdayChanged(int week, String weekdayKey, Boolean weekdayBoolean, Activity activity) {
-        if (week==1) {
-            firstWeekdayHashMap.put(weekdayKey,weekdayBoolean);
-        }
-        if (week==2) {
-            secondWeekdayHashMap.put(weekdayKey,weekdayBoolean);
-        }
-    }
-
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
     public void OnRefreshSessions(int weekday) {
 
@@ -763,28 +756,6 @@ public class ExploreFragment extends Fragment{
 
     public void OnLocationPicked(LatLng latLng, String requestType) {
 
-    }
-
-    // Sets up weekday pager
-    class WeekdayViewpagerAdapter extends FragmentPagerAdapter {
-        public WeekdayViewpagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-        @Override
-        public Fragment getItem(int position) {
-            Fragment fragment = null;
-            if (position == 0) {
-                fragment = WeekdayFilterFragment.newInstance(1);
-            }
-            if (position == 1) {
-                fragment = WeekdayFilterFragment.newInstance(2);
-            }
-            return fragment;
-        }
-        @Override
-        public int getCount() {
-            return 2;
-        }
     }
 
     // Makes a fragemnt name to fragments created by pager

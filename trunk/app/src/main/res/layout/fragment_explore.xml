@@ -24,8 +24,8 @@
             app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
             app:tabSelectedTextColor="@color/foxmikePrimaryColor"
             app:tabMode="scrollable"
-            app:tabMaxWidth="58dp"
             app:tabTextColor="@color/primaryTextColor"
+            app:tabMinWidth="58dp"
             android:id="@+id/explorer_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
