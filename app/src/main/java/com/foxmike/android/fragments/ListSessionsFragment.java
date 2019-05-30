@@ -105,6 +105,8 @@ public class  ListSessionsFragment extends Fragment {
     private OnFragmentAttachedNeedNewDataListener onFragmentAttachedNeedNewDataListener;
     private boolean geoFireUsed;
     private Long lastLoadingStart;
+    private TextView noLocationPermission;
+    private TextView noLocation;
 
     public ListSessionsFragment() {
         // Required empty public constructor
@@ -145,6 +147,9 @@ public class  ListSessionsFragment extends Fragment {
         mSessionList.addItemDecoration(headerItemDecoration);
         mSessionList.setAdapter(sessionsAdapter);
         noContent = mainView.findViewById(R.id.noContent);
+        noLocationPermission = mainView.findViewById(R.id.noLocationPermission);
+        noLocation = mainView.findViewById(R.id.noLocation);
+        noLocation.setVisibility(View.GONE);
 
         Long todayTimestamp = System.currentTimeMillis();
         Long dayTimestamp = new DateTime(todayTimestamp).plusDays(weekday).getMillis();
@@ -242,6 +247,30 @@ public class  ListSessionsFragment extends Fragment {
         geoFireUsed = false;
 
         checkIfToLoadListFromScratch();
+    }
+
+    public void firstLoadVisible (boolean show) {
+        if (show) {
+            firsLoadProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            firsLoadProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    public void noLocationPermissionVisible(boolean show) {
+        if (show) {
+            noLocationPermission.setVisibility(View.VISIBLE);
+        } else {
+            noLocationPermission.setVisibility(View.GONE);
+        }
+    }
+
+    public void noLocationVisible(boolean show) {
+        if (show) {
+            noLocation.setVisibility(View.VISIBLE);
+        } else {
+            noLocation.setVisibility(View.GONE);
+        }
     }
 
     private void checkIfToLoadListFromScratch() {

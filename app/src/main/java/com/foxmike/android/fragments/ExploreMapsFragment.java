@@ -19,8 +19,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,7 +78,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     // not granted.
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 13;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9;
     private boolean mLocationPermissionGranted;
 
     private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
@@ -219,12 +217,6 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         mSessionList.setLayoutManager(linearLayoutManager);
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(mSessionList);
-
-        Drawable locationDrawable = getResources().getDrawable(R.mipmap.baseline_location_on_black_36);
-        defaultIcon = getMarkerIconFromDrawable(locationDrawable);
-        Drawable selectedLocationDrawable = locationDrawable.mutate();
-        selectedLocationDrawable.setColorFilter(getResources().getColor(R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_ATOP);
-        selectedIcon = getMarkerIconFromDrawable(selectedLocationDrawable);
         return view;
     }
 
@@ -234,17 +226,31 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         onAsyncTaskFinished();
     }
 
+    public void locationPermissionChanged(boolean granted) {
+        if (granted) {
+            mLocationPermissionGranted = true;
+            // Turn on the My Location layer and the related control on the map.
+            updateLocationUI();
+
+            // Get the current location of the device and set the position of the map.
+            getDeviceLocation();
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        Drawable locationDrawable = getResources().getDrawable(R.mipmap.baseline_location_on_black_36);
+        defaultIcon = getMarkerIconFromDrawable(locationDrawable);
+        Drawable selectedLocationDrawable = locationDrawable.mutate();
+        selectedLocationDrawable.setColorFilter(getResources().getColor(R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_ATOP);
+        selectedIcon = getMarkerIconFromDrawable(selectedLocationDrawable);
 
         locationRequest = new LocationRequest();
         locationRequest.setInterval(15000); // 15s interval
         locationRequest.setFastestInterval(15000);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        // Prompt the user for permission.
-        getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
@@ -267,12 +273,12 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     /**
      * Prompts the user for permission to use the device location.
      */
-    private void getLocationPermission() {
-        /*
+    /*private void getLocationPermission() {
+        *//*
          * Request location permission, so that we can get the location of the
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
-         */
+         *//*
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -282,7 +288,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
-    }
+    }*/
 
     /**
      * Updates the map's UI settings based on whether the user has granted location permission.
@@ -300,7 +306,6 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                getLocationPermission();
             }
         } catch (SecurityException e)  {
             //Log.e("Exception: %s", e.getMessage());

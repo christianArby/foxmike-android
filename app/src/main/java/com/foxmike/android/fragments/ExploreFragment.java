@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Path;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
@@ -112,7 +113,7 @@ public class ExploreFragment extends Fragment{
     private boolean listIsVisible = true;
 
     private boolean mLocationPermissionGranted;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9;
     /*private GeoQuery geoQuery;
     private GeoQueryEventListener geoQueryEventListener;*/
 
@@ -150,6 +151,7 @@ public class ExploreFragment extends Fragment{
     private boolean geoFireNodesAndFragmentsUsed;
     private ArrayList<String> geoFireNodesKeys = new ArrayList<>();
     private long mLastGeoFireQueryUpdated = 0;
+    private CountDownTimer countDownTimerLocation;
 
     public HashMap<String, Boolean> getSessionTypeChosen() {
         return sessionTypeChosen;
@@ -198,6 +200,48 @@ public class ExploreFragment extends Fragment{
         return fragment;
     }
 
+    public void locationPermissionChanged(boolean granted) {
+
+        if (granted) {
+            mLocationPermissionGranted = true;
+            getLocation();
+            updateLocationUI();
+            getDeviceLocation();
+        } else {
+            mLocationPermissionGranted = false;
+        }
+
+        updateFragmentsWithLocationPermission();
+    }
+
+    private void updateFragmentsWithLocationPermission() {
+        if (isAdded()) {
+            if (mLocationPermissionGranted) {
+                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
+                if (exploreMapsFragment==null) {
+                    return;
+                }
+                exploreMapsFragment.locationPermissionChanged(true);
+                for (int x = 0; x < 14; x++) {
+                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                    if (listSessionsFragment!=null) {
+                        listSessionsFragment.noLocationPermissionVisible(false);
+                        listSessionsFragment.noLocationVisible(false);
+                    }
+                }
+            } else {
+                if (exploreFragmentAdapter!=null) {
+                    for (int x = 0; x < 14; x++) {
+                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                        if (listSessionsFragment!=null) {
+                            listSessionsFragment.noLocationPermissionVisible(true);
+                            listSessionsFragment.noLocationVisible(false);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -207,7 +251,47 @@ public class ExploreFragment extends Fragment{
             sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
 
-        // GET LOCATION ---------------------------------------------------------------------------------------------------------
+        // Construct a FusedLocationProviderClient.
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
+
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(15000); // 15s interval
+        locationRequest.setFastestInterval(15000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        // Prompt the user for permission.
+        getLocationPermission();
+
+
+
+        //ExploreMapsFragment exploreMapsFragment = ExploreMapsFragment.newInstance();
+        //exploreFragmentAdapter.addFragments(exploreMapsFragment);
+
+        /** Setup List and Map with sessions*/
+        sortType = "date";
+    }
+
+    /**
+     * Prompts the user for permission to use the device location.
+     */
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            locationPermissionChanged(true);
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void getLocation() {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -222,28 +306,9 @@ public class ExploreFragment extends Fragment{
                 }
             }
         };
-        // Construct a FusedLocationProviderClient.
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
+    }
 
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(15000); // 15s interval
-        locationRequest.setFastestInterval(15000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        // Prompt the user for permission.
-        getLocationPermission();
-        // updateLocationUI() kallas nedan
-        try {
-            if (mLocationPermissionGranted) {
-                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-            } else {
-
-                mLastKnownLocation = null;
-                getLocationPermission();
-            }
-        } catch (SecurityException e)  {
-            //Log.e("Exception: %s", e.getMessage());
-        }
+    private void getDeviceLocation() {
         // getDeviceLocation
         /*
          * Get the best and most recent location of the device, which may be null in rare
@@ -273,17 +338,19 @@ public class ExploreFragment extends Fragment{
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
-        // LOCATION ENDS -------------------------------------------------------------------------------------------------------------------------
+    }
 
-
-
-
-
-        //ExploreMapsFragment exploreMapsFragment = ExploreMapsFragment.newInstance();
-        //exploreFragmentAdapter.addFragments(exploreMapsFragment);
-
-        /** Setup List and Map with sessions*/
-        sortType = "date";
+    private void updateLocationUI() {
+        try {
+            if (mLocationPermissionGranted) {
+                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+            } else {
+                mLastKnownLocation = null;
+                getLocationPermission();
+            }
+        } catch (SecurityException e)  {
+            //Log.e("Exception: %s", e.getMessage());
+        }
     }
 
     private void checkIfGeoFireNodesAreLoaded() {
@@ -302,25 +369,7 @@ public class ExploreFragment extends Fragment{
         }
     }
 
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-        } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -337,13 +386,14 @@ public class ExploreFragment extends Fragment{
         mapContainer.setVisibility(View.INVISIBLE);
 
 
-
         fragmentManager = getChildFragmentManager();
         exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
         for (int x = 0; x < 14; x++) {
             ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x, sessionTypeDictionary);
             exploreFragmentAdapter.addFragments(listSessionsFragment);
         }
+
+        updateFragmentsWithLocationPermission();
 
         exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
         exploreFragmentViewPager.setOffscreenPageLimit(4);
@@ -458,9 +508,29 @@ public class ExploreFragment extends Fragment{
             }
         });
 
+        countDownTimerLocation = new CountDownTimer(3000,3000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
 
+            }
 
+            @Override
+            public void onFinish() {
+                if (!locationFound) {
+                    if (exploreFragmentAdapter!=null) {
+                        for (int x = 0; x < 14; x++) {
+                            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                            if (listSessionsFragment!=null) {
+                                listSessionsFragment.noLocationVisible(true);
+                                listSessionsFragment.firstLoadVisible(false);
+                            }
+                        }
+                    }
+                }
 
+            }
+        };
+        countDownTimerLocation.start();
 
         return mainView;
     }
@@ -540,6 +610,15 @@ public class ExploreFragment extends Fragment{
 
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
     public void OnRefreshSessions(int weekday) {
+
+        if (!mLocationPermissionGranted) {
+            getLocationPermission();
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
+            if (listSessionsFragment!=null) {
+                listSessionsFragment.stopSwipeRefreshingSymbol();
+            }
+            return;
+        }
 
         if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
             ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
@@ -739,6 +818,8 @@ public class ExploreFragment extends Fragment{
             exploreFragmentViewPager.setAdapter(null);
         }
         removeListeners();
+        countDownTimerLocation.cancel();
+        countDownTimerLocation = null;
     }
 
     @Override
@@ -764,6 +845,16 @@ public class ExploreFragment extends Fragment{
     }
 
     private void loadGeoFireNodes() {
+
+        for (int x = 0; x < 14; x++) {
+            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+            if (listSessionsFragment!=null) {
+                listSessionsFragment.firstLoadVisible(true);
+                listSessionsFragment.noLocationPermissionVisible(false);
+                listSessionsFragment.noLocationVisible(false);
+            }
+        }
+
         geoFireNodesLoaded = true;
 
         mLastGeoFireQueryUpdated = SystemClock.elapsedRealtime();

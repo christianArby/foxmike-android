@@ -293,7 +293,7 @@
     <string name="welcome_to_foxmike_text">Welcome to Foxmike</string>
     <string name="continue_to_facebook_text">Continue with Facebook</string>
     <string name="create_account_text">Create account</string>
-    <string name="foxmike_policy_text">By tapping Continue or Create Account, I agree to Foxmike\'s\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Privacy Policy</a>\u0020and\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>.</string>
+    <string name="foxmike_policy_text">By tapping Continue or Create Account, I agree to Foxmike\'s\u0020<a href="https://foxmike.app/privacy">Privacy Policy</a>\u0020and\u0020<a href="https://foxmike.app/terms">Terms of Agreement</a>.</string>
     <string name="aboutMe_text">Write something about yourself</string>
     <string name="first_name_text">First name</string>
     <string name="last_name_text">Last name</string>
@@ -567,7 +567,7 @@
     <string name="session_is_full">Session is full</string>
     <string name="max_number_of_participants_reached">The maximum number of participants has been reached, session cannot be booked.</string>
     <string name="no_written_reviews_yet">No written reviews yet.</string>
-    <string name="foxmike_tip">tip!</string>
+    <string name="foxmike_tip">recommends</string>
     <string name="foxmike_tip_text">Tip on free session, see more info below.</string>
     <string name="information">Information</string>
     <string name="no_sessions_this_day_showing_nearest_day_with_sessions_below">No sessions this day.</string>
@@ -587,7 +587,7 @@
     <string name="claim_deposition">Claim deposition</string>
     <string name="amount">Amount:\u0020</string>
     <string name="date_colon">Date:\u0020</string>
-    <string name="deposition_made">Deposition has been made and you can create sessions.\n\nYou are free to withdraw the deposition at anytime as long as you do not have upcoming sessions. Read our\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>\u0020for more information.</string>
+    <string name="deposition_made">Deposition has been made and you can create sessions.\n\nYou are free to withdraw the deposition at anytime as long as you do not have upcoming sessions. Read our\u0020<a href="https://foxmike.app/terms">Terms of Agreement</a>\u0020for more information.</string>
     <string name="deposition">Deposition</string>
     <string name="deposition_refunded_title">Deposition refunded</string>
     <string name="your_deposition_text_1">Your deposition on</string>
@@ -595,5 +595,7 @@
     <string name="deposition_withdraw_question">You can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days.</string>
     <string name="deposition_needed">You need to make a deposit in order to create sessions.</string>
     <string name="go_to_deposition">Go to deposition</string>
-    <string name="deposition_why">You need to make a deposition in order to create sessions. The main reason for this is to make sure you will attend your session and that the session is somewhat as you described it. Even though this is most of the time not necessary we know from experience that a few would ruin for the others if we did not require a deposit.\n\nYou can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days. Read our\u0020<a href="https://foxmike.app/anvandarvillkor">Terms of Agreement</a>\u0020for more information.</string>
+    <string name="deposition_why">You need to make a deposition in order to create sessions. The main reason for this is to make sure you will attend your session and that the session is somewhat as you described it. Even though this is most of the time not necessary we know from experience that a few would ruin for the others if we did not require a deposit.\n\nYou can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days. Read our\u0020<a href="https://foxmike.app/terms">Terms of Agreement</a>\u0020for more information.</string>
+    <string name="foxmike_needs_location">Foxmike needs your location in order to find nearby sessions, please allow Foxmike to use your location in order to show results.</string>
+    <string name="no_location">We could not find your location, is it turned on? Swipe to refresh the list.</string>
 </resources>

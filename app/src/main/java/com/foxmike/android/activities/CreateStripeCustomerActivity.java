@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.foxmike.android.R;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,6 +34,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -82,6 +84,17 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         } else {
             customerData = new HashMap<>();
         }
+
+        FirebaseDatabaseViewModel customerIdViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> customerIdLiveData = customerIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeCustomerId"));
+        customerIdLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    customerData.put("customerId", dataSnapshot.getValue().toString());
+                }
+            }
+        });
 
         createStripeCustomerBtn.setOnClickListener(new View.OnClickListener() {
             @Override

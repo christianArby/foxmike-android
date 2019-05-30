@@ -4,6 +4,7 @@ package com.foxmike.android.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -121,6 +122,7 @@ public class MainPlayerActivity extends AppCompatActivity
     static final int BOOK_SESSION_REQUEST = 8;
     static final int CANCEL_BOOKING_REQUEST = 16;
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9;
     private String stripeCustomerId;
     private AHBottomNavigation bottomNavigation;
     private AHBottomNavigationViewPager mainPager;
@@ -490,10 +492,14 @@ public class MainPlayerActivity extends AppCompatActivity
                                 return;
                             }
                             Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
-                            FragmentManager fragmentManager = getSupportFragmentManager();
-                            FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            writeReviewsFragment.show(transaction,advertisementId);
+                            if (advertisement.getStatus().equals("cancelled")) {
+                                FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
+                            } else {
+                                WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                writeReviewsFragment.show(transaction,advertisementId);
+                            }
                         }
 
                         @Override
@@ -1069,5 +1075,35 @@ public class MainPlayerActivity extends AppCompatActivity
     public interface OnPositiveOrNegativeButtonPressedListener {
         void OnPositivePressed();
         void OnNegativePressed();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    if (bottomNavigationAdapter!=null) {
+                        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+                        exploreFragment.locationPermissionChanged(true);
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    if (bottomNavigationAdapter!=null) {
+                        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+                        exploreFragment.locationPermissionChanged(false);
+                    }
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
     }
 }

@@ -44,7 +44,7 @@
         android:layout_marginEnd="@dimen/margin_left"
         android:layout_height="1dp"
         android:background="@color/color_divider"
-        app:layout_constraintTop_toBottomOf="@id/last4digits"
+        app:layout_constraintTop_toBottomOf="@id/paymentMethodStandard"
         app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

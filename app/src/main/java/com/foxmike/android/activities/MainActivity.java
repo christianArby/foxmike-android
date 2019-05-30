@@ -3,7 +3,6 @@ package com.foxmike.android.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -43,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Check location permissions (different functions depending on Android version)
+        /*// Check location permissions (different functions depending on Android version)
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -55,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         // If user has location permission enabled check if user is logged in
         if (locationPermission) {
             checkUserStatus();
-        }
+        }*/
+
+        checkUserStatus();
     }
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
