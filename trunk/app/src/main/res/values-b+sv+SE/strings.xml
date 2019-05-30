@@ -293,7 +293,7 @@
     <string name="welcome_to_foxmike_text">Välkommen till Foxmike</string>
     <string name="continue_to_facebook_text">Fortsätt med Facebook</string>
     <string name="create_account_text">Skapa konto</string>
-    <string name="foxmike_policy_text">Genom att klicka på Fortsätt med Facebook, Fortsätt med Google eller Skapa konto godkänner jag Foxmikes\u0020<a href="https://privacypolicies.com/privacy/view/f55b3ae7292ad26e0bd41771d91ca7ac">Integritetspolicy</a>\u0020och\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>.</string>
+    <string name="foxmike_policy_text">Genom att klicka på Fortsätt med Facebook, Fortsätt med Google eller Skapa konto godkänner jag Foxmikes\u0020<a href="https://foxmike.app/privacy">Integritetspolicy</a>\u0020och\u0020<a href="https://foxmike.app/terms">Användarvillkor</a>.</string>
     <string name="aboutMe_text">Skriv något om dig själv</string>
     <string name="first_name_text">Förnamn</string>
     <string name="last_name_text">Efternamn</string>
@@ -402,7 +402,7 @@
     <string name="booking_failed">Bokningen misslyckades</string>
     <string name="choose_location">Välj plats</string>
     <string name="booking_session">Bokar pass…</string>
-    <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="http://foxmike.app/anvandarvillkor/">användarvillkor</a>.</string>
+    <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="https://foxmike.app/terms">användarvillkor</a>.</string>
     <string name="cancellation_not_possible">Passet går ej att avboka</string>
     <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
     <string name="refund_not_possible">Återbetalning ej möjlig</string>
@@ -587,7 +587,7 @@
     <string name="claim_deposition">Ta tillbaka deposition</string>
     <string name="amount">Belopp:\u0020</string>
     <string name="date_colon">Datum:\u0020</string>
-    <string name="deposition_made">Du har lagt deposition och kan lägga ut pass.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Läs våra\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>\u0020för mer information.</string>
+    <string name="deposition_made">Du har lagt deposition och kan lägga ut pass.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Läs våra\u0020<a href="https://foxmike.app/terms">Användarvillkor</a>\u0020för mer information.</string>
     <string name="deposition">Deposition</string>
     <string name="deposition_refunded_title">Deposition återbeltald</string>
     <string name="your_deposition_text_1">Din deposition på</string>
@@ -595,5 +595,7 @@
     <string name="deposition_withdraw_question">Du kan ta tillbaka depositionen när som helst men du behöver ha deponerat för att kunna lägga ut pass.  Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du kan deponera och lägga ut pass igen.</string>
     <string name="deposition_needed">Du behöver lägga en deposition för att skapa pass.</string>
     <string name="go_to_deposition">Gå till deposition</string>
-    <string name="deposition_why">För att kunna lägga ut pass måste du lägga en deposition. Detta gör vi för att försäkra oss om att du kommer till passet du lagt ut och att det är någorlunda som du beskrev det. Även om 9 av 10 personer kanske aldrig nödvändigtvis behövt deponera vet vi av tidigare erfarenheter att några få skulle förstöra för de flesta om vi inte krävde deposition.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du får deponera och anordna pass igen. Läs våra\u0020<a href="https://foxmike.app/anvandarvillkor">Användarvillkor</a>\u0020för mer information.</string>
+    <string name="deposition_why">För att kunna lägga ut pass måste du lägga en deposition. Detta gör vi för att försäkra oss om att du kommer till passet du lagt ut och att det är någorlunda som du beskrev det. Även om 9 av 10 personer kanske aldrig nödvändigtvis behövt deponera vet vi av tidigare erfarenheter att några få skulle förstöra för de flesta om vi inte krävde deposition.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du får deponera och anordna pass igen. Läs våra\u0020<a href="https://foxmike.app/terms">Användarvillkor</a>\u0020för mer information.</string>
+    <string name="foxmike_needs_location">Foxmike behöver din position för att visa närliggande pass, ge Foxmike tillåtelse att använda din plats för att visa resultat.</string>
+    <string name="no_location">Vi kunde inte hitta din position, är plats påslaget? Uppdatera listan genom att swipea nedåt.</string>
 </resources>

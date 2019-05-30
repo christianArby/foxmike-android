@@ -7,7 +7,6 @@
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_below="@id/barLayout"
         android:layout_marginTop="@dimen/margin_minimum"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginEnd="@dimen/margin_right"
@@ -92,7 +91,7 @@
     <TextView
         android:clipToPadding="false"
         android:visibility="gone"
-        android:id="@+id/noLocation"
+        android:id="@+id/noLocationPermission"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/primaryTextColor"

@@ -368,10 +368,14 @@ public class MainHostActivity extends AppCompatActivity implements
                                 return;
                             }
                             Advertisement advertisement = dataSnapshot.getValue(Advertisement.class);
-                            WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
-                            FragmentManager fragmentManager = getSupportFragmentManager();
-                            FragmentTransaction transaction = fragmentManager.beginTransaction();
-                            writeReviewsFragment.show(transaction,advertisementId);
+                            if (advertisement.getStatus().equals("cancelled")) {
+                                FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
+                            } else {
+                                WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                writeReviewsFragment.show(transaction,advertisementId);
+                            }
                         }
 
                         @Override

@@ -248,6 +248,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:visibility="invisible"
+        android:clickable="true"
+        android:focusable="true"
         android:id="@+id/snackBar"
         android:background="@color/color_background_light"
         android:layout_width="match_parent"
