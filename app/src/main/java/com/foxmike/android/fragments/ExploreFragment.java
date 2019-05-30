@@ -210,33 +210,33 @@ public class ExploreFragment extends Fragment{
         } else {
             mLocationPermissionGranted = false;
         }
+        if (isAdded()) {
+            updateFragmentsWithLocationPermission();
+        }
 
-        updateFragmentsWithLocationPermission();
     }
 
     private void updateFragmentsWithLocationPermission() {
-        if (isAdded()) {
-            if (mLocationPermissionGranted) {
-                ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
-                if (exploreMapsFragment==null) {
-                    return;
+        if (mLocationPermissionGranted) {
+            for (int x = 0; x < 14; x++) {
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                if (listSessionsFragment!=null) {
+                    listSessionsFragment.noLocationPermissionVisible(false);
+                    listSessionsFragment.noLocationVisible(false);
                 }
-                exploreMapsFragment.locationPermissionChanged(true);
+            }
+            ExploreMapsFragment exploreMapsFragment = (ExploreMapsFragment) fragmentManager.findFragmentByTag("ExploreMapsFragment");
+            if (exploreMapsFragment==null) {
+                return;
+            }
+            exploreMapsFragment.locationPermissionChanged(true);
+        } else {
+            if (exploreFragmentAdapter!=null) {
                 for (int x = 0; x < 14; x++) {
                     ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
                     if (listSessionsFragment!=null) {
-                        listSessionsFragment.noLocationPermissionVisible(false);
+                        listSessionsFragment.noLocationPermissionVisible(true);
                         listSessionsFragment.noLocationVisible(false);
-                    }
-                }
-            } else {
-                if (exploreFragmentAdapter!=null) {
-                    for (int x = 0; x < 14; x++) {
-                        ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
-                        if (listSessionsFragment!=null) {
-                            listSessionsFragment.noLocationPermissionVisible(true);
-                            listSessionsFragment.noLocationVisible(false);
-                        }
                     }
                 }
             }
@@ -393,17 +393,16 @@ public class ExploreFragment extends Fragment{
             exploreFragmentAdapter.addFragments(listSessionsFragment);
         }
 
-        updateFragmentsWithLocationPermission();
-
         exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
         exploreFragmentViewPager.setOffscreenPageLimit(4);
 
         if (fragmentManager.findFragmentByTag("ExploreMapsFragment")==null) {
-            fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(sessionTypeDictionary), "ExploreMapsFragment").commit();
+            fragmentManager.beginTransaction().add(R.id.mapContainer, ExploreMapsFragment.newInstance(sessionTypeDictionary), "ExploreMapsFragment").commitNow();
         }
 
         geoFireNodesAndFragmentsUsed = false;
         fragmentsLoaded = true;
+        updateFragmentsWithLocationPermission();
         checkIfToLoadFragmentsWithData();
 
         exploreFragmentViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
