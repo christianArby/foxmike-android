@@ -666,7 +666,7 @@ public class MainHostActivity extends AppCompatActivity implements
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
             InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(0);
-            inboxFragment.setPage(1);
+            inboxFragment.setPage(2);
         }
         if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
             Toast.makeText(MainHostActivity.this, R.string.not_possible_in_trainer_mode, Toast.LENGTH_LONG).show();

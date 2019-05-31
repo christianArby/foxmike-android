@@ -44,6 +44,7 @@ public class BookingActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     private int currentNrOfParticipants;
     private TextView bookingText;
+    private boolean needsAuthorization = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +101,7 @@ public class BookingActivity extends AppCompatActivity {
                         if (status.equals(PaymentIntent.Status.RequiresAction.toString())) {
                             Uri redirectUrl = Uri.parse((String) result.get("redirectUrl"));
                             if (redirectUrl != null) {
+                                needsAuthorization = true;
                                 startActivity(new Intent(Intent.ACTION_VIEW, redirectUrl));
                             }
                             return;
@@ -130,6 +132,20 @@ public class BookingActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (needsAuthorization) {
+            setResult(RESULT_CANCELED, null);
+            // close activity
+            finish();
+
+        }
+
+
     }
 
     private void addCurrentUserToSessionParticipantList() {
@@ -228,6 +244,8 @@ public class BookingActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
+        needsAuthorization = false;
 
         bookingText = findViewById(R.id.bookingText);
 

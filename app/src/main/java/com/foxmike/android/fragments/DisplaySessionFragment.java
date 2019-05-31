@@ -106,6 +106,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
+import static com.foxmike.android.utils.Price.PRICES_STRINGS;
 
 /**
  * This fragment takes a longitude and latitude and displays the corresponding mSession with that longitude and latitude.
@@ -1590,17 +1591,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     }
 
     private void setPriceText() {
-        String currencyString = "?";
-        if (adSelected.getCurrency()==null) {
-            currencyString = "";
-        } else {
-            currencyString = "kr";
-        }
         String priceText;
+
         if (adSelected.getPrice()== 0) {
             priceText = getString(R.string.free);
         } else {
-            priceText = adSelected.getPrice() + " " + currencyString + " " + "per person";
+            priceText = PRICES_STRINGS.get(adSelected.getCurrency()).get(adSelected.getPrice())  + " " + getResources().getString(R.string.per_person);
         }
         priceTV.setText(priceText);
     }

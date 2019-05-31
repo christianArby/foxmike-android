@@ -713,6 +713,18 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == RESULT_CANCELED) {
+            alertDialogOk(getResources().getString(R.string.payment_cancelled),
+                    getResources().getString(R.string.booking_did_not_succeed), true,
+                    new OnOkPressedListener() {
+                        @Override
+                        public void OnOkPressed() {
+
+                        }
+                    });
+
+        }
+
         if (resultCode == RESULT_OK) {
             if (requestCode == CANCEL_ADVERTISEMENT_REQUEST) {
 
@@ -952,7 +964,7 @@ public class MainPlayerActivity extends AppCompatActivity
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
             InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(2);
-            inboxFragment.setPage(1);
+            inboxFragment.setPage(2);
         }
         if (foxmikeNotification.getType().equals("sessionCancellation") || foxmikeNotification.getType().equals("freeSessionCancellation")) {
             bottomNavigation.setCurrentItem(1);
