@@ -474,7 +474,6 @@
     <string name="sek">kr</string>
     <string name="free">Gratis</string>
     <string name="price_colon">Pris:</string>
-    <string name="per_person">per person</string>
     <string name="cost_colon">Kostnad:</string>
     <string name="all">Alla</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Klicka på kalendern för att välja datum och tider för ditt pass.</string>
@@ -527,7 +526,7 @@
     <string name="update_text_2">Din version av appen är för gammal. Uppdatera appen på Google Play Butik. Du behöver en nyare version än\u0020</string>
     <string name="update_text_3">"\n""\n"Observera att det kan ta ett tag innan Google Play Butik tillhandahåller den nödvändiga uppdateringen.</string>
     <string name="has_booked_your_session">\u0020har bokat ditt pass\u0020</string>
-    <string name="you_will_be_refunded">\u0020En återbetalning har gjorts till ditt konto.</string>
+    <string name="you_will_be_refunded">\u0020Hela summan har återbetalats till ditt konto.</string>
     <string name="participants_on">Deltagare</string>
     <string name="has_cancelled_you_session">\u0020har avbokat ditt pass\u0020</string>
     <string name="has_accepted_your_friend_request">\u0020har accepterat din vänförfrågan.</string>
@@ -598,4 +597,7 @@
     <string name="deposition_why">För att kunna lägga ut pass måste du lägga en deposition. Detta gör vi för att försäkra oss om att du kommer till passet du lagt ut och att det är någorlunda som du beskrev det. Även om 9 av 10 personer kanske aldrig nödvändigtvis behövt deponera vet vi av tidigare erfarenheter att några få skulle förstöra för de flesta om vi inte krävde deposition.\n\nDu kan ta tillbaka depositionen när som helst så länge du inte har några kommande pass. Andra gången du tar tillbaka depositionen dröjer det 30 dagar tills du får deponera och anordna pass igen. Läs våra\u0020<a href="https://foxmike.app/terms">Användarvillkor</a>\u0020för mer information.</string>
     <string name="foxmike_needs_location">Foxmike behöver din position för att visa närliggande pass, ge Foxmike tillåtelse att använda din plats för att visa resultat.</string>
     <string name="no_location">Vi kunde inte hitta din position, är plats påslaget? Uppdatera listan genom att swipea nedåt.</string>
+    <string name="payment_cancelled">Payment cancelled</string>
+    <string name="booking_did_not_succeed">The booking did not succeed.</string>
+    <string name="per_person">per person</string>
 </resources>

@@ -474,7 +474,6 @@
     <string name="sek">kr</string>
     <string name="free">Free</string>
     <string name="price_colon">Price:</string>
-    <string name="per_person">per person</string>
     <string name="cost_colon">Cost:</string>
     <string name="all">All</string>
     <string name="click_on_the_calendar_below_to_choose_dates_and_times_for_your_session">Click on the calendar below to choose dates and times for your session.</string>
@@ -598,4 +597,7 @@
     <string name="deposition_why">You need to make a deposition in order to create sessions. The main reason for this is to make sure you will attend your session and that the session is somewhat as you described it. Even though this is most of the time not necessary we know from experience that a few would ruin for the others if we did not require a deposit.\n\nYou can withdraw your deposit at anytime as long as you do not have upcoming sessions. The second time you withdraw your deposit you will not be able to deposit or create sessions for another 30 days. Read our\u0020<a href="https://foxmike.app/terms">Terms of Agreement</a>\u0020for more information.</string>
     <string name="foxmike_needs_location">Foxmike needs your location in order to find nearby sessions, please allow Foxmike to use your location in order to show results.</string>
     <string name="no_location">We could not find your location, is it turned on? Swipe to refresh the list.</string>
+    <string name="payment_cancelled">Payment cancelled</string>
+    <string name="booking_did_not_succeed">The booking did not succeed.</string>
+    <string name="per_person">per person</string>
 </resources>

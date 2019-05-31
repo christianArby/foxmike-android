@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import static com.foxmike.android.utils.Price.PRICES_STRINGS;
+
 /**
  * Created by chris on 2019-03-15.
  */
@@ -164,17 +166,12 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         onSessionClickedListener.OnSessionClicked(advertisement.getSessionId(), advertisement.getAdvertisementTimestamp());
                     }
                 });
-                String currencyString = "?";
-                if (advertisement.getCurrency()==null) {
-                    currencyString = "";
-                } else {
-                    currencyString = context.getResources().getString(R.string.sek);
-                }
+
                 String priceText;
                 if (advertisement.getPrice()== 0) {
                     priceText = context.getResources().getString(R.string.free);
                 } else {
-                    priceText = advertisement.getPrice() + " " + currencyString;
+                    priceText = PRICES_STRINGS.get(advertisement.getCurrency()).get(advertisement.getPrice())  + " " + context.getResources().getString(R.string.per_person);
                 }
                 ((ListSessionsAdapter.SessionViewHolder) holder).setPrice(priceText);
 

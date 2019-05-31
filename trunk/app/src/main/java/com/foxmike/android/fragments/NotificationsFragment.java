@@ -217,12 +217,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
             Task sessionImageTask = sessionImageSource.getTask();
             asyncTasks.add(sessionImageTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").removeEventListener(this);
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
                 @Override
@@ -233,12 +234,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
             Task sessionNameTask = sessionNameSource.getTask();
             asyncTasks.add(sessionNameTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").removeEventListener(this);
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
                 @Override
@@ -254,20 +256,22 @@ public class NotificationsFragment extends Fragment {
             Task senderNameTask = senderNameSource.getTask();
             asyncTasks.add(senderNameTask);
 
-            rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessionPosts").child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).removeEventListener(this);
                     postSource.trySetResult(dataSnapshot);
                     Post post = dataSnapshot.getValue(Post.class);
-                    rootDbRef.child("usersPublic").child(post.getAuthorId()).child("firstName").addListenerForSingleValueEvent(new ValueEventListener() {
+                    rootDbRef.child("usersPublic").child(post.getAuthorId()).child("firstName").addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue()==null) {
                                 return;
                             }
+                            rootDbRef.child("usersPublic").child(post.getAuthorId()).child("firstName").removeEventListener(this);
                             senderNameSource.trySetResult(dataSnapshot);
                         }
                         @Override
@@ -319,21 +323,23 @@ public class NotificationsFragment extends Fragment {
             Task senderNameTask = senderNameSource.getTask();
             asyncTasks.add(senderNameTask);
 
-            rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessionPostComments").child(foxmikeNotification.getP2()).child(foxmikeNotification.getP1()).child(foxmikeNotification.getSourceId()).removeEventListener(this);
                     messageSource.trySetResult(dataSnapshot);
                     Message comment = dataSnapshot.getValue(Message.class);
-                    rootDbRef.child("usersPublic").child(comment.getSenderUserID()).child("firstName").addListenerForSingleValueEvent(new ValueEventListener() {
+                    rootDbRef.child("usersPublic").child(comment.getSenderUserID()).child("firstName").addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue()==null) {
                                 return;
                             }
+                            rootDbRef.child("usersPublic").child(comment.getSenderUserID()).child("firstName").removeEventListener(this);
                             senderNameSource.trySetResult(dataSnapshot);
                         }
 
@@ -354,12 +360,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
             Task sessionImageTask = sessionImageSource.getTask();
             asyncTasks.add(sessionImageTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").removeEventListener(this);
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -373,12 +380,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
             Task sessionNameTask = sessionNameSource.getTask();
             asyncTasks.add(sessionNameTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").removeEventListener(this);
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -425,12 +433,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> userNameSource = new TaskCompletionSource<>();
             Task userNameTask = userNameSource.getTask();
             asyncTasks.add(userNameTask);
-            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").removeEventListener(this);
                     userNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -444,12 +453,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
             Task sessionImageTask = sessionImageSource.getTask();
             asyncTasks.add(sessionImageTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("imageUrl").removeEventListener(this);
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -463,12 +473,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
             Task sessionNameTask = sessionNameSource.getTask();
             asyncTasks.add(sessionNameTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP2()).child("sessionName").removeEventListener(this);
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -521,12 +532,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> adDateSource = new TaskCompletionSource<>();
             Task adDateTask = adDateSource.getTask();
             asyncTasks.add(adDateTask);
-            rootDbRef.child("advertisements").child(foxmikeNotification.getSourceId()).child("advertisementTimestamp").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("advertisements").child(foxmikeNotification.getSourceId()).child("advertisementTimestamp").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("advertisements").child(foxmikeNotification.getSourceId()).child("advertisementTimestamp").removeEventListener(this);
                     adDateSource.trySetResult(dataSnapshot);
                 }
 
@@ -540,12 +552,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionImageSource = new TaskCompletionSource<>();
             Task sessionImageTask = sessionImageSource.getTask();
             asyncTasks.add(sessionImageTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("imageUrl").removeEventListener(this);
                     sessionImageSource.trySetResult(dataSnapshot);
                 }
 
@@ -559,12 +572,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> sessionNameSource = new TaskCompletionSource<>();
             Task sessionNameTask = sessionNameSource.getTask();
             asyncTasks.add(sessionNameTask);
-            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("sessions").child(foxmikeNotification.getP1()).child("sessionName").removeEventListener(this);
                     sessionNameSource.trySetResult(dataSnapshot);
                 }
 
@@ -617,12 +631,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> nameSource = new TaskCompletionSource<>();
             Task nameTask = nameSource.getTask();
             asyncTasks.add(nameTask);
-            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("fullName").removeEventListener(this);
                     nameSource.trySetResult(dataSnapshot);
                 }
 
@@ -636,12 +651,13 @@ public class NotificationsFragment extends Fragment {
             TaskCompletionSource<DataSnapshot> imageSource = new TaskCompletionSource<>();
             Task imageTask = imageSource.getTask();
             asyncTasks.add(imageTask);
-            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("thumb_image").addListenerForSingleValueEvent(new ValueEventListener() {
+            rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("thumb_image").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()==null) {
                         return;
                     }
+                    rootDbRef.child("usersPublic").child(foxmikeNotification.getSourceId()).child("thumb_image").removeEventListener(this);
                     imageSource.trySetResult(dataSnapshot);
                 }
 
