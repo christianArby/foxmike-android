@@ -270,6 +270,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         if (null == getChildFragmentManager().findFragmentByTag("xDisplaySessionMapsFragment")) {
             GoogleMapOptions options = new GoogleMapOptions();
             options.liteMode(true);
+            options.mapToolbarEnabled(true);
             SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
             transaction.replace(R.id.child_fragment_container, mapFragment,"xDisplaySessionMapsFragment").commit();
@@ -1269,7 +1270,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // If the mSession has upcoming advertisements, set the snackbars text and price to the date and price of the selected ad
                 // Setup all the views accordingly
                 // ---------- Set date and price text ---------------
-                snackBarDateAndTimeTV.setText(TextTimestamp.textDateAndTime(adSelected.getAdvertisementTimestamp()));
+                snackBarDateAndTimeTV.setText(TextTimestamp.textSessionDateAndTime(adSelected.getAdvertisementTimestamp()));
                 setPriceText();
                 // -------------------- HOST -----------------------------
                 // If the current user is the mSession host display "show occasion" as the text of the button.
@@ -1439,7 +1440,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             selectedLocationDrawable.setColorFilter(getResources().getColor(R.color.foxmikePrimaryColor), PorterDuff.Mode.SRC_ATOP);
             selectedIcon = getMarkerIconFromDrawable(selectedLocationDrawable);
 
-            mMap.addMarker(new MarkerOptions().position(markerLatLng).title(mSession.getSessionType()).icon(selectedIcon));
+
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(markerLatLng).title(mSession.getSessionName()).icon(selectedIcon));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,14f));
             // ----- Setup snackbar button click listener --------
             mDisplaySessionBtn.setOnClickListener(new View.OnClickListener() {
