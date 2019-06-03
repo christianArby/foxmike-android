@@ -504,10 +504,11 @@
     <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
     <string name="cancelled_free_session">Du har nu avbokat det här passet.</string>
     <string name="cancellation">Ställa in pass</string>
-    <string name="cancellation_small_fee_warning">Om du ställer in det här passet kommer det dras en lite avgift på xx, vill du fortsätta?</string>
+    <string name="cancellation_small_fee_warning">Om du ställer in det här passet kommer det dras en lite avgift på</string>
+    <string name="cancellation_small_fee_warning_text_2">Vill du ställa in passet ändå?</string>
     <string name="cancel_session">Ställ in passet</string>
     <string name="do_not_cancel_session">Ställ inte in passet</string>
-    <string name="session_is_within_24_hours">Passet är inom 24 timmar</string>
+    <string name="session_is_within_6_hours">Passet är inom 24 timmar</string>
     <string name="cancellation_large_fee_warning">Passet är inom 24 timmmar. Om du ställer in passet kommer det dras en avgift på xx kr.</string>
     <string name="create_free_session_question">Du har inga aktiva utbetalningsmetoder, vill du skapa ett gratispass?</string>
     <string name="create_free_session">Skapa gratispass</string>
@@ -608,4 +609,6 @@
     <string name="cancellation_confirmed">Cancellation confirmed</string>
     <string name="the_session_on">Passet på</string>
     <string name="has_now_been_cancelled">är nu inställt.</string>
+    <string name="cancelling_question_large_fee">Passet är inom 6 timmar och har deltagare. Om du ställer in passet kommer din deposition på</string>
+    <string name="cancelling_question_large_fee_text_2">gå förlorad.</string>
 </resources>

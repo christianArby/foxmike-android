@@ -112,7 +112,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                             return;
                         }
                         mLastClickTime = SystemClock.elapsedRealtime();
-                        CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = CreateTrainerExternalAccountFragment.newInstance(stripeAccountId);
+                        CreateTrainerExternalAccountFragment createTrainerExternalAccountFragment = CreateTrainerExternalAccountFragment.newInstance(stripeAccountId, true);
 
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         FragmentTransaction transaction = fragmentManager.beginTransaction();

@@ -504,11 +504,12 @@
     <string name="you_have_a_cancellation_in">You have a cancellation in\u0020</string>
     <string name="cancelled_free_session">You have now cancelled this session.</string>
     <string name="cancellation">Cancellation</string>
-    <string name="cancellation_small_fee_warning">You are about to cancel this session, you will be charged a small cancellation fee of xx.</string>
+    <string name="cancellation_small_fee_warning">You are about to cancel this session, you will be charged a small cancellation fee of</string>
+    <string name="cancellation_small_fee_warning_text_2">Do you want to continue with cancelling the session?</string>
     <string name="cancel_session">Cancel session</string>
     <string name="do_not_cancel_session">Do not cancel session</string>
-    <string name="session_is_within_24_hours">Session is within 24 hours</string>
-    <string name="cancellation_large_fee_warning">Session is within 24 hours. If cancelled you will be charged a cancellation fee.</string>
+    <string name="session_is_within_6_hours">Session is within 6 hours</string>
+    <string name="cancellation_large_fee_warning">Session is within 6 hours. If cancelled you will be charged a cancellation fee.</string>
     <string name="create_free_session_question">You have no active payout method, do you want to create a free session or do you want to add a payout method so that you can set a price for your session?</string>
     <string name="create_free_session">CREATE FREE SESSION</string>
     <string name="the_session">The session\u0020</string>
@@ -608,4 +609,6 @@
     <string name="cancellation_confirmed">Cancellation confirmed</string>
     <string name="the_session_on">The session on</string>
     <string name="has_now_been_cancelled">has now been cancelled.</string>
+    <string name="cancelling_question_large_fee">Session is within 6 hours and has participants. If cancelled your deposition of</string>
+    <string name="cancelling_question_large_fee_text_2">will be lost.</string>
 </resources>
