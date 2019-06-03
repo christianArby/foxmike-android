@@ -124,6 +124,7 @@ public class MainPlayerActivity extends AppCompatActivity
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9;
     public static final int BOOKING_CANCELED = 900;
+    public static final int CANCEL_ADVERTISEMENT_OK = 901;
     private String stripeCustomerId;
     private AHBottomNavigation bottomNavigation;
     private AHBottomNavigationViewPager mainPager;
@@ -724,6 +725,20 @@ public class MainPlayerActivity extends AppCompatActivity
                         }
                     });
 
+        }
+
+        if (resultCode == CANCEL_ADVERTISEMENT_OK) {
+            if (data!=null) {
+              String date = data.getStringExtra("date");
+                alertDialogOk(getResources().getString(R.string.cancellation_confirmed),
+                        getResources().getString(R.string.the_session_on) + " " + date + " " + getResources().getString(R.string.has_now_been_cancelled), true,
+                        new OnOkPressedListener() {
+                            @Override
+                            public void OnOkPressed() {
+
+                            }
+                        });
+            }
         }
 
         if (resultCode == RESULT_OK) {
