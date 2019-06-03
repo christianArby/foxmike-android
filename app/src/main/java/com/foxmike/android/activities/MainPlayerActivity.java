@@ -433,10 +433,8 @@ public class MainPlayerActivity extends AppCompatActivity
                     if (position==2) {
                         bottomNavigation.setNotification("", 2);
                     }
-                    if (position!=2) {
-                        if (prevTab==2) {
-                            FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                        }
+                    if (position==2) {
+                        FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
                     }
                 }
                 prevTab = position;
@@ -568,7 +566,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, false);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);
     }
 
@@ -578,7 +576,7 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary, false);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
@@ -963,19 +961,19 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary);
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary, false);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
             cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
@@ -1074,7 +1072,7 @@ public class MainPlayerActivity extends AppCompatActivity
 
                     @Override
                     public void OnNegativePressed() {
-                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
+                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, false);
                         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
                     }
                 });

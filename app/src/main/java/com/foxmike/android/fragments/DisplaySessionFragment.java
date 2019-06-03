@@ -238,26 +238,29 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private ConstraintLayout snackBar;
     private ImageView shareIcon;
     private PaymentMethod mPaymentMethod;
+    private boolean trainerMode;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
     }
 
-    public static DisplaySessionFragment newInstance(String sessionID, HashMap<String,String> sessionTypeDictionary) {
+    public static DisplaySessionFragment newInstance(String sessionID, HashMap<String,String> sessionTypeDictionary, boolean trainerMode) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
         args.putString(SESSION_ID, sessionID);
         args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
+        args.putBoolean("trainerMode", trainerMode);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static DisplaySessionFragment newInstance(String sessionID, Long representingAdTimestamp, HashMap<String,String> sessionTypeDictionary) {
+    public static DisplaySessionFragment newInstance(String sessionID, Long representingAdTimestamp, HashMap<String,String> sessionTypeDictionary, boolean trainerMode) {
         DisplaySessionFragment fragment = new DisplaySessionFragment();
         Bundle args = new Bundle();
         args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         args.putString(SESSION_ID, sessionID);
         args.putLong(REPRESSENTING_AD_TIMESTAMP, representingAdTimestamp);
+        args.putBoolean("trainerMode", trainerMode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -281,6 +284,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         if (getArguments() != null) {
             sessionID = getArguments().getString(SESSION_ID);
+            trainerMode = getArguments().getBoolean("trainerMode");
             representingAdTimestamp = getArguments().getLong(REPRESSENTING_AD_TIMESTAMP);
             sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
@@ -1344,7 +1348,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.addAdvertisements(sessionID);
@@ -1358,7 +1362,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.addAdvertisements(sessionID);
@@ -1372,7 +1376,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession);
@@ -1386,7 +1390,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "what");
@@ -1401,7 +1405,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "who");
@@ -1416,7 +1420,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-                    if (!currentUser.isTrainerMode()) {
+                    if (!trainerMode) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.not_possible_to_edit_as_participant,Toast.LENGTH_LONG).show();
                     } else {
                         sessionListener.OnEditSession(sessionID, mSession, "where");

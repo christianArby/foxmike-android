@@ -39,6 +39,7 @@ import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -81,6 +82,8 @@ public class UserProfilePublicEditFragment extends Fragment {
     private User currentUser;
     static UserProfilePublicEditFragment fragment;
     private InputMethodManager imm;
+    private TextInputLayout aboutMeTIL;
+    private boolean infoIsValid;
 
     public UserProfilePublicEditFragment() {
         // Required empty public constructor
@@ -106,6 +109,7 @@ public class UserProfilePublicEditFragment extends Fragment {
         final EditText userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
         final EditText userAboutMeET = profile.findViewById(R.id.aboutMeProfilePublicEditET);
         final EditText userNameET = profile.findViewById(R.id.userNameProfilePublicEditET);
+        aboutMeTIL = profile.findViewById(R.id.aboutMeProfilePublicEditTIL);
         final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
@@ -135,6 +139,38 @@ public class UserProfilePublicEditFragment extends Fragment {
                     if(mImageUri==null) {
                         setImageButton(currentUser.getImage(), profileImageButton);
                     }
+
+                    if (currentUser.getAboutMe().length()>50) {
+                        infoIsValid = true;
+                    }
+
+                    if (currentUser.getStripeAccountId()!=null) {
+                        userAboutMeET.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable editable) {
+                                if (editable.toString().length()<51) {
+                                    aboutMeTIL.setError(getString(R.string.please_write_a_longer_description));
+                                    infoIsValid = false;
+                                } else {
+                                    infoIsValid = true;
+                                    aboutMeTIL.setError(null);
+                                }
+
+                            }
+                        });
+                    }
+
+
                 }
             }
         });
@@ -187,66 +223,71 @@ public class UserProfilePublicEditFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
-                myProgressBar.startProgressBar();
+                if (infoIsValid) {
+                    final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+                    myProgressBar.startProgressBar();
 
-                // Define characters not allowed in username
-                char[] notContain = {'.', '#', '$', '[', ']'};
-                String cannotContain = getString(R.string.userName_cannotContain_text);
+                    // Define characters not allowed in username
+                    char[] notContain = {'.', '#', '$', '[', ']'};
+                    String cannotContain = getString(R.string.userName_cannotContain_text);
 
-                String userName = userNameET.getText().toString();
-                // check input so that username only contains vaild characters
-                if (containsAny(userName,notContain)) {
-                    myProgressBar.stopProgressBar();
-                    Toast.makeText(getActivity().getApplicationContext(), cannotContain, Toast.LENGTH_SHORT).show();
-                } else {
+                    String userName = userNameET.getText().toString();
+                    // check input so that username only contains vaild characters
+                    if (containsAny(userName,notContain)) {
+                        myProgressBar.stopProgressBar();
+                        Toast.makeText(getActivity().getApplicationContext(), cannotContain, Toast.LENGTH_SHORT).show();
+                    } else {
 
-                    // check if user has changed username
-                    if (currentUser!=null) {
-                        if (userName.equals(currentUser.userName)) {
-                            // no changes in userName, write to database...
-                            if (currentUser.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
-                                myProgressBar.stopProgressBar();
-                                Toast.makeText(getActivity().getApplicationContext(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
+                        // check if user has changed username
+                        if (currentUser!=null) {
+                            if (userName.equals(currentUser.userName)) {
+                                // no changes in userName, write to database...
+                                if (currentUser.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
+                                    myProgressBar.stopProgressBar();
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    writeToDatabase(myProgressBar);
+                                }
                             } else {
-                                writeToDatabase(myProgressBar);
-                            }
-                        } else {
-                            // check if username already exists in database
-                            rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
-                                @Override
-                                public Transaction.Result doTransaction(MutableData mutableData) {
-                                    if (mutableData.getValue() == null) {
-                                        mutableData.setValue(currentFirebaseUser.getUid());
-                                        return Transaction.success(mutableData);
-                                    }
-
-                                    return Transaction.abort();
-                                }
-
-                                @Override
-                                public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
-                                    // if commited, username did not exist, write to database
-                                    if (commited) {
-                                        if (currentUser.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
-                                            myProgressBar.stopProgressBar();
-                                            Toast.makeText(getActivity().getApplicationContext(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            writeToDatabase(myProgressBar);
+                                // check if username already exists in database
+                                rootDbRef.child("usernames").child(userName).runTransaction(new Transaction.Handler() {
+                                    @Override
+                                    public Transaction.Result doTransaction(MutableData mutableData) {
+                                        if (mutableData.getValue() == null) {
+                                            mutableData.setValue(currentFirebaseUser.getUid());
+                                            return Transaction.success(mutableData);
                                         }
-                                        // else dismiss and tell the user the username is already taken
-                                    } else {
-                                        myProgressBar.stopProgressBar();
-                                        Toast.makeText(getActivity().getApplicationContext(), R.string.username_already_taken, Toast.LENGTH_SHORT).show();
+
+                                        return Transaction.abort();
                                     }
-                                }
-                            });
+
+                                    @Override
+                                    public void onComplete(DatabaseError firebaseError, boolean commited, DataSnapshot dataSnapshot) {
+                                        // if commited, username did not exist, write to database
+                                        if (commited) {
+                                            if (currentUser.getStripeAccountId()!=null && TextUtils.isEmpty(userAboutMeET.getText().toString())) {
+                                                myProgressBar.stopProgressBar();
+                                                Toast.makeText(getActivity().getApplicationContext(), R.string.describe_yourself, Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                writeToDatabase(myProgressBar);
+                                            }
+                                            // else dismiss and tell the user the username is already taken
+                                        } else {
+                                            myProgressBar.stopProgressBar();
+                                            Toast.makeText(getActivity().getApplicationContext(), R.string.username_already_taken, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
                         }
+
+
+
                     }
 
-
-
                 }
+
+
             }
 
             private void writeToDatabase(final MyProgressBar myProgressBar) {
