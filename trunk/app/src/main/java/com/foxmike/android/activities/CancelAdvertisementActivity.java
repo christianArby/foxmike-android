@@ -169,7 +169,8 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                                                 if (result.get("operationResult").toString().equals("success")) {
                                                     int totalStripeProcessingFee = (int) result.get("totalStripeProcessingFee");
                                                     String currency = result.get("currency").toString();
-                                                    String amount = String.format(Locale.FRANCE,"%.2f", totalStripeProcessingFee/100);
+                                                    float sweAmount = totalStripeProcessingFee;
+                                                    String amount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
 
                                                     alertDialogPositiveOrNegative(getString(R.string.cancellation), getString(R.string.cancellation_small_fee_warning) + " " + amount + " " + currency + "." + getResources().getString(R.string.cancellation_small_fee_warning_text_2), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
                                                         @Override

@@ -309,10 +309,8 @@ public class MainHostActivity extends AppCompatActivity implements
                 checkReviews();
                 if (!wasSelected)
                     mainPager.setCurrentItem(position, false);
-                if (position!=2) {
-                    if (prevTab==2) {
-                        FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                    }
+                if (position==0) {
+                    FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
                 }
                 prevTab = position;
                 return true;
@@ -417,7 +415,7 @@ public class MainHostActivity extends AppCompatActivity implements
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, true);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
     }
 
@@ -427,7 +425,7 @@ public class MainHostActivity extends AppCompatActivity implements
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary);
+        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary, true);
         cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
     }
 
@@ -657,19 +655,19 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary);
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary, true);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary);
+            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
             cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
