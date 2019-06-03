@@ -126,21 +126,21 @@ public class CreateTrainerActivity extends AppCompatActivity implements
                 });
 
                 myProgressBar.stopProgressBar();
+            }
+        });
 
-                FirebaseDatabaseViewModel stripeDefaultPaymentMethodViewModel = ViewModelProviders.of(CreateTrainerActivity.this).get(FirebaseDatabaseViewModel.class);
-                LiveData<DataSnapshot> stripeDefaultPaymentMethodLiveData = stripeDefaultPaymentMethodViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod"));
-                stripeDefaultPaymentMethodLiveData.observe(CreateTrainerActivity.this, new Observer<DataSnapshot>() {
-                    @Override
-                    public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue()!=null) {
-                            stripeDefaultPaymentMethodId = dataSnapshot.getValue().toString();
-                            updateStripeCustomerInfo();
-                        } else {
-                            setPaymentMethod(new HashMap());
-                        }
+        FirebaseDatabaseViewModel stripeDefaultPaymentMethodViewModel = ViewModelProviders.of(CreateTrainerActivity.this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> stripeDefaultPaymentMethodLiveData = stripeDefaultPaymentMethodViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeDefaultPaymentMethod"));
+        stripeDefaultPaymentMethodLiveData.observe(CreateTrainerActivity.this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    stripeDefaultPaymentMethodId = dataSnapshot.getValue().toString();
+                    updateStripeCustomerInfo();
+                } else {
+                    setPaymentMethod(new HashMap());
+                }
 
-                    }
-                });
             }
         });
     }

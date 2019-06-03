@@ -170,10 +170,12 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         paymentMethod = PaymentMethod.fromString(json);
                         paymentMethodLoaded = true;
                         hasPaymentMethod = true;
+                        UIset = false;
                         setupUI();
                     } else {
                         paymentMethodLoaded = true;
                         hasPaymentMethod = false;
+                        UIset = false;
                         setupUI();
                     }
                 }
@@ -191,10 +193,12 @@ public class CreateTrainerDepositionFragment extends Fragment {
                             paymentMethod = PaymentMethod.fromString(json);
                             paymentMethodLoaded = true;
                             hasPaymentMethod = true;
+                            UIset = false;
                             setupUI();
                         } else {
                             paymentMethodLoaded = true;
                             hasPaymentMethod = false;
+                            UIset = false;
                             setupUI();
                         }
                     }
@@ -203,6 +207,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
             } catch (RuntimeException e2){
                 paymentMethodLoaded = true;
                 hasPaymentMethod = false;
+                UIset = false;
                 setupUI();
             }
         }
