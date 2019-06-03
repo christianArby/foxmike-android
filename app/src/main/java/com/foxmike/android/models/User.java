@@ -28,8 +28,9 @@ public class User implements Comparable<User>{
     private boolean superAdmin;
     private String stripeDefaultPaymentMethod;
     private String stripeDepositionPaymentIntentId;
+    private long depositRefunded;
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId, long depositRefunded) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -50,12 +51,19 @@ public class User implements Comparable<User>{
         this.superAdmin = superAdmin;
         this.stripeDefaultPaymentMethod = stripeDefaultPaymentMethod;
         this.stripeDepositionPaymentIntentId = stripeDepositionPaymentIntentId;
+        this.depositRefunded = depositRefunded;
     }
-
-
 
     public User() {
 
+    }
+
+    public long getDepositRefunded() {
+        return depositRefunded;
+    }
+
+    public void setDepositRefunded(long depositRefunded) {
+        this.depositRefunded = depositRefunded;
     }
 
     public String getStripeDepositionPaymentIntentId() {

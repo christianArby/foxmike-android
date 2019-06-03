@@ -295,6 +295,11 @@ public class CreateTrainerActivity extends AppCompatActivity implements
         finish();
     }
 
+    @Override
+    public void OnCreateTrainerDepositionNotPossible() {
+
+    }
+
 
     // Function createStripeAccount
     private Task<HashMap<String, Object>> createStripeAccount(Map<String, Object> accountData) {

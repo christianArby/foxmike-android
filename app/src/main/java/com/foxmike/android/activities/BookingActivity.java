@@ -45,6 +45,7 @@ public class BookingActivity extends AppCompatActivity {
     private int currentNrOfParticipants;
     private TextView bookingText;
     private boolean needsAuthorization = false;
+    public static final int BOOKING_CANCELED = 900;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +140,7 @@ public class BookingActivity extends AppCompatActivity {
         super.onResume();
 
         if (needsAuthorization) {
-            setResult(RESULT_CANCELED, null);
+            setResult(BOOKING_CANCELED, null);
             // close activity
             finish();
 

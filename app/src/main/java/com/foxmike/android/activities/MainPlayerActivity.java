@@ -123,6 +123,7 @@ public class MainPlayerActivity extends AppCompatActivity
     static final int CANCEL_BOOKING_REQUEST = 16;
     static final int CANCEL_ADVERTISEMENT_REQUEST = 24;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9;
+    public static final int BOOKING_CANCELED = 900;
     private String stripeCustomerId;
     private AHBottomNavigation bottomNavigation;
     private AHBottomNavigationViewPager mainPager;
@@ -713,7 +714,7 @@ public class MainPlayerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_CANCELED) {
+        if (resultCode == BOOKING_CANCELED) {
             alertDialogOk(getResources().getString(R.string.payment_cancelled),
                     getResources().getString(R.string.booking_did_not_succeed), true,
                     new OnOkPressedListener() {

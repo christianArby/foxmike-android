@@ -19,24 +19,33 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.foxmike.android.R;
 import com.foxmike.android.activities.CreateTrainerActivity;
 import com.foxmike.android.activities.DepositionActivity;
 import com.foxmike.android.activities.PaymentPreferencesActivity;
+import com.foxmike.android.models.User;
 import com.foxmike.android.utils.MyProgressBar;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
 import com.stripe.android.model.PaymentIntent;
 import com.stripe.android.model.PaymentMethod;
+
+import org.joda.time.DateTime;
 
 import java.util.HashMap;
 
@@ -71,6 +80,9 @@ public class CreateTrainerDepositionFragment extends Fragment {
     private PaymentMethod paymentMethod;
     private String returnURL;
     private boolean paymentMethodLoaded;
+    private User currentUser;
+    private boolean currentUserLoaded;
+    private boolean UIset;
 
 
     //private OnDepositionFragmentInteractionListener onDepositionFragmentInteractionListener;
@@ -125,6 +137,22 @@ public class CreateTrainerDepositionFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        FirebaseDatabaseViewModel userViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> userLiveData = userViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        userLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                currentUser = dataSnapshot.getValue(User.class);
+                currentUserLoaded = true;
+                setupUI();
+            }
+        });
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         myProgressBar = null;
@@ -142,11 +170,11 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         paymentMethod = PaymentMethod.fromString(json);
                         paymentMethodLoaded = true;
                         hasPaymentMethod = true;
-                        setupUI(hasPaymentMethod);
+                        setupUI();
                     } else {
                         paymentMethodLoaded = true;
                         hasPaymentMethod = false;
-                        setupUI(hasPaymentMethod);
+                        setupUI();
                     }
                 }
             });
@@ -163,11 +191,11 @@ public class CreateTrainerDepositionFragment extends Fragment {
                             paymentMethod = PaymentMethod.fromString(json);
                             paymentMethodLoaded = true;
                             hasPaymentMethod = true;
-                            setupUI(hasPaymentMethod);
+                            setupUI();
                         } else {
                             paymentMethodLoaded = true;
                             hasPaymentMethod = false;
-                            setupUI(hasPaymentMethod);
+                            setupUI();
                         }
                     }
                 });
@@ -175,7 +203,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
             } catch (RuntimeException e2){
                 paymentMethodLoaded = true;
                 hasPaymentMethod = false;
-                setupUI(hasPaymentMethod);
+                setupUI();
             }
         }
     }
@@ -183,13 +211,14 @@ public class CreateTrainerDepositionFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupUI(hasPaymentMethod);
+        setupUI();
     }
 
-    private void setupUI(boolean hasPaymentSystem) {
+    private void setupUI() {
 
-        if (isAdded() && paymentMethodLoaded) {
-            if (hasPaymentSystem) {
+        if (isAdded() && paymentMethodLoaded && currentUserLoaded && !UIset) {
+            UIset = true;
+            if (hasPaymentMethod) {
                 paymentMethodTV.setVisibility(View.VISIBLE);
                 addPaymentMethodTV.setVisibility(View.GONE);
                 dotProgressBarContainer.setVisibility(View.GONE);
@@ -205,6 +234,16 @@ public class CreateTrainerDepositionFragment extends Fragment {
                 makeDepositionBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Long currentTimestamp = System.currentTimeMillis();
+
+                        DateTime currentDateTime = new DateTime(currentTimestamp);
+                        DateTime lastRefund = new DateTime(currentUser.getDepositRefunded());
+
+                        if (currentDateTime.minusDays(30).isBefore(lastRefund)) {
+                            onCreateTrainerDepositionListener.OnCreateTrainerDepositionNotPossible();
+                            return;
+                        }
+
                         myProgressBar.startProgressBar();
                         // MAKE DEPOSITION
                         HashMap<String, Object> depositionMap = new HashMap<>();
@@ -278,6 +317,15 @@ public class CreateTrainerDepositionFragment extends Fragment {
                     }
                 });
 
+                addPaymentMethodTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // ADD PAYMENT METHOD
+                        Intent paymentPreferencesIntent = new Intent(getActivity().getApplicationContext(),PaymentPreferencesActivity.class);
+                        startActivity(paymentPreferencesIntent);
+                    }
+                });
+
             }
 
             addDepostionLaterBtn.setOnClickListener(new View.OnClickListener() {
@@ -330,6 +378,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
     public interface OnCreateTrainerDepositionListener {
 
         void OnCreateTrainerDeposition(boolean deposit);
+        void OnCreateTrainerDepositionNotPossible();
     }
 
     private void showSnackbar(String message) {
