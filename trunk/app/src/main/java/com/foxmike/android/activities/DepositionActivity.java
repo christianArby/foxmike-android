@@ -33,16 +33,20 @@ import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
 import com.stripe.android.model.PaymentIntent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -73,6 +77,7 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
     // rxJava
     public final BehaviorSubject<HashMap> paymentMethodSubject = BehaviorSubject.create();
     private FragmentManager fragmentManager;
+    private boolean hasUpcomingSessions;
 
     public void setPaymentMethod(HashMap paymentMethodMap) { paymentMethodSubject.onNext(paymentMethodMap);     }
     public HashMap  getPaymentMethod()          { return paymentMethodSubject.getValue(); }
@@ -84,6 +89,7 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
     @BindView(R.id.dotProgressBarContainer)
     FrameLayout dotProgressBarContainer;
     @BindView(R.id.depositionText) TextView depositionText;
+    @BindView(R.id.loadingView) FrameLayout loadingView;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -121,14 +127,47 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
 
         mFunctions = FirebaseFunctions.getInstance();
 
+        ArrayList<Task<?>> asyncTasks = new ArrayList<>();
 
+        TaskCompletionSource<Boolean> upcomingSessionsSource = new TaskCompletionSource<>();
+        Task upcomingSessionsTask = upcomingSessionsSource.getTask();
+        asyncTasks.add(upcomingSessionsTask);
+
+        TaskCompletionSource<Boolean> userSource = new TaskCompletionSource<>();
+        Task userTask = userSource.getTask();
+        asyncTasks.add(userTask);
+
+        Long currentTimestamp = System.currentTimeMillis();
+        // Create query to get all the advertisement keys from the current mSession
+        Query keyQuery = FirebaseDatabase.getInstance().getReference().child("advertisementHosts").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByValue().startAt(currentTimestamp);
+
+
+
+        FirebaseDatabaseViewModel sessionsComingViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> sessionsComingLiveData = sessionsComingViewModel.getDataSnapshotLiveData(keyQuery);
+        sessionsComingLiveData.observe(this, new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getChildrenCount()>0) {
+                    hasUpcomingSessions = true;
+                }
+                upcomingSessionsSource.trySetResult(true);
+            }
+        });
 
         FirebaseDatabaseViewModel userViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> sessionsComingLiveData = userViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-        sessionsComingLiveData.observe(this, new Observer<DataSnapshot>() {
+        LiveData<DataSnapshot> userLiveData = userViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        userLiveData.observe(this, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);
+                userSource.trySetResult(true);
+            }
+        });
+
+        Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
 
                 if (currentUser.getStripeDepositionPaymentIntentId()==null) {
                     // if not dep
@@ -136,11 +175,12 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
                         CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://deposition");
                         FragmentTransaction transaction = fragmentManager.beginTransaction();
                         transaction.replace(R.id.create_trainer_fragments_container, createTrainerDepositionFragment, "createTrainerDepositionFragment");
-                        transaction.commit();
+                        transaction.commitNow();
+                        loadingView.setVisibility(View.GONE);
                     }
 
                 } else {
-
+                    loadingView.setVisibility(View.GONE);
                     retrievePaymentIntentAndChargeId(currentUser.getStripeDepositionPaymentIntentId()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                         @Override
                         public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
@@ -161,13 +201,14 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
                                 PaymentIntent paymentIntent = PaymentIntent.fromString(json);
                                 depostionAmount.setText(getString(R.string.amount) + paymentIntent.getAmount()/100 + " " + paymentIntent.getCurrency());
                                 depositionDate.setText(getString(R.string.date_colon) + TextTimestamp.textSDF(paymentIntent.getCreated()*1000));
-
-
                                 dotProgressBarContainer.setVisibility(View.GONE);
-
                                 claimBtn.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        if (hasUpcomingSessions) {
+                                            alertDialogOk(getResources().getString(R.string.upcoming_sessions_claim_dep_title), getResources().getString(R.string.claim_not_possible_upcoming_sessions), false);
+                                            return;
+                                        }
 
                                         alertDialogPositiveOrNegative(getResources().getString(R.string.claim_deposition), getResources().getString(R.string.deposition_withdraw_question), getResources().getString(R.string.claim_deposition), getResources().getString(R.string.cancel), new OnPositiveOrNegativeButtonPressedListener() {
                                             @Override
@@ -192,49 +233,33 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
                                                         // If successful, extract
                                                         HashMap<String, Object> result = task.getResult();
                                                         if (result.get("resultType").toString().equals("refund")) {
-
                                                             Map<String,Object> refund = (Map) result.get("refund");
                                                             int amount = (int) refund.get("amount");
                                                             float sweAmount = amount;
                                                             String refundAmount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
                                                             String currency = (String) refund.get("currency");
-
                                                             myProgressBar.stopProgressBar();
-
                                                             alertDialogOk(getResources().getString(R.string.deposition_refunded_title), getResources().getString(R.string.your_deposition_text_1) + " " + refundAmount + " " + currency + " " + getResources().getString(R.string.your_deposition_text_2),true);
-
                                                         } else {
                                                             HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
                                                             showSnackbar(error.get("message").toString());
                                                         }
-
                                                     }
                                                 });
-
                                             }
-
                                             @Override
                                             public void OnNegativePressed() {
-
                                             }
                                         });
-
-
-
                                     }
                                 });
-
                             } else {
                                 HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
                                 showSnackbar(error.get("message").toString());
                             }
-
                         }
                     });
-
                 }
-
-
                 myProgressBar.stopProgressBar();
             }
         });
@@ -261,11 +286,17 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
             for (Fragment fragment:getSupportFragmentManager().getFragments()) {
                 getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             }
+            recreate();
         } else {
             setResult(RESULT_OK, null);
             finish();
         }
 
+    }
+
+    @Override
+    public void OnCreateTrainerDepositionNotPossible() {
+        alertDialogOk(getResources().getString(R.string.claim_deposit_not_possible_title), getResources().getString(R.string.claim_deposit_not_possible_text), true);
     }
 
     // __________________________ STRIPE BELOW _____________________________

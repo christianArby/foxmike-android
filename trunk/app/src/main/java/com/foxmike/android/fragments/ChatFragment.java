@@ -309,6 +309,8 @@ public class ChatFragment extends Fragment {
             @Override
             public void onRefresh() {
 
+                swipeRefreshLayout.setRefreshing(false);
+
                 currentItems = messageFirebaseAdapter.getItemCount();
                 LinearLayoutManager layoutManager = ((LinearLayoutManager)messagesListRV.getLayoutManager());
 
@@ -372,7 +374,7 @@ public class ChatFragment extends Fragment {
             }
         };
 
-        //swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
+        swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
 
         return view;
     }
@@ -412,9 +414,35 @@ public class ChatFragment extends Fragment {
                     rootDbRef.child("messages").child(chatID).child(messageID).setValue(sendMessage).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            /*if (messageFirebaseAdapter.getItemCount()==0) {
-                                onRefreshListener.onRefresh();
-                            }*/
+                            if (messageFirebaseAdapter.getItemCount()==0) {
+                                messageFirebaseAdapter.stopListening();
+                                // Set database reference to chat id in message root and build query
+                                DatabaseReference messageRef = rootDbRef.child("messages").child(chatID);
+                                // TODO FIX PAGINATION
+                                messageQuery = messageRef.limitToLast(150);
+                                FirebaseRecyclerOptions<Message> options =
+                                        new FirebaseRecyclerOptions.Builder<Message>()
+                                                .setQuery(messageQuery, Message.class)
+                                                .build();
+                                //Setup message firebase adapter which loads 10 first messages
+                                messageFirebaseAdapter = new MessageFirebaseAdapter(options, true);
+                                messageFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                                    @Override
+                                    public void onItemRangeInserted(int positionStart, int itemCount) {
+                                        super.onItemRangeInserted(positionStart, itemCount);
+
+                                        messagesListRV.scrollToPosition(positionStart);
+
+                                        // Set that current user has seen the chat
+                                        if (FoxmikeApplication.isActivityVisible()) {
+                                            rootDbRef.child("chats").child(chatID).child("users").child(currentUserID).setValue(true);
+                                            rootDbRef.child("userChats").child(currentUserID).child(chatID).setValue(true);
+                                        }
+                                    }
+                                });
+                                messagesListRV.setAdapter(messageFirebaseAdapter);
+                                messageFirebaseAdapter.startListening();
+                            }
                             chatSendBtn.setEnabled(true);
                         }
                     });
