@@ -252,7 +252,7 @@ public class UserAccountFragment extends Fragment {
                             return;
                         }
 
-                        if (!currentUser.trainerMode && currentUser.getStripeAccountId()==null) {
+                        if (currentUser.getStripeAccountId()==null) {
                             Intent createIntent = new Intent(getActivity().getApplicationContext(),CreateTrainerActivity.class);
                             startActivityForResult(createIntent, 1);
                             return;

@@ -110,6 +110,8 @@ public class MainHostActivity extends AppCompatActivity implements
     private HashMap<String, String> sessionTypeDictionary;
     private DataSnapshot reviewsToWrite;
     private boolean hasDeposition;
+    public static final int CANCEL_ADVERTISEMENT_OK = 901;
+    private int prevTab;
 
 
     @Override
@@ -307,6 +309,12 @@ public class MainHostActivity extends AppCompatActivity implements
                 checkReviews();
                 if (!wasSelected)
                     mainPager.setCurrentItem(position, false);
+                if (position!=2) {
+                    if (prevTab==2) {
+                        FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
+                    }
+                }
+                prevTab = position;
                 return true;
             }
         });
@@ -703,5 +711,34 @@ public class MainHostActivity extends AppCompatActivity implements
     public interface OnPositiveOrNegativeButtonPressedListener {
         void OnPositivePressed();
         void OnNegativePressed();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == CANCEL_ADVERTISEMENT_OK) {
+            if (data!=null) {
+                String date = data.getStringExtra("date");
+                alertDialogOk(getResources().getString(R.string.cancellation_confirmed),
+                        getResources().getString(R.string.the_session_on) + " " + date + " " + getResources().getString(R.string.has_now_been_cancelled), true);
+            }
+        }
+    }
+
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+        dialog.show();
     }
 }

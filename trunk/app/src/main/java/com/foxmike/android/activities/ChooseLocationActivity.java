@@ -149,34 +149,32 @@ public class ChooseLocationActivity extends AppCompatActivity implements OnMapRe
             @Override
             public void OnUserFound(User user) {
                 // ------------------ TRAINER MODE -------------------------------------------------------
-                if (user.trainerMode) {
-                    createSessionMapTextTV.setVisibility(View.VISIBLE);
-                    // Set on Map clickedListeners
-                    mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                        @Override
-                        public void onMapLongClick(LatLng point) {
-                            chosenPoint = point;
-                            if(tempMarker!=null) {
-                                tempMarker.remove();
-                            }
-                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
-                            createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
-
+                createSessionMapTextTV.setVisibility(View.VISIBLE);
+                // Set on Map clickedListeners
+                mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng point) {
+                        chosenPoint = point;
+                        if(tempMarker!=null) {
+                            tempMarker.remove();
                         }
-                    });
+                        tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
+                        createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
 
-                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng point) {
-                            chosenPoint = point;
-                            if(tempMarker!=null) {
-                                tempMarker.remove();
-                            }
-                            tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
-                            createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
+                    }
+                });
+
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng point) {
+                        chosenPoint = point;
+                        if(tempMarker!=null) {
+                            tempMarker.remove();
                         }
-                    });
-                }
+                        tempMarker =  mMap.addMarker(new MarkerOptions().position(point).icon(selectedIcon));
+                        createSessionMapTextTV.setText(getAddress(point.latitude, point.longitude));
+                    }
+                });
             }
         });
 

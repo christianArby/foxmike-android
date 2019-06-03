@@ -1,6 +1,7 @@
 package com.foxmike.android.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.foxmike.android.R;
+import com.foxmike.android.utils.TextTimestamp;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -41,6 +43,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     private String currentUserId;
     private String sessionName;
     private HashMap<String,Object> cancelMap = new HashMap<>();
+    public static final int CANCEL_ADVERTISEMENT_OK = 901;
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -153,7 +156,9 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     }
 
     private void finishCancellation() {
-        setResult(RESULT_OK);
+        Intent resultData = new Intent();
+        resultData.putExtra("date", TextTimestamp.textSessionDateAndTime(advertisementTimestamp));
+        setResult(CANCEL_ADVERTISEMENT_OK, resultData);
         finish();
     }
 

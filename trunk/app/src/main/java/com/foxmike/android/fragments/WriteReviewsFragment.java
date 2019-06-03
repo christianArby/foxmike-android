@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,21 +24,27 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Rating;
 import com.foxmike.android.models.Review;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,6 +64,14 @@ public class WriteReviewsFragment extends DialogFragment {
     @BindView(R.id.ratingBar)
     AppCompatRatingBar ratingBar;
     @BindView(R.id.reviewText) EditText reviewText;
+    @BindView(R.id.cancelledContainer)
+    LinearLayout cancelledContainer;
+    @BindView(R.id.icon)
+    ImageView sessionImage;
+    @BindView(R.id.text1) TextView text1;
+    @BindView(R.id.text2) TextView text2;
+    @BindView(R.id.text3) TextView text3;
+
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -70,6 +86,8 @@ public class WriteReviewsFragment extends DialogFragment {
     private Advertisement advertisement;
     private View view;
     private float thisRating;
+    private UserPublic host;
+    private Session session;
 
 
     public WriteReviewsFragment() {
@@ -100,6 +118,8 @@ public class WriteReviewsFragment extends DialogFragment {
         view = inflater.inflate(R.layout.fragment_write_reviews, container, false);
         ButterKnife.bind(this, view);
 
+        cancelledContainer.setVisibility(View.GONE);
+
         closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,14 +128,47 @@ public class WriteReviewsFragment extends DialogFragment {
             }
         });
 
+        ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+        TaskCompletionSource<Boolean> hostSource = new TaskCompletionSource<>();
+        Task hostTask = hostSource.getTask();
+        asyncTasks.add(hostTask);
+
+        TaskCompletionSource<Boolean> sessionSource = new TaskCompletionSource<>();
+        Task sessionTask = sessionSource.getTask();
+        asyncTasks.add(sessionTask);
+
+
+
+        FirebaseDatabaseViewModel hostViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> hostLiveData = hostViewModel.getDataSnapshotLiveData(rootDbRef.child("usersPublic").child(advertisement.getHost()));
+        hostLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                host = dataSnapshot.getValue(UserPublic.class);
+                hostSource.trySetResult(true);
+            }
+        });
+
         FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(rootDbRef.child("sessions").child(advertisement.getSessionId()));
         firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(DataSnapshot dataSnapshot) {
-                Session session = dataSnapshot.getValue(Session.class);
+                session = dataSnapshot.getValue(Session.class);
+                sessionSource.trySetResult(true);
+            }
+        });
 
-                reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ session.getSessionName() + " " + TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()) + getString(R.string.leave_your_review_below));
+        Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Glide.with(getActivity().getApplicationContext()).load(session.getImageUrl()).into(sessionImage);
+                text1.setText(session.getSessionName());
+                text2.setText(getResources().getString(R.string.hosted_by_text) + " " + host.getFullName());
+                text3.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
+
+                reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ session.getSessionName() + getString(R.string.leave_your_review_below));
                 ratingTitle.setText(R.string.Rate);
 
                 ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -162,7 +215,6 @@ public class WriteReviewsFragment extends DialogFragment {
                         }
                     }
                 });
-
 
             }
         });

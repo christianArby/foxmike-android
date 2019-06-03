@@ -934,8 +934,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -------------------- HOST -----------------------------
                 editTop.setVisibility(View.VISIBLE);
-                ratingText.setVisibility(View.GONE);
-                newFlag.setVisibility(View.GONE);
                 for (TextView editTV: editTVArrayList) {
                     editTV.setVisibility(View.VISIBLE);
                 }
@@ -1177,9 +1175,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 ratingsAndReviewsText.setText(R.string.new_session_no_reviews_yet);
                 showAllReviews.setVisibility(View.GONE);
                 ratingText.setVisibility(View.GONE);
-                if (!isHost) {
-                    newFlag.setVisibility(View.VISIBLE);
-                }
+                newFlag.setVisibility(View.VISIBLE);
             } else if (mSession.getNrOfRatings()==1) {
                 showAllReviews.setVisibility(View.VISIBLE);
                 ratingText.setVisibility(View.VISIBLE);
@@ -1191,9 +1187,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 showAllReviews.setVisibility(View.VISIBLE);
                 String rating = String.format("%.1f", mSession.getRating());
                 ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
-                if (!isHost) {
-                    ratingText.setVisibility(View.VISIBLE);
-                }
+                ratingText.setVisibility(View.VISIBLE);
                 newFlag.setVisibility(View.GONE);
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2));
             }
