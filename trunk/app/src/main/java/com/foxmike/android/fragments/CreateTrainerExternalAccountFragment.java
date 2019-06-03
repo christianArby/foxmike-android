@@ -55,6 +55,7 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
     private long mLastClickTime = 0;
     private InputMethodManager imm;
     private String stripeAccountId;
+    private boolean update;
 
     private OnCreateTrainerExternalAccountListener onCreateTrainerExternalAccountListener;
 
@@ -63,10 +64,11 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
     }
 
 
-    public static CreateTrainerExternalAccountFragment newInstance(String stripeAccountId) {
+    public static CreateTrainerExternalAccountFragment newInstance(String stripeAccountId, Boolean update) {
 
         Bundle args = new Bundle();
         args.putString("stripeAccountId", stripeAccountId);
+        args.putBoolean("update", update);
         CreateTrainerExternalAccountFragment fragment = new CreateTrainerExternalAccountFragment();
         fragment.setArguments(args);
         return fragment;
@@ -78,6 +80,7 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
         // Get data sent from previous activity
         if (getArguments() != null) {
             stripeAccountId = getArguments().getString("stripeAccountId");
+            update = getArguments().getBoolean("update");
         }
     }
 
@@ -93,6 +96,10 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
         addPayoutMethodLaterBtn = view.findViewById(R.id.addPayoutMethodLaterBtn);
         ibanET = view.findViewById(R.id.ibanET);
         progressBar = view.findViewById(R.id.progressBar_cyclic);
+
+        if (update) {
+            addPayoutMethodLaterBtn.setVisibility(View.GONE);
+        }
 
         // Setup toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
