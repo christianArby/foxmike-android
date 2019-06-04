@@ -611,4 +611,5 @@
     <string name="has_now_been_cancelled">är nu inställt.</string>
     <string name="cancelling_question_large_fee">Passet är inom 6 timmar och har deltagare. Om du ställer in passet kommer din deposition på</string>
     <string name="cancelling_question_large_fee_text_2">gå förlorad.</string>
+    <string name="number_of_participants">Deltagare:</string>
 </resources>
