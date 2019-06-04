@@ -226,6 +226,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
         onAsyncTaskFinished();
     }
 
+
     public void locationPermissionChanged(boolean granted) {
         if (granted) {
             mLocationPermissionGranted = true;
@@ -567,6 +568,7 @@ public class ExploreMapsFragment extends Fragment implements OnMapReadyCallback{
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        updateLocationUI();
     }
 
     @Override
