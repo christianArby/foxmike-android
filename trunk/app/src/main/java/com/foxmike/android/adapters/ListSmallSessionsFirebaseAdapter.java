@@ -17,10 +17,6 @@ import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionAdvertisements;
 import com.foxmike.android.utils.ListSmallSessionsViewHolder;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -57,30 +53,23 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
         holder.setText3(address);
 
 
+        if (sessionAdvertisementsHashMap.containsKey(model.getSessionId())) {
+            long earliestUpcomingAd = 0;
+            Long currentTimestamp = System.currentTimeMillis();
 
-        populateSessionAdvertisementsHashMap(model.getSessionId(), new OnSessionAdvertisementsLoadedListener() {
-            @Override
-            public void OnSessionAdvertisementLoaded() {
-                long earliestUpcomingAd = 0;
-                Long currentTimestamp = System.currentTimeMillis();
-
-                for (long adTimestamp: sessionAdvertisementsHashMap.get(model.getSessionId()).values()) {
-                    if (adTimestamp > currentTimestamp) {
-                        if (earliestUpcomingAd==0) {
+            for (long adTimestamp: sessionAdvertisementsHashMap.get(model.getSessionId()).values()) {
+                if (adTimestamp > currentTimestamp) {
+                    if (earliestUpcomingAd==0) {
+                        earliestUpcomingAd = adTimestamp;
+                    } else {
+                        if (adTimestamp<earliestUpcomingAd) {
                             earliestUpcomingAd = adTimestamp;
-                        } else {
-                            if (adTimestamp<earliestUpcomingAd) {
-                                earliestUpcomingAd = adTimestamp;
-                            }
                         }
                     }
                 }
-                holder.setText2(earliestUpcomingAd, context);
-
             }
-        });
-
-
+            holder.setText2(earliestUpcomingAd, context);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +137,7 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
         return returnAddress;
     }
 
-    private void populateSessionAdvertisementsHashMap(String sessionId, OnSessionAdvertisementsLoadedListener onSessionAdvertisementsLoadedListener) {
+    /*private void populateSessionAdvertisementsHashMap(String sessionId, OnSessionAdvertisementsLoadedListener onSessionAdvertisementsLoadedListener) {
         if (!sessionAdvertisementsHashMap.containsKey(sessionId)) {
             FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -172,6 +161,11 @@ public class ListSmallSessionsFirebaseAdapter extends FirebaseRecyclerAdapter<Se
         } else {
             onSessionAdvertisementsLoadedListener.OnSessionAdvertisementLoaded();
         }
+    }*/
+
+    public void updateSessionAdvertisements(HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap) {
+        this.sessionAdvertisementsHashMap = sessionAdvertisementsHashMap;
+        this.notifyDataSetChanged();
     }
 
     public interface OnSessionAdvertisementsLoadedListener{

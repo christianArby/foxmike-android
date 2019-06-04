@@ -8,7 +8,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -18,6 +22,9 @@ import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListSmallSessionsFirebaseAdapter;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Session;
+import com.foxmike.android.models.SessionAdvertisements;
+import com.foxmike.android.viewmodels.FirebaseDatabaseChildListenerViewModel;
+import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +46,8 @@ public class HostListSmallSessionsFragment extends Fragment {
     private TextView noContent;
     private HashMap<String, String> sessionTypeDictionary;
     private DotProgressBar loading;
+    private HashMap<Query, Boolean> liveDataQueries = new HashMap<>();
+    private HashMap<String, SessionAdvertisements> sessionAdvertisementsHashMap = new HashMap<>();
 
 
     public HostListSmallSessionsFragment() {
@@ -69,6 +78,7 @@ public class HostListSmallSessionsFragment extends Fragment {
                 .setIndexedQuery(sessionsQuery, sessionsDbRef, Session.class)
                 .build();
 
+        // To find out if there are no sessions
         sessionsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -83,6 +93,7 @@ public class HostListSmallSessionsFragment extends Fragment {
 
             }
         });
+
 
         listSmallSessionsFirebaseAdapter = new ListSmallSessionsFirebaseAdapter(sessionsOptions, getActivity().getApplicationContext(), sessionTypeDictionary, onSessionClickedListener);
         listSmallSessionsFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -105,6 +116,49 @@ public class HostListSmallSessionsFragment extends Fragment {
                     noContent.setVisibility(View.GONE);
                 } else {
                     noContent.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // To listen to changes in sessionAdvertisements
+        Query sessionsQuery = FirebaseDatabase.getInstance().getReference().child("sessionHosts").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByKey();
+        FirebaseDatabaseChildListenerViewModel sessionsViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseChildListenerViewModel.class);
+        LiveData<DataSnapshot> sessionsLiveData = sessionsViewModel.getDataSnapshotLiveData(sessionsQuery);
+        sessionsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+            @Override
+            public void onChanged(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    Long currentTimestamp = System.currentTimeMillis();
+                    if (!liveDataQueries.containsKey(FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(dataSnapshot.getKey()).orderByValue().startAt(currentTimestamp))) {
+                        FirebaseDatabaseViewModel sessionAdvertisementsViewModel = ViewModelProviders.of(HostListSmallSessionsFragment.this).get(FirebaseDatabaseViewModel.class);
+                        LiveData<DataSnapshot> sessionAdvertisementsLiveData = sessionAdvertisementsViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(dataSnapshot.getKey()).orderByValue().startAt(currentTimestamp));
+                        liveDataQueries.put(FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(dataSnapshot.getKey()).orderByValue().startAt(currentTimestamp), true);
+                        sessionAdvertisementsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                            @Override
+                            public void onChanged(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getValue()==null) {
+                                    sessionAdvertisementsHashMap.put(dataSnapshot.getKey(), new SessionAdvertisements());
+                                    // notify
+                                    if (listSmallSessionsFirebaseAdapter!=null) {
+                                        listSmallSessionsFirebaseAdapter.updateSessionAdvertisements(sessionAdvertisementsHashMap);
+                                    }
+                                    return;
+                                }
+                                SessionAdvertisements sessionAdvertisements = new SessionAdvertisements();
+                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                    sessionAdvertisements.put(snapshot.getKey(), (Long) snapshot.getValue());
+                                }
+                                sessionAdvertisementsHashMap.put(dataSnapshot.getKey(), sessionAdvertisements);
+                                if (listSmallSessionsFirebaseAdapter!=null) {
+                                    listSmallSessionsFirebaseAdapter.updateSessionAdvertisements(sessionAdvertisementsHashMap);
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
