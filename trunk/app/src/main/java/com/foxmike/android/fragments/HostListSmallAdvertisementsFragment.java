@@ -13,14 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
-import com.foxmike.android.adapters.ListSmallAdvertisementsFirebaseAdapter;
+import com.foxmike.android.adapters.ListSmallHostAdvertisementsFirebaseAdapter;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnSessionClickedListener;
 import com.foxmike.android.models.Advertisement;
-import com.foxmike.android.utils.SmallAdvertisementViewHolder;
 import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -40,8 +38,8 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
     private AlertOccasionCancelledListener alertOccasionCancelledListener;
     private RecyclerView comingAdvertisementsRV;
     private RecyclerView pastAdvertisementsRV;
-    private FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> pastFirebaseAdvertisementsAdapter;
-    private FirebaseRecyclerAdapter<Advertisement, SmallAdvertisementViewHolder> comingFirebaseAdvertisementsAdapter;
+    private ListSmallHostAdvertisementsFirebaseAdapter pastFirebaseAdvertisementsAdapter;
+    private ListSmallHostAdvertisementsFirebaseAdapter comingFirebaseAdvertisementsAdapter;
     private TextView noContent;
     private TextView upcomingHeading;
     private TextView pastHeading;
@@ -104,7 +102,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         };
         futureAdsQuery.addValueEventListener(futureAdsListener);
 
-        comingFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
+        comingFirebaseAdvertisementsAdapter = new ListSmallHostAdvertisementsFirebaseAdapter(futureOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
 
         comingFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -144,7 +142,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         pastAdsQuery.addValueEventListener(pastAdsListener);
 
 
-        pastFirebaseAdvertisementsAdapter = new ListSmallAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
+        pastFirebaseAdvertisementsAdapter = new ListSmallHostAdvertisementsFirebaseAdapter(pastOptions, getActivity().getApplicationContext(), alertOccasionCancelledListener, sessionTypeDictionary,onSessionClickedListener);
 
         pastFirebaseAdvertisementsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
