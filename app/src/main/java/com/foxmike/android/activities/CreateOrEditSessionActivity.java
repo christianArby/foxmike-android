@@ -198,6 +198,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private ValueEventListener sessionAdListener;
     private boolean calendarLoaded;
     private TextView secondaryHostTV;
+    private HashMap<Query, Boolean> liveDataQueries = new HashMap<>();
 
 
     private static final int REQUEST_STORAGE_PERMISSION = 100;
@@ -655,17 +656,19 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             setImage(existingSession.getImageUrl(),mSessionImageButton);
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(sessionTypeFilterMap.get(existingSession.getSessionType()));
-            // Existing advertisements
             Long currentTimestamp = System.currentTimeMillis();
-            sessionAdRef = rootDbRef.child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp);
-            sessionAdListener = new ValueEventListener() {
+            // Existing advertisements
+            FirebaseDatabaseViewModel sessionAdvertisementsViewModel = ViewModelProviders.of(CreateOrEditSessionActivity.this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> sessionAdvertisementsLiveData = sessionAdvertisementsViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("sessionAdvertisements").child(existingSession.getSessionId()).orderByValue().startAt(currentTimestamp));
+            sessionAdvertisementsLiveData.observe(this, new Observer<DataSnapshot>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                public void onChanged(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue()!=null) {
                         setupAdDependentViews(true);
                     } else {
                         setupAdDependentViews(false);
                     }
+                    mAdvertisementArrayList.clear();
                     ArrayList<Task<?>> tasks = new ArrayList<>();
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
@@ -698,15 +701,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                         advertisementsIsLoaded = true;
                         tryLoadCalendar();
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    advertisementsIsLoaded = true;
-                    tryLoadCalendar();
                 }
-            };
-            sessionAdRef.addValueEventListener(sessionAdListener);
+            });
 
             mWhat.setText(existingSession.getWhat());
             mWho.setText(existingSession.getWho());
