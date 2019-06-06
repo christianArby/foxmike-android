@@ -195,19 +195,18 @@ public class WriteReviewsFragment extends DialogFragment {
                                             rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
                                             reportData.put("review", review);
                                         }
-                                        if (thisRating<2) {
-                                            hideKeyboard();
-                                            dismiss();
-                                            onWriteReviewsFragmentInteractionListener.onReportTrainer(session, advertisement, host, ratingAndReviewId);
-                                            return;
 
-                                        }
-                                        // TODO remove node
                                         rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                hideKeyboard();
-                                                dismiss();
+                                                if (thisRating<2) {
+                                                    hideKeyboard();
+                                                    dismiss();
+                                                    onWriteReviewsFragmentInteractionListener.onReportTrainer(session, advertisement, host, ratingAndReviewId);
+                                                } else {
+                                                    hideKeyboard();
+                                                    dismiss();
+                                                }
                                             }
                                         });
                                     } else {
