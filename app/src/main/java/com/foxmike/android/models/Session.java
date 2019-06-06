@@ -27,8 +27,9 @@ public class Session implements Comparable<Session>, Serializable {
     private float rating;
     private int nrOfRatings;
     private int nrOfReviews;
+    private boolean superHosted;
 
-    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews) {
+    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted) {
         this.sessionId = sessionId;
         this.host = host;
         this.secondaryHostId = secondaryHostId;
@@ -50,6 +51,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.rating = rating;
         this.nrOfRatings = nrOfRatings;
         this.nrOfReviews = nrOfReviews;
+        this.superHosted = superHosted;
     }
 
     public Session() {
@@ -79,7 +81,13 @@ public class Session implements Comparable<Session>, Serializable {
         this.nrOfReviews = sessionToCopy.nrOfReviews;
     }
 
+    public boolean isSuperHosted() {
+        return superHosted;
+    }
 
+    public void setSuperHosted(boolean superHosted) {
+        this.superHosted = superHosted;
+    }
 
     public long getRepresentingAdTimestamp() {
         return representingAdTimestamp;

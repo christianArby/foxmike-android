@@ -123,6 +123,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private CircleImageView mCurrentUserPostImage;
     private TextView mHostAboutTV;
     private TextView mHost;
+    private ConstraintLayout whoContainer;
+    private ConstraintLayout whereContainer;
+    private View whoDivider;
+    private View infoDivider;
     private TextView mWhatTW;
     private TextView mWhoTW;
     private TextView mWhereTW;
@@ -581,6 +585,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 int maxParticipants = model.getMaxParticipants();
                 holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
 
+                if (mSession.isSuperHosted()) {
+                    holder.hideParticipantsTV();
+                }
 
                 Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
 
@@ -729,6 +736,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mWhatTW = displaySession.findViewById(R.id.whatTW);
         mWhoTW = displaySession.findViewById(R.id.whoTW);
         mWhereTW = displaySession.findViewById(R.id.whereTW);
+        whoContainer = displaySession.findViewById(R.id.whoContainer);
+        whereContainer = displaySession.findViewById(R.id.whereContainer);
+        whoDivider = displaySession.findViewById(R.id.whoDivider);
+        infoDivider = displaySession.findViewById(R.id.infoDivider);
+
+
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
         mSessionType = view.findViewById(R.id.sessionDateHeading);
@@ -1167,6 +1180,17 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             mWhatTW.setText(mSession.getWhat());
             mWhoTW.setText(mSession.getWho());
             mWhereTW.setText(mSession.getWhereAt());
+
+            // Hide if superhosted
+            if (mSession.isSuperHosted()) {
+                mWhoTW.setVisibility(View.GONE);
+                mWhereTW.setVisibility(View.GONE);
+                whoContainer.setVisibility(View.GONE);
+                whereContainer.setVisibility(View.GONE);
+                whoDivider.setVisibility(View.GONE);
+                infoDivider.setVisibility(View.GONE);
+            }
+
             if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
                 mSessionType.setText(getResources().getString(R.string.other));
             } else {
@@ -1209,6 +1233,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
         if (getView()!=null && paymentMethodLoaded && adSelectedReady && !paymentMethodAdSelectedAndViewUsed) {
+            // (session will also be loaded)
             paymentMethodAdSelectedAndViewUsed = true;
 
             dotProgressBarContainer.setVisibility(View.GONE);
@@ -1335,6 +1360,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                 }
             }
+
+            if (mSession.isSuperHosted()) {
+                mDisplaySessionBtn.setText(getResources().getString(R.string.add_to_my_bookings));
+            }
+
         }
 
         // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
@@ -1476,17 +1506,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             }
                         }
 
-                        if (adSelected.getMaxParticipants()<=adSelected.getParticipantsTimestamps().size()) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setMessage(R.string.max_number_of_participants_reached).setTitle(R.string.session_is_full);
-                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                            return;
+                        if (!mSession.isSuperHosted()) {
+                            if (adSelected.getMaxParticipants()<=adSelected.getParticipantsTimestamps().size()) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setMessage(R.string.max_number_of_participants_reached).setTitle(R.string.session_is_full);
+                                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                                return;
+                            }
                         }
+
+
                         // If the current user is not a participant, the mSession is not free and the user does not have a payment method, button will be gray,
                         // click will show dialog saying you need to have a payment method to book
                         if (!hasPaymentSystem && adSelected.getPrice()!=0) {

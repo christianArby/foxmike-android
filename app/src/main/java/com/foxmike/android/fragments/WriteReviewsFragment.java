@@ -45,6 +45,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,6 +77,8 @@ public class WriteReviewsFragment extends DialogFragment {
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
     private String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private InputMethodManager imm;
+
+    private OnWriteReviewsFragmentInteractionListener onWriteReviewsFragmentInteractionListener;
 
 
 
@@ -180,6 +183,7 @@ public class WriteReviewsFragment extends DialogFragment {
                             rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    HashMap reportData = new HashMap();
                                     if (dataSnapshot.getValue()!=null) {
                                         Long currentTimestamp = System.currentTimeMillis();
                                         String ratingAndReviewId = rootDbRef.child("ratings").push().getKey();
@@ -189,7 +193,16 @@ public class WriteReviewsFragment extends DialogFragment {
                                         if (reviewText.getText().toString().length()>0) {
                                             Review review = new Review(advertisement.getHost(), currentUserId, advertisement.getAdvertisementId(), advertisement.getSessionId(), reviewText.getText().toString(), (int) thisRating, currentTimestamp);
                                             rootDbRef.child("reviews").child(ratingAndReviewId).setValue(review);
+                                            reportData.put("review", review);
                                         }
+                                        if (thisRating<2) {
+                                            hideKeyboard();
+                                            dismiss();
+                                            onWriteReviewsFragmentInteractionListener.onReportTrainer(session, advertisement, host, ratingAndReviewId);
+                                            return;
+
+                                        }
+                                        // TODO remove node
                                         rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -240,6 +253,27 @@ public class WriteReviewsFragment extends DialogFragment {
 
     public void hideKeyboard() {
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnWriteReviewsFragmentInteractionListener) {
+            onWriteReviewsFragmentInteractionListener = (OnWriteReviewsFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnWriteReviewsFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onWriteReviewsFragmentInteractionListener = null;
+    }
+
+    public interface OnWriteReviewsFragmentInteractionListener {
+        void onReportTrainer(Session session, Advertisement advertisement,UserPublic host, String ratingAndReviewId);
     }
 
 }

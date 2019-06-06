@@ -350,7 +350,8 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:background="@drawable/square_button_gray"
-            android:gravity="center_vertical"
+            android:gravity="center_vertical|center_horizontal"
+            android:textAlignment="center"
             android:text="@string/join_session"
             android:textColor="@color/secondaryTextColor"/>
 

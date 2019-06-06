@@ -49,6 +49,8 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WriteReviewsFlagTrainerFragment;
+import com.foxmike.android.fragments.WriteReviewsFlagTrainerWriteReportFragment;
 import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
@@ -63,6 +65,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionTypeDictionary;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.Price;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
@@ -109,7 +112,8 @@ public class MainPlayerActivity extends AppCompatActivity
         NotificationsFragment.OnNotificationClickedListener,
         SortAndFilterFragment.OnFilterChangedListener,
         AlertOccasionCancelledListener,
-        ListSessionsFragment.OnDimCurrentDayListener, ListSessionsFragment.OnFragmentAttachedNeedNewDataListener{
+        ListSessionsFragment.OnDimCurrentDayListener, ListSessionsFragment.OnFragmentAttachedNeedNewDataListener,
+        WriteReviewsFragment.OnWriteReviewsFragmentInteractionListener, WriteReviewsFlagTrainerFragment.OnWriteReviewsFlagTrainerFragmentInteractionListener, WriteReviewsFlagTrainerWriteReportFragment.OnWriteReviewsFlagTrainerWriteReportFragmentInteractionListener {
 
     private FragmentManager fragmentManager;
 
@@ -547,16 +551,20 @@ public class MainPlayerActivity extends AppCompatActivity
 
     /* Method to hide all fragments in main container and fill the other container with fullscreen fragment */
     private void cleanMainFullscreenActivityAndSwitch(Fragment fragment, boolean addToBackStack, String tag) {
-        if (fragmentManager.findFragmentByTag(tag)!=null) {
-            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
-            removeTransaction.remove(fragmentManager.findFragmentByTag(DisplaySessionFragment.TAG)).commit();
-        };
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
         if (addToBackStack) {
-            transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(tag).commit();
+            if (!tag.equals("")) {
+                transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(tag).commit();
+            } else {
+                transaction.replace(R.id.container_fullscreen_main_player, fragment).addToBackStack(null).commit();
+            }
         } else {
-            transaction.replace(R.id.container_fullscreen_main_player, fragment).commit();
+            if (!tag.equals("")) {
+                transaction.replace(R.id.container_fullscreen_main_player, fragment, tag).commit();
+            } else {
+                transaction.replace(R.id.container_fullscreen_main_player, fragment).commit();
+            }
         }
     }
 
@@ -1091,6 +1099,37 @@ public class MainPlayerActivity extends AppCompatActivity
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         if (exploreFragment!=null) {
             exploreFragment.updateWeekFragmentWithData(week);
+        }
+    }
+
+
+    @Override
+    public void onReportTrainer(Session session, Advertisement advertisement, UserPublic host, String ratingAndReviewId) {
+        WriteReviewsFlagTrainerFragment writeReviewsFlagTrainerFragment = WriteReviewsFlagTrainerFragment.newInstance(session, advertisement, host, ratingAndReviewId);
+        cleanMainFullscreenActivityAndSwitch(writeReviewsFlagTrainerFragment, false, WriteReviewsFlagTrainerFragment.TAG);
+    }
+
+    @Override
+    public void onFinishedWriteReviewsFlagTrainer() {
+        Fragment fragment = fragmentManager.findFragmentByTag(WriteReviewsFlagTrainerFragment.TAG);
+        if (fragment!=null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(fragment).commit();
+        }
+    }
+
+    @Override
+    public void onWriteCustomTextReason(Session session, Advertisement advertisement, UserPublic host, String ratingAndReviewId) {
+        WriteReviewsFlagTrainerWriteReportFragment writeReviewsFlagTrainerWriteReportFragment = WriteReviewsFlagTrainerWriteReportFragment.newInstance(session, advertisement, host, ratingAndReviewId);
+        cleanMainFullscreenActivityAndSwitch(writeReviewsFlagTrainerWriteReportFragment, false, WriteReviewsFlagTrainerWriteReportFragment.TAG);
+    }
+
+    @Override
+    public void onWriteReportFinished() {
+        Fragment fragment = fragmentManager.findFragmentByTag(WriteReviewsFlagTrainerWriteReportFragment.TAG);
+        if (fragment!=null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(fragment).commit();
         }
     }
 

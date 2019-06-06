@@ -43,6 +43,8 @@ import com.foxmike.android.fragments.UserAccountHostFragment;
 import com.foxmike.android.fragments.UserProfileFragment;
 import com.foxmike.android.fragments.UserProfilePublicEditFragment;
 import com.foxmike.android.fragments.UserProfilePublicFragment;
+import com.foxmike.android.fragments.WriteReviewsFlagTrainerFragment;
+import com.foxmike.android.fragments.WriteReviewsFlagTrainerWriteReportFragment;
 import com.foxmike.android.fragments.WriteReviewsFragment;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
@@ -58,6 +60,7 @@ import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.FoxmikeNotification;
 import com.foxmike.android.models.Session;
 import com.foxmike.android.models.SessionTypeDictionary;
+import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -89,7 +92,7 @@ public class MainHostActivity extends AppCompatActivity implements
         OnAdvertisementsFoundListener,
         AdvertisementListener,
         NotificationsFragment.OnNotificationClickedListener,
-        AlertOccasionCancelledListener{
+        AlertOccasionCancelledListener, WriteReviewsFragment.OnWriteReviewsFragmentInteractionListener, WriteReviewsFlagTrainerFragment.OnWriteReviewsFlagTrainerFragmentInteractionListener, WriteReviewsFlagTrainerWriteReportFragment.OnWriteReviewsFlagTrainerWriteReportFragmentInteractionListener {
 
     private FragmentManager fragmentManager;
     private AHBottomNavigation bottomNavigation;
@@ -405,7 +408,11 @@ public class MainHostActivity extends AppCompatActivity implements
                 transaction.replace(R.id.container_fullscreen_main_host, fragment).addToBackStack(null).commit();
             }
         } else {
-            transaction.replace(R.id.container_fullscreen_main_host, fragment).commit();
+            if (!tag.equals("")) {
+                transaction.replace(R.id.container_fullscreen_main_host, fragment, tag).commit();
+            } else {
+                transaction.replace(R.id.container_fullscreen_main_host, fragment).commit();
+            }
         }
     }
 
@@ -704,6 +711,36 @@ public class MainHostActivity extends AppCompatActivity implements
         // 3. Get the AlertDialog from create()
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public void onReportTrainer(Session session, Advertisement advertisement, UserPublic host, String ratingAndReviewId) {
+        WriteReviewsFlagTrainerFragment writeReviewsFlagTrainerFragment = WriteReviewsFlagTrainerFragment.newInstance(session, advertisement, host, ratingAndReviewId);
+        cleanMainFullscreenActivityAndSwitch(writeReviewsFlagTrainerFragment, false, WriteReviewsFlagTrainerFragment.TAG);
+    }
+
+    @Override
+    public void onFinishedWriteReviewsFlagTrainer() {
+        Fragment fragment = fragmentManager.findFragmentByTag(WriteReviewsFlagTrainerFragment.TAG);
+        if (fragment!=null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(fragment).commit();
+        }
+    }
+
+    @Override
+    public void onWriteCustomTextReason(Session session, Advertisement advertisement, UserPublic host, String ratingAndReviewId) {
+        WriteReviewsFlagTrainerWriteReportFragment writeReviewsFlagTrainerWriteReportFragment = WriteReviewsFlagTrainerWriteReportFragment.newInstance(session, advertisement, host, ratingAndReviewId);
+        cleanMainFullscreenActivityAndSwitch(writeReviewsFlagTrainerWriteReportFragment, false, WriteReviewsFlagTrainerWriteReportFragment.TAG);
+    }
+
+    @Override
+    public void onWriteReportFinished() {
+        Fragment fragment = fragmentManager.findFragmentByTag(WriteReviewsFlagTrainerWriteReportFragment.TAG);
+        if (fragment!=null) {
+            FragmentTransaction removeTransaction = fragmentManager.beginTransaction();
+            removeTransaction.remove(fragment).commit();
+        }
     }
 
     public interface OnPositiveOrNegativeButtonPressedListener {
