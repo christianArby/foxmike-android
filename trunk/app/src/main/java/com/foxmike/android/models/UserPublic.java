@@ -2,11 +2,13 @@ package com.foxmike.android.models;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
+
 /**
  * Created by chris on 2018-11-29.
  */
 
-public class UserPublic implements Comparable<UserPublic> {
+public class UserPublic implements Comparable<UserPublic>, Serializable {
     public String userId;
     public String firstName;
     public String lastName;

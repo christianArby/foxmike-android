@@ -40,6 +40,10 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
         });
     }
 
+    public void hideParticipantsTV() {
+        participantsTV.setVisibility(View.GONE);
+    }
+
     @Override
     public void onClick(View view) {
         advertisementRowClickedListener.OnAdvertisementRowClicked(view, getAdapterPosition());

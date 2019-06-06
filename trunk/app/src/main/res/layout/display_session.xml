@@ -29,7 +29,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/FoxmikeHeading"
             android:id="@+id/hostName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="start|top"
             android:layout_marginStart="@dimen/margin_left"
@@ -142,6 +142,7 @@
 
 
         <View
+            android:id="@+id/infoDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="@dimen/dividerBottom"
@@ -151,6 +152,7 @@
             android:background="@color/color_divider" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/whoContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/marginVertical">
@@ -192,6 +194,7 @@
             android:autoLink="web"/>
 
         <View
+            android:id="@+id/whoDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="@dimen/dividerBottom"
@@ -203,6 +206,7 @@
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/whereContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/marginVertical">

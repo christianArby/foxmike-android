@@ -612,4 +612,12 @@
     <string name="cancelling_question_large_fee">Session is within 6 hours and has participants. If cancelled your deposition of</string>
     <string name="cancelling_question_large_fee_text_2">will be lost.</string>
     <string name="number_of_participants">Participants:</string>
+    <string name="flag_trainer_text_a">The trainer did not show up</string>
+    <string name="flag_trainer_text_b">The trainer behaved inappropriately</string>
+    <string name="flag_trainer_text_c">The session was far from my expectations</string>
+    <string name="flag_trainer_text_d">Other</string>
+    <string name="flag_title">Pick the alternative that best describes why you are dissatisifed with the session.</string>
+    <string name="send">Send</string>
+    <string name="describe_unsatisfaction">Please describe why you are not satisifed with the session below.</string>
+    <string name="add_to_my_bookings">Add to\nmy bookings</string>
 </resources>

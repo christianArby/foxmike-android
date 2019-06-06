@@ -1,0 +1,106 @@
+<androidx.core.widget.NestedScrollView android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/color_background_light"
+    android:clickable="true"
+    android:focusable="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context="com.foxmike.android.fragments.WriteReviewsFragment">
+
+        <ImageButton
+            android:id="@+id/closeImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:background="@color/color_background_light"
+            android:padding="@dimen/margin_minimum"
+            android:src="@drawable/ic_close_black_24dp" />
+
+        <include layout="@layout/advertisement_small_single_layout"
+            android:id="@+id/adLayout"/>
+
+        <View
+            android:id="@+id/spaceView01"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_divider"
+            android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"/>
+
+        <TextView
+            android:id="@+id/flagTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_left"
+            style="@style/FoxmikeHeading"
+            android:text="Leave a review for the session TestSession"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textAllCaps="false"
+            android:id="@+id/a"
+            android:background="@drawable/square_button_primary"
+            android:padding="@dimen/margin_minimum"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/color_background_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/flag_trainer_text_a"
+            app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textAllCaps="false"
+            android:id="@+id/b"
+            android:background="@drawable/square_button_primary"
+            android:padding="@dimen/margin_minimum"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/color_background_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/flag_trainer_text_b"
+            app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textAllCaps="false"
+            android:id="@+id/c"
+            android:background="@drawable/square_button_primary"
+            android:padding="@dimen/margin_minimum"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/color_background_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/flag_trainer_text_c"
+            app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textAllCaps="false"
+            android:id="@+id/d"
+            android:background="@drawable/square_button_primary"
+            android:padding="@dimen/margin_minimum"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/color_background_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/flag_trainer_text_d"
+            app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>
+
+
