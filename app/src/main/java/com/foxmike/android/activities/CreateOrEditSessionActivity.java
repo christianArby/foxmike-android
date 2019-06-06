@@ -975,6 +975,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             sessionMap.put("secondaryHostId", secondaryHostId);
         }
 
+        if (currentUser.isSuperAdmin() && secondaryHostId==null) {
+            sessionMap.put("superHosted", true);
+        }
+
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         String sessionTypeCode = "000";
