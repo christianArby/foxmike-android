@@ -620,6 +620,22 @@ public class ExploreFragment extends Fragment{
     /** INTERFACE triggered when list is scrolled REFRESHED, downloads all sessions based on input distance radius*/
     public void OnRefreshSessions(int weekday) {
 
+        DateTime today = new DateTime(System.currentTimeMillis());
+        if (exploreFragmentAdapter!=null) {
+            if (exploreFragmentAdapter.getFirstDay().getDayOfYear()!=today.getDayOfYear()) {
+                exploreFragmentAdapter = null;
+                exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
+                for (int x = 0; x < 14; x++) {
+                    ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x, sessionTypeDictionary);
+                    exploreFragmentAdapter.addFragments(listSessionsFragment);
+                }
+                geoFireNodesLoaded = false;
+                checkIfGeoFireNodesAreLoaded();
+                exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
+                return;
+            }
+        }
+
         if (!mLocationPermissionGranted) {
             getLocationPermission();
             ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
@@ -629,13 +645,13 @@ public class ExploreFragment extends Fragment{
             return;
         }
 
-        /*if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
+        if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
             ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
             if (listSessionsFragment!=null) {
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
             return;
-        }*/
+        }
         geoFireNodesLoaded = false;
         checkIfGeoFireNodesAreLoaded();
     }
