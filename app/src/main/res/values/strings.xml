@@ -620,4 +620,9 @@
     <string name="send">Send</string>
     <string name="describe_unsatisfaction">Please describe why you are not satisifed with the session below.</string>
     <string name="add_to_my_bookings">Add to\nmy bookings</string>
+    <string name="remove_from_my_bookings">Remove from\nmy bookings</string>
+    <string name="adding_session_to_my_bookings">Adding session to my bookings</string>
+    <string name="session_added_to_your_bookings">The session has been added to your bookings</string>
+    <string name="session_removed_from_bookings">The session has been removed from your bookings</string>
+    <string name="removing_session_from_bookings">Removing session from your bookings</string>
 </resources>

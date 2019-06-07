@@ -1315,6 +1315,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     mDisplaySessionBtn.setVisibility(View.VISIBLE);
                     snackNoUpcomingAds.setVisibility(View.GONE);
                     mDisplaySessionBtn.setText(getString(R.string.book_session));
+                    if (mSession.isSuperHosted()) {
+                        mDisplaySessionBtn.setText(getResources().getString(R.string.add_to_my_bookings));
+                    }
                     // If the ad selected is free do not show payment method
                     if (adSelected.getPrice()==0) {
                         mDisplaySessionBtn.setEnabled(true);
@@ -1344,7 +1347,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             mDisplaySessionBtn.setBackground(getResources().getDrawable(R.drawable.square_button_gray));
                         }
                     }
-                    // If the ad selected has participants and of the current user is one of them, display show booking
+                    // If the ad selected has participants and of the current user is one of them, display cancel booking
                     if (adSelected.getParticipantsTimestamps() != null) {
                         if (adSelected.getParticipantsTimestamps().containsKey(currentFirebaseUser.getUid())) {
                             mDisplaySessionBtn.setEnabled(true);
@@ -1356,15 +1359,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                             mDisplaySessionBtn.setVisibility(View.VISIBLE);
                             snackNoUpcomingAds.setVisibility(View.GONE);
                             mDisplaySessionBtn.setText(R.string.cancel_booking);
+                            if (mSession.isSuperHosted()) {
+                                mDisplaySessionBtn.setText(getResources().getString(R.string.remove_from_my_bookings));
+                            }
                         }
                     }
                 }
             }
-
-            if (mSession.isSuperHosted()) {
-                mDisplaySessionBtn.setText(getResources().getString(R.string.add_to_my_bookings));
-            }
-
         }
 
         // ---------------- CURRENTUSER && SESSION && VIEW && MAP-----------------
@@ -1501,7 +1502,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // If the current user is a participant and already booked this mSession, button will display cancel booking and click will start cancellation method
                         if (adSelected.getParticipantsTimestamps()!=null) {
                             if (adSelected.getParticipantsTimestamps().containsKey(currentFirebaseUser.getUid())) {
-                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(), adSelected.getPrice(), mSession.getHost());
+                                sessionListener.OnCancelBookedSession(adSelected.getParticipantsTimestamps().get(currentFirebaseUser.getUid()),adSelected.getAdvertisementTimestamp(),adSelected.getAdvertisementId(),currentFirebaseUser.getUid(), adSelected.getPrice(), mSession.getHost(), mSession.isSuperHosted());
                                 return;
                             }
                         }
@@ -1543,10 +1544,10 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         // Payment method has been checked above (method return if no payment method)
                         // Now user will book mSession if button is pressed, if free send parameters to book mSession with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
                         } else {
                             // mSession costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size());
+                            sessionListener.OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
                         }
                     }
                     // If the current user is the mSession host, button will show cancel mSession, if clicked start cancellation process

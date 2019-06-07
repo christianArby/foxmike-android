@@ -45,7 +45,7 @@ public class StaticResources {
         DURATION_STRINGS.put(110, "110 min");
         DURATION_STRINGS.put(120, "120 min");
 
-        DEPOSITION_AMOUNT_INTEGERS.put("sek", 20000);
+        DEPOSITION_AMOUNT_INTEGERS.put("SE", 200);
 
         FILTER_SESSION_TYPE_STRINGS.put("Running", "AAA");
         FILTER_SESSION_TYPE_STRINGS.put("Yoga", "BBB");

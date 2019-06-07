@@ -531,6 +531,18 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, int adPrice, String hostId, boolean superHosted) {
+        // Not applicable in Host environment
+
+    }
+
+    @Override
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants, boolean superHosted) {
+        // Not applicable in Host environment
+
+    }
+
+    @Override
     public void addAdvertisements(String sessionID) {
         Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
         createOrEditSession.putExtra("sessionID", sessionID);
@@ -577,16 +589,6 @@ public class MainHostActivity extends AppCompatActivity implements
         for (CountDownTimer countDownTimer: countDownTimerHashMap.keySet()) {
             countDownTimer.start();
         }
-    }
-
-    @Override
-    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, int adPrice, String hostId) {
-        // Not applicable in Host environment
-    }
-
-    @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants) {
-        // Not applicable in Host environment
     }
 
     @Override
