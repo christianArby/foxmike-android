@@ -660,7 +660,20 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants) {
+    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, int adPrice, String hostId, boolean superHosted) {
+        Intent cancelIntent = new Intent(MainPlayerActivity.this,CancelBookingActivity.class);
+        cancelIntent.putExtra("bookingTimestamp", bookingTimestamp);
+        cancelIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
+        cancelIntent.putExtra("advertisementId", advertisementId);
+        cancelIntent.putExtra("participantId",participantId);
+        cancelIntent.putExtra("adPrice", adPrice);
+        cancelIntent.putExtra("hostId",hostId);
+        cancelIntent.putExtra("superHosted",superHosted);
+        startActivityForResult(cancelIntent, CANCEL_BOOKING_REQUEST);
+    }
+
+    @Override
+    public void OnBookSession(String advertisementId, Long advertisementTimestamp, String hostId, int amount, boolean dontShowBookingText, int advertisementDurationInMin, String sessionType, int currentNrOfParticipants, boolean superHosted) {
         // If the users dontShowBookingText is false we should show the booking textin a dialog, a warning text explaining the payment policy
         if (!dontShowBookingText) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -686,6 +699,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
                             bookIntent.putExtra("sessionType",sessionType);
                             bookIntent.putExtra("currentNrOfParticipants",currentNrOfParticipants);
+                            bookIntent.putExtra("superHosted",superHosted);
                             startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
                         }
                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -707,6 +721,7 @@ public class MainPlayerActivity extends AppCompatActivity
         bookIntent.putExtra("advertisementDurationInMin",advertisementDurationInMin);
         bookIntent.putExtra("sessionType",sessionType);
         bookIntent.putExtra("currentNrOfParticipants",currentNrOfParticipants);
+        bookIntent.putExtra("superHosted",superHosted);
         startActivityForResult(bookIntent, BOOK_SESSION_REQUEST);
 
     }
@@ -754,31 +769,61 @@ public class MainPlayerActivity extends AppCompatActivity
             if (requestCode == CANCEL_BOOKING_REQUEST) {
                 fragmentManager.popBackStack("ad",FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (data!=null) {
-                    if (data.getStringExtra("operationType").equals("REFUND")) {
-                        String refundAmount = data.getStringExtra("refundAmount");
-                        String currency = data.getStringExtra("currency");
-                        alertDialogOk(getString(R.string.cancellation_confirmation),
-                                getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + getString(R.string.will_be_refunded_to_your_account), true,
-                                new OnOkPressedListener() {
-                                    @Override
-                                    public void OnOkPressed() {
 
-                                    }
-                                });
-                    }
-                } else {
-                    alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session),
-                            true,new OnOkPressedListener() {
-                        @Override
-                        public void OnOkPressed() {
+                    if(data.getStringExtra("operationType")!=null) {
+                        if (data.getStringExtra("operationType").equals("REFUND")) {
+                            String refundAmount = data.getStringExtra("refundAmount");
+                            String currency = data.getStringExtra("currency");
+                            alertDialogOk(getString(R.string.cancellation_confirmation),
+                                    getString(R.string.your_cancellation_has_been_confirmed) + refundAmount + " " + Price.CURRENCIES.get(currency) + getString(R.string.will_be_refunded_to_your_account), true,
+                                    new OnOkPressedListener() {
+                                        @Override
+                                        public void OnOkPressed() {
 
+                                        }
+                                    });
+                            return;
                         }
-                    });
+                    }
+                    if (data.getBooleanExtra("superHosted", false)) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+                        builder.setMessage(getResources().getString(R.string.session_removed_from_bookings));
+                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        return;
+                    }
+
 
                 }
+                alertDialogOk(getString(R.string.cancellation_confirmation), getString(R.string.cancelled_free_session),
+                        true,new OnOkPressedListener() {
+                            @Override
+                            public void OnOkPressed() {
+
+                            }
+                        });
 
             }
             if (requestCode == BOOK_SESSION_REQUEST) {
+                if (data!=null) {
+                    if (data.getBooleanExtra("superHosted", false)) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
+                        builder.setMessage(getResources().getString(R.string.session_added_to_your_bookings));
+                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        return;
+                    }
+                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainPlayerActivity.this);
                 builder.setMessage(R.string.booking_confirmed);
                 builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -790,20 +835,6 @@ public class MainPlayerActivity extends AppCompatActivity
                 dialog.show();
             }
         }
-    }
-
-    @Override
-    public void OnCancelBookedSession(Long bookingTimestamp, Long advertisementTimestamp, String advertisementId, String participantId, int adPRice, String hostId) {
-
-        Intent cancelIntent = new Intent(MainPlayerActivity.this,CancelBookingActivity.class);
-        cancelIntent.putExtra("bookingTimestamp", bookingTimestamp);
-        cancelIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
-        cancelIntent.putExtra("advertisementId", advertisementId);
-        cancelIntent.putExtra("participantId",participantId);
-        cancelIntent.putExtra("adPRice",adPRice);
-        cancelIntent.putExtra("hostId",hostId);
-        startActivityForResult(cancelIntent, CANCEL_BOOKING_REQUEST);
-
     }
 
     @Override

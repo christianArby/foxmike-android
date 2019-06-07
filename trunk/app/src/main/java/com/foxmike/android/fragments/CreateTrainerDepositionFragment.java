@@ -252,7 +252,8 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         myProgressBar.startProgressBar();
                         // MAKE DEPOSITION
                         HashMap<String, Object> depositionMap = new HashMap<>();
-                        depositionMap.put("amount", DEPOSITION_AMOUNT_INTEGERS.get("sek"));
+                        // TODO Make country in future paymentMethod.card.country
+                        depositionMap.put("amount", DEPOSITION_AMOUNT_INTEGERS.get("SE"));
                         depositionMap.put("currency", "sek");
                         depositionMap.put("customerFirebaseId", FirebaseAuth.getInstance().getCurrentUser().getUid());
                         depositionMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());

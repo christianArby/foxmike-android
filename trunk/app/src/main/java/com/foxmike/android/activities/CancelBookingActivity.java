@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,8 @@ public class CancelBookingActivity extends AppCompatActivity {
     private String hostId;
     private int adPrice;
     private HashMap<String, Object> cancelMap;
+    private boolean superHosted;
+    private TextView cancellingTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,7 @@ public class CancelBookingActivity extends AppCompatActivity {
         progressBarHorizontal = findViewById(R.id.progressBarHorizontal);
         progressBarHorizontal.setProgress(20);
         mFunctions = FirebaseFunctions.getInstance();
+        cancellingTV = findViewById(R.id.cancellingTV);
 
         bookingTimestamp = getIntent().getLongExtra("bookingTimestamp",0);
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
@@ -59,6 +63,11 @@ public class CancelBookingActivity extends AppCompatActivity {
         adPrice = getIntent().getIntExtra("adPrice", 0);
         participantId = getIntent().getStringExtra("participantId");
         hostId = getIntent().getStringExtra("hostId");
+        superHosted = getIntent().getBooleanExtra("superHosted", false);
+
+        if (superHosted) {
+            cancellingTV.setText(getResources().getString(R.string.removing_session_from_bookings));
+        }
 
         Long currentTimestamp = System.currentTimeMillis();
         tryRefund(currentTimestamp);
@@ -116,7 +125,9 @@ public class CancelBookingActivity extends AppCompatActivity {
                         setResult(RESULT_OK, data);
                         finish();
                     } else {
-                        setResult(RESULT_OK, null);
+                        Intent data = new Intent();
+                        data.putExtra("superHosted", superHosted);
+                        setResult(RESULT_OK, data);
                         finish();
                     }
                 } else {

@@ -45,6 +45,7 @@ public class BookingActivity extends AppCompatActivity {
     private int currentNrOfParticipants;
     private TextView bookingText;
     private boolean needsAuthorization = false;
+    private boolean superHosted;
     public static final int BOOKING_CANCELED = 900;
 
     @Override
@@ -57,7 +58,8 @@ public class BookingActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         progressBar = findViewById(R.id.progressBar);
         mainView = findViewById(R.id.mainView);
-        findViewById(R.id.bookingText);
+        bookingText = findViewById(R.id.bookingText);
+
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -69,6 +71,12 @@ public class BookingActivity extends AppCompatActivity {
         amount = getIntent().getIntExtra("amount", 0);
         advertisementDurationInMin = getIntent().getIntExtra("advertisementDurationInMin", 0);
         currentNrOfParticipants = getIntent().getIntExtra("currentNrOfParticipants", 0);
+        superHosted = getIntent().getBooleanExtra("superHosted", false);
+
+        if (superHosted) {
+            bookingText.setText(getResources().getString(R.string.adding_session_to_my_bookings));
+        }
+
         // If advertisement is free, just add the participant to the participant list
         if (amount==0) {
             addCurrentUserToSessionParticipantList();
@@ -183,7 +191,9 @@ public class BookingActivity extends AppCompatActivity {
                     bundle.putDouble("currentNrOfParticipants", currentNrOfParticipants);
                     mFirebaseAnalytics.logEvent("booking", bundle);
 
-                    setResult(RESULT_OK, null);
+                    Intent data = new Intent();
+                    data.putExtra("superHosted", superHosted);
+                    setResult(RESULT_OK, data);
                     // close activity
                     finish();
                 } else {

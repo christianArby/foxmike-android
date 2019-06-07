@@ -620,4 +620,9 @@
     <string name="send">Skicka</string>
     <string name="describe_unsatisfaction">Beskriv varför du är missnöjd nedan.</string>
     <string name="add_to_my_bookings">Lägg till i\nmina bokningar</string>
+    <string name="remove_from_my_bookings">Ta bort från\nmina bokningar</string>
+    <string name="adding_session_to_my_bookings">Lägger till passet i mina bokningar</string>
+    <string name="session_added_to_your_bookings">Passet har lagts till i dina bokningar, kolla även om du behöver anmäla dig hos arrangören.</string>
+    <string name="session_removed_from_bookings">Passet har tagits bort från dina bokningar.</string>
+    <string name="removing_session_from_bookings">Tar bort passet från dina bokningar</string>
 </resources>
