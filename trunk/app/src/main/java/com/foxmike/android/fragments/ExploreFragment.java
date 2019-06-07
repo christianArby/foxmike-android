@@ -372,7 +372,24 @@ public class ExploreFragment extends Fragment{
         }
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        DateTime today = new DateTime(System.currentTimeMillis());
+        if (exploreFragmentAdapter!=null) {
+            if (exploreFragmentAdapter.getFirstDay().getDayOfYear()!=today.getDayOfYear()) {
+                exploreFragmentAdapter = null;
+                exploreFragmentAdapter = new ExplorerNavigationAdapter(fragmentManager, getResources().getString(R.string.today_text));
+                for (int x = 0; x < 14; x++) {
+                    ListSessionsFragment listSessionsFragment = ListSessionsFragment.newInstance(x, sessionTypeDictionary);
+                    exploreFragmentAdapter.addFragments(listSessionsFragment);
+                }
+                geoFireNodesLoaded = false;
+                checkIfGeoFireNodesAreLoaded();
+                exploreFragmentViewPager.setAdapter(exploreFragmentAdapter);
+            }
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -612,13 +629,13 @@ public class ExploreFragment extends Fragment{
             return;
         }
 
-        if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
+        /*if (SystemClock.elapsedRealtime() - mLastGeoFireQueryUpdated < 300000) {
             ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
             if (listSessionsFragment!=null) {
                 listSessionsFragment.stopSwipeRefreshingSymbol();
             }
             return;
-        }
+        }*/
         geoFireNodesLoaded = false;
         checkIfGeoFireNodesAreLoaded();
     }

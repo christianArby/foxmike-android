@@ -17,6 +17,7 @@ import java.util.List;
 public class ExplorerNavigationAdapter  extends SmartFragmentStatePagerAdapter {
     private final List<Fragment> fragments = new ArrayList<>();
     private String today;
+    private DateTime firstDay;
 
     public ExplorerNavigationAdapter(FragmentManager fragmentManager, String today) {
         super(fragmentManager);
@@ -32,6 +33,14 @@ public class ExplorerNavigationAdapter  extends SmartFragmentStatePagerAdapter {
         return fragments.get(position);
     }
 
+    public DateTime getFirstDay() {
+        return firstDay;
+    }
+
+    public void setFirstDay(DateTime firstDay) {
+        this.firstDay = firstDay;
+    }
+
     @Override
     public int getCount() {
         return fragments.size();
@@ -39,6 +48,7 @@ public class ExplorerNavigationAdapter  extends SmartFragmentStatePagerAdapter {
 
     public CharSequence getPageTitle(int position) {
         Long todayTimestamp = System.currentTimeMillis();
+        this.firstDay = new DateTime(todayTimestamp);
         TextTimestamp textTimestamp;
         Long dayTimestamp;
         String tabText;
