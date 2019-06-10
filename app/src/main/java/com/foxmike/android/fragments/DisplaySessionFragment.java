@@ -219,13 +219,13 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean firstLoadOfComments;
     private ProgressBar postProgressBar;
     private TextView editTop;
-    private ArrayList<TextView> editTVArrayList=new ArrayList<TextView>();
+    private ArrayList<ImageView> editTVArrayList=new ArrayList<ImageView>();
     private boolean isHost = false;
     private TextView sessionName;
-    private TextView editWhat;
-    private TextView editWho;
-    private TextView editWhere;
-    private TextView editAvailability;
+    private ImageView editWhat;
+    private ImageView editWho;
+    private ImageView editWhere;
+    private ImageView editAvailability;
     private AppCompatRatingBar ratingBar;
     private TextView ratingsAndReviewsText;
     private TextView showAllReviews;
@@ -951,7 +951,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -------------------- HOST -----------------------------
                 editTop.setVisibility(View.VISIBLE);
-                for (TextView editTV: editTVArrayList) {
+                for (ImageView editTV: editTVArrayList) {
                     editTV.setVisibility(View.VISIBLE);
                 }
                 addDates.setVisibility(View.VISIBLE);
@@ -1005,7 +1005,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 // -------------------- PLAYER -----------------------------
                 editTop.setVisibility(View.GONE);
-                for (TextView editTV: editTVArrayList) {
+                for (ImageView editTV: editTVArrayList) {
                     editTV.setVisibility(View.GONE);
                 }
                 addDates.setVisibility(View.GONE);

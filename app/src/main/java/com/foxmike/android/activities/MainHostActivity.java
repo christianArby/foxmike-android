@@ -544,12 +544,26 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void addAdvertisements(String sessionID) {
-        Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
-        createOrEditSession.putExtra("sessionID", sessionID);
-        createOrEditSession.putExtra("addAdvertisements", true);
-        startActivity(createOrEditSession);
-    }
+        if (hasDeposition) {
+            Intent createOrEditSession = new Intent(this, CreateOrEditSessionActivity.class);
+            createOrEditSession.putExtra("sessionID", sessionID);
+            createOrEditSession.putExtra("addAdvertisements", true);
+            startActivity(createOrEditSession);
+        } else {
+            alertDialogPositiveOrNegative(getResources().getString(R.string.deposition), getResources().getString(R.string.deposition_needed), getResources().getString(R.string.go_to_deposition), getResources().getString(R.string.cancel), new OnPositiveOrNegativeButtonPressedListener() {
+                @Override
+                public void OnPositivePressed() {
+                    Intent depositionIntent = new Intent(MainHostActivity.this, DepositionActivity.class);
+                    startActivity(depositionIntent);
+                }
 
+                @Override
+                public void OnNegativePressed() {
+
+                }
+            });
+        }
+    }
     /* When back button is pressed while in main host activity override function and replace with following */
     @Override
     public void onBackPressed() {

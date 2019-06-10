@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,6 +76,8 @@ public class CreateTrainerDepositionFragment extends Fragment {
     @BindView(R.id.dotProgressBarContainer) FrameLayout dotProgressBarContainer;
     private boolean hasPaymentMethod;
     @BindView(R.id.depProgressBar) ProgressBar depProgressBar;
+    @BindView(R.id.depExplanation)
+    TextView depExplanation;
     private OnCreateTrainerDepositionListener onCreateTrainerDepositionListener;
     private MyProgressBar myProgressBar;
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -129,6 +133,8 @@ public class CreateTrainerDepositionFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(false);
 
         myProgressBar = new MyProgressBar(depProgressBar, getActivity());
+
+        depExplanation.setMovementMethod(LinkMovementMethod.getInstance());
 
 
 
