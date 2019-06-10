@@ -504,8 +504,8 @@
     <string name="you_have_a_cancellation_in">En deltagare har avbokat ditt pass\u0020</string>
     <string name="cancelled_free_session">Du har nu avbokat det här passet.</string>
     <string name="cancellation">Ställa in pass</string>
-    <string name="cancellation_small_fee_warning">Om du ställer in det här passet kommer det dras en lite avgift på</string>
-    <string name="cancellation_small_fee_warning_text_2">Vill du ställa in passet ändå?</string>
+    <string name="cancellation_small_fee_warning">Om du ställer in det här passet kommer det dras en liten avgift på</string>
+    <string name="cancellation_small_fee_warning_text_2">\u0020Vill du ställa in passet ändå?</string>
     <string name="cancel_session">Ställ in passet</string>
     <string name="do_not_cancel_session">Ställ inte in passet</string>
     <string name="session_is_within_6_hours">Passet är inom 24 timmar</string>

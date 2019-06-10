@@ -126,6 +126,7 @@ public class WriteReviewsFragment extends DialogFragment {
         closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
                 hideKeyboard();
                 dismiss();
             }

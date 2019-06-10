@@ -140,9 +140,21 @@ public class UserProfilePublicEditFragment extends Fragment {
                         setImageButton(currentUser.getImage(), profileImageButton);
                     }
 
-                    if (currentUser.getAboutMe().length()>50) {
-                        infoIsValid = true;
+                    infoIsValid = true;
+
+                    if (currentUser.getStripeAccountId()!=null) {
+                        if (currentUser.getAboutMe()==null) {
+                            aboutMeTIL.setError(getString(R.string.please_write_a_longer_description));
+                            infoIsValid = false;
+                        } else {
+                            if (currentUser.getAboutMe().length()<51) {
+                                aboutMeTIL.setError(getString(R.string.please_write_a_longer_description));
+                                infoIsValid = false;
+                            }
+                        }
                     }
+
+
 
                     if (currentUser.getStripeAccountId()!=null) {
                         userAboutMeET.addTextChangedListener(new TextWatcher() {
