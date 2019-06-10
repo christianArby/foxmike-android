@@ -280,7 +280,7 @@ public class CreateTrainerActivity extends AppCompatActivity implements
     public void OnCreateTrainerExternalAccountLater() {
 
 
-        CreateTrainerDepositionFragment createTrainerDepositionFragment = new CreateTrainerDepositionFragment();
+        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://create.trainer");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);

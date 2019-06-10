@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -262,11 +261,6 @@ public class UserAccountHostFragment extends Fragment {
                         return;
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
-
-                    if (!connected) {
-                        Toast.makeText(getActivity().getApplicationContext(),"No internet connection", Toast.LENGTH_LONG).show();
-                        return;
-                    }
 
                     Intent fadeIntent = new Intent(getActivity().getApplicationContext(),SwitchModeActivity.class);
                     fadeIntent.putExtra("trainerMode", true);
