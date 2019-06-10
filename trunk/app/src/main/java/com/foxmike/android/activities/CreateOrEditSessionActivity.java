@@ -1100,7 +1100,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
             /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
-                imageErrorText.setVisibility(View.VISIBLE);
+                if (compressedImageUri == null) {
+                    imageErrorText.setVisibility(View.VISIBLE);
+                }
                 mProgress.dismiss();
             }
         }

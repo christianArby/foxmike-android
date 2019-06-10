@@ -46,6 +46,8 @@ import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
 import com.stripe.android.model.PaymentIntent;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -78,6 +80,7 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
     public final BehaviorSubject<HashMap> paymentMethodSubject = BehaviorSubject.create();
     private FragmentManager fragmentManager;
     private boolean hasUpcomingSessions;
+    private HashMap<String, Boolean> adsComingHashMap = new HashMap<>();
 
     public void setPaymentMethod(HashMap paymentMethodMap) { paymentMethodSubject.onNext(paymentMethodMap);     }
     public HashMap  getPaymentMethod()          { return paymentMethodSubject.getValue(); }
@@ -137,11 +140,9 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
         Task userTask = userSource.getTask();
         asyncTasks.add(userTask);
 
-        Long currentTimestamp = System.currentTimeMillis();
+        Long twentyFourHoursAgoTimestamp = new DateTime(System.currentTimeMillis()).minusHours(24).getMillis();
         // Create query to get all the advertisement keys from the current mSession
-        Query keyQuery = FirebaseDatabase.getInstance().getReference().child("advertisementHosts").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByValue().startAt(currentTimestamp);
-
-
+        Query keyQuery = FirebaseDatabase.getInstance().getReference().child("advertisementHosts").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByValue().startAt(twentyFourHoursAgoTimestamp);
 
         FirebaseDatabaseViewModel sessionsComingViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> sessionsComingLiveData = sessionsComingViewModel.getDataSnapshotLiveData(keyQuery);
@@ -149,7 +150,30 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
             @Override
             public void onChanged(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getChildrenCount()>0) {
-                    hasUpcomingSessions = true;
+                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                        TaskCompletionSource<Boolean> adSource = new TaskCompletionSource<>();
+                        Task adTask = adSource.getTask();
+                        asyncTasks.add(adTask);
+
+                        FirebaseDatabaseViewModel adViewModel = ViewModelProviders.of(DepositionActivity.this).get(FirebaseDatabaseViewModel.class);
+                        LiveData<DataSnapshot> adLiveData = adViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("advertisements").child(snapshot.getKey()).child("status"));
+                        adLiveData.observe(DepositionActivity.this, new Observer<DataSnapshot>() {
+                            @Override
+                            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getValue().toString().equals("cancelled")) {
+                                    adsComingHashMap.put(dataSnapshot.getKey(), false);
+                                } else {
+                                    adsComingHashMap.put(dataSnapshot.getKey(), true);
+                                }
+                                if (adsComingHashMap.containsValue(true)) {
+                                    hasUpcomingSessions = true;
+                                }
+                                adSource.trySetResult(true);
+
+                            }
+                        });
+
+                    }
                 }
                 upcomingSessionsSource.trySetResult(true);
             }

@@ -411,7 +411,12 @@ public class FriendsFragment extends Fragment {
         if (contentMap.get("requests") && !contentMap.get("friends")) {
             requestsHeading.setVisibility(View.VISIBLE);
             friendsHeading.setVisibility(View.GONE);
-            noFriends.setVisibility(View.VISIBLE);
+            if (!requests.containsValue(getString(R.string.friend_request_sent))) {
+                noFriends.setVisibility(View.VISIBLE);
+            } else {
+                noFriends.setVisibility(View.GONE);
+            }
+
         }
 
         if (!contentMap.get("requests") && contentMap.get("friends")) {

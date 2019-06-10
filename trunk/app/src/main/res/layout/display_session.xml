@@ -114,7 +114,9 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:text="@string/what_heading"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <ImageView
+                android:src="@mipmap/ic_mode_edit_black_24dp"
+                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWhat"
                 app:layout_constraintTop_toTopOf="@id/whatHeadingTW"
                 app:layout_constraintBottom_toBottomOf="@id/whatHeadingTW"
@@ -167,7 +169,9 @@
                 android:layout_marginTop="@dimen/marginVertical"
                 android:text="@string/who_heading"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <ImageView
+                android:src="@mipmap/ic_mode_edit_black_24dp"
+                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWho"
                 app:layout_constraintTop_toTopOf="@id/whoHeadingTW"
                 app:layout_constraintBottom_toBottomOf="@id/whoHeadingTW"
@@ -221,7 +225,9 @@
                 android:layout_marginTop="@dimen/marginVertical"
                 android:text="@string/where_heading"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <ImageView
+                android:src="@mipmap/ic_mode_edit_black_24dp"
+                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWhere"
                 app:layout_constraintTop_toTopOf="@id/whereHeadingTW"
                 app:layout_constraintBottom_toBottomOf="@id/whereHeadingTW"
@@ -284,7 +290,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/child_fragment_container" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <ImageView
+        android:src="@mipmap/ic_mode_edit_black_24dp"
+        android:tint="@color/foxmikePrimaryColor"
         android:id="@+id/editAvailability"
         app:layout_constraintTop_toTopOf="@id/availabilityHeading"
         app:layout_constraintBottom_toBottomOf="@id/availabilityHeading"

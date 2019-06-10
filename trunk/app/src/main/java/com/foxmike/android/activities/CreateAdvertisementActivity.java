@@ -3,6 +3,7 @@ package com.foxmike.android.activities;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -86,6 +87,10 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
         actionBar.setElevation(0);
 
         timePicker.setIs24HourView(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            timePicker.setHour(12);
+            timePicker.setMinute(0);
+        }
 
         View action_bar_view = getLayoutInflater().inflate(R.layout.create_ad_custom_toolbar, null);
 
@@ -196,13 +201,13 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     hour = timePicker.getHour();
                 } else {
                     hour = timePicker.getCurrentHour();
                 }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     minute = timePicker.getMinute();
                 } else {
                     minute = timePicker.getCurrentMinute();
