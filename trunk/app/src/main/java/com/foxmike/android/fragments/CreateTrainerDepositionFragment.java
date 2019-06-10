@@ -285,7 +285,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
                                     } else if (status.equals(PaymentIntent.Status.Succeeded.toString())){
                                         myProgressBar.stopProgressBar();
                                         Bundle bundle = new Bundle();
-                                        bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("sek"));
+                                        bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("SE"));
                                         bundle.putString("deposition_currency", "SEK");
                                         bundle.putString("trainer_email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
                                         bundle.putString("trainer_id", FirebaseAuth.getInstance().getCurrentUser().getUid());

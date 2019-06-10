@@ -257,7 +257,6 @@ public class BookingActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         needsAuthorization = false;
-
         bookingText = findViewById(R.id.bookingText);
 
         if (intent.getData() != null && intent.getData().getQuery() != null) {
@@ -266,7 +265,7 @@ public class BookingActivity extends AppCompatActivity {
 
             HashMap<String, Object> paymentIntentMap = new HashMap<>();
             paymentIntentMap.put("paymentIntentId", paymentIntentId);
-            paymentIntentMap.put("hostFirebaseId", hostId);
+            paymentIntentMap.put("hostsubFirebaseId", hostId);
             paymentIntentMap.put("customerFirebaseId", mAuth.getCurrentUser().getUid());
             paymentIntentMap.put("advertisementId", advertisementId);
             paymentIntentMap.put("email", mAuth.getCurrentUser().getEmail());
