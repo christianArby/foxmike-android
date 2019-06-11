@@ -99,14 +99,15 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
 
         if (update) {
             addPayoutMethodLaterBtn.setVisibility(View.GONE);
+            // Setup toolbar
+            Toolbar toolbar = view.findViewById(R.id.toolbar);
+            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
         }
 
-        // Setup toolbar
-        Toolbar toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
+
 
         mFunctions = FirebaseFunctions.getInstance();
         // Set default iban text
@@ -246,38 +247,41 @@ public class CreateTrainerExternalAccountFragment extends Fragment {
                         createExternalAccount(accountData).addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
                             public void onComplete(@NonNull Task<String> task) {
-                                // If not succesful, show error
-                                if (!task.isSuccessful()) {
-                                    Exception e = task.getException();
-                                    if (e instanceof FirebaseFunctionsException) {
-                                        FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                                        // Function error code, will be INTERNAL if the failure
-                                        // was not handled properly in the function call.
-                                        FirebaseFunctionsException.Code code = ffe.getCode();
-                                        // Arbitrary error details passed back from the function,
-                                        // usually a Map<String, Object>.
-                                        Object details = ffe.getDetails();
+                                if (isAdded()) {
+                                    // If not succesful, show error
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        if (e instanceof FirebaseFunctionsException) {
+                                            FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                                            // Function error code, will be INTERNAL if the failure
+                                            // was not handled properly in the function call.
+                                            FirebaseFunctionsException.Code code = ffe.getCode();
+                                            // Arbitrary error details passed back from the function,
+                                            // usually a Map<String, Object>.
+                                            Object details = ffe.getDetails();
+                                        }
+                                        // [START_EXCLUDE]
+                                        myProgressBar.stopProgressBar();
+                                        onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
+                                        Log.w(TAG, "create:onFailure", e);
+                                        showSnackbar(e.getMessage());
+                                        return;
+                                        // [END_EXCLUDE]
                                     }
-                                    // [START_EXCLUDE]
-                                    myProgressBar.stopProgressBar();
-                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
-                                    Log.w(TAG, "create:onFailure", e);
-                                    showSnackbar(e.getMessage());
-                                    return;
-                                    // [END_EXCLUDE]
+
+                                    // Show the string passed from the Firebase server if task/function call on server is successful
+                                    String result = task.getResult();
+                                    if (result.equals("success")) {
+                                        myProgressBar.stopProgressBar();
+                                        onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountCreated();
+
+                                    } else {
+                                        myProgressBar.stopProgressBar();
+                                        onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
+                                        showSnackbar("An error occurred:" + " " + result);
+                                    }
                                 }
 
-                                // Show the string passed from the Firebase server if task/function call on server is successful
-                                String result = task.getResult();
-                                if (result.equals("success")) {
-                                    myProgressBar.stopProgressBar();
-                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountCreated();
-
-                                } else {
-                                    myProgressBar.stopProgressBar();
-                                    onCreateTrainerExternalAccountListener.OnCreateTrainerExternalAccountFailed();
-                                    showSnackbar("An error occurred:" + " " + result);
-                                }
                             }
                         });
 

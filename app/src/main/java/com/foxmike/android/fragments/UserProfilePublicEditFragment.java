@@ -236,7 +236,7 @@ public class UserProfilePublicEditFragment extends Fragment {
             public void onClick(View view) {
 
                 if (infoIsValid) {
-                    final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+                    MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
                     myProgressBar.startProgressBar();
 
                     // Define characters not allowed in username

@@ -196,7 +196,7 @@ public class DepositionActivity extends AppCompatActivity implements CreateTrain
                 if (currentUser.getStripeDepositionPaymentIntentId()==null) {
                     // if not dep
                     if (fragmentManager.findFragmentByTag("createTrainerDepositionFragment")==null) {
-                        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://deposition");
+                        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://deposition", true);
                         FragmentTransaction transaction = fragmentManager.beginTransaction();
                         transaction.replace(R.id.create_trainer_fragments_container, createTrainerDepositionFragment, "createTrainerDepositionFragment");
                         transaction.commitNow();

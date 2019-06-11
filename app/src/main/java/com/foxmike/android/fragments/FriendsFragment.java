@@ -177,7 +177,7 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onBindViewHolder(UsersViewHolder holder, final int position) {
                 holder.setText(requests.get(requestsUserIDs.get(position)), true);
-                final UserPublic friend = requestUsers.get(position);
+                UserPublic friend = requestUsers.get(position);
                 holder.setHeading(friend.getFirstName()+ " " + friend.getLastName());
                 holder.setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
                 holder.setOnlineIcon(false);

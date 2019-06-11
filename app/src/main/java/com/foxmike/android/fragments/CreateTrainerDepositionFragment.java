@@ -87,6 +87,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
     private User currentUser;
     private boolean currentUserLoaded;
     private boolean UIset;
+    private boolean update;
 
 
     //private OnDepositionFragmentInteractionListener onDepositionFragmentInteractionListener;
@@ -94,10 +95,11 @@ public class CreateTrainerDepositionFragment extends Fragment {
     public CreateTrainerDepositionFragment() {
         // Required empty public constructor
     }
-    public static CreateTrainerDepositionFragment newInstance(String returnURL) {
+    public static CreateTrainerDepositionFragment newInstance(String returnURL, boolean update) {
         CreateTrainerDepositionFragment fragment = new CreateTrainerDepositionFragment();
         Bundle args = new Bundle();
         args.putString("returnURL", returnURL);
+        args.putBoolean("update", update);
         fragment.setArguments(args);
         return fragment;
     }
@@ -107,6 +109,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             returnURL = getArguments().getString("returnURL");
+            update = getArguments().getBoolean("update");
         }
         getDefaultPaymentMethod();
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity().getApplicationContext());
@@ -125,15 +128,16 @@ public class CreateTrainerDepositionFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_create_trainer_deposition, container, false);
         ButterKnife.bind(this, mainView);
 
-        // Setup toolbar
-        Toolbar toolbar = mainView.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
+        if (update) {
+            // Setup toolbar
+            Toolbar toolbar = mainView.findViewById(R.id.toolbar);
+            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
 
         myProgressBar = new MyProgressBar(depProgressBar, getActivity());
-
         depExplanation.setMovementMethod(LinkMovementMethod.getInstance());
 
 
@@ -250,7 +254,7 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         DateTime currentDateTime = new DateTime(currentTimestamp);
                         DateTime lastRefund = new DateTime(currentUser.getDepositRefunded());
 
-                        if (currentDateTime.minusDays(30).isBefore(lastRefund)) {
+                        if (currentDateTime.minusDays(30).isBefore(lastRefund) && currentUser.getDepositRefundedCount()>1) {
                             onCreateTrainerDepositionListener.OnCreateTrainerDepositionNotPossible();
                             return;
                         }
@@ -268,46 +272,48 @@ public class CreateTrainerDepositionFragment extends Fragment {
                         submitDeposition(depositionMap).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
                             @Override
                             public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                                // If error
-                                if (!task.isSuccessful()) {
-                                    Exception e = task.getException();
-                                    myProgressBar.startProgressBar();
-                                    Log.w(TAG, "retrieve:onFailure", e);
-                                    showSnackbar(getString(R.string.bad_internet));
-                                    return;
-                                }
-                                // If successful the variable "operationResult" will say "success,
-                                // If so finish the activity with a result ok so the previous activity knows it's a success
-                                HashMap<String, Object> result = task.getResult();
-
-                                if (result.get("resultType").toString().equals("paymentIntentParameters")) {
-                                    String status = (String) result.get("paymentIntentStatus");
-                                    if (status.equals(PaymentIntent.Status.RequiresAction.toString())) {
-                                        Uri redirectUrl = Uri.parse((String) result.get("redirectUrl"));
-                                        if (redirectUrl != null) {
-                                            startActivity(new Intent(Intent.ACTION_VIEW, redirectUrl));
-                                        }
+                                if (isAdded()) {
+                                    // If error
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        myProgressBar.startProgressBar();
+                                        Log.w(TAG, "retrieve:onFailure", e);
+                                        showSnackbar(getString(R.string.bad_internet));
                                         return;
-                                    } else if (status.equals(PaymentIntent.Status.Succeeded.toString())){
-                                        myProgressBar.stopProgressBar();
-                                        Bundle bundle = new Bundle();
-                                        bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("SE"));
-                                        bundle.putString("deposition_currency", "SEK");
-                                        bundle.putString("trainer_email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                                        bundle.putString("trainer_id", FirebaseAuth.getInstance().getCurrentUser().getUid());
-                                        mFirebaseAnalytics.logEvent("deposition", bundle);
-
-                                        onCreateTrainerDepositionListener.OnCreateTrainerDeposition(true);
-                                    } else {
-                                        myProgressBar.stopProgressBar();
-                                        showSnackbar("Payment cancelled");
                                     }
-                                } else {
-                                    // If error, show error in snackbar
-                                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                    showSnackbar(error.get("message").toString());
-                                }
+                                    // If successful the variable "operationResult" will say "success,
+                                    // If so finish the activity with a result ok so the previous activity knows it's a success
+                                    HashMap<String, Object> result = task.getResult();
 
+                                    if (result.get("resultType").toString().equals("paymentIntentParameters")) {
+                                        String status = (String) result.get("paymentIntentStatus");
+                                        if (status.equals(PaymentIntent.Status.RequiresAction.toString())) {
+                                            Uri redirectUrl = Uri.parse((String) result.get("redirectUrl"));
+                                            if (redirectUrl != null) {
+                                                startActivity(new Intent(Intent.ACTION_VIEW, redirectUrl));
+                                            }
+                                            return;
+                                        } else if (status.equals(PaymentIntent.Status.Succeeded.toString())){
+                                            myProgressBar.stopProgressBar();
+                                            Bundle bundle = new Bundle();
+                                            bundle.putDouble("deposition_price", (double) DEPOSITION_AMOUNT_INTEGERS.get("SE"));
+                                            bundle.putString("deposition_currency", "SEK");
+                                            bundle.putString("trainer_email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                                            bundle.putString("trainer_id", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                            mFirebaseAnalytics.logEvent("deposition", bundle);
+
+                                            onCreateTrainerDepositionListener.OnCreateTrainerDeposition(true);
+                                        } else {
+                                            myProgressBar.stopProgressBar();
+                                            showSnackbar("Payment cancelled");
+                                        }
+                                    } else {
+                                        // If error, show error in snackbar
+                                        HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                        showSnackbar(error.get("message").toString());
+                                    }
+
+                                }
                             }
                         });
                     }

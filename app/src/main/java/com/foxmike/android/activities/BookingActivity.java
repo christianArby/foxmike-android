@@ -265,7 +265,7 @@ public class BookingActivity extends AppCompatActivity {
 
             HashMap<String, Object> paymentIntentMap = new HashMap<>();
             paymentIntentMap.put("paymentIntentId", paymentIntentId);
-            paymentIntentMap.put("hostsubFirebaseId", hostId);
+            paymentIntentMap.put("hostFirebaseId", hostId);
             paymentIntentMap.put("customerFirebaseId", mAuth.getCurrentUser().getUid());
             paymentIntentMap.put("advertisementId", advertisementId);
             paymentIntentMap.put("email", mAuth.getCurrentUser().getEmail());

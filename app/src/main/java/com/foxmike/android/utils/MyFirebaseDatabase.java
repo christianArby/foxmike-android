@@ -142,7 +142,7 @@ public class MyFirebaseDatabase extends Service {
         }
     }*/
 
-    public void getCurrentUser(final OnUserFoundListener onUserFoundListener) {
+    public void getCurrentUser(OnUserFoundListener onUserFoundListener) {
         dbRef.child("users").child(currentFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
