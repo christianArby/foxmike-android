@@ -61,6 +61,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
     private InputMethodManager imm;
+    private MyProgressBar myProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,7 @@ public class CreateStripeCustomerActivity extends AppCompatActivity {
         if (cardToSave == null) {
             Toast.makeText(CreateStripeCustomerActivity.this, "Please fill in card details.",Toast.LENGTH_LONG).show();
         } else {
-            final MyProgressBar myProgressBar = new MyProgressBar(progressBar, CreateStripeCustomerActivity.this);
+            myProgressBar = new MyProgressBar(progressBar, CreateStripeCustomerActivity.this);
             myProgressBar.startProgressBar();
             if (!cardToSave.validateCard()) {
                 myProgressBar.stopProgressBar();

@@ -93,6 +93,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseFunctions mFunctions;
     private HashMap<String, Object> friendsData = new HashMap<>();
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private MyProgressBar myProgressBar;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,12 +267,12 @@ public class RegisterActivity extends AppCompatActivity {
     /* Function to register user in auth and database */
     private void startRegister() {
 
-        final MyProgressBar myProgressBar = new MyProgressBar(progressBar,this);
+        myProgressBar = new MyProgressBar(progressBar,this);
         // get input
-        final String firstName = mFirstNameField.getText().toString().trim();
-        final String lastName = mLastNameField.getText().toString().trim();
-        String email = mEmailField.getText().toString().trim();
-        String password = mPasswordField.getText().toString().trim();
+        firstName = mFirstNameField.getText().toString().trim();
+        lastName = mLastNameField.getText().toString().trim();
+        email = mEmailField.getText().toString().trim();
+        password = mPasswordField.getText().toString().trim();
 
         if (TextUtils.isEmpty(firstName)) {
             firstNameTIL.setError(getString(R.string.cannot_be_blank_text));
@@ -287,7 +293,7 @@ public class RegisterActivity extends AppCompatActivity {
         // if all input has been filled in create user
         if(!TextUtils.isEmpty(firstName) && !TextUtils.isEmpty(lastName) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && mImageUri != null){
             myProgressBar.startProgressBar();
-            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
@@ -295,7 +301,7 @@ public class RegisterActivity extends AppCompatActivity {
                         currentUserID = mAuth.getCurrentUser().getUid();
                         // ----------------------------------- NEW -------------------------
 
-                        final User user = new User();
+                        user = new User();
                         user.setFirstName(firstName);
                         user.setLastName(lastName);
                         user.setFullName(firstName + " " + lastName);

@@ -3,14 +3,18 @@ package com.foxmike.android.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.Formatter;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
@@ -77,12 +81,30 @@ public class CreateTrainerActivity extends AppCompatActivity implements
     private View mainView;
     private MyProgressBar myProgressBar;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private TextView becomeFtText;
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_trainer);
+
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+        becomeFtText = findViewById(R.id.becomeFtText);
+
+        becomeFtText.setMovementMethod(LinkMovementMethod.getInstance());
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -262,7 +284,7 @@ public class CreateTrainerActivity extends AppCompatActivity implements
     @Override
     public void OnCreateTrainerExternalAccountCreated() {
 
-        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://create.trainer");
+        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://create.trainer", false);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
@@ -280,7 +302,7 @@ public class CreateTrainerActivity extends AppCompatActivity implements
     public void OnCreateTrainerExternalAccountLater() {
 
 
-        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://create.trainer");
+        CreateTrainerDepositionFragment createTrainerDepositionFragment = CreateTrainerDepositionFragment.newInstance("foxmike://create.trainer", false);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);

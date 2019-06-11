@@ -59,6 +59,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     private long mLastClickTime = 0;
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
+    private boolean payoutsEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,8 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
+        payoutsEnabled = getIntent().getBooleanExtra("payoutsEnabled", false);
 
         mFunctions = FirebaseFunctions.getInstance();
 
@@ -87,8 +90,19 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        Intent intent = new Intent();
+        intent.putExtra("payoutsEnabled", payoutsEnabled);
+        setResult(RESULT_OK, intent);
+        finish();
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("payoutsEnabled", payoutsEnabled);
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
     }
 
     private void findStripeAccount() {
@@ -165,6 +179,10 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
                     HashMap<String, Object> external_accounts = (HashMap<String, Object>) result.get("external_accounts");
                     ArrayList<HashMap<String,Object>> external_accountsDataList = (ArrayList<HashMap<String,Object>>) external_accounts.get("data");
 
+                    if (external_accountsDataList.size()>0) {
+                        payoutsEnabled = true;
+                    }
+
                     listPayoutMethodsRV.setLayoutManager(new LinearLayoutManager(PayoutPreferencesActivity.this));
                     listPayoutMethodsAdapter = new ListPayoutMethodsAdapter(external_accountsDataList, PayoutPreferencesActivity.this, new OnPayoutMethodClickedListener() {
                         @Override
@@ -227,6 +245,7 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
     @Override
     public void OnStripeAccountUpdated() {
         Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
+        refresh.putExtra("payoutsEnabled", payoutsEnabled);
         startActivity(refresh);
         this.finish();
     }
@@ -256,7 +275,11 @@ public class PayoutPreferencesActivity extends AppCompatActivity implements Upda
 
     @Override
     public void OnCreateTrainerExternalAccountCreated() {
+        Intent intent = new Intent();
+        intent.putExtra("payoutsEnabled", true);
+        setResult(RESULT_OK, intent);
         Intent refresh = new Intent(this, PayoutPreferencesActivity.class);
+        refresh.putExtra("payoutsEnabled", true);
         startActivity(refresh);
         this.finish();
     }

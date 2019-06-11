@@ -51,7 +51,7 @@ public class PlayerSessionsFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_account */
-        final View view = inflater.inflate(R.layout.fragment_player_sessions, container, false);
+        View view = inflater.inflate(R.layout.fragment_player_sessions, container, false);
         playerSessionsPager = (ViewPager) view.findViewById(R.id.player_sessions_pager);
         tabLayout = (TabLayout) view.findViewById(R.id.player_sessions_tabs);
 

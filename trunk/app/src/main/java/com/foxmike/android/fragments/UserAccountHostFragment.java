@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,8 +28,6 @@ import com.foxmike.android.activities.PayoutPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
 import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.models.User;
-import com.foxmike.android.utils.MyFirebaseDatabase;
-import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -111,15 +108,12 @@ public class UserAccountHostFragment extends Fragment {
         list = view.findViewById(R.id.list1);
         profile = inflater.inflate(R.layout.user_account_host_layout,list,false);
         list.addView(profile);
-        final ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
-        final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         fullNameTV = profile.findViewById(R.id.profileTV);
         userNameTV = profile.findViewById(R.id.userNameTV);
         aboutTV = profile.findViewById(R.id.aboutTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         progressBackground = view.findViewById(R.id.progressBackground);
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         depositionTV = profile.findViewById(R.id.depositionTV);
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         switchModeTV = view.findViewById(R.id.switchModeTV);

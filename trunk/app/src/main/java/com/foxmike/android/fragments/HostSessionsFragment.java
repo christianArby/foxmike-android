@@ -69,7 +69,7 @@ public class HostSessionsFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         /* Get the view fragment_user_account */
-        final View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
+        View view = inflater.inflate(R.layout.fragment_host_sessions, container, false);
         hostSessionsPager = (ViewPager) view.findViewById(R.id.host_sessions_pager);
         tabLayout = (TabLayout) view.findViewById(R.id.host_sessions_tabs);
         // Setup create session button
@@ -92,7 +92,7 @@ public class HostSessionsFragment extends Fragment {
                         rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("stripeAccountId").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                final boolean userHasStripeAccount;
+                                boolean userHasStripeAccount;
                                 userHasStripeAccount = dataSnapshot.getValue() != null;
                                 if (userHasStripeAccount) {
                                     onCreateSessionClickedListener.OnCreateSessionClicked();
@@ -143,7 +143,7 @@ public class HostSessionsFragment extends Fragment {
     }
 
     // Function which load the tab layout and viewpager
-    public void loadPages(final boolean update) {
+    public void loadPages(boolean update) {
         // If this function was initiated through an update update the fragments/pages otherwise build them from scratch
         if (!update) {
             hostSessionsPagerAdapter = new SmallSessionsPagerAdapter(getChildFragmentManager(), true, getString(R.string.sessions), getString(R.string.avertisements), sessionTypeDictionary);

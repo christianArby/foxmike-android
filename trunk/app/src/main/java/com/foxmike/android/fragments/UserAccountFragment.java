@@ -29,7 +29,6 @@ import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.SwitchModeActivity;
 import com.foxmike.android.activities.WelcomeActivity;
 import com.foxmike.android.models.User;
-import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -75,6 +74,8 @@ public class UserAccountFragment extends Fragment {
     private TextView userNameTV;
     private TextView switchModeTV;
     private long mLastClickTime = 0;
+    private ProgressBar progressBar;
+    private MyProgressBar myProgressBar;
 
     public UserAccountFragment() {
         // Required empty public constructor
@@ -100,15 +101,14 @@ public class UserAccountFragment extends Fragment {
         list = view.findViewById(R.id.list1);
         profile = inflater.inflate(R.layout.user_account_player_layout,list,false);
         list.addView(profile);
-        final ProgressBar progressBar = view.findViewById(R.id.progressBar_cyclic);
-        final MyProgressBar myProgressBar = new MyProgressBar(progressBar, getActivity());
+        progressBar = view.findViewById(R.id.progressBar_cyclic);
+        myProgressBar = new MyProgressBar(progressBar, getActivity());
 
         fullNameTV = profile.findViewById(R.id.profileTV);
         userNameTV = profile.findViewById(R.id.userNameTV);
         aboutTV = profile.findViewById(R.id.aboutTV);
         TextView editProfileTV = profile.findViewById(R.id.edit_session_question);
         progressBackground = view.findViewById(R.id.progressBackground);
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         /* Find and set the clickable LinearLayout switchModeLL and write the trainerMode status to the database */
         switchModeTV = view.findViewById(R.id.switchModeTV);
         addPaymentMethod = profile.findViewById(R.id.addPaymentMethodTV);

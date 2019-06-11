@@ -287,7 +287,10 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
         }
 
         if (requestCode==PAYOUT_METHOD_REQUEST) {
-            checkIfPayOutsIsEnabled();
+            if (data!=null) {
+                payoutsEnabled = data.getBooleanExtra("payoutsEnabled", false);
+            }
+            hidePayoutsLoading();
         }
 
     }
@@ -320,9 +323,7 @@ public class CreateAdvertisementActivity extends AppCompatActivity {
         Snackbar.make(mainView, message, Snackbar.LENGTH_SHORT).show();
     }
 
-    private void checkIfPayOutsIsEnabled() {
-        // --------------CHECK IF PAYOUTS ARE ENABLED------
-        payoutsEnabled = true;
+    private void hidePayoutsLoading() {
         priceOverlay.setVisibility(View.GONE);
         dotProgressBar.setVisibility(View.GONE);
     }
