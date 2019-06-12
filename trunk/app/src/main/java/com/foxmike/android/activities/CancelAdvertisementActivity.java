@@ -56,6 +56,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     public static final int CANCEL_ADVERTISEMENT_OK = 901;
     private FirebaseFunctions mFunctions;
     private View mainView;
+    private boolean hasExecuted;
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -103,101 +104,118 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
             public void onChanged(DataSnapshot dataSnapshot) {
                 User currentUser = dataSnapshot.getValue(User.class);
 
-                if (currentUser.getStripeDepositionPaymentIntentId()==null) {
-                    Toast.makeText(CancelAdvertisementActivity.this, "Error: could not find deposition", Toast.LENGTH_LONG).show();
+                if (hasExecuted) {
                     return;
                 }
+                hasExecuted = true;
 
-                cancelMap.put("stripeDepositionPaymentIntentId", currentUser.getStripeDepositionPaymentIntentId());
 
-
-                retrievePaymentIntentAndChargeId(currentUser.getStripeDepositionPaymentIntentId()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                        // If not succesful, show error and return from function, will trigger if account ID does not exist
-                        if (!task.isSuccessful()) {
-                            Exception e = task.getException();
-                            // [START_EXCLUDE]
-                            Log.w(TAG, "retrieve:onFailure", e);
-                            showSnackbar(getString(R.string.bad_internet));
-                            return;
-                            // [END_EXCLUDE]
+                // If session has already taken place show alert dialog explaining cancellation not possible
+                if (currentTime.isAfter(adTime)) {
+                    alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new OnOkPressedListener() {
+                        @Override
+                        public void OnOkPressed() {
+                            setResult(RESULT_CANCELED, null);
+                            finish();
                         }
-                        // If successful, extract
-                        HashMap<String, Object> result = task.getResult();
-                        if (result.get("resultType").toString().equals("paymentIntent")) {
-                            Gson gson = new Gson();
-                            String json = gson.toJson(result.get("paymentIntent"));
-                            PaymentIntent paymentIntent = PaymentIntent.fromString(json);
+                    });
+                } else {
+                    // If no participants, cancel advertisement without cloud function
+                    if (participantsTimestamps.size()==0) {
+                        cancelAd();
 
-                            // If session has already taken place show alert dialog explaining cancellation not possible
-                            if (currentTime.isAfter(adTime)) {
-                                alertDialogOk(getString(R.string.cancellation_not_possible), getString(R.string.session_has_passed), true, new OnOkPressedListener() {
-                                    @Override
-                                    public void OnOkPressed() {
-                                        setResult(RESULT_CANCELED, null);
-                                        finish();
+                    } else {
+                        // If participants but with
+                        if (durationCurrentToAdvertisement.getStandardHours() > 6) {
+
+                            HashMap<String, Object> adData = new HashMap<>();
+                            adData.put("accountId", accountId);
+                            adData.put("advertisementId", advertisementId);
+
+                            retrieveProcessingFeeOfAdvertisement(adData).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                @Override
+                                public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                    // If not succesful, show error and return from function, will trigger if account ID does not exist
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        // [START_EXCLUDE]
+                                        Log.w(TAG, "retrieve:onFailure", e);
+                                        showSnackbar(getString(R.string.bad_internet));
+                                        return;
+                                        // [END_EXCLUDE]
                                     }
-                                });
-                            } else {
-                                // If no participants, cancel advertisement without cloud function
-                                if (participantsTimestamps.size()==0) {
-                                    cancelAd();
+                                    // If successful, extract
+                                    HashMap<String, Object> result = task.getResult();
+                                    if (result.get("operationResult").toString().equals("success")) {
+                                        int totalStripeProcessingFee = (int) result.get("totalStripeProcessingFee");
+                                        String currency = result.get("currency").toString();
+                                        float sweAmount = totalStripeProcessingFee;
+                                        String amount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
 
-                                } else {
-                                    // If participants but with
-                                    if (durationCurrentToAdvertisement.getStandardHours() > 6) {
-
-                                        HashMap<String, Object> adData = new HashMap<>();
-                                        adData.put("accountId", accountId);
-                                        adData.put("advertisementId", advertisementId);
-
-                                        retrieveProcessingFeeOfAdvertisement(adData).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                        alertDialogPositiveOrNegative(getString(R.string.cancellation), getString(R.string.cancellation_small_fee_warning) + " " + amount + " " + currency + "." + getResources().getString(R.string.cancellation_small_fee_warning_text_2), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
                                             @Override
-                                            public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
-                                                // If not succesful, show error and return from function, will trigger if account ID does not exist
-                                                if (!task.isSuccessful()) {
-                                                    Exception e = task.getException();
-                                                    // [START_EXCLUDE]
-                                                    Log.w(TAG, "retrieve:onFailure", e);
-                                                    showSnackbar(getString(R.string.bad_internet));
-                                                    return;
-                                                    // [END_EXCLUDE]
-                                                }
-                                                // If successful, extract
-                                                HashMap<String, Object> result = task.getResult();
-                                                if (result.get("operationResult").toString().equals("success")) {
-                                                    int totalStripeProcessingFee = (int) result.get("totalStripeProcessingFee");
-                                                    String currency = result.get("currency").toString();
-                                                    float sweAmount = totalStripeProcessingFee;
-                                                    String amount = String.format(Locale.FRANCE,"%.2f", sweAmount/100);
+                                            public void OnPositivePressed() {
+                                                cancelAd();
+                                            }
 
-                                                    alertDialogPositiveOrNegative(getString(R.string.cancellation), getString(R.string.cancellation_small_fee_warning) + " " + amount + " " + currency + "." + getResources().getString(R.string.cancellation_small_fee_warning_text_2), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
-                                                        @Override
-                                                        public void OnPositivePressed() {
-                                                            cancelAd();
-                                                        }
-
-                                                        @Override
-                                                        public void OnNegativePressed() {
-                                                            setResult(RESULT_OK);
-                                                            finish();
-                                                        }
-                                                    });
-
-
-
-                                                } else {
-                                                    HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                                                    showSnackbar(error.get("message").toString());
-                                                }
-
+                                            @Override
+                                            public void OnNegativePressed() {
+                                                setResult(RESULT_OK);
+                                                finish();
                                             }
                                         });
 
 
 
                                     } else {
+                                        HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                        showSnackbar(error.get("message").toString());
+                                    }
+
+                                }
+                            });
+
+
+
+                        } else {
+                            // IF USER HAS DEPOSITION THIS WILL BE TAKEN, INFORM USER
+                            if (currentUser.getStripeDepositionPaymentIntentId()==null) {
+                                // Cancelling without taking deposition because there are none
+                                alertDialogPositiveOrNegative(getString(R.string.session_is_within_6_hours), getResources().getString(R.string.session_close_tp_start_and_participants), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
+                                    @Override
+                                    public void OnPositivePressed() {
+                                        cancelAd();
+                                    }
+
+                                    @Override
+                                    public void OnNegativePressed() {
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    }
+                                });
+                                return;
+                            }
+
+                            cancelMap.put("stripeDepositionPaymentIntentId", currentUser.getStripeDepositionPaymentIntentId());
+                            retrievePaymentIntentAndChargeId(currentUser.getStripeDepositionPaymentIntentId()).addOnCompleteListener(new OnCompleteListener<HashMap<String, Object>>() {
+                                @Override
+                                public void onComplete(@NonNull Task<HashMap<String, Object>> task) {
+                                    // If not succesful, show error and return from function, will trigger if account ID does not exist
+                                    if (!task.isSuccessful()) {
+                                        Exception e = task.getException();
+                                        // [START_EXCLUDE]
+                                        Log.w(TAG, "retrieve:onFailure", e);
+                                        showSnackbar(getString(R.string.bad_internet));
+                                        return;
+                                        // [END_EXCLUDE]
+                                    }
+                                    // If successful, extract
+                                    HashMap<String, Object> result = task.getResult();
+                                    if (result.get("resultType").toString().equals("paymentIntent")) {
+                                        Gson gson = new Gson();
+                                        String json = gson.toJson(result.get("paymentIntent"));
+                                        PaymentIntent paymentIntent = PaymentIntent.fromString(json);
+
                                         alertDialogPositiveOrNegative(getString(R.string.session_is_within_6_hours), getResources().getString(R.string.cancelling_question_large_fee) + " " + paymentIntent.getAmount()/100 + " " + paymentIntent.getCurrency() + " " + getResources().getString(R.string.cancelling_question_large_fee_text_2), getString(R.string.cancel_session), getString(R.string.do_not_cancel_session), new OnPositiveOrNegativeButtonPressedListener() {
                                             @Override
                                             public void OnPositivePressed() {
@@ -210,16 +228,20 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                                                 finish();
                                             }
                                         });
+
+
+
+                                    } else {
+                                        HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
+                                        showSnackbar(error.get("message").toString());
                                     }
                                 }
-                            }
-
-                        } else {
-                            HashMap<String, Object> error = (HashMap<String, Object>) result.get("error");
-                            showSnackbar(error.get("message").toString());
+                            });
                         }
                     }
-                });
+                }
+
+
 
             }
         });

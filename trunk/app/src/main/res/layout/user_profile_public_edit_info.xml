@@ -34,13 +34,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toBottomOf="@id/profilePublicEditIB"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/firstNameProfilePublicEditET"
             android:hint="@string/first_name_text"
             android:layout_width="match_parent"
@@ -54,13 +54,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toBottomOf="@id/firstNameProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/lastNameProfilePublicEditET"
             android:hint="@string/last_name_text"
             android:layout_width="match_parent"
@@ -74,13 +74,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toBottomOf="@id/lastNameProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/userNameProfilePublicEditET"
             android:hint="username"
             android:layout_width="match_parent"
@@ -94,13 +94,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintTop_toBottomOf="@id/userNameProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/aboutMeProfilePublicEditET"
             android:hint="@string/aboutMe_text"
             android:layout_width="match_parent"

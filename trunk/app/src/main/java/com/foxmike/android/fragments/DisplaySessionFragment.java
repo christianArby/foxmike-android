@@ -487,9 +487,11 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // Create query to get all the advertisement keys from the current mSession
         Query keyQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
         // Use the query to get all the advertisement keys from the current mSession
-        keyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabaseViewModel adsViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+        LiveData<DataSnapshot> adsLiveData = adsViewModel.getDataSnapshotLiveData(keyQuery);
+        adsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChanged(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue()==null) {
                     // If data snapshot is null but representingAdTimestamp is not null it means that the ad has been cancelled during the time the user opened the mSession from the mSession representing
                     // the cancelled ad, set the boolean repAdCancelled to true
@@ -554,9 +556,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     params.height= itemHeight*currentHeightInNr;
                     fbRVContainer.setLayoutParams(params);
                 }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
