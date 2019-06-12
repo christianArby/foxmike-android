@@ -35,9 +35,7 @@ public class SetPriceActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-
         accountCurrency = getIntent().getStringExtra("accountCurrency");
-
         if(accountCurrency.equals("sek")) {
             stringArray = getResources().getStringArray(R.array.price_array_SE);
             String standard = PRICES_STRINGS_SE.get(getIntent().getIntExtra("standardPrice", 100));
@@ -49,8 +47,6 @@ public class SetPriceActivity extends AppCompatActivity {
                 }
             }
         }
-
-
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, stringArray) {
             @NonNull
@@ -67,7 +63,6 @@ public class SetPriceActivity extends AppCompatActivity {
         };
 
         listView.setAdapter(arrayAdapter);
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
