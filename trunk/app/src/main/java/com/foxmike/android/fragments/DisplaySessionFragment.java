@@ -14,6 +14,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -293,13 +294,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
 
-        // GET THE PAYMENT INFO FROM CURRENT USER
-        getPaymentMethod();
+
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // GET THE PAYMENT INFO FROM CURRENT USER
+        getPaymentMethod();
         // GET CURRENT USER FROM DATABASE
         FirebaseDatabaseViewModel firebaseDatabaseUserViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> firebaseDatabaseUserLiveData = firebaseDatabaseUserViewModel.getDataSnapshotLiveData(rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
@@ -345,10 +347,90 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                 }
             });
+
+
+            Long currentTimestamp = System.currentTimeMillis();
+            // Create query to get all the advertisement keys from the current mSession
+            Query keyQuery = rootDbRef.child("sessionAdvertisements").child(sessionID).orderByValue().startAt(currentTimestamp);
+            // Use the query to get all the advertisement keys from the current mSession
+            FirebaseDatabaseViewModel adsViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> adsLiveData = adsViewModel.getDataSnapshotLiveData(keyQuery);
+            adsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue()==null) {
+                        // If data snapshot is null but representingAdTimestamp is not null it means that the ad has been cancelled during the time the user opened the mSession from the mSession representing
+                        // the cancelled ad, set the boolean repAdCancelled to true
+                        if (representingAdTimestamp!=0) {
+                            repAdCancelled = true;
+                        }
+                        addDates.setText(R.string.add_sessions);
+                        // display text "no upcoming sessions"
+                        showMoreTV.setText(getResources().getString(R.string.no_upcoming_sessions));
+                        // run method which updates snackbar
+                        paymentMethodAdSelectedAndViewUsed = false;
+                        adSelectedReady = true;
+                        onAsyncTaskFinished();
+                    } else {
+                        addDates.setText(R.string.add_more_sessions);
+                        // if there are advertisements collect all the timestamps in a hashmap
+                        adTimes.clear();
+                        adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
+                        // If activity has been opened from map representingAdTimestamp will be 0, update snackbar.
+                        if (representingAdTimestamp==0) {
+                            repAdCancelled = false;
+                            // run method which updates snackbar
+                            adSelected = null;
+                            adSelectedReady = true;
+                            paymentMethodAdSelectedAndViewUsed = false;
+                            onAsyncTaskFinished();
+                        }
+                        if (!adTimes.containsValue(representingAdTimestamp)) {
+                            // if this sessions representing timestamp is not part of the advertisment timestamps it means that the ad has been cancelled during the time the user opened the mSession from the mSession representing
+                            // the cancelled ad, set the boolean repAdCancelled to true
+                            repAdCancelled = true;
+                            // run method which updates snackbar
+                            adSelected = null;
+                            adSelectedReady = true;
+                            paymentMethodAdSelectedAndViewUsed = false;
+                            onAsyncTaskFinished();
+                        }
+                        // create timestamp which is two weeks ahead of today
+                        Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
+                        int twoWeekssize = 0;
+                        // The list height will be based on how many ads exists within the two weeks
+                        // count how many ads exists within the first two weeks
+                        for (Long adTime: adTimes.values()) {
+                            if (adTime<twoWeekTimestamp) {
+                                twoWeekssize++;
+                            }
+                        }
+
+                        // set the variable currentHeightInNr which later sets the height of the list to the number of ads existing within two weeks
+                        currentHeightInNr = twoWeekssize;
+                        // if number of ads within two weeks are less than 5 check if that is all the future ads, if so set currentHeightInNr to that number
+                        // if not: display 4 ads regardless if they are within two weeks or not (4 items are minimum if there are more than 4 ads in the future)
+                        if (twoWeekssize<5) {
+                            if (adTimes.size()<5) {
+                                currentHeightInNr = adTimes.size();
+                            } else {
+                                currentHeightInNr = 4;
+                            }
+                        }
+                        // set the height of the list to the height of one row times number of ads to be displayed (currentHeightInNr)
+                        ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
+                        params.height= itemHeight*currentHeightInNr;
+                        fbRVContainer.setLayoutParams(params);
+                    }
+
+                }
+            });
         } else {
             Toast toast = Toast.makeText(getActivity().getApplicationContext(), R.string.Session_not_found_please_try_again_later,Toast.LENGTH_LONG);
             toast.show();
         }
+
+
     }
 
     private void getPaymentMethod () {
@@ -483,83 +565,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         // --------- GET ALL THE AD TIMESTAMPS SAVED UNDER SESSION/ADVERTISEMENTS ---------
         // Current time as timestamp
+
         Long currentTimestamp = System.currentTimeMillis();
-        // Create query to get all the advertisement keys from the current mSession
-        Query keyQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
-        // Use the query to get all the advertisement keys from the current mSession
-        FirebaseDatabaseViewModel adsViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> adsLiveData = adsViewModel.getDataSnapshotLiveData(keyQuery);
-        adsLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()==null) {
-                    // If data snapshot is null but representingAdTimestamp is not null it means that the ad has been cancelled during the time the user opened the mSession from the mSession representing
-                    // the cancelled ad, set the boolean repAdCancelled to true
-                    if (representingAdTimestamp!=0) {
-                        repAdCancelled = true;
-                    }
-                    addDates.setText(R.string.add_sessions);
-                    // display text "no upcoming sessions"
-                    showMoreTV.setText(getResources().getString(R.string.no_upcoming_sessions));
-                    // run method which updates snackbar
-                    paymentMethodAdSelectedAndViewUsed = false;
-                    adSelectedReady = true;
-                    onAsyncTaskFinished();
-                } else {
-                    addDates.setText(R.string.add_more_sessions);
-                    // if there are advertisements collect all the timestamps in a hashmap
-                    adTimes.clear();
-                    adTimes = (HashMap<String,Long>) dataSnapshot.getValue();
-                    // If activity has been opened from map representingAdTimestamp will be 0, update snackbar.
-                    if (representingAdTimestamp==0) {
-                        repAdCancelled = false;
-                        // run method which updates snackbar
-                        adSelected = null;
-                        adSelectedReady = true;
-                        paymentMethodAdSelectedAndViewUsed = false;
-                        onAsyncTaskFinished();
-                    }
-                    if (!adTimes.containsValue(representingAdTimestamp)) {
-                        // if this sessions representing timestamp is not part of the advertisment timestamps it means that the ad has been cancelled during the time the user opened the mSession from the mSession representing
-                        // the cancelled ad, set the boolean repAdCancelled to true
-                        repAdCancelled = true;
-                        // run method which updates snackbar
-                        adSelected = null;
-                        adSelectedReady = true;
-                        paymentMethodAdSelectedAndViewUsed = false;
-                        onAsyncTaskFinished();
-                    }
-                    // create timestamp which is two weeks ahead of today
-                    Long twoWeekTimestamp = new DateTime(currentTimestamp).plusWeeks(2).getMillis();
-                    int twoWeekssize = 0;
-                    // The list height will be based on how many ads exists within the two weeks
-                    // count how many ads exists within the first two weeks
-                    for (Long adTime: adTimes.values()) {
-                        if (adTime<twoWeekTimestamp) {
-                            twoWeekssize++;
-                        }
-                    }
-
-                    // set the variable currentHeightInNr which later sets the height of the list to the number of ads existing within two weeks
-                    currentHeightInNr = twoWeekssize;
-                    // if number of ads within two weeks are less than 5 check if that is all the future ads, if so set currentHeightInNr to that number
-                    // if not: display 4 ads regardless if they are within two weeks or not (4 items are minimum if there are more than 4 ads in the future)
-                    if (twoWeekssize<5) {
-                        if (adTimes.size()<5) {
-                            currentHeightInNr = adTimes.size();
-                        } else {
-                            currentHeightInNr = 4;
-                        }
-                    }
-                    // set the height of the list to the height of one row times number of ads to be displayed (currentHeightInNr)
-                    ViewGroup.LayoutParams params =fbRVContainer.getLayoutParams();
-                    params.height= itemHeight*currentHeightInNr;
-                    fbRVContainer.setLayoutParams(params);
-                }
-
-            }
-        });
-
         // --------- POPULATE THE RECYCLERVIEW WITH THE ADVERTISEMENTS ---------
         // Create the key query which will get all the advertisement keys for ads with a date in the future.
         Query allKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
@@ -789,7 +796,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
         priceTV.setVisibility(View.GONE);
-        mDisplaySessionBtn.setVisibility(View.GONE);
+        //mDisplaySessionBtn.setVisibility(View.GONE);
         snackNoUpcomingAds.setVisibility(View.VISIBLE);
 
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -915,6 +922,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        sessionAndViewUsed = false;
         onAsyncTaskFinished();
     }
     private void onAsyncTaskFinished() {
@@ -1235,6 +1243,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             // (session will also be loaded)
             paymentMethodAdSelectedAndViewUsed = true;
 
+            int test;
+
+            if (this.isAdded()) {
+                test = 1;
+            }
+
+            test = 2;
+
             dotProgressBarContainer.setVisibility(View.GONE);
             snackBar.setVisibility(View.VISIBLE);
 
@@ -1249,6 +1265,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 paymentMethodProgressBar.setVisibility(View.GONE);
                 paymentMethodTV.setVisibility(View.GONE);
                 addPaymentMethodTV.setVisibility(View.GONE);
+                Log.w("CRICKE", "null");
                 mDisplaySessionBtn.setVisibility(View.GONE);
                 snackNoUpcomingAds.setVisibility(View.VISIBLE);
                 snackNoUpcomingAds.setOnClickListener(new View.OnClickListener() {
@@ -1297,6 +1314,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 // -------------------- HOST -----------------------------
                 // If the current user is the mSession host display "show occasion" as the text of the button.
                 if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
+                    Log.w("CRICKE", "setting");
                     snackBarDateAndTimeTV.setVisibility(View.VISIBLE);
                     priceTV.setVisibility(View.VISIBLE);
                     mDisplaySessionBtn.setVisibility(View.VISIBLE);
@@ -1551,7 +1569,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                     }
                     // If the current user is the mSession host, button will show cancel mSession, if clicked start cancellation process
                     if (mSession.getHost().equals(currentFirebaseUser.getUid())) {
-                        advertisementListener.OnCancelAdvertisement(mSession.getSessionName(), adSelected.getAdvertisementId(), mSession.getImageUrl(), adSelected.getSessionId(), adSelected.getAdvertisementTimestamp(), adSelected.getParticipantsTimestamps(), currentUser.getStripeAccountId());
+                        advertisementListener.OnCancelAdvertisement(mSession.getSessionName(), adSelected.getAdvertisementId(), mSession.getImageUrl(), adSelected.getSessionId(), adSelected.getAdvertisementTimestamp(), adSelected.getParticipantsTimestamps(), currentUser.getStripeAccountId(), adSelected.getPrice());
                     }
                 }
             });
