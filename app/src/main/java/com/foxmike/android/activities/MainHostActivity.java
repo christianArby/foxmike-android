@@ -662,7 +662,7 @@ public class MainHostActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, Long> participantsTimestamps, String accountId) {
+    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, Long> participantsTimestamps, String accountId, int price) {
         Intent cancelAdIntent = new Intent(MainHostActivity.this, CancelAdvertisementActivity.class);
         cancelAdIntent.putExtra("sessionName", advertisementName);
         cancelAdIntent.putExtra("advertisementId", advertisementId);
@@ -671,6 +671,7 @@ public class MainHostActivity extends AppCompatActivity implements
         cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
         cancelAdIntent.putExtra("participantsTimestamps", participantsTimestamps);
         cancelAdIntent.putExtra("accountId",accountId);
+        cancelAdIntent.putExtra("price",price);
         startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
 
     }

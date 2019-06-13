@@ -57,6 +57,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
     private FirebaseFunctions mFunctions;
     private View mainView;
     private boolean hasExecuted;
+    private int price;
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -79,6 +80,7 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
         advertisementTimestamp = getIntent().getLongExtra("advertisementTimestamp",0);
         participantsTimestamps = (HashMap) getIntent().getSerializableExtra("participantsTimestamps");
         accountId = getIntent().getStringExtra("accountId");
+        price = getIntent().getIntExtra("price", 0);
 
         cancelMap.put("sessionName", sessionName);
         cancelMap.put("participantsTimestamps", participantsTimestamps);
@@ -125,8 +127,13 @@ public class CancelAdvertisementActivity extends AppCompatActivity {
                         cancelAd();
 
                     } else {
-                        // If participants but with
+                        // If participants
                         if (durationCurrentToAdvertisement.getStandardHours() > 6) {
+
+                            if (price==0) {
+                                cancelAd();
+                                return;
+                            }
 
                             HashMap<String, Object> adData = new HashMap<>();
                             adData.put("accountId", accountId);
