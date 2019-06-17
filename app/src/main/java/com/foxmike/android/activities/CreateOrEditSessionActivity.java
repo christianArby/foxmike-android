@@ -977,6 +977,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         if (currentUser.isSuperAdmin() && secondaryHostId==null) {
             sessionMap.put("superHosted", true);
+        } else {
+            sessionMap.put("superHosted", false);
         }
 
         sessionMap.put("sessionId", mSessionId);
