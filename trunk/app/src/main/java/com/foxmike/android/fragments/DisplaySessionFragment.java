@@ -1243,14 +1243,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             // (session will also be loaded)
             paymentMethodAdSelectedAndViewUsed = true;
 
-            int test;
-
-            if (this.isAdded()) {
-                test = 1;
-            }
-
-            test = 2;
-
             dotProgressBarContainer.setVisibility(View.GONE);
             snackBar.setVisibility(View.VISIBLE);
 

@@ -508,8 +508,8 @@
     <string name="cancellation_small_fee_warning_text_2">\u0020Vill du ställa in passet ändå?</string>
     <string name="cancel_session">Ställ in passet</string>
     <string name="do_not_cancel_session">Ställ inte in passet</string>
-    <string name="session_is_within_6_hours">Passet är inom 24 timmar</string>
-    <string name="cancellation_large_fee_warning">Passet är inom 24 timmmar. Om du ställer in passet kommer det dras en avgift på xx kr.</string>
+    <string name="session_is_within_6_hours">Passet är inom 6 timmar</string>
+    <string name="cancellation_large_fee_warning">Passet är inom 6 timmmar. Om du ställer in passet kommer det dras en avgift på xx kr.</string>
     <string name="create_free_session_question">Du har inga aktiva utbetalningsmetoder, vill du skapa ett gratispass?</string>
     <string name="create_free_session">Skapa gratispass</string>
     <string name="the_session">Passet\u0020</string>
