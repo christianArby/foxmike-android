@@ -161,7 +161,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private CompactCalendarView compactCalendarView;
     private TextView calendarHeadingTV;
     private HashMap<Long, Advertisement> timestampsAndAdvertisements = new HashMap<>();
-    private ArrayList<Advertisement> mAdvertisementArrayList = new ArrayList<>();
+    private ArrayList<Advertisement> mAdsArrayList = new ArrayList<>();
+    private ArrayList<Advertisement> mExistingAdsArrayList = new ArrayList<>();
     private Map advertisements = new HashMap();
     private long mLastClickTime = 0;
     private LinearLayout allExceptCalendar;
@@ -338,8 +339,15 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 selectedDate = new DateTime(dateClicked);
                 boolean currentDayHasAds = false;
 
-                for (Advertisement advertisement: mAdvertisementArrayList) {
-                    DateTime adDateTime = new DateTime(advertisement.getAdvertisementTimestamp());
+                for (Advertisement ad: mAdsArrayList) {
+                    DateTime adDateTime = new DateTime(ad.getAdvertisementTimestamp());
+                    if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
+                        currentDayHasAds = true;
+                    }
+                }
+
+                for (Advertisement exAd: mExistingAdsArrayList) {
+                    DateTime adDateTime = new DateTime(exAd.getAdvertisementTimestamp());
                     if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
                         currentDayHasAds = true;
                     }
@@ -347,16 +355,16 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
                 if (currentDayHasAds) {
                     if (listCreateAdvertisementsAdapter==null) {
-                        listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mAdvertisementArrayList, selectedDate, new OnAdvertisementArrayListChangedListener() {
+                        listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mExistingAdsArrayList, mAdsArrayList, selectedDate, new OnAdvertisementArrayListChangedListener() {
                             @Override
                             public void OnAdvertisementArrayList(ArrayList<Advertisement> advertisementArrayList) {
-                                mAdvertisementArrayList = advertisementArrayList;
+                                mAdsArrayList = advertisementArrayList;
                                 checkIfRecyclerViewShouldBeVisible();
                             }
                         });
                         adRecyclerView.setAdapter(listCreateAdvertisementsAdapter);
                     } else {
-                        listCreateAdvertisementsAdapter.updateAdvertisements(mAdvertisementArrayList, selectedDate);
+                        listCreateAdvertisementsAdapter.updateAdvertisements(mExistingAdsArrayList, mAdsArrayList, selectedDate);
                     }
                     checkIfRecyclerViewShouldBeVisible();
                 } else {
@@ -394,8 +402,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
         // Add view to create session container
         createSessionContainer.addView(createSession);
-
-
 
         /*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
           This keeps the data on the disk even though listeners are detached*/
@@ -569,7 +575,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         createAdIntent.putExtra("maxParticipants", maxParticipants);
         createAdIntent.putExtra("price", price);
 
-        createAdIntent.putExtra("advertisementArrayList", mAdvertisementArrayList);
+        createAdIntent.putExtra("advertisementArrayList", mAdsArrayList);
         createAdIntent.putExtra("payoutsEnabled", payoutsEnabled);
         createAdIntent.putExtra("accountCurrency", accountCurrency);
         startActivityForResult(createAdIntent, CREATE_ADVERTISEMENT);
@@ -579,19 +585,24 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void checkIfRecyclerViewShouldBeVisible() {
         Boolean hasAdvertisements = false;
         compactCalendarView.removeAllEvents();
-        for (Advertisement advertisement: mAdvertisementArrayList) {
-            DateTime adDateTime = new DateTime(advertisement.getAdvertisementTimestamp());
+        for (Advertisement ad: mAdsArrayList) {
+            DateTime adDateTime = new DateTime(ad.getAdvertisementTimestamp());
             if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
                 hasAdvertisements = true;
             }
 
-            if (advertisement.getSessionId()!=null) {
-                Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
-                compactCalendarView.addEvent(event);
-            } else {
-                Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), advertisement.getAdvertisementTimestamp());
-                compactCalendarView.addEvent(event);
+            Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), ad.getAdvertisementTimestamp());
+            compactCalendarView.addEvent(event);
+
+        }
+        for (Advertisement mExAd: mExistingAdsArrayList) {
+            DateTime adDateTime = new DateTime(mExAd.getAdvertisementTimestamp());
+            if (selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
+                hasAdvertisements = true;
             }
+
+            Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), mExAd.getAdvertisementTimestamp());
+            compactCalendarView.addEvent(event);
 
         }
         if (hasAdvertisements) {
@@ -668,7 +679,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     } else {
                         setupAdDependentViews(false);
                     }
-                    mAdvertisementArrayList.clear();
+                    mExistingAdsArrayList.clear();
                     ArrayList<Task<?>> tasks = new ArrayList<>();
                     if (dataSnapshot.getChildrenCount()>0) {
                         for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
@@ -680,7 +691,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     dbSource.trySetResult(dataSnapshot);
                                     if (dataSnapshot.getValue()!=null) {
-                                        mAdvertisementArrayList.add(dataSnapshot.getValue(Advertisement.class));
+                                        mExistingAdsArrayList.add(dataSnapshot.getValue(Advertisement.class));
                                     }
                                 }
                                 @Override
@@ -857,18 +868,30 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private void tryLoadCalendar() {
         if (stripeAccountIsLoaded && advertisementsIsLoaded && !calendarLoaded) {
             calendarLoaded = true;
-            if (mAdvertisementArrayList !=null) {
-                for (Advertisement advertisement: mAdvertisementArrayList) {
-                    if (advertisement.getSessionId()!=null) {
+
+            compactCalendarView.removeAllEvents();
+
+            if (mExistingAdsArrayList.size()>0 || mAdsArrayList.size()>0) {
+
+                if (mExistingAdsArrayList.size()>0) {
+                    for (Advertisement advertisement: mExistingAdsArrayList) {
                         Event event = new Event(getResources().getColor(R.color.foxmikePrimaryDarkColor), advertisement.getAdvertisementTimestamp());
                         compactCalendarView.addEvent(event);
                     }
                 }
 
-                listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mAdvertisementArrayList, new DateTime(selectedDate), new OnAdvertisementArrayListChangedListener() {
+                if (mAdsArrayList.size()>0) {
+                    for (Advertisement advertisement: mAdsArrayList) {
+                        Event event = new Event(getResources().getColor(R.color.foxmikePrimaryColor), advertisement.getAdvertisementTimestamp());
+                        compactCalendarView.addEvent(event);
+                    }
+                }
+
+
+                listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mExistingAdsArrayList, mAdsArrayList, new DateTime(selectedDate), new OnAdvertisementArrayListChangedListener() {
                     @Override
                     public void OnAdvertisementArrayList(ArrayList<Advertisement> advertisementArrayList) {
-                        mAdvertisementArrayList = advertisementArrayList;
+                        mAdsArrayList = advertisementArrayList;
                         checkIfRecyclerViewShouldBeVisible();
                     }
                 });
@@ -1116,7 +1139,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         ArrayList<String> writeReferences = new ArrayList<>();
         // Create (or update) session button has been pressed. Create advertisements of the occasions set in the calendar.
         // Loop through the timestamps created by clicking and making events in the calendar
-        for (Advertisement advertisement: mAdvertisementArrayList) {
+        for (Advertisement advertisement: mAdsArrayList) {
             if (advertisement.getSessionId()==null) {
                 // For each timestamp, create an Advertisement object of the class Advertisement, take nost of the data from the current session being created
                 String advertisementKey = rootDbRef.child("advertisements").push().getKey();
@@ -1272,10 +1295,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 maxParticipants = data.getIntExtra("maxParticipants", 0);
                 price = data.getIntExtra("price", 100);
                 Long timestamp = data.getLongExtra("dateAndTime", 0);
-                mAdvertisementArrayList = (ArrayList<Advertisement>) data.getSerializableExtra("advertisementArrayList");
+                mAdsArrayList = (ArrayList<Advertisement>) data.getSerializableExtra("advertisementArrayList");
 
-                if (mAdvertisementArrayList==null) {
-                    mAdvertisementArrayList = new ArrayList<>();
+                if (mAdsArrayList==null) {
+                    mAdsArrayList = new ArrayList<>();
+                }
+
+                if (mExistingAdsArrayList==null) {
+                    mExistingAdsArrayList = new ArrayList<>();
                 }
 
                 if (existingSession!=null) {
@@ -1284,8 +1311,23 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     existingSession.setPrice(price);
                 }
 
-                listCreateAdvertisementsAdapter.updateAdvertisements(mAdvertisementArrayList, selectedDate);
-                checkIfRecyclerViewShouldBeVisible();
+                if (listCreateAdvertisementsAdapter!=null) {
+                    listCreateAdvertisementsAdapter.updateAdvertisements(mExistingAdsArrayList, mAdsArrayList, selectedDate);
+                    checkIfRecyclerViewShouldBeVisible();
+                } else {
+                    listCreateAdvertisementsAdapter = new ListCreateAdvertisementsAdapter(mExistingAdsArrayList, mAdsArrayList, selectedDate, new OnAdvertisementArrayListChangedListener() {
+                        @Override
+                        public void OnAdvertisementArrayList(ArrayList<Advertisement> advertisementArrayList) {
+                            mAdsArrayList = advertisementArrayList;
+                            checkIfRecyclerViewShouldBeVisible();
+                        }
+                    });
+                    adRecyclerView.setAdapter(listCreateAdvertisementsAdapter);
+                    checkIfRecyclerViewShouldBeVisible();
+
+                }
+
+
 
             }
         }

@@ -28,12 +28,15 @@ import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
 public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCreateAdvertisementsAdapter.ListCreateAdvertisementsViewHolder>{
 
     private ArrayList<Advertisement> advertisementArrayList;
+    private ArrayList<Advertisement> totalAdvertisementArrayList = new ArrayList<>();
     private OnAdvertisementArrayListChangedListener onAdvertisementArrayListChangedListener;
     private DateTime selectedDate;
     private boolean hasContent = false;
 
-    public ListCreateAdvertisementsAdapter(ArrayList<Advertisement> advertisementArrayList, DateTime pickedDate, OnAdvertisementArrayListChangedListener onAdvertisementArrayListChangedListener) {
+    public ListCreateAdvertisementsAdapter(ArrayList<Advertisement> existingAdvertisementArrayList, ArrayList<Advertisement> advertisementArrayList, DateTime pickedDate, OnAdvertisementArrayListChangedListener onAdvertisementArrayListChangedListener) {
         this.advertisementArrayList = advertisementArrayList;
+        this.totalAdvertisementArrayList.addAll(existingAdvertisementArrayList);
+        this.totalAdvertisementArrayList.addAll(advertisementArrayList);
         this.onAdvertisementArrayListChangedListener = onAdvertisementArrayListChangedListener;
         this.selectedDate = pickedDate;
     }
@@ -50,7 +53,7 @@ public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCr
     @Override
     public void onBindViewHolder(@NonNull ListCreateAdvertisementsViewHolder listCreateAdvertisementsViewHolder, int i) {
 
-        DateTime adDateTime = new DateTime(advertisementArrayList.get(i).getAdvertisementTimestamp());
+        DateTime adDateTime = new DateTime(totalAdvertisementArrayList.get(i).getAdvertisementTimestamp());
 
         if (!selectedDate.toLocalDate().equals(adDateTime.toLocalDate())) {
             listCreateAdvertisementsViewHolder.mView.setVisibility(View.GONE);
@@ -62,8 +65,8 @@ public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCr
             listCreateAdvertisementsViewHolder.mView.setVisibility(View.VISIBLE);
             listCreateAdvertisementsViewHolder.mView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-            listCreateAdvertisementsViewHolder.setTextLeft(TextTimestamp.textTime(advertisementArrayList.get(i).getAdvertisementTimestamp()) + " - " + PRICES_STRINGS_SE.get(advertisementArrayList.get(i).getPrice()));
-            if (advertisementArrayList.get(i).getSessionId()!=null) {
+            listCreateAdvertisementsViewHolder.setTextLeft(TextTimestamp.textTime(totalAdvertisementArrayList.get(i).getAdvertisementTimestamp()) + " - " + PRICES_STRINGS_SE.get(totalAdvertisementArrayList.get(i).getPrice()));
+            if (totalAdvertisementArrayList.get(i).getSessionId()!=null) {
                 listCreateAdvertisementsViewHolder.setIsAdvertised(true);
             } else {
                 listCreateAdvertisementsViewHolder.setIsAdvertised(false);
@@ -72,8 +75,14 @@ public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCr
             listCreateAdvertisementsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (advertisementArrayList.get(i).getSessionId()==null) {
-                        advertisementArrayList.remove(i);
+                    int removePosition = -1;
+                    for (Advertisement advertisement: advertisementArrayList) {
+                        if (totalAdvertisementArrayList.get(i).getAdvertisementTimestamp() == advertisement.getAdvertisementTimestamp()) {
+                            removePosition = advertisementArrayList.indexOf(advertisement);
+                        }
+                    }
+                    if (removePosition > -1) {
+                        advertisementArrayList.remove(removePosition);
                         ListCreateAdvertisementsAdapter.this.notifyDataSetChanged();
                         onAdvertisementArrayListChangedListener.OnAdvertisementArrayList(advertisementArrayList);
                     }
@@ -84,7 +93,7 @@ public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCr
 
     @Override
     public int getItemCount() {
-        return advertisementArrayList.size();
+        return totalAdvertisementArrayList.size();
     }
 
     public class ListCreateAdvertisementsViewHolder extends RecyclerView.ViewHolder {
@@ -115,10 +124,13 @@ public class ListCreateAdvertisementsAdapter extends RecyclerView.Adapter<ListCr
         }
     }
 
-    public void updateAdvertisements(ArrayList<Advertisement> advertisementArrayList, DateTime selectedDate) {
+    public void updateAdvertisements(ArrayList<Advertisement> existingAdvertisementArrayList,ArrayList<Advertisement> advertisementArrayList, DateTime selectedDate) {
         hasContent = false;
+        this.totalAdvertisementArrayList.clear();
         this.selectedDate = selectedDate;
         this.advertisementArrayList = advertisementArrayList;
+        this.totalAdvertisementArrayList.addAll(existingAdvertisementArrayList);
+        this.totalAdvertisementArrayList.addAll(advertisementArrayList);
         this.notifyDataSetChanged();
     }
 
