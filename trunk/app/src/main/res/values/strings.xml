@@ -627,4 +627,5 @@
     <string name="removing_session_from_bookings">Removing session from your bookings</string>
     <string name="foxmike_trainer_title">Foxmike Trainer</string>
     <string name="session_close_tp_start_and_participants">Session is close to start and you have participants, are you sure you want to proceed?</string>
+    <string name="clear_all">Clear all</string>
 </resources>

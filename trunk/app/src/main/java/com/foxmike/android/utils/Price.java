@@ -28,6 +28,7 @@ public class Price {
         PRICES_INTEGERS_SE.put("100 kr", 100);
         PRICES_INTEGERS_SE.put("Max", 1000000);
 
+        PRICES_STRINGS_SE.put(-1, "Min");
         PRICES_STRINGS_SE.put(0, "Gratis");
         PRICES_STRINGS_SE.put(30, "30 kr");
         PRICES_STRINGS_SE.put(40, "40 kr");

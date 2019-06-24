@@ -4,6 +4,7 @@ package com.foxmike.android.fragments;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Path;
 import android.location.Location;
 import android.os.Bundle;
@@ -703,6 +704,7 @@ public class ExploreFragment extends Fragment{
         } else {
             removeFilteredItem("minPrice");
         }
+        toggleFilterChecked();
 
         filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
@@ -714,6 +716,26 @@ public class ExploreFragment extends Fragment{
         this.minMinute = minMinute;
         this.maxHour = maxHour;
         this.maxMinute = maxMinute;
+
+        toggleFilterChecked();
+
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
+
+    }
+
+    public void OnResetFilter() {
+        this.minHour = minDefaultHour;
+        this.minMinute = minDefaultMinute;
+        this.maxHour = maxDefaultHour;
+        this.maxMinute = maxDefaultMinute;
+
+        this.maxPrice=PRICES_INTEGERS_SE.get("Max");
+        this.minPrice=0;
+        for (String sessionTypeChoice: sessionTypeChosen.keySet()) {
+            sessionTypeChosen.put(sessionTypeChoice, false);
+        }
+
+        toggleFilterChecked();
 
         filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
@@ -729,6 +751,8 @@ public class ExploreFragment extends Fragment{
             removeFilteredItem("maxPrice");
         }
 
+        toggleFilterChecked();
+
         filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
 
@@ -739,7 +763,19 @@ public class ExploreFragment extends Fragment{
         this.sessionTypeChosen = sessionTypeChosen;
         filterGeoFireNodesAndPopulateListAndMap(false, 0);
 
+        toggleFilterChecked();
 
+    }
+
+    private void toggleFilterChecked() {
+
+        if (this.minHour==minDefaultHour && minMinute==minDefaultMinute && maxHour==maxDefaultHour && maxMinute==maxDefaultMinute && this.maxPrice==PRICES_INTEGERS_SE.get("Max") && this.minPrice==0 && !this.sessionTypeChosen.containsValue(true)) {
+            sortAndFilterFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.foxmikePrimaryColor)));
+            sortAndFilterFAB.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
+        } else {
+            sortAndFilterFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.foxmikePrimaryDarkColor)));
+            sortAndFilterFAB.setImageDrawable(getResources().getDrawable(R.drawable.filter_checked));
+        }
     }
 
     private void showFilteredItem(String filterType, String filterText) {
