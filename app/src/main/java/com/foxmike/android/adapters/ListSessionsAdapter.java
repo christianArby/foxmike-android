@@ -402,6 +402,10 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public boolean isHeader(int itemPosition) {
 
+        if (advertisementIdsAndTimestampsFilteredArrayList.size()==0) {
+            return false;
+        }
+
         if (advertisementIdsAndTimestampsFilteredArrayList.size()>itemPosition) {
             if (advertisementIdsAndTimestampsFilteredArrayList.get(itemPosition).getAdvertisementId().equals("dateHeader")) {
                 return true;

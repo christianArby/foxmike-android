@@ -39,6 +39,10 @@ import static com.foxmike.android.utils.Distance.DISTANCE_INTEGERS_SE;
 import static com.foxmike.android.utils.Distance.DISTANCE_STRINGS_SE;
 import static com.foxmike.android.utils.Price.PRICES_INTEGERS_SE;
 import static com.foxmike.android.utils.Price.PRICES_STRINGS_SE;
+import static com.foxmike.android.utils.StaticResources.maxDefaultHour;
+import static com.foxmike.android.utils.StaticResources.maxDefaultMinute;
+import static com.foxmike.android.utils.StaticResources.minDefaultHour;
+import static com.foxmike.android.utils.StaticResources.minDefaultMinute;
 
 /**
  * This opens up a dialog fragment in order to choose way to sort and filter
@@ -74,6 +78,14 @@ public class SortAndFilterFragment extends DialogFragment {
     private HashMap<String, Boolean> sessionTypeChosen = new HashMap<>();
     private LinearLayout sessionTypeProgress;
     private HashMap<String,String> sessionTypeDictionary;
+    private TextView clearAll;
+    private ListSessionTypesAdapter listSessionTypesAdapter;
+    private HashMap<String, Drawable> sessionTypeDrawables;
+    private HashMap<String, ColorStateList> checkedColors;
+    private Spinner spinnerMax;
+    private Spinner spinnerMin;
+    private ArrayAdapter<CharSequence> adapterPriceMin;
+    private ArrayAdapter<CharSequence> adapterPriceMax;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
@@ -133,8 +145,9 @@ public class SortAndFilterFragment extends DialogFragment {
         chosenDistance = view.findViewById(R.id.chosenDistance);
         sessionTypeRV = view.findViewById(R.id.sessionTypeRV);
         sessionTypeProgress = view.findViewById(R.id.sessionTypeProgress);
+        clearAll = view.findViewById(R.id.clearAll);
 
-        HashMap<String, Drawable> sessionTypeDrawables = new HashMap<>();
+        sessionTypeDrawables = new HashMap<>();
         sessionTypeDrawables.put("checked", getResources().getDrawable(R.drawable.ic_check_black_24dp));
         sessionTypeDrawables.put("DDD", getResources().getDrawable(R.drawable.strength));
         sessionTypeDrawables.put("AAA", getResources().getDrawable(R.drawable.running));
@@ -145,14 +158,20 @@ public class SortAndFilterFragment extends DialogFragment {
         ColorStateList checkedColor = ColorStateList.valueOf(Color.parseColor("#006959"));
         ColorStateList notCheckedColor = ColorStateList.valueOf(Color.parseColor("#00bfa5"));
 
-        HashMap<String, ColorStateList> checkedColors = new HashMap<>();
+        checkedColors = new HashMap<>();
         checkedColors.put("isChecked", checkedColor);
         checkedColors.put("isNotChecked", notCheckedColor);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         sessionTypeRV.setLayoutManager(linearLayoutManager);
 
-        ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeDictionary, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener);
+        listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeDictionary, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener, new OnChosenTypesChangedListener() {
+            @Override
+            public void OnChosenTypeChanged(HashMap<String, Boolean> changedSessionTypeChosen) {
+                sessionTypeChosen = changedSessionTypeChosen;
+                toggleClearFilterTextColor();
+            }
+        });
         sessionTypeRV.setAdapter(listSessionTypesAdapter);
         sessionTypeProgress.setVisibility(View.GONE);
 
@@ -167,12 +186,13 @@ public class SortAndFilterFragment extends DialogFragment {
         timeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
             @Override
             public void finalValue(Number minValue, Number maxValue) {
-                int minHour = minValue.intValue()/60; //since both are ints, you get an int
-                int minMinute =minValue.intValue() % 60;
+                minHour = minValue.intValue()/60; //since both are ints, you get an int
+                minMinute =minValue.intValue() % 60;
 
-                int maxHour = maxValue.intValue()/60; //since both are ints, you get an int
-                int maxMinute = maxValue.intValue() % 60 ;
+                maxHour = maxValue.intValue()/60; //since both are ints, you get an int
+                maxMinute = maxValue.intValue() % 60 ;
                 onFilterChangedListener.OnTimeRangeChanged(minHour, minMinute, maxHour, maxMinute);
+                toggleClearFilterTextColor();
 
             }
         });
@@ -180,19 +200,19 @@ public class SortAndFilterFragment extends DialogFragment {
         timeSeekbar.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
             @Override
             public void valueChanged(Number minValue, Number maxValue) {
-                int minHour = minValue.intValue()/60; //since both are ints, you get an int
-                int minMinute =minValue.intValue() % 60;
+                minHour = minValue.intValue()/60; //since both are ints, you get an int
+                minMinute =minValue.intValue() % 60;
 
-                int maxHour = maxValue.intValue()/60; //since both are ints, you get an int
-                int maxMinute = maxValue.intValue() % 60 ;
+                maxHour = maxValue.intValue()/60; //since both are ints, you get an int
+                maxMinute = maxValue.intValue() % 60 ;
                 minTime.setText(String.format("%02d:%02d", minHour, minMinute));
                 maxTime.setText(String.format("%02d:%02d", maxHour, maxMinute));
             }
         });
 
         // Setup price filter
-        Spinner spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
-        ArrayAdapter<CharSequence> adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
+        spinnerMin = (Spinner) view.findViewById(R.id.priceSpinnerMin);
+        adapterPriceMin = ArrayAdapter.createFromResource(getActivity(),
                 R.array.price_array_filter_min, R.layout.spinner_text);
         adapterPriceMin.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMin.setAdapter(adapterPriceMin);
@@ -206,6 +226,8 @@ public class SortAndFilterFragment extends DialogFragment {
                 if (minClicked!=0) {
                     String minPriceString = (String) spinnerMin.getSelectedItem();
                     onFilterChangedListener.OnMinPriceChanged(PRICES_INTEGERS_SE.get(minPriceString));
+                    minPrice = PRICES_INTEGERS_SE.get(minPriceString);
+                    toggleClearFilterTextColor();
                 }
                 minClicked++;
             }
@@ -213,11 +235,13 @@ public class SortAndFilterFragment extends DialogFragment {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 onFilterChangedListener.OnMinPriceChanged(0);
+                minPrice = 0;
+                toggleClearFilterTextColor();
             }
         });
 
-        Spinner spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
-        ArrayAdapter<CharSequence> adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
+        spinnerMax = (Spinner) view.findViewById(R.id.priceSpinnerMax);
+        adapterPriceMax = ArrayAdapter.createFromResource(getActivity(),
                 R.array.price_array_filter_max, R.layout.spinner_text);
         adapterPriceMax.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMax.setAdapter(adapterPriceMax);
@@ -229,6 +253,8 @@ public class SortAndFilterFragment extends DialogFragment {
                     // TODO FIX CURRENCY
                     String maxPriceString = (String) spinnerMax.getSelectedItem();
                     onFilterChangedListener.OnMaxPriceChanged(PRICES_INTEGERS_SE.get(maxPriceString));
+                    maxPrice = PRICES_INTEGERS_SE.get(maxPriceString);
+                    toggleClearFilterTextColor();
                 }
 
                 maxClicked++;
@@ -237,6 +263,8 @@ public class SortAndFilterFragment extends DialogFragment {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 onFilterChangedListener.OnMaxPriceChanged(PRICES_INTEGERS_SE.get("Max"));
+                maxPrice = PRICES_INTEGERS_SE.get("Max");
+                toggleClearFilterTextColor();
             }
         });
 
@@ -308,7 +336,61 @@ public class SortAndFilterFragment extends DialogFragment {
             }
         });
 
+        clearAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // reset all values
+                minHour=minDefaultHour;
+                minMinute=minDefaultMinute;
+                maxHour=maxDefaultHour;
+                maxMinute=maxDefaultMinute;
+                maxPrice=PRICES_INTEGERS_SE.get("Max");
+                minPrice=0;
+
+                //reset all views
+                timeSeekbar.setMinValue(240);
+                timeSeekbar.setMaxValue(1425);
+                timeSeekbar.setMinStartValue(minHour*60+minMinute);
+                timeSeekbar.setMaxStartValue(maxHour*60+maxMinute);
+                timeSeekbar.apply();
+
+                if (listSessionTypesAdapter !=null) {
+                    listSessionTypesAdapter = null;
+                }
+                for (String sessionTypeChoice: sessionTypeChosen.keySet()) {
+                    sessionTypeChosen.put(sessionTypeChoice, false);
+                }
+                ListSessionTypesAdapter listSessionTypesAdapter = new ListSessionTypesAdapter(sessionTypeDictionary, sessionTypeChosen, sessionTypeDrawables, checkedColors, onFilterChangedListener, new OnChosenTypesChangedListener() {
+                    @Override
+                    public void OnChosenTypeChanged(HashMap<String, Boolean> changedSessionTypeChosen) {
+                        sessionTypeChosen = changedSessionTypeChosen;
+                        toggleClearFilterTextColor();
+                    }
+                });
+                sessionTypeRV.setAdapter(listSessionTypesAdapter);
+
+                //
+
+                onFilterChangedListener.OnResetFilter();
+                spinnerMax.setSelection(adapterPriceMax.getPosition(PRICES_STRINGS_SE.get(maxPrice)));
+                spinnerMin.setSelection(adapterPriceMin.getPosition(PRICES_STRINGS_SE.get(-1)));
+
+                toggleClearFilterTextColor();
+
+            }
+        });
+
+        toggleClearFilterTextColor();
+
         return view;
+    }
+
+    private void toggleClearFilterTextColor() {
+        if (this.minHour==minDefaultHour && minMinute==minDefaultMinute && maxHour==maxDefaultHour && maxMinute==maxDefaultMinute && this.maxPrice==PRICES_INTEGERS_SE.get("Max") && this.minPrice==0 && !this.sessionTypeChosen.containsValue(true)) {
+            clearAll.setTextColor(ColorStateList.valueOf(getResources().getColor(R.color.grayTextColor)));
+        } else {
+            clearAll.setTextColor(ColorStateList.valueOf(getResources().getColor(R.color.foxmikePrimaryColor)));
+        }
     }
 
     @Override
@@ -335,5 +417,10 @@ public class SortAndFilterFragment extends DialogFragment {
         void OnMaxPriceChanged(int maxPrice);
         void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute);
         void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen);
+        void OnResetFilter();
+    }
+
+    public interface OnChosenTypesChangedListener {
+        void OnChosenTypeChanged(HashMap<String, Boolean> changedSessionTypeChosen);
     }
 }

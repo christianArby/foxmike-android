@@ -627,4 +627,5 @@
     <string name="removing_session_from_bookings">Tar bort passet från dina bokningar</string>
     <string name="foxmike_trainer_title">Foxmike Tränare</string>
     <string name="session_close_tp_start_and_participants">Passet ska börja snart och du har deltagare, är du säker på att du vill ställa in det?</string>
+    <string name="clear_all">Rensa filter</string>
 </resources>

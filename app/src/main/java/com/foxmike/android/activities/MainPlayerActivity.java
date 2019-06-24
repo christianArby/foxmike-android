@@ -1058,6 +1058,12 @@ public class MainPlayerActivity extends AppCompatActivity
         exploreFragment.OnSessionTypeChanged(sessionTypeChosen);
     }
 
+    @Override
+    public void OnResetFilter() {
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        exploreFragment.OnResetFilter();
+    }
+
     public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside, OnOkPressedListener onOkPressedListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         // 2. Chain together various setter methods to set the dialog characteristics

@@ -16,15 +16,39 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/closeImageButton"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@color/color_background_dark"
-                android:layout_marginTop="@dimen/margin_left"
-                android:layout_marginEnd="@dimen/margin_left"
-                android:src="@drawable/ic_close_black_24dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/margin_left">
+
+                <TextView
+                    android:id="@+id/clearAll"
+                    android:textColor="@color/grayTextColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="@dimen/margin_left"
+                    android:layout_marginTop="@dimen/margin_left"
+                    android:textAllCaps="true"
+                    android:text="@string/clear_all"/>
+
+                <ImageButton
+                    android:id="@+id/closeImageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/color_background_dark"
+                    android:layout_marginTop="@dimen/margin_left"
+                    android:layout_marginEnd="@dimen/margin_left"
+                    android:src="@drawable/ic_close_black_24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
             <TextView
                 android:id="@+id/sessionTypeHeading"
