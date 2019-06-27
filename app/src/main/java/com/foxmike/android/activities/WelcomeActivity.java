@@ -50,6 +50,7 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -101,6 +102,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
     private ImageView foxmikeIcon;
+    private FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(WelcomeActivity.this);
 
 
     @Override
@@ -271,7 +273,10 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    checkIfUserExistsInDb();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, "facebook");
+                    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
+                    checkIfUserExistsInDb("facebook");
                 } else {
                     myProgressBar.stopProgressBar();
                     facebookLoginButton.setEnabled(true);
@@ -324,7 +329,10 @@ public class WelcomeActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            checkIfUserExistsInDb();
+                            Bundle bundle = new Bundle();
+                            bundle.putString(FirebaseAnalytics.Param.METHOD, "google");
+                            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
+                            checkIfUserExistsInDb("google");
                         } else {
                             myProgressBar.stopProgressBar();
                             googleSignInButton.setEnabled(true);
@@ -337,13 +345,18 @@ public class WelcomeActivity extends AppCompatActivity {
     // ------------------- GOOGLE SIGN METHODS ENDS ----------------
 
     // Check if user exists in database
-    public void checkIfUserExistsInDb() {
+    public void checkIfUserExistsInDb(String signUpMethod) {
         mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     registrationFinished();
                 } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, signUpMethod);
+                    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, bundle);
+
+
                     User user = new User();
                     user.setFirstName(firstName);
                     user.setLastName(lastName);

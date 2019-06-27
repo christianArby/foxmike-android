@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -54,8 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private MyProgressBar myProgressBar;
     private long mLastClickTime = 0;
-    private DatabaseReference maintenanceRef;
-    private ValueEventListener maintenanceListener;
+    private FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +154,10 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.METHOD, "email");
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
+
                         myProgressBar.stopProgressBar();
                         currentUserID = mAuth.getCurrentUser().getUid();
                         checkIfUserExistsInDb();

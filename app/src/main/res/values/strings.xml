@@ -628,4 +628,7 @@
     <string name="foxmike_trainer_title">Foxmike Trainer</string>
     <string name="session_close_tp_start_and_participants">Session is close to start and you have participants, are you sure you want to proceed?</string>
     <string name="clear_all">Clear all</string>
+    <string name="history">History</string>
+    <string name="booked">BOOKED</string>
+    <string name="fully_booked">FULLY BOOKED</string>
 </resources>

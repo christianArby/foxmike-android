@@ -354,6 +354,61 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/showMoreText"/>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/historyHeading"
+        style="@style/FoxmikeHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:text="@string/history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spaceView02" />
+
+    <View
+        android:id="@+id/spaceView020"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:background="@color/color_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/historyHeading" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/historySessionsList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/spaceView020"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <LinearLayout
+        android:id="@+id/showMoreText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/historySessionsList">
+
+        <TextView
+            android:id="@+id/showMoreTV2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:padding="@dimen/marginVertical"
+            android:text="@string/show_more"
+            />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/spaceView03"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_view__big_height"
+        android:background="@color/color_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showMoreText2"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ratingsAndReviews"
         android:layout_width="match_parent"
@@ -361,7 +416,7 @@
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceView02">
+        app:layout_constraintTop_toBottomOf="@id/spaceView03">
 
         <TextView
             android:id="@+id/ratingsAndReviewsHeading"

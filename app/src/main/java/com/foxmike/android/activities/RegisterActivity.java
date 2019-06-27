@@ -41,6 +41,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -99,6 +100,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String password;
     private MyProgressBar myProgressBar;
     private User user;
+    FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(RegisterActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -306,7 +308,9 @@ public class RegisterActivity extends AppCompatActivity {
                         user.setLastName(lastName);
                         user.setFullName(firstName + " " + lastName);
 
-
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.METHOD, "email");
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
 
                         SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
                         setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {

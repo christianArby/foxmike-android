@@ -628,4 +628,7 @@
     <string name="foxmike_trainer_title">Foxmike Tränare</string>
     <string name="session_close_tp_start_and_participants">Passet ska börja snart och du har deltagare, är du säker på att du vill ställa in det?</string>
     <string name="clear_all">Rensa filter</string>
+    <string name="history">Tidigare tillfällen</string>
+    <string name="booked">BOKAD</string>
+    <string name="fully_booked">FULLBOKAD</string>
 </resources>
