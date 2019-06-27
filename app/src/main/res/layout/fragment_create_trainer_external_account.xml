@@ -69,6 +69,7 @@
                 android:textColor="@color/primaryTextColor"
                 android:textColorHint="@color/grayTextColor"
                 android:backgroundTint="@color/grayTextColor"
+                android:hint="@string/iban_hint"
                 app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -79,7 +80,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLength="29"
-                    android:hint="@string/iban_hint"
+
                     android:inputType="number"
                     android:digits="0,1,2,3,4,5,6,7,8,9,S,E, " />
             </com.google.android.material.textfield.TextInputLayout>

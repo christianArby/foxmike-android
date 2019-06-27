@@ -400,7 +400,7 @@
     <string name="cancel">Avbryt</string>
     <string name="you_need_a_payment_method_in_order_to_book_this_session">Du behöver lägga till en betalningsmetod för att kunna boka pass som inte är gratis.</string>
     <string name="booking_failed">Bokningen misslyckades</string>
-    <string name="choose_location">Välj plats</string>
+    <string name="choose_location">Plats</string>
     <string name="booking_session">Bokar pass…</string>
     <string name="booking_text_policy">Avbokning mot en serviceavgift är möjlig fram till 6 timmar innan bokad tid eller om bokningen inte är äldre än 30 min. För mer information läs våra\u0020<a href="https://foxmike.app/terms">användarvillkor</a>.</string>
     <string name="cancellation_not_possible">Passet går ej att avboka</string>

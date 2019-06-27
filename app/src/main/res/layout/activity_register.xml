@@ -86,6 +86,7 @@
                 android:nextFocusUp="@id/setupFirstNameField"
                 android:nextFocusLeft="@id/setupFirstNameField"
                 android:layout_marginTop="@dimen/margin_minimum"
+                android:hint="@string/first_name_text"
                 app:layout_constraintTop_toBottomOf="@id/imageErrorText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:errorEnabled="true">
@@ -96,7 +97,7 @@
                     android:id="@+id/setupFirstNameField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/first_name_text"
+
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -111,6 +112,7 @@
                 android:textColor="@color/secondaryTextColor"
                 android:textColorHint="@color/secondaryTextColor"
                 android:backgroundTint="@color/secondaryTextColor"
+                android:hint="@string/last_name_text"
                 app:layout_constraintTop_toBottomOf="@id/firstNameTIL"
                 app:layout_constraintStart_toStartOf="parent"
                 app:errorEnabled="true">
@@ -121,7 +123,7 @@
                     android:id="@+id/setupLastNameField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/last_name_text"
+
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -136,6 +138,7 @@
                 android:textColor="@color/secondaryTextColor"
                 android:textColorHint="@color/secondaryTextColor"
                 android:backgroundTint="@color/secondaryTextColor"
+                android:hint="@string/email"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/lastNameTIL"
                 app:errorEnabled="true">
@@ -147,7 +150,7 @@
                     android:id="@+id/emailField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/email"
+
                     android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -162,6 +165,7 @@
                 android:textColor="@color/secondaryTextColor"
                 android:textColorHint="@color/secondaryTextColor"
                 android:backgroundTint="@color/secondaryTextColor"
+                android:hint="@string/password"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/emailTIL"
                 app:errorEnabled="true">
@@ -173,7 +177,7 @@
                     android:id="@+id/passwordField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/password"
+
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 

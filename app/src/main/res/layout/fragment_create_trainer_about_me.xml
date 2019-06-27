@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginTop="@dimen/marginVertical"
+        android:hint="@string/aboutMe_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -22,7 +23,7 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_marginEnd="@dimen/margin_right"
             android:id="@+id/aboutMeET"
-            android:hint="@string/aboutMe_text"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapSentences|textMultiLine"/>
