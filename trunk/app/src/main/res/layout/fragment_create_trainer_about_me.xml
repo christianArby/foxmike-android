@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginTop="50dp"
         android:hint="@string/aboutMe_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
