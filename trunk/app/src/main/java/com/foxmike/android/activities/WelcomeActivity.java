@@ -322,6 +322,17 @@ public class WelcomeActivity extends AppCompatActivity {
         imageURL = acct.getPhotoUrl().toString();
         email = acct.getEmail();
 
+        if (lastName == null) {
+            lastName = firstName;
+        }
+
+        if (firstName == null) {
+            firstName = email;
+            if (lastName == null) {
+                lastName = email;
+            }
+        }
+
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

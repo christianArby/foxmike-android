@@ -400,7 +400,7 @@
     <string name="cancel">Cancel</string>
     <string name="you_need_a_payment_method_in_order_to_book_this_session">You need a payment method in order to book this session.</string>
     <string name="booking_failed">Booking failed</string>
-    <string name="choose_location">Choose location</string>
+    <string name="choose_location">Location</string>
     <string name="booking_session">Booking session...</string>
     <string name="booking_text_policy">Bookings older than 30 minutes and within 6 hours before the starting time of the session are not refundable. For more information read our cancellation policy in our terms of agreement.</string>
     <string name="cancellation_not_possible">Cancellation not possible</string>

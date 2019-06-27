@@ -57,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
+            android:hint="@string/session_name_goes_here"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right"
             app:layout_constraintTop_toBottomOf="@id/sessionImageContainer">
@@ -67,7 +68,6 @@
                 android:id="@+id/sessionNameET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/session_name_goes_here"
                 android:inputType="textCapSentences"
                 app:layout_constraintTop_toBottomOf="@id/sessionImageContainer"
                 app:layout_constraintStart_toStartOf="parent"/>
@@ -78,7 +78,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            app:hintEnabled="false"
+            android:hint="@string/choose_location"
+            app:hintEnabled="true"
             app:errorEnabled="true"
             app:layout_constraintTop_toBottomOf="@id/sessionNameTIL">
 
@@ -94,8 +95,7 @@
                 android:drawableStart="@drawable/ic_edit_location_black_24dp"
                 android:drawableTint="@color/primaryTextColor"
                 android:background="@android:color/transparent"
-                android:layout_gravity="center_vertical"
-                android:hint="@string/choose_location" />
+                android:layout_gravity="center_vertical"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -103,7 +103,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
-            app:hintEnabled="false"
+            android:hint="@string/session_type"
+            app:hintEnabled="true"
             app:errorEnabled="true"
             app:layout_constraintTop_toBottomOf="@id/locationTIL">
 
@@ -119,8 +120,7 @@
                 android:drawableStart="@drawable/ic_filter_list_black_24dp"
                 android:drawableTint="@color/primaryTextColor"
                 android:background="@android:color/transparent"
-                android:layout_gravity="center_vertical"
-                android:hint="@string/session_type" />
+                android:layout_gravity="center_vertical" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -130,6 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
+            android:hint="@string/what_hint"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right">
 
@@ -139,7 +140,7 @@
                 android:id="@+id/whatET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/what_hint"
+
                 android:inputType="textCapSentences|textMultiLine"
                 android:nextFocusForward="@+id/whoET"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -151,6 +152,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
+            android:hint="@string/who_hint"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right">
 
@@ -160,7 +162,7 @@
                 android:id="@+id/whoET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/who_hint"
+
                 android:inputType="textCapSentences|textMultiLine"
                 android:nextFocusForward="@+id/whereET"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -172,6 +174,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primaryTextColor"
+            android:hint="@string/where_hint"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_right">
 
@@ -181,7 +184,7 @@
                 android:id="@+id/whereET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/where_hint"
+
                 android:inputType="textCapSentences|textMultiLine"
                 android:nextFocusForward="@+id/priceET"/>
         </com.google.android.material.textfield.TextInputLayout>

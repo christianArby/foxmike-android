@@ -36,6 +36,7 @@
         android:textColor="@color/primaryTextColor"
         android:textColorHint="@color/primaryTextColor"
         android:backgroundTint="@color/primaryTextColor"
+        android:hint="@string/email"
         android:layout_below="@id/linkAccountText">
 
         <EditText
@@ -43,7 +44,7 @@
             android:id="@+id/loginEmailField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email"
+
             android:inputType="none"
             android:textColor="@color/primaryTextColor"
             android:textColorHint="@color/primaryTextColor"
@@ -57,6 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginVertical"
+        android:hint="@string/password"
         android:textColor="@color/primaryTextColor"
         android:textColorHint="@color/primaryTextColor"
         android:backgroundTint="@color/primaryTextColor">
@@ -69,7 +71,7 @@
             android:textColor="@color/primaryTextColor"
             android:textColorHint="@color/primaryTextColor"
             android:backgroundTint="@color/primaryTextColor"
-            android:hint="@string/password"
+
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
