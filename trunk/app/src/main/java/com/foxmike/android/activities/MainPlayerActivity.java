@@ -82,6 +82,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -186,6 +187,8 @@ public class MainPlayerActivity extends AppCompatActivity
 
         /** If friend request is sent by notification, get it through intentExtra. */
         fromUserID = getIntent().getStringExtra("notificationRequest");
+
+        Log.d("Instance ID", FirebaseInstanceId.getInstance().getId());
 
         /** Setup bottom navigation */
         AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation_player_items);

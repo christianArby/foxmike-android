@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Path;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -49,6 +51,7 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -56,11 +59,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import static android.view.View.INVISIBLE;
@@ -359,8 +364,37 @@ public class ExploreFragment extends Fragment{
 
     private void checkIfGeoFireNodesAreLoaded() {
         if (!geoFireNodesLoaded && locationFound) {
+            FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity().getApplicationContext());
+            mFirebaseAnalytics.setUserProperty("location_area", getLocationProperty(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()));
             loadGeoFireNodes();
         }
+    }
+
+    private String getLocationProperty(double latitude, double longitude) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String returnState = "";
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            if (addresses.size()!=0) {
+
+                String state = addresses.get(0).getAdminArea();
+
+                if (state != null) {
+
+                    returnState = state;
+                }
+            } else {
+                returnState = "Unknown area";
+            }
+
+        } catch (IOException ex) {
+            returnState = "failed";
+        }
+        return returnState;
     }
 
     public void dimCurrentDay(boolean dim) {

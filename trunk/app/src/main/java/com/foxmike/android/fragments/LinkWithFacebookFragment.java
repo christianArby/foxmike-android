@@ -114,7 +114,7 @@ public class LinkWithFacebookFragment extends DialogFragment {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             if (task.isSuccessful()) {
-                                                welcomeActivity.checkIfUserExistsInDb();
+                                                welcomeActivity.checkIfUserExistsInDb("email");
                                                 myProgressBar.stopProgressBar();
                                             } else {
                                                 myProgressBar.stopProgressBar();

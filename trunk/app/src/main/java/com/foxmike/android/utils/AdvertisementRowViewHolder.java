@@ -3,6 +3,7 @@ package com.foxmike.android.utils;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.foxmike.android.R;
@@ -14,8 +15,11 @@ import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 
 public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-    public TextView advertisementRowDateAndTimeText;
+    public TextView advertisementRowDateText;
+    public TextView advertisementRowTimeText;
     public TextView participantsTV;
+    private AppCompatTextView bookedFlag;
+    private AppCompatTextView fullyBookedFlag;
 
     AdvertisementRowClickedListener advertisementRowClickedListener;
 
@@ -25,8 +29,12 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
 
     public AdvertisementRowViewHolder(View itemView) {
         super(itemView);
-        advertisementRowDateAndTimeText = (TextView) itemView.findViewById(R.id.sessionDateAndTimeTV);
+        advertisementRowDateText = (TextView) itemView.findViewById(R.id.sessionDateTV);
+        advertisementRowTimeText = (TextView) itemView.findViewById(R.id.timeTV);
         participantsTV = (TextView) itemView.findViewById(R.id.participantsTV);
+        bookedFlag = (AppCompatTextView) itemView.findViewById(R.id.bookedFlag);
+        fullyBookedFlag = (AppCompatTextView) itemView.findViewById(R.id.fullyBookedFlag);
+
         itemView.setOnClickListener(this);
     }
 
@@ -40,6 +48,22 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
         });
     }
 
+    public void toggleBooked(boolean booked) {
+        if (booked) {
+            bookedFlag.setVisibility(View.VISIBLE);
+        } else {
+            bookedFlag.setVisibility(View.GONE);
+        }
+    }
+
+    public void toggleFullyBooked(boolean fullyBooked) {
+        if (fullyBooked) {
+            fullyBookedFlag.setVisibility(View.VISIBLE);
+        } else {
+            fullyBookedFlag.setVisibility(View.GONE);
+        }
+    }
+
     public void hideParticipantsTV() {
         participantsTV.setVisibility(View.GONE);
     }
@@ -49,7 +73,4 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
         advertisementRowClickedListener.OnAdvertisementRowClicked(view, getAdapterPosition());
     }
 
-    public void setSelected(int textColor) {
-        advertisementRowDateAndTimeText.setTextColor(textColor);
-    }
 }
