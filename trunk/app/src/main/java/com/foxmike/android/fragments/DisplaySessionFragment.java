@@ -258,6 +258,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private Query allHistoryKeysQuery;
     private Long currentLastTimestamp = 0L;
     private ListHistoryAdvertisementsAdapter listHistoryAdvertisementsAdapter;
+    private boolean firstLoaded;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -452,17 +453,21 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         return;
                     }
                     numberInHistory = dataSnapshot.getChildrenCount();
-                    if (dataSnapshot.getChildrenCount()<5) {
+                    if (dataSnapshot.getChildrenCount()<2) {
                         showMoreTV2.setText(getResources().getString(R.string.end_of_list));
+                        showMoreTV2.setClickable(false);
                     } else {
                         if (listHistoryAdvertisementsAdapter!=null) {
                             if (listHistoryAdvertisementsAdapter.getItemCount()<dataSnapshot.getChildrenCount()) {
                                 showMoreTV2.setText(getResources().getString(R.string.show_more));
+                                showMoreTV2.setClickable(true);
                             } else {
                                 showMoreTV2.setText(getResources().getString(R.string.end_of_list));
+                                showMoreTV2.setClickable(false);
                             }
                         } else {
                             showMoreTV2.setText(getResources().getString(R.string.show_more));
+                            showMoreTV2.setClickable(true);
                         }
                     }
 
@@ -617,33 +622,20 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // --------- GET ALL THE AD TIMESTAMPS SAVED UNDER SESSION/ADVERTISEMENTS ---------
         // Current time as timestamp
 
-        Long currentTimestamp = System.currentTimeMillis();
+
         DatabaseReference adDbRef = rootDbRef.child("advertisements");
 
-        // POPULATE THE HISTORY RECYCLERVIEW //
-        listHistoryAdvertisementsAdapter = new ListHistoryAdvertisementsAdapter(new ArrayList<>(), mSession.isSuperHosted(), new OnHistoryAdClickedListener() {
-            @Override
-            public void OnHistoryAdClicked(Advertisement adClicked) {
-                if (adClicked.getParticipantsTimestamps().size()>0) {
-                    ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(adClicked.getAdvertisementId(), getActivity().getApplicationContext().getResources().getString(R.string.participants_on) + " " + TextTimestamp.textSessionDateAndTime(adClicked.getAdvertisementTimestamp()));
-                    FragmentManager fragmentManager = getChildFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    participantsFragment.show(transaction,"participantsFragment");
-                }
 
-            }
-        });
 
-        currentLastTimestamp = currentTimestamp;
 
-        historySessionsRV.setAdapter(listHistoryAdvertisementsAdapter);
+
 
         populateHistoryList(currentLastTimestamp, true);
 
 
         // --------- POPULATE THE RECYCLERVIEW WITH THE ADVERTISEMENTS ---------
         // Create the key query which will get all the advertisement keys for ads with a date in the future.
-        Query allKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(currentTimestamp);
+        Query allKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(new DateTime(System.currentTimeMillis()).minusMinutes(75).getMillis());
 
         // Create the firebase recycler adapter which will fill the list with those advertisements specified by the above query
         FirebaseRecyclerOptions<Advertisement> options = new FirebaseRecyclerOptions.Builder<Advertisement>()
@@ -665,9 +657,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 int maxParticipants = model.getMaxParticipants();
                 holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
 
-                if (mSession.isSuperHosted()) {
-                    holder.hideParticipantsTV();
-                }
 
                 Long endTimestamp = model.getAdvertisementTimestamp() + (model.getDurationInMin()*1000*60);
 
@@ -709,14 +698,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                         notifyDataSetChanged(); // Made effect on Recycler Views adapter
                     }
                 });
-                // set the row appearance to default (no selection or booked color)
+
+
+                // START WITH DEFAULT APPEARANCE
                 setAdListItemDefaultAppearance(holder);
+
                 // if rowIndex==-1 it means that no item has been selected in the list, make the first item (this item) selected
                 if (rowIndex==-1) {
                     if (representingAdTimestamp==model.getAdvertisementTimestamp()) {
                         rowIndex = position;
                     }
                 }
+                // SELECTED
                 // If this item has been selected set advertisement adSelected to this ad and update snackbar
                 if (rowIndex == position) {
                     adSelected=model;
@@ -730,16 +723,66 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                     onAsyncTaskFinished();
                 }
-                // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
-                if (model.getParticipantsTimestamps().size()!=0) {
-                    if (model.getParticipantsTimestamps().containsKey(FirebaseAuth.getInstance().getUid())) {
-                        setAdListItemBookedAppearance(holder);
-                    } else {
-                        if (model.getParticipantsTimestamps().size()>=model.getMaxParticipants()) {
-                            setAdListItemFullyBookedAppearance(holder);
+
+                // set the row appearance to default (no selection or booked color)
+                // SUPERADMIN OR HOST
+                if (currentUser.isSuperAdmin() ||  mSession.getHost().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    holder.toggleParticipantsLeftTV(false);
+                    holder.toggleParticipantsTV(true);
+
+                    // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
+                    if (model.getParticipantsTimestamps().size()!=0) {
+                        if (model.getParticipantsTimestamps().containsKey(FirebaseAuth.getInstance().getUid())) {
+                            setAdListItemBookedAppearance(holder);
+                        } else {
+                            if (model.getParticipantsTimestamps().size()>=model.getMaxParticipants()) {
+                                setAdListItemFullyBookedAppearance(holder);
+                            }
                         }
                     }
+
+                } else {
+                    // SUPERHOSTED
+                    if (mSession.isSuperHosted()) {
+                        holder.toggleParticipantsTV(false);
+                        holder.toggleParticipantsLeftTV(false);
+                        holder.toggleFullyBooked(false);
+                        holder.toggleBooked(false);
+                    } else {
+                        // NORMAL
+                        if (countParticipants >= (model.getMaxParticipants()-3) && countParticipants!=model.getMaxParticipants()) {
+                            if ((model.getMaxParticipants()-countParticipants)==1) {
+                                holder.setParticipantsLeftTV(Long.toString(model.getMaxParticipants()-countParticipants) + getResources().getString(R.string.slot_left));
+                            } else {
+                                holder.setParticipantsLeftTV(Long.toString(model.getMaxParticipants()-countParticipants) + getResources().getString(R.string.slots_left));
+                            }
+
+                            holder.toggleParticipantsLeftTV(true);
+                            holder.toggleParticipantsTV(false);
+                        } else {
+                            holder.toggleParticipantsLeftTV(false);
+                            holder.toggleParticipantsTV(false);
+                        }
+
+                        // If the ad has participants, check if the current user is one of them and if so turn the appearance of the row to booked (filled dark green)
+                        if (model.getParticipantsTimestamps().size()!=0) {
+                            if (model.getParticipantsTimestamps().containsKey(FirebaseAuth.getInstance().getUid())) {
+                                setAdListItemBookedAppearance(holder);
+                                holder.toggleParticipantsLeftTV(false);
+                                holder.toggleParticipantsTV(true);
+                            } else {
+                                if (model.getParticipantsTimestamps().size()>=model.getMaxParticipants()) {
+                                    setAdListItemFullyBookedAppearance(holder);
+                                    holder.toggleParticipantsLeftTV(false);
+                                    holder.toggleParticipantsTV(false);
+                                }
+                            }
+                        }
+                    }
+
                 }
+
+
             }
             @NonNull
             @Override
@@ -803,21 +846,50 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
     private void populateHistoryList(Long lastTimestamp, boolean isFirstLoad) {
 
+        if (isFirstLoad && firstLoaded) {
+            return;
+        }
+
         if (isFirstLoad) {
+            firstLoaded = true;
+            // POPULATE THE HISTORY RECYCLERVIEW //
+
+            currentLastTimestamp = new DateTime(System.currentTimeMillis()).minusMinutes(75).getMillis();
+            lastTimestamp = currentLastTimestamp;
+
+            if (listHistoryAdvertisementsAdapter!=null) {
+                listHistoryAdvertisementsAdapter.clear();
+            }
+
+            listHistoryAdvertisementsAdapter = new ListHistoryAdvertisementsAdapter(new ArrayList<>(), mSession.isSuperHosted(), currentUser.isSuperAdmin(), isHost, new OnHistoryAdClickedListener() {
+                @Override
+                public void OnHistoryAdClicked(Advertisement adClicked) {
+                    if (adClicked.getParticipantsTimestamps().size()>0) {
+                        ParticipantsFragment participantsFragment = ParticipantsFragment.newInstance(adClicked.getAdvertisementId(), getActivity().getApplicationContext().getResources().getString(R.string.participants_on) + " " + TextTimestamp.textSessionDateAndTime(adClicked.getAdvertisementTimestamp()));
+                        FragmentManager fragmentManager = getChildFragmentManager();
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        participantsFragment.show(transaction,"participantsFragment");
+                    }
+
+                }
+            });
+            historySessionsRV.setAdapter(listHistoryAdvertisementsAdapter);
             allHistoryKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(1).endAt(lastTimestamp).limitToLast(sizeOfHistoryStart);
         } else {
             allHistoryKeysQuery = rootDbRef.child("sessionAdvertisements").child(mSession.getSessionId()).orderByValue().startAt(1).endAt(lastTimestamp-1).limitToLast(sizeOfHistoryAdded);
         }
 
         // Listener to keep data in cache in sync with database
-        FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(allHistoryKeysQuery);
-        firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
-            @Override
-            public void onChanged(@Nullable DataSnapshot dataSnapshot) {
-                // Dummy listener
-            }
-        });
+        if (isAdded()) {
+            FirebaseDatabaseViewModel firebaseDatabaseViewModel = ViewModelProviders.of(DisplaySessionFragment.this).get(FirebaseDatabaseViewModel.class);
+            LiveData<DataSnapshot> firebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(allHistoryKeysQuery);
+            firebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
+                @Override
+                public void onChanged(@Nullable DataSnapshot dataSnapshot) {
+                    // Dummy listener
+                }
+            });
+        }
 
 
         allHistoryKeysQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -826,6 +898,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 if (dataSnapshot.getValue()==null) {
                     showMoreTV2.setText(getResources().getString(R.string.end_of_list));
+                    showMoreTV2.setClickable(false);
                     return;
                 }
 
@@ -1234,16 +1307,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
             }
 
-            // ------------------------------
 
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setupAds();
-
-                }
-            }, 400);
         }
 
         // ---------------- HOST && VIEW-----------------
@@ -1253,6 +1317,15 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setupAds();
+
+                }
+            }, 400);
 
             if (host.isSuperAdmin()) {
                 if (mSession.getSecondaryHostId()!=null) {
@@ -1784,7 +1857,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         holder.itemView.setBackgroundColor(getResources().getColor(R.color.color_background_light));
         holder.toggleBooked(false);
         holder.toggleFullyBooked(false);
-        holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
+        holder.toggleParticipantsTV(false);
+        holder.toggleParticipantsLeftTV(false);
     }
 
     private void setAdListItemBookedAppearance(@NonNull AdvertisementRowViewHolder holder) {
@@ -1798,17 +1872,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         //holder.itemView.setBackgroundColor(getResources().getColor(R.color.color_background_light));
         holder.toggleBooked(false);
         holder.toggleFullyBooked(true);
-        holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
     }
 
     private void setAdListItemSelectedAppearance(@NonNull AdvertisementRowViewHolder holder) {
         holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-        holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
     }
 
     private void setAdListItemSelectedNoParticipantsAppearance(@NonNull AdvertisementRowViewHolder holder) {
         holder.itemView.setBackgroundColor(Color.parseColor("#F8F8FA"));
-        holder.participantsTV.setTextColor(getResources().getColor(R.color.foxmikePrimaryColor));
     }
 
     private void setPriceText() {

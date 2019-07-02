@@ -302,7 +302,7 @@ public class  ListSessionsFragment extends Fragment {
             Long todayTimestamp = System.currentTimeMillis();
             Long thisDayTimestamp = 0L;
             if (this.weekday == 0) {
-                thisDayTimestamp = new DateTime(todayTimestamp).plusDays(this.weekday).getMillis();
+                thisDayTimestamp = new DateTime(todayTimestamp).plusDays(this.weekday).minusMinutes(75).getMillis();
             } else {
                 DateTime thisDayDateTime = new DateTime(todayTimestamp).plusDays(this.weekday);
                 thisDayTimestamp = new DateTime(thisDayDateTime.getYear(), thisDayDateTime.getMonthOfYear(), thisDayDateTime.getDayOfMonth(), 0, 1).getMillis();
