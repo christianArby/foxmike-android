@@ -1,5 +1,6 @@
 package com.foxmike.android.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -102,7 +104,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private DatabaseReference maintenanceRef;
     private ValueEventListener maintenanceListener;
     private ImageView foxmikeIcon;
-    private FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(WelcomeActivity.this);
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     @Override
@@ -110,6 +112,7 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         mFunctions = FirebaseFunctions.getInstance();
 
         loginTV = findViewById(R.id.loginTV);
@@ -232,6 +235,15 @@ public class WelcomeActivity extends AppCompatActivity {
                         lastName = bFacebookData.getString("last_name");
                         imageURL = bFacebookData.getString("profile_pic");
                         email = bFacebookData.getString("email");
+                        if (email==null) {
+                            alertDialogOk(getResources().getString(R.string.registration_failed), getResources().getString(R.string.email_missing_facebook), true);
+                            return;
+                        }
+                        if (lastName == null) {
+                            lastName = firstName;
+                        }
+                        // if firstName == null is in checkifuserexistsindb
+
                         // Continue login process with token
                         handleFacebookAccessToken(loginResult.getAccessToken());
                     }
@@ -322,16 +334,16 @@ public class WelcomeActivity extends AppCompatActivity {
         imageURL = acct.getPhotoUrl().toString();
         email = acct.getEmail();
 
+        if (email==null) {
+            alertDialogOk(getResources().getString(R.string.registration_failed), getResources().getString(R.string.missing_email_google), true);
+            return;
+        }
+
         if (lastName == null) {
             lastName = firstName;
         }
 
-        if (firstName == null) {
-            firstName = email;
-            if (lastName == null) {
-                lastName = email;
-            }
-        }
+        // if firstName == null is in checkifuserexistsindeb
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -374,6 +386,13 @@ public class WelcomeActivity extends AppCompatActivity {
                     user.setFullName(firstName + " " + lastName);
                     user.setImage(imageURL);
                     user.setThumb_image(imageURL);
+
+                    if (firstName==null) {
+                        Intent setupIntent = new Intent(WelcomeActivity.this,SetupAccountActivity.class);
+                        setupIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(setupIntent);
+                        return;
+                    }
 
                     AddUserToDatabase addUserToDatabase = new AddUserToDatabase();
                     addUserToDatabase.AddUserToDatabaseWithUniqueUsername(WelcomeActivity.this, user);
@@ -507,5 +526,22 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void alertDialogOk(String title, String message, boolean canceledOnTouchOutside) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(message)
+                .setTitle(title);
+        // Add the buttons
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(canceledOnTouchOutside);
+        dialog.show();
     }
 }

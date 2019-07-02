@@ -20,6 +20,7 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
     public TextView participantsTV;
     private AppCompatTextView bookedFlag;
     private AppCompatTextView fullyBookedFlag;
+    private TextView participantsLeftTV;
 
     AdvertisementRowClickedListener advertisementRowClickedListener;
 
@@ -34,6 +35,7 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
         participantsTV = (TextView) itemView.findViewById(R.id.participantsTV);
         bookedFlag = (AppCompatTextView) itemView.findViewById(R.id.bookedFlag);
         fullyBookedFlag = (AppCompatTextView) itemView.findViewById(R.id.fullyBookedFlag);
+        participantsLeftTV = (TextView) itemView.findViewById(R.id.participantsLeftTV);
 
         itemView.setOnClickListener(this);
     }
@@ -46,6 +48,10 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
                 advertisementRowClickedListener.OnParticipantsClicked(getAdapterPosition());
             }
         });
+    }
+
+    public void setParticipantsLeftTV(String numberOfParticipantsLeftText) {
+        participantsLeftTV.setText(numberOfParticipantsLeftText);
     }
 
     public void toggleBooked(boolean booked) {
@@ -64,13 +70,26 @@ public class AdvertisementRowViewHolder extends RecyclerView.ViewHolder implemen
         }
     }
 
-    public void hideParticipantsTV() {
-        participantsTV.setVisibility(View.GONE);
+    public void toggleParticipantsTV(boolean show) {
+        if (show){
+            participantsTV.setVisibility(View.VISIBLE);
+        } else {
+            participantsTV.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onClick(View view) {
         advertisementRowClickedListener.OnAdvertisementRowClicked(view, getAdapterPosition());
+    }
+
+    public void toggleParticipantsLeftTV(boolean show) {
+        if (show) {
+            participantsLeftTV.setVisibility(View.VISIBLE);
+        } else {
+            participantsLeftTV.setVisibility(View.GONE);
+        }
+
     }
 
 }

@@ -23,12 +23,16 @@ public class ListHistoryAdvertisementsAdapter extends RecyclerView.Adapter<Adver
 
     private ArrayList<Advertisement> advertisementArrayListArray = new ArrayList<>();
     private boolean isSuperHosted;
+    private boolean isSuperAdmin;
+    private boolean isHost;
     private DisplaySessionFragment.OnHistoryAdClickedListener onHistoryAdClickedListener;
 
-    public ListHistoryAdvertisementsAdapter(ArrayList<Advertisement> advertisementArrayListArray, boolean isSuperHosted, DisplaySessionFragment.OnHistoryAdClickedListener onHistoryAdClickedListener) {
+    public ListHistoryAdvertisementsAdapter(ArrayList<Advertisement> advertisementArrayListArray, boolean isSuperHosted, boolean isSuperAdmin, boolean isHost, DisplaySessionFragment.OnHistoryAdClickedListener onHistoryAdClickedListener) {
         this.advertisementArrayListArray = advertisementArrayListArray;
         this.isSuperHosted = isSuperHosted;
+        this.isHost = isHost;
         this.onHistoryAdClickedListener = onHistoryAdClickedListener;
+        this.isSuperAdmin = isSuperAdmin;
     }
 
     @NonNull
@@ -52,9 +56,7 @@ public class ListHistoryAdvertisementsAdapter extends RecyclerView.Adapter<Adver
         int maxParticipants = advertisementArrayListArray.get(position).getMaxParticipants();
         holder.setParticipantsTV(countParticipants +"/" + maxParticipants);
 
-        if (isSuperHosted) {
-            holder.hideParticipantsTV();
-        }
+
 
         Long endTimestamp = advertisementArrayListArray.get(position).getAdvertisementTimestamp() + (advertisementArrayListArray.get(position).getDurationInMin()*1000*60);
 
@@ -73,28 +75,55 @@ public class ListHistoryAdvertisementsAdapter extends RecyclerView.Adapter<Adver
             }
         });
 
+        holder.toggleParticipantsLeftTV(false);
+        holder.toggleParticipantsTV(false);
+
+        if (isSuperAdmin || isHost) {
+            holder.toggleParticipantsTV(true);
+        }
+
         holder.toggleBooked(false);
         holder.toggleFullyBooked(false);
 
-        if (advertisementArrayListArray.get(position).getParticipantsTimestamps().size()!=0) {
-            if (advertisementArrayListArray.get(position).getParticipantsTimestamps().containsKey(FirebaseAuth.getInstance().getUid())) {
-                holder.toggleBooked(true);
-                holder.toggleFullyBooked(false);
-            } else {
-                if (advertisementArrayListArray.get(position).getParticipantsTimestamps().size()>=advertisementArrayListArray.get(position).getMaxParticipants()) {
-                    holder.toggleBooked(false);
-                    holder.toggleFullyBooked(true);
-                } else {
-                    holder.toggleBooked(false);
+        if (!isSuperHosted) {
+            if (advertisementArrayListArray.get(position).getParticipantsTimestamps().size()!=0) {
+                if (advertisementArrayListArray.get(position).getParticipantsTimestamps().containsKey(FirebaseAuth.getInstance().getUid())) {
+                    holder.toggleBooked(true);
                     holder.toggleFullyBooked(false);
+                    holder.toggleParticipantsTV(true);
+                } else {
+                    if (advertisementArrayListArray.get(position).getParticipantsTimestamps().size()>=advertisementArrayListArray.get(position).getMaxParticipants()) {
+                        holder.toggleBooked(false);
+                        holder.toggleFullyBooked(true);
+                    } else {
+                        holder.toggleBooked(false);
+                        holder.toggleFullyBooked(false);
+                    }
                 }
             }
         }
+
     }
 
     @Override
     public int getItemCount() {
-        return advertisementArrayListArray.size();
+        return advertisementArrayListArray == null ? 0 : advertisementArrayListArray.size();
+    }
+
+    public void clear() {
+        while (getItemCount() > 0) { remove(getItem(0)); }
+    }
+
+    public void remove(Advertisement ad) {
+        int position = advertisementArrayListArray.indexOf(ad);
+        if (position > -1) {
+            advertisementArrayListArray.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public Advertisement getItem(int position) {
+        return advertisementArrayListArray.get(position);
     }
 
     public void addData(ArrayList<Advertisement> addedAdvertisements) {

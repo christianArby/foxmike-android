@@ -478,6 +478,11 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     mProgress.setMessage(getString(R.string.creating_session));
                 }
 
+                if (clickedLatLng==null) {
+                    Toast.makeText(CreateOrEditSessionActivity.this, "Still fetching existing session information, please wait... No pain no gain ;)", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 mProgress.show();
 
                 updateSessionObjectFromUI(new OnSessionUpdatedListener() {
@@ -658,6 +663,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         if (existingSession!=null) {
 
             if (existingSession.getSecondaryHostId()!=null) {
+                secondaryHostId = existingSession.getSecondaryHostId();
                 secondaryHostTV.setText("Has secondary host");
             }
 

@@ -631,4 +631,9 @@
     <string name="history">Tidigare tillfällen</string>
     <string name="booked">BOKAD</string>
     <string name="fully_booked">FULLBOKAD</string>
+    <string name="slot_left">\u0020plats kvar</string>
+    <string name="slots_left">\u0020platser kvar</string>
+    <string name="registration_failed">Registrering misslyckades</string>
+    <string name="email_missing_facebook">Facebookkontot saknar email-adress, vänligen välj en annan registreringsmetod.</string>
+    <string name="missing_email_google">Googlekontot saknar en emailadress, vänligen välj en annan registreringsmetod.</string>
 </resources>

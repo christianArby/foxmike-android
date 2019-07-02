@@ -631,4 +631,9 @@
     <string name="history">History</string>
     <string name="booked">BOOKED</string>
     <string name="fully_booked">FULLY BOOKED</string>
+    <string name="slot_left">\u0020slot left</string>
+    <string name="slots_left">\u0020slots left</string>
+    <string name="registration_failed">Registration failed</string>
+    <string name="email_missing_facebook">The Facebook account is missing an email address, please choose another registration method.</string>
+    <string name="missing_email_google">The google account is missing an email address, please choose another registration method.</string>
 </resources>

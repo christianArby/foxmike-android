@@ -806,9 +806,13 @@ public class ExploreFragment extends Fragment{
         if (this.minHour==minDefaultHour && minMinute==minDefaultMinute && maxHour==maxDefaultHour && maxMinute==maxDefaultMinute && this.maxPrice==PRICES_INTEGERS_SE.get("Max") && this.minPrice==0 && !this.sessionTypeChosen.containsValue(true)) {
             sortAndFilterFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.foxmikePrimaryColor)));
             sortAndFilterFAB.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
+            sortAndFilterFAB.hide();
+            sortAndFilterFAB.show();
         } else {
             sortAndFilterFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.foxmikePrimaryDarkColor)));
             sortAndFilterFAB.setImageDrawable(getResources().getDrawable(R.drawable.filter_checked));
+            sortAndFilterFAB.hide();
+            sortAndFilterFAB.show();
         }
     }
 
@@ -1063,15 +1067,19 @@ public class ExploreFragment extends Fragment{
         Collections.sort(geoFireNodesKeys);
 
         if (updateSingleFragment) {
-            ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
-            if (listSessionsFragment!=null) {
-                listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, weekday);
+            if (exploreFragmentAdapter!=null) {
+                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(weekday);
+                if (listSessionsFragment!=null) {
+                    listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, weekday);
+                }
             }
         } else {
             for (int x = 0; x < 14; x++) {
-                ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
-                if (listSessionsFragment!=null) {
-                    listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
+                if (exploreFragmentAdapter!=null) {
+                    ListSessionsFragment listSessionsFragment = (ListSessionsFragment) exploreFragmentAdapter.getRegisteredFragment(x);
+                    if (listSessionsFragment!=null) {
+                        listSessionsFragment.geoFireNodesUpdated(geoFireNodesKeys, mLastKnownLocation, x);
+                    }
                 }
             }
         }
