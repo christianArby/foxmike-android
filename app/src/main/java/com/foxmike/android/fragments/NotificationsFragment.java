@@ -82,11 +82,9 @@ public class NotificationsFragment extends Fragment {
         if (getArguments() != null) {
         }
 
-
-
         // Set database reference to chat id in message root and build query
         DatabaseReference notificationsRef = rootDbRef.child("notifications").child(currentUserId);
-        notificationsQuery = notificationsRef.limitToLast(100);
+        notificationsQuery = notificationsRef.limitToLast(50);
 
         notificationsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
