@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
+import com.crashlytics.android.Crashlytics;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
@@ -124,6 +125,8 @@ public class MainHostActivity extends AppCompatActivity implements
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setEnterTransition(new Fade());
         getWindow().setExitTransition(new Fade());
+
+        Crashlytics.setUserIdentifier(FirebaseAuth.getInstance().getUid());
 
         setContentView(R.layout.activity_main_host);
 

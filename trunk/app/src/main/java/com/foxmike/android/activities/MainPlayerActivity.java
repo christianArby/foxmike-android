@@ -32,6 +32,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
+import com.crashlytics.android.Crashlytics;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
@@ -168,6 +169,8 @@ public class MainPlayerActivity extends AppCompatActivity
         getWindow().setExitTransition(new Fade());
         setContentView(R.layout.activity_main_player);
         ButterKnife.bind(this);
+
+        Crashlytics.setUserIdentifier(FirebaseAuth.getInstance().getUid());
 
         setStripeDefaultSource(new HashMap());
         setPaymentMethod(new HashMap());

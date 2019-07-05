@@ -18,12 +18,12 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
+import com.foxmike.android.adapters.ListFriendsFirebaseAdapter;
 import com.foxmike.android.interfaces.OnUserClickedListener;
-import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserBranch;
 import com.foxmike.android.models.UserPublic;
-import com.foxmike.android.utils.HeaderViewHolder;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,10 +31,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,9 +71,26 @@ public class FriendsFragment extends Fragment {
     private TextView noFriends;
     private long mLastClickTime = 0;
     private HashMap<String, Boolean> contentMap = new HashMap<>();
+    private ListFriendsFirebaseAdapter listFriendsFirebaseAdapter;
 
     public FriendsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (listFriendsFirebaseAdapter!=null) {
+            listFriendsFirebaseAdapter.startListening();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (listFriendsFirebaseAdapter!=null) {
+            listFriendsFirebaseAdapter.stopListening();
+        }
     }
 
     @Override
@@ -84,7 +101,7 @@ public class FriendsFragment extends Fragment {
         usersDatabase = FirebaseDatabase.getInstance().getReference().child("usersPublic");
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
-        myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
+
         mainView = inflater.inflate(R.layout.fragment_friends, container, false);
 
         requestsHeading = mainView.findViewById(R.id.friendRequestsHeadingTV);
@@ -99,7 +116,6 @@ public class FriendsFragment extends Fragment {
 
         contentMap.put("requests", false);
         contentMap.put("friends", false);
-
 
         // -------------------------- REQUEST LIST -------------------------
         requestsList = (RecyclerView) mainView.findViewById(R.id.requests_list);
@@ -201,11 +217,23 @@ public class FriendsFragment extends Fragment {
 
         // -------------------------- FRIENDS LIST -------------------------
         friendsList = (RecyclerView) mainView.findViewById(R.id.friends_list);
-        friendsList.setHasFixedSize(true);
+        //friendsList.setHasFixedSize(true);
         friendsList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         // Listen to changes at the current users friends database reference
+
+        Query friendsQuery = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID).orderByValue();
+        FirebaseRecyclerOptions<UserPublic> friendsOptions = new FirebaseRecyclerOptions.Builder<UserPublic>()
+                .setIndexedQuery(friendsQuery, usersDatabase, UserPublic.class)
+                .build();
+
+        listFriendsFirebaseAdapter = new ListFriendsFirebaseAdapter(friendsOptions, getActivity().getApplicationContext(),onUserClickedListener);
+
+        friendsList.setAdapter(listFriendsFirebaseAdapter);
+        listFriendsFirebaseAdapter.startListening();
+
+        myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
         FirebaseDatabaseViewModel friendFirebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
-        LiveData<DataSnapshot> friendFirebaseDatabaseLiveData = firebaseDatabaseViewModel.getDataSnapshotLiveData(myFriendsDbRef);
+        LiveData<DataSnapshot> friendFirebaseDatabaseLiveData = friendFirebaseDatabaseViewModel.getDataSnapshotLiveData(myFriendsDbRef);
         friendFirebaseDatabaseLiveData.observe(getViewLifecycleOwner(), new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable DataSnapshot dataSnapshot) {
@@ -225,139 +253,8 @@ public class FriendsFragment extends Fragment {
                     contentChange();
                 }
 
-                // Loop all the current users friends userIDs and download their user objects
-                for (String key : friendUserIDs) {
-                    usersDatabase.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User user = dataSnapshot.getValue(User.class);
-                            // save the userID and the user object in a UserBranch list
-                            userBranches.add(new UserBranch(dataSnapshot.getKey(),user));
-                            // When this condition has been met all listeners have been triggered and all the user objects have been saved in userBranches
-                            if (userBranches.size()==friendUserIDs.size()) {
-
-                                // Sort the userBranches based on user names
-                                Collections.sort(userBranches);
-                                // Write the first letter heading
-                                if (userBranches.size()>0) {
-                                    User dummyUser = new User();
-
-                                    ////// TODO !!!!!! fullname fuckup
-                                    dummyUser.setAboutMe(userBranches.get(0).getUser().getFirstName().substring(0,1));
-                                    UserBranch userBranch = new UserBranch("header",dummyUser);
-                                    userBranches.add(0,userBranch);
-                                }
-                                // Input letter headings into userBranches as dummy objects with the userID set to string header and object user.aboutMe set to the substring first letter
-                                int n = 1;
-                                while (n < userBranches.size()) {
-                                    if (!userBranches.get(n-1).getUserID().equals("header")) {
-                                        if (n>0 && !userBranches.get(n).getUser().getFirstName().substring(0,1).equals(userBranches.get(n-1).getUser().getFirstName().substring(0,1))) {
-                                            User dummyUser = new User();
-                                            dummyUser.setAboutMe(userBranches.get(n).getUser().getFirstName().substring(0,1));
-                                            UserBranch userBranch = new UserBranch("header",dummyUser);
-                                            userBranches.add(n,userBranch);
-                                        }
-                                    }
-                                    n++;
-                                }
-                                friendsViewHolderAdapter.notifyDataSetChanged();
-                            }
-                            /*// Set listeners to the friends presence in order to set their online status
-                            if (!presenceListenerMap.containsKey(rootDbRef.child("presence").child(dataSnapshot.getKey()))) {
-                                ValueEventListener onlineListener = rootDbRef.child("presence").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        // TODO check so that pos cant be null
-                                        int pos = userPosition.indexOfValue(dataSnapshot.getKey());
-                                        if (pos>-1) {
-                                            Presence presence = dataSnapshot.getValue(Presence.class);
-                                            presenceHashMap.put(pos,presence);
-                                            friendsViewHolderAdapter.notifyItemChanged(pos);
-                                        }
-                                    }
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                    }
-                                });
-                                presenceListenerMap.put(rootDbRef.child("users").child(dataSnapshot.getKey()).child("online"),onlineListener);
-                            }*/
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
             }
         });
-        // Setup the friends list with a recycler adapter alternating between two layouts, one for heading and one for a user object
-        friendsViewHolderAdapter = new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType==1) {
-                    View view = LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.friends_letter_heading, parent, false);
-                    HeaderViewHolder headerViewHolder = new HeaderViewHolder(view);
-                    if (userBranches.size()<10) {
-                        view.setVisibility(View.GONE);
-                        headerViewHolder.setVisibilityGone();
-                    }
-                    return headerViewHolder;
-                } else {
-                    View view = LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.users_list_single_layout_mini, parent, false);
-                    return new UsersViewHolder(view);
-                }
-            }
-            @Override
-            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-                final int posClicked = position;
-                userPosition.append(position,userBranches.get(position).getUserID());
-                if (userBranches.get(position).getUserID().equals("header")) {
-                    ((HeaderViewHolder) holder).setHeading(userBranches.get(position).getUser().getAboutMe());
-                } else {
-                    final User friend = userBranches.get(position).getUser();
-                    ((UsersViewHolder) holder).setText(friend.getUserName(), true);
-                    ((UsersViewHolder) holder).setHeading(friend.getFullName());
-                    ((UsersViewHolder) holder).setUserImage(friend.getThumb_image(), getActivity().getApplicationContext());
-
-
-                    /*if (presenceHashMap.get(position) == null) {
-                        Presence noPresence = new Presence();
-                        presenceHashMap.put(position,noPresence);
-                    }
-                    ((UsersViewHolder) holder).setOnlineIcon(presenceHashMap.get(position).isOnline());
-                    final long lastSeen = presenceHashMap.get(position).getLastOnline();*/
-
-
-                    // Vid klick på en user skicka dess user ID genom lyssnaren OnUserClickedListener
-                    ((UsersViewHolder) holder).mView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                                return;
-                            }
-                            mLastClickTime = SystemClock.elapsedRealtime();
-                            onUserClickedListener.OnUserClicked(userBranches.get(posClicked).getUserID());
-                        }
-                    });
-                }
-            }
-            @Override
-            public int getItemCount() {
-                return userBranches.size();
-            }
-            @Override
-            public int getItemViewType(int position) {
-                if (userBranches.get(position).getUserID().equals("header")) {
-                    return 1;
-                }
-                return 0;
-            }
-        };
-        friendsList.setAdapter(friendsViewHolderAdapter);
-
         return mainView;
     }
 

@@ -118,7 +118,7 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
             }
         });
 
-        pastAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp).limitToLast(100);
+        pastAdsQuery = rootDbRef.child("advertisementHosts").child(currentUserId).orderByValue().startAt(0).endAt(currentTimestamp).limitToLast(50);
         FirebaseRecyclerOptions<Advertisement> pastOptions = new FirebaseRecyclerOptions.Builder<Advertisement>()
                 .setIndexedQuery(pastAdsQuery, adDbRef, Advertisement.class)
                 .build();
@@ -219,7 +219,9 @@ public class HostListSmallAdvertisementsFragment extends Fragment {
         ((SimpleItemAnimator) comingAdvertisementsRV.getItemAnimator()).setSupportsChangeAnimations(false);
 
         pastAdvertisementsRV = (RecyclerView) view.findViewById(R.id.pastAdvertisementsRV);
-        pastAdvertisementsRV.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        linearLayoutManager.setReverseLayout(true);
+        pastAdvertisementsRV.setLayoutManager(linearLayoutManager);
         pastAdvertisementsRV.setAdapter(pastFirebaseAdvertisementsAdapter);
         ((SimpleItemAnimator) pastAdvertisementsRV.getItemAnimator()).setSupportsChangeAnimations(false);
 
