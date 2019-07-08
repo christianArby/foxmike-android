@@ -91,7 +91,7 @@ public class CancelBookingActivity extends AppCompatActivity {
             return;
         }
         if (adPrice>0) {
-            if (durationCurrentToSession.getStandardHours()<6 && durationBookedToCurrent.getStandardMinutes()>30) {
+            if (durationCurrentToSession.getStandardHours()<1 && durationBookedToCurrent.getStandardMinutes()>30) {
                 alertDialogCancelWithoutRefund(getString(R.string.refund_not_possible), getString(R.string.session_is_too_close_to_refund));
                 return;
             }

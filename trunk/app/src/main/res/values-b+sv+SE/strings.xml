@@ -406,7 +406,7 @@
     <string name="cancellation_not_possible">Passet går ej att avboka</string>
     <string name="session_has_passed">Passets starttid har passerat och avbokning är ej möjlig.</string>
     <string name="refund_not_possible">Återbetalning ej möjlig</string>
-    <string name="session_is_too_close_to_refund">Passets starttid är inom 6 timmar och bokningen gjordes för mer än 30 minuter sedan vilket innebär att återbetalning ej är möjlig.</string>
+    <string name="session_is_too_close_to_refund">Passets starttid är inom 1 timma och bokningen gjordes för mer än 30 minuter sedan vilket innebär att återbetalning ej är möjlig.</string>
     <string name="cancellation_confirmation">Avbokning bekräftad</string>
     <string name="your_cancellation_has_been_confirmed">Du har avbokats från passet och\u0020</string>
     <string name="cancel_booking_anyway">Avboka passet ändå</string>
