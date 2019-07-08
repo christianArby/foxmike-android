@@ -26,6 +26,7 @@ import com.foxmike.android.models.UserBranch;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.UsersViewHolder;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
+import com.github.silvestrpredko.dotprogressbar.DotProgressBar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,25 +73,47 @@ public class FriendsFragment extends Fragment {
     private long mLastClickTime = 0;
     private HashMap<String, Boolean> contentMap = new HashMap<>();
     private ListFriendsFirebaseAdapter listFriendsFirebaseAdapter;
+    private DotProgressBar firstLoadProgressBar;
 
     public FriendsFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onDestroy() {
+        super.onDestroy();
         if (listFriendsFirebaseAdapter!=null) {
-            listFriendsFirebaseAdapter.startListening();
+            listFriendsFirebaseAdapter.stopListening();
         }
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if (listFriendsFirebaseAdapter!=null) {
-            listFriendsFirebaseAdapter.stopListening();
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isResumed())
+        {
+            //Only manually call onResume if fragment is already visible
+            //Otherwise allow natural fragment lifecycle to call onResume
+            onResume();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (getUserVisibleHint()) {
+            if (listFriendsFirebaseAdapter!=null) {
+                listFriendsFirebaseAdapter.startListening();
+            }
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        contentMap.put("requests", false);
+        contentMap.put("friends", true);
     }
 
     @Override
@@ -108,14 +131,12 @@ public class FriendsFragment extends Fragment {
         friendsHeading = mainView.findViewById(R.id.friendsHeadingTV);
         noFriends = mainView.findViewById(R.id.noFriends);
         noContent = mainView.findViewById(R.id.noContent);
+        firstLoadProgressBar = mainView.findViewById(R.id.firstLoadProgressBar);
 
         noContent.setVisibility(View.VISIBLE);
         requestsHeading.setVisibility(View.GONE);
         friendsHeading.setVisibility(View.GONE);
         noFriends.setVisibility(View.GONE);
-
-        contentMap.put("requests", false);
-        contentMap.put("friends", false);
 
         // -------------------------- REQUEST LIST -------------------------
         requestsList = (RecyclerView) mainView.findViewById(R.id.requests_list);
@@ -226,10 +247,14 @@ public class FriendsFragment extends Fragment {
                 .setIndexedQuery(friendsQuery, usersDatabase, UserPublic.class)
                 .build();
 
-        listFriendsFirebaseAdapter = new ListFriendsFirebaseAdapter(friendsOptions, getActivity().getApplicationContext(),onUserClickedListener);
+        listFriendsFirebaseAdapter = new ListFriendsFirebaseAdapter(friendsOptions, getActivity().getApplicationContext(), onUserClickedListener, new OnFbAdapterChangedListener() {
+            @Override
+            public void OnDataHasChanged() {
+                firstLoadProgressBar.setVisibility(View.GONE);
+            }
+        });
 
         friendsList.setAdapter(listFriendsFirebaseAdapter);
-        listFriendsFirebaseAdapter.startListening();
 
         myFriendsDbRef = FirebaseDatabase.getInstance().getReference().child("friends").child(currentUserID);
         FirebaseDatabaseViewModel friendFirebaseDatabaseViewModel = ViewModelProviders.of(this).get(FirebaseDatabaseViewModel.class);
@@ -255,6 +280,7 @@ public class FriendsFragment extends Fragment {
 
             }
         });
+
         return mainView;
     }
 
@@ -293,6 +319,7 @@ public class FriendsFragment extends Fragment {
 
         if (!contentMap.get("requests") && !contentMap.get("friends")) {
             noContent.setVisibility(View.VISIBLE);
+            firstLoadProgressBar.setVisibility(View.GONE);
             return;
         } else {
             noContent.setVisibility(View.GONE);
@@ -308,6 +335,7 @@ public class FriendsFragment extends Fragment {
         if (contentMap.get("requests") && !contentMap.get("friends")) {
             requestsHeading.setVisibility(View.VISIBLE);
             friendsHeading.setVisibility(View.GONE);
+            firstLoadProgressBar.setVisibility(View.GONE);
             if (!requests.containsValue(getString(R.string.friend_request_sent))) {
                 noFriends.setVisibility(View.VISIBLE);
             } else {
@@ -322,5 +350,9 @@ public class FriendsFragment extends Fragment {
             noFriends.setVisibility(View.GONE);
         }
 
+    }
+
+    public interface OnFbAdapterChangedListener {
+        void OnDataHasChanged();
     }
 }

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
+import com.foxmike.android.fragments.FriendsFragment;
 import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.FriendsViewHolder;
@@ -20,12 +21,20 @@ public class ListFriendsFirebaseAdapter extends FirebaseRecyclerAdapter<UserPubl
     private long mLastClickTime = 0;
     private Context context;
     private OnUserClickedListener onUserClickedListener;
+    private FriendsFragment.OnFbAdapterChangedListener onFbAdapterChangedListener;
 
 
-    public ListFriendsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<UserPublic> options, Context context, OnUserClickedListener onUserClickedListener) {
+    public ListFriendsFirebaseAdapter(@NonNull FirebaseRecyclerOptions<UserPublic> options, Context context, OnUserClickedListener onUserClickedListener, FriendsFragment.OnFbAdapterChangedListener onFbAdapterChangedListener) {
         super(options);
         this.context = context;
         this.onUserClickedListener = onUserClickedListener;
+        this.onFbAdapterChangedListener = onFbAdapterChangedListener;
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        onFbAdapterChangedListener.OnDataHasChanged();
     }
 
     @Override

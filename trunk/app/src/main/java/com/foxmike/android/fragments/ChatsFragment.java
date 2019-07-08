@@ -39,7 +39,6 @@ public class ChatsFragment extends Fragment {
     private RecyclerView chatListRV;
     private TextView noContent;
     private ListChatsFirebaseAdapter listChatsFirebaseAdapter;
-    private boolean listChatsFirebaseAdapterCreated;
     private DatabaseReference friendsRef;
 
     public ChatsFragment() {
@@ -54,18 +53,22 @@ public class ChatsFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        if (listChatsFirebaseAdapter!=null) {
-            listChatsFirebaseAdapter.startListening();
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isResumed())
+        {
+            onResume();
         }
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if (listChatsFirebaseAdapter!=null) {
-            listChatsFirebaseAdapter.stopListening();
+    public void onResume() {
+        super.onResume();
+
+        if (getUserVisibleHint()) {
+            if (listChatsFirebaseAdapter!=null) {
+                listChatsFirebaseAdapter.startListening();
+            }
         }
     }
 
@@ -101,33 +104,28 @@ public class ChatsFragment extends Fragment {
                     for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
                         friendsMap.put(snapshot.getKey(), true);
                     }
-                }
-                if (!listChatsFirebaseAdapterCreated) {
-                    FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
-                            .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
-                            .build();
-                    listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getActivity().getApplicationContext(), friendsMap, onChatClickedListener, new ListChatsFirebaseAdapter.OnNoContentListener() {
-                        @Override
-                        public void OnNoContentVisible(Boolean noContentVisible) {
-                            if (noContentVisible) {
-                                noContent.setVisibility(View.VISIBLE);
-                            } else {
-                                noContent.setVisibility(View.GONE);
-                            }
-                        }
-                    });
-                    listChatsFirebaseAdapter.startListening();
-                    if (getView()!=null) {
-                        chatListRV.setAdapter(listChatsFirebaseAdapter);
+                    if (listChatsFirebaseAdapter!=null) {
+                        listChatsFirebaseAdapter.updateFriends(friendsMap);
                     }
-                    listChatsFirebaseAdapterCreated = true;
-                } else {
-                    listChatsFirebaseAdapter.friendsUpdated(friendsMap);
                 }
-
             }
         });
 
+        FirebaseRecyclerOptions<Chats> chatsOptions = new FirebaseRecyclerOptions.Builder<Chats>()
+                .setIndexedQuery(chatsQuery, chatsRef, Chats.class)
+                .build();
+        listChatsFirebaseAdapter = new ListChatsFirebaseAdapter(chatsOptions, getActivity().getApplicationContext(), onChatClickedListener, new ListChatsFirebaseAdapter.OnNoContentListener() {
+            @Override
+            public void OnNoContentVisible(Boolean noContentVisible) {
+                if (noContentVisible) {
+                    noContent.setVisibility(View.VISIBLE);
+                } else {
+                    noContent.setVisibility(View.GONE);
+                }
+            }
+        });
+        chatListRV.setAdapter(listChatsFirebaseAdapter);
+        listChatsFirebaseAdapter.startListening();
 
         return view;
     }
@@ -150,8 +148,10 @@ public class ChatsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        listChatsFirebaseAdapterCreated = false;
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (listChatsFirebaseAdapter!=null) {
+            listChatsFirebaseAdapter.stopListening();
+        }
     }
 }

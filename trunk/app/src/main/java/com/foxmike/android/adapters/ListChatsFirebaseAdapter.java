@@ -44,12 +44,16 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
      * If the boolean is true, the list is populated based on who sent the message. If current user has sent the message the message is shown to the right and
      * if not the message is shown to the left.
      */
-    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, HashMap<String, Boolean> friendsMap, OnChatClickedListener onChatClickedListener, OnNoContentListener onNoContentListener) {
+    public ListChatsFirebaseAdapter(FirebaseRecyclerOptions<Chats> options, Context context, OnChatClickedListener onChatClickedListener, OnNoContentListener onNoContentListener) {
         super(options);
         this.context = context;
-        this.friendsMap = friendsMap;
         this.onChatClickedListener = onChatClickedListener;
         this.onNoContentListener = onNoContentListener;
+    }
+
+    public void updateFriends(HashMap<String, Boolean> friendsMap) {
+        this.friendsMap = friendsMap;
+        this.notifyDataSetChanged();
     }
 
     @NonNull
@@ -142,11 +146,6 @@ public class ListChatsFirebaseAdapter extends FirebaseRecyclerAdapter<Chats, Use
             onChatInfoLoadedListener.OnChatFriendLoaded();
         }
 
-    }
-
-    public void friendsUpdated(HashMap<String, Boolean> friendsMap) {
-        this.friendsMap = friendsMap;
-        notifyDataSetChanged();
     }
 
     public interface OnChatInfoLoadedListener {
