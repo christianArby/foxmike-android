@@ -406,7 +406,7 @@
     <string name="cancellation_not_possible">Cancellation not possible</string>
     <string name="session_has_passed">Session has already taken place so cancellation is not possible.</string>
     <string name="refund_not_possible">Refund not possible</string>
-    <string name="session_is_too_close_to_refund">Session is closer to 6 hours and booking was made more than 30 minutes ago, refund is not possible.</string>
+    <string name="session_is_too_close_to_refund">Session is closer to 1 hour and booking was made more than 30 minutes ago, refund is not possible.</string>
     <string name="cancellation_confirmation">Cancellation confirmation</string>
     <string name="your_cancellation_has_been_confirmed">Your cancellation has been confirmed. You will receive a refund of the session price of:</string>
     <string name="cancel_booking_anyway">Cancel booking anyway</string>
