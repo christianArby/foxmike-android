@@ -636,4 +636,7 @@
     <string name="registration_failed">Registration failed</string>
     <string name="email_missing_facebook">The Facebook account is missing an email address, please choose another registration method.</string>
     <string name="missing_email_google">The google account is missing an email address, please choose another registration method.</string>
+    <string name="submit">Submit</string>
+    <string name="i_missed_this_class">I missed this session</string>
+    <string name="how_was_your_class">How was your session?</string>
 </resources>

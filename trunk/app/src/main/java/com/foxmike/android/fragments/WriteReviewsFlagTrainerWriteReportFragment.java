@@ -118,8 +118,6 @@ public class WriteReviewsFlagTrainerWriteReportFragment extends Fragment {
         text2.setText(getResources().getString(R.string.hosted_by_text) + " " + host.getFullName());
         text3.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
 
-        flagTitle.setText(R.string.flag_title);
-
         reportData.put("sessionId", session.getSessionId());
         reportData.put("advertisementId", advertisement.getAdvertisementId());
         reportData.put("hostId", host.getUserId());

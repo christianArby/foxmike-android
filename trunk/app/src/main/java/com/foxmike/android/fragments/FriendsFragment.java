@@ -80,8 +80,8 @@ public class FriendsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        super.onStop();
         if (listFriendsFirebaseAdapter!=null) {
             listFriendsFirebaseAdapter.stopListening();
         }

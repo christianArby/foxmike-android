@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -60,7 +61,7 @@ public class WriteReviewsFragment extends DialogFragment {
     public static final String TAG = WriteReviewsFragment.class.getSimpleName();
 
     @BindView(R.id.closeImageButton) ImageButton closeIcon;
-    @BindView(R.id.ratingTitle) TextView ratingTitle;
+    @BindView(R.id.submit) AppCompatButton submitBtn;
     @BindView(R.id.reviewTitle) TextView reviewTitle;
     @BindView(R.id.ratingBar)
     AppCompatRatingBar ratingBar;
@@ -72,6 +73,7 @@ public class WriteReviewsFragment extends DialogFragment {
     @BindView(R.id.text1) TextView text1;
     @BindView(R.id.text2) TextView text2;
     @BindView(R.id.text3) TextView text3;
+    @BindView(R.id.missedSession) TextView missedSessionTV;
 
 
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -132,6 +134,15 @@ public class WriteReviewsFragment extends DialogFragment {
             }
         });
 
+        missedSessionTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rootDbRef.child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
+                hideKeyboard();
+                dismiss();
+            }
+        });
+
         ArrayList<Task<?>> asyncTasks = new ArrayList<>();
 
         TaskCompletionSource<Boolean> hostSource = new TaskCompletionSource<>();
@@ -172,14 +183,19 @@ public class WriteReviewsFragment extends DialogFragment {
                 text2.setText(getResources().getString(R.string.hosted_by_text) + " " + host.getFullName());
                 text3.setText(TextTimestamp.textSessionDateAndTime(advertisement.getAdvertisementTimestamp()));
 
-                reviewTitle.setText(getString(R.string.you_have_been_on_the_session)+ session.getSessionName() + getString(R.string.leave_your_review_below));
-                ratingTitle.setText(R.string.Rate);
-
                 ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                     @Override
                     public void onRatingChanged(RatingBar ratingBar, final float v, boolean b) {
                         if (b) {
                             thisRating = (float)Math.ceil(v);
+                        }
+                    }
+                });
+
+                submitBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (thisRating>0) {
 
                             rootDbRef.child("reviewsToWrite").child(currentUserId).child(advertisement.getAdvertisementId()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -223,9 +239,10 @@ public class WriteReviewsFragment extends DialogFragment {
                                     dismiss();
                                 }
                             });
-                            /**/
 
                         }
+
+
                     }
                 });
 
