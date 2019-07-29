@@ -135,6 +135,11 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("footer")) {
                     return;
                 }
+
+                if (advertisementIdsAndTimestampsFilteredArrayList.get(position).getAdvertisementId().equals("footer")) {
+                    return;
+                }
+
                 Session session = sessionHashMap.get(advertisement.getSessionId());
 
                 /**Fill the cardview with information of the session" */
@@ -502,6 +507,8 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void setMargin(){
+            View spaceView = mView.findViewById(R.id.spaceView);
+            spaceView.setVisibility(View.VISIBLE);
             /*ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 5; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
@@ -515,6 +522,8 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void resetMargin(){
+            View spaceView = mView.findViewById(R.id.spaceView);
+            spaceView.setVisibility(View.GONE);
             /*ConstraintLayout constraintLayout = mView.findViewById(R.id.sessionCardViewFrame);
             int dpValue = 0; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;

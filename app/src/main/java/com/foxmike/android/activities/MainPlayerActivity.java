@@ -140,6 +140,7 @@ public class MainPlayerActivity extends AppCompatActivity
     private int unreadFriendRequests = 0;
     // variable to track event time
     private long mLastClickTime = 0;
+    private HashMap<String, Boolean> reviewsPresented = new HashMap<>();
 
 
     private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
@@ -505,10 +506,13 @@ public class MainPlayerActivity extends AppCompatActivity
                             if (advertisement.getStatus().equals("cancelled")) {
                                 FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
                             } else {
-                                WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
-                                FragmentManager fragmentManager = getSupportFragmentManager();
-                                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                writeReviewsFragment.show(transaction,advertisementId);
+                                if (!reviewsPresented.containsKey(advertisementId)) {
+                                    reviewsPresented.put(advertisementId, true);
+                                    WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                                    FragmentManager fragmentManager = getSupportFragmentManager();
+                                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                    writeReviewsFragment.show(transaction,advertisementId);
+                                }
                             }
                         }
 

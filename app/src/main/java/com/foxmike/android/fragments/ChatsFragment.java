@@ -53,6 +53,14 @@ public class ChatsFragment extends Fragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (listChatsFirebaseAdapter!=null) {
+            listChatsFirebaseAdapter.stopListening();
+        }
+    }
+
+    @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && isResumed())
@@ -145,13 +153,5 @@ public class ChatsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         onChatClickedListener = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (listChatsFirebaseAdapter!=null) {
-            listChatsFirebaseAdapter.stopListening();
-        }
     }
 }

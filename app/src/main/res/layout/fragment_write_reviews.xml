@@ -32,29 +32,13 @@
 
         <TextView
             android:id="@+id/reviewTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_left"
             style="@style/FoxmikeHeading"
-            android:text="Leave a review for the session TestSession"/>
-
-        <EditText
-            android:id="@+id/reviewText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/margin_left"
-            android:hint="@string/write_something_optional"
-            android:inputType="textCapSentences|textMultiLine"
-            android:background="@null"
-            android:singleLine="false"/>
-
-        <TextView
-            android:id="@+id/ratingTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_left"
-            style="@style/FoxmikeHeading"
-            android:text="Rate TestSession"/>
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:text="@string/how_was_your_class"/>
 
         <androidx.appcompat.widget.AppCompatRatingBar
             android:id="@+id/ratingBar"
@@ -70,7 +54,40 @@
             android:stepSize="0.01"
             android:layout_margin="@dimen/margin_left"/>
 
+        <EditText
+            android:id="@+id/reviewText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="@dimen/margin_left"
+            android:layout_margin="@dimen/margin_left"
+            android:hint="@string/write_something_optional"
+            android:inputType="textCapSentences|textMultiLine"
+            android:background="@drawable/rounded_edittext_small_radius"
+            android:singleLine="false"/>
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textAllCaps="false"
+            android:id="@+id/submit"
+            android:background="@drawable/square_button_primary"
+            android:padding="@dimen/margin_minimum"
+            android:layout_margin="@dimen/margin_left"
+            android:textColor="@color/color_background_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/submit"/>
+
+        <TextView
+            android:id="@+id/missedSession"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/i_missed_this_class"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:layout_marginTop="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/margin_left"
+            android:textColor="@color/foxmikePrimaryColor"/>
 
     </LinearLayout>
 

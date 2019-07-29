@@ -116,6 +116,7 @@ public class MainHostActivity extends AppCompatActivity implements
     private boolean hasDeposition;
     public static final int CANCEL_ADVERTISEMENT_OK = 901;
     private int prevTab;
+    private HashMap<String, Boolean> reviewsPresented = new HashMap<>();
 
 
     @Override
@@ -383,10 +384,13 @@ public class MainHostActivity extends AppCompatActivity implements
                             if (advertisement.getStatus().equals("cancelled")) {
                                 FirebaseDatabase.getInstance().getReference().child("reviewsToWrite").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(advertisement.getAdvertisementId()).removeValue();
                             } else {
-                                WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
-                                FragmentManager fragmentManager = getSupportFragmentManager();
-                                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                writeReviewsFragment.show(transaction,advertisementId);
+                                if (!reviewsPresented.containsKey(advertisementId)) {
+                                    reviewsPresented.put(advertisementId, true);
+                                    WriteReviewsFragment writeReviewsFragment = WriteReviewsFragment.newInstance(advertisement);
+                                    FragmentManager fragmentManager = getSupportFragmentManager();
+                                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                    writeReviewsFragment.show(transaction,advertisementId);
+                                }
                             }
                         }
 
