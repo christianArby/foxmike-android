@@ -639,4 +639,6 @@
     <string name="submit">Skicka</string>
     <string name="i_missed_this_class">Jag missade det här passet</string>
     <string name="how_was_your_class">Hur var ditt pass?</string>
+    <string name="choose_a_new_image">Välj en ny bild</string>
+    <string name="remove_image">Ta bort bild</string>
 </resources>

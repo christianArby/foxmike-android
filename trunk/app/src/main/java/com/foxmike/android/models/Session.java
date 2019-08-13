@@ -3,6 +3,7 @@ package com.foxmike.android.models;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 
 public class Session implements Comparable<Session>, Serializable {
@@ -17,6 +18,8 @@ public class Session implements Comparable<Session>, Serializable {
     private double longitude;
     private String imageUrl;
     private String imageUrlHiRes;
+    private HashMap<String,String> images;
+    private HashMap<String,String> imagesHQ;
     private String what;
     private String who;
     private String whereAt;
@@ -29,7 +32,7 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfReviews;
     private boolean superHosted;
 
-    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted) {
+    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, HashMap<String, String> images, HashMap<String, String> imagesHQ, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted) {
         this.sessionId = sessionId;
         this.host = host;
         this.secondaryHostId = secondaryHostId;
@@ -41,6 +44,8 @@ public class Session implements Comparable<Session>, Serializable {
         this.longitude = longitude;
         this.imageUrl = imageUrl;
         this.imageUrlHiRes = imageUrlHiRes;
+        this.images = images;
+        this.imagesHQ = imagesHQ;
         this.what = what;
         this.who = who;
         this.whereAt = whereAt;
@@ -69,6 +74,8 @@ public class Session implements Comparable<Session>, Serializable {
         this.longitude = sessionToCopy.longitude;
         this.imageUrl = sessionToCopy.imageUrl;
         this.imageUrl = sessionToCopy.imageUrlHiRes;
+        this.images = sessionToCopy.images;
+        this.imagesHQ = sessionToCopy.imagesHQ;
         this.what = sessionToCopy.what;
         this.who = sessionToCopy.who;
         this.whereAt = sessionToCopy.whereAt;
@@ -79,6 +86,30 @@ public class Session implements Comparable<Session>, Serializable {
         this.rating = sessionToCopy.rating;
         this.nrOfRatings = sessionToCopy.nrOfRatings;
         this.nrOfReviews = sessionToCopy.nrOfReviews;
+    }
+
+    public HashMap<String, String> getImages() {
+        if (this.images==null) {
+            images = new HashMap<String, String>();
+        }
+        return images;
+    }
+
+    public void setImages(HashMap<String, String> images) {
+        this.images = images;
+    }
+
+
+
+    public HashMap<String, String> getImagesHQ() {
+        if (this.imagesHQ==null) {
+            imagesHQ = new HashMap<String, String>();
+        }
+        return imagesHQ;
+    }
+
+    public void setImagesHQ(HashMap<String, String> imagesHQ) {
+        this.imagesHQ = imagesHQ;
     }
 
     public boolean isSuperHosted() {

@@ -10,6 +10,8 @@ public class StaticResources {
     public static HashMap<String, Integer> DURATION_INTEGERS = new HashMap<>();
     public static HashMap<Integer, String> DURATION_STRINGS = new HashMap<>();
     public static HashMap<String, String> FILTER_SESSION_TYPE_STRINGS = new HashMap<>();
+    public static HashMap<Integer, String> IMAGE_KEYS_STRINGS = new HashMap<>();
+    public static HashMap<String, Integer> IMAGE_KEYS_INTEGERS = new HashMap<>();
 
     public static int minDefaultHour = 4;
     public static int minDefaultMinute = 0;
@@ -53,6 +55,21 @@ public class StaticResources {
         FILTER_SESSION_TYPE_STRINGS.put("Strength", "DDD");
         FILTER_SESSION_TYPE_STRINGS.put("Cardio", "EEE");
         FILTER_SESSION_TYPE_STRINGS.put("Ballsport", "FFF");
+
+        IMAGE_KEYS_STRINGS.put(0, "A");
+        IMAGE_KEYS_STRINGS.put(1, "B");
+        IMAGE_KEYS_STRINGS.put(2, "C");
+        IMAGE_KEYS_STRINGS.put(3, "D");
+        IMAGE_KEYS_STRINGS.put(4, "E");
+        IMAGE_KEYS_STRINGS.put(5, "F");
+
+        IMAGE_KEYS_INTEGERS.put("A", 0);
+        IMAGE_KEYS_INTEGERS.put("B", 1);
+        IMAGE_KEYS_INTEGERS.put("C", 2);
+        IMAGE_KEYS_INTEGERS.put("D", 3);
+        IMAGE_KEYS_INTEGERS.put("E", 4);
+        IMAGE_KEYS_INTEGERS.put("F", 5);
+
 
     }
 }

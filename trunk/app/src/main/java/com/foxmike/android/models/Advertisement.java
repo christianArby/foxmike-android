@@ -16,8 +16,6 @@ public class Advertisement implements Comparable<Advertisement>, Serializable {
     private String status;
     private String sessionId;
     private String host;
-    private String sessionName;
-    private String imageUrl;
     private String advertisementId;
     private int maxParticipants;
     private HashMap<String,Long> participantsTimestamps;
@@ -29,12 +27,10 @@ public class Advertisement implements Comparable<Advertisement>, Serializable {
     public Advertisement() {
     }
 
-    public Advertisement(String status, String sessionId, String host, String sessionName, String imageUrl, String advertisementId, int maxParticipants, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
+    public Advertisement(String status, String sessionId, String host, String advertisementId, int maxParticipants, HashMap<String, Long> participantsTimestamps, int durationInMin, String currency, long advertisementTimestamp, int price) {
         this.status = status;
         this.sessionId = sessionId;
         this.host = host;
-        this.sessionName = sessionName;
-        this.imageUrl = imageUrl;
         this.advertisementId = advertisementId;
         this.maxParticipants = maxParticipants;
         this.participantsTimestamps = participantsTimestamps;
@@ -82,22 +78,6 @@ public class Advertisement implements Comparable<Advertisement>, Serializable {
 
     public void setAdvertisementId(String advertisementId) {
         this.advertisementId = advertisementId;
-    }
-
-    public String getSessionName() {
-        return sessionName;
-    }
-
-    public void setSessionName(String sessionName) {
-        this.sessionName = sessionName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
 

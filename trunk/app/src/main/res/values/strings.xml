@@ -639,4 +639,6 @@
     <string name="submit">Submit</string>
     <string name="i_missed_this_class">I missed this session</string>
     <string name="how_was_your_class">How was your session?</string>
+    <string name="choose_a_new_image">Choose a new image</string>
+    <string name="remove_image">Remove image</string>
 </resources>
