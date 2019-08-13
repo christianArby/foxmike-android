@@ -16,14 +16,107 @@
             android:layout_height="wrap_content"
             android:id="@+id/sessionImageContainer">
 
-            <ImageButton
-                android:id="@+id/sessionImageBtn"
+            <TextView
+                android:layout_marginStart="@dimen/margin_left"
+                android:layout_marginBottom="@dimen/margin_left"
+                android:layout_marginTop="48dp"
+                android:id="@+id/imagesHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Images"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_below="@id/imagesHeading"
+                android:id="@+id/imagesContainer"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:background="@color/color_background_light"
-                android:contentDescription="@string/CD_choose_session_image_button"
-                android:scaleType="centerCrop"
-                app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_minimum">
+
+
+                <ImageView
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageB"
+                    android:id="@+id/imageA"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+                <ImageButton
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/imageA"
+                    app:layout_constraintEnd_toStartOf="@id/imageC"
+                    android:id="@+id/imageB"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:tint="@color/grayTextColor"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+                <ImageButton
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/imageB"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:id="@+id/imageC"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:tint="@color/grayTextColor"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+                <ImageButton
+                    android:layout_marginTop="@dimen/margin_minimum"
+                    app:layout_constraintTop_toBottomOf="@id/imageA"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageE"
+                    android:id="@+id/imageD"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:tint="@color/grayTextColor"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+                <ImageButton
+                    android:layout_marginTop="@dimen/margin_minimum"
+                    app:layout_constraintTop_toBottomOf="@id/imageA"
+                    app:layout_constraintStart_toEndOf="@id/imageD"
+                    app:layout_constraintEnd_toStartOf="@id/imageF"
+                    android:id="@+id/imageE"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:tint="@color/grayTextColor"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+                <ImageButton
+                    android:layout_marginTop="@dimen/margin_minimum"
+                    app:layout_constraintTop_toBottomOf="@id/imageA"
+                    app:layout_constraintStart_toEndOf="@id/imageE"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:id="@+id/imageF"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/rounded_edittext_small_radius"
+                    android:tint="@color/grayTextColor"
+                    android:contentDescription="@string/CD_choose_session_image_button"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@mipmap/ic_add_a_photo_black_48dp"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
             <TextView
                 android:id="@+id/imageErrorText"
@@ -32,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/margin_left"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:layout_below="@id/sessionImageBtn"
+                android:layout_below="@id/imagesContainer"
                 android:text="@string/please_choose_a_group_image"
                 android:textColor="@color/red"/>
 

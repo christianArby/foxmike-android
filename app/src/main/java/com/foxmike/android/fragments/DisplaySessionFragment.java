@@ -43,6 +43,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -55,6 +56,7 @@ import com.foxmike.android.activities.PaymentPreferencesActivity;
 import com.foxmike.android.activities.RatingsAndReviewsActivity;
 import com.foxmike.android.activities.WritePostActivity;
 import com.foxmike.android.adapters.ListHistoryAdvertisementsAdapter;
+import com.foxmike.android.adapters.SessionImagesAdapter;
 import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
@@ -67,6 +69,7 @@ import com.foxmike.android.models.SessionDateAndTime;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserPublic;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
+import com.foxmike.android.utils.CirclePagerIndicatorDecoration;
 import com.foxmike.android.utils.FixAppBarLayoutBehavior;
 import com.foxmike.android.utils.TextTimestamp;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
@@ -137,8 +140,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private TextView mWhatTW;
     private TextView mWhoTW;
     private TextView mWhereTW;
-    private TextView mSessionType;
-    private TextView mAddressAndSessionType;
     private TextView mSendMessageToHost;
     private final FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private View view;
@@ -226,10 +227,9 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean firstLoadOfPosts = true;
     private boolean firstLoadOfComments;
     private ProgressBar postProgressBar;
-    private TextView editTop;
+    private ImageView editTop;
     private ArrayList<ImageView> editTVArrayList=new ArrayList<ImageView>();
     private boolean isHost = false;
-    private TextView sessionName;
     private ImageView editWhat;
     private ImageView editWho;
     private ImageView editWhere;
@@ -237,8 +237,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private AppCompatRatingBar ratingBar;
     private TextView ratingsAndReviewsText;
     private TextView showAllReviews;
-    private TextView ratingText;
-    private TextView newFlag;
     private Disposable subscription;
     private TextView showAvailAbility;
     private HashMap<String, Long> adTimes = new HashMap<>();
@@ -259,6 +257,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private Long currentLastTimestamp = 0L;
     private ListHistoryAdvertisementsAdapter listHistoryAdvertisementsAdapter;
     private boolean firstLoaded;
+
+    private RecyclerView imagesRV;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -965,7 +965,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         mHostImage = displaySession.findViewById(R.id.displaySessionHostImage);
         mHost = displaySession.findViewById(R.id.hostName);
         mHostAboutTV = displaySession.findViewById(R.id.hostAbout);
-        mAddressAndSessionType = view.findViewById(R.id.addressTV);
         writePostLayout = displaySession.findViewById(R.id.write_post_layout);
         whatHeadingTW = displaySession.findViewById(R.id.whatHeadingTW);
         mWhatTW = displaySession.findViewById(R.id.whatTW);
@@ -979,7 +978,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
-        mSessionType = view.findViewById(R.id.sessionDateHeading);
+
         mSendMessageToHost = displaySession.findViewById(R.id.sendMessageToHost);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
         toolbar = view.findViewById(R.id.toolbar);
@@ -1018,16 +1017,14 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         snackNoAdTV = view.findViewById(R.id.snackNoAdTV);
         mAddress = displaySession.findViewById(R.id.addressTV);
         postProgressBar = displaySession.findViewById(R.id.postProgressBar);
-        sessionName = view.findViewById(R.id.sessionName);
         ratingBar = displaySession.findViewById(R.id.ratingBar);
         ratingsAndReviewsText = displaySession.findViewById(R.id.ratingsAndReviewsText);
         showAllReviews = displaySession.findViewById(R.id.showAllReviews);
-
-        ratingText = view.findViewById(R.id.ratingsAndReviewsText);
-        newFlag = view.findViewById(R.id.newFlag);
         dotProgressBarContainer = view.findViewById(R.id.dotProgressBarContainer);
         snackBar = view.findViewById(R.id.snackBar);
         shareIcon = view.findViewById(R.id.shareIcon);
+
+        imagesRV = view.findViewById(R.id.sessionImagesRV);
 
         //set default
         snackBarDateAndTimeTV.setVisibility(View.GONE);
@@ -1054,7 +1051,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         });
 
         // Store refs to editTV
-        editTop = (TextView)(view.findViewById(R.id.editTop));
+        editTop = (ImageView) (view.findViewById(R.id.editTop));
         editWhat = displaySession.findViewById(R.id.editWhat);
         editWho = displaySession.findViewById(R.id.editWho);
         editWhere = displaySession.findViewById(R.id.editWhere);
@@ -1418,14 +1415,18 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 }
             });
 
-            // set the image
-            setImage(mSession.getImageUrl(), sessionImage);
-            sessionImage.setColorFilter(0x55000000, PorterDuff.Mode.SRC_ATOP);
+            ArrayList<String> imagesKeys = new ArrayList<>(mSession.getImages().keySet());
+            Collections.sort(imagesKeys);
+            ArrayList<String> imagesURLs = new ArrayList<>();
 
-            // -----------  Set the mSession information in UI from mSession object --------------
-            sessionName.setText(mSession.getSessionName());
-            String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
-            mAddressAndSessionType.setText(address);
+            for (String key: imagesKeys) {
+                imagesURLs.add(mSession.getImages().get(key));
+            }
+
+            if (imagesURLs.size()==0) {
+                imagesURLs.add(mSession.getImageUrl());
+            }
+
             mWhatTW.setText(mSession.getWhat());
             mWhoTW.setText(mSession.getWho());
             mWhereTW.setText(mSession.getWhereAt());
@@ -1440,32 +1441,25 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 infoDivider.setVisibility(View.GONE);
             }
 
-            if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
-                mSessionType.setText(getResources().getString(R.string.other));
-            } else {
-                mSessionType.setText(sessionTypeDictionary.get(mSession.getSessionType()));
-            }
+            boolean hasRating = false;
+            String ratingTextString = "";
 
             ratingBar.setRating(mSession.getRating());
             String ratingTextFormatted = String.format("%.1f", mSession.getRating());
             if (mSession.getNrOfRatings()==0) {
                 ratingsAndReviewsText.setText(R.string.new_session_no_reviews_yet);
                 showAllReviews.setVisibility(View.GONE);
-                ratingText.setVisibility(View.GONE);
-                newFlag.setVisibility(View.VISIBLE);
             } else if (mSession.getNrOfRatings()==1) {
                 showAllReviews.setVisibility(View.VISIBLE);
-                ratingText.setVisibility(View.VISIBLE);
-                newFlag.setVisibility(View.GONE);
+                hasRating = true;
                 String rating = String.format("%.1f", mSession.getRating());
-                ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
+                ratingTextString = rating + " (" + mSession.getNrOfRatings() + ")";
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2_single));
             } else {
                 showAllReviews.setVisibility(View.VISIBLE);
                 String rating = String.format("%.1f", mSession.getRating());
-                ratingText.setText(rating + " (" + mSession.getNrOfRatings() + ")");
-                ratingText.setVisibility(View.VISIBLE);
-                newFlag.setVisibility(View.GONE);
+                hasRating = true;
+                ratingTextString = rating + " (" + mSession.getNrOfRatings() + ")";
                 ratingsAndReviewsText.setText(ratingTextFormatted + getString(R.string.based_on_nr_ratings_text_1) + mSession.getNrOfRatings() + getString(R.string.based_on_nr_ratings_text_2));
             }
             showAllReviews.setOnClickListener(new View.OnClickListener() {
@@ -1478,6 +1472,30 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
 
                 }
             });
+
+            String sessionTypeString = "";
+
+            if (!sessionTypeDictionary.containsKey(mSession.getSessionType())) {
+                sessionTypeString = getResources().getString(R.string.other);
+            } else {
+                sessionTypeString = sessionTypeDictionary.get(mSession.getSessionType());
+            }
+
+            String address = getAddress(mSession.getLatitude(), mSession.getLongitude());
+
+            // set the images
+            // -----------  Set the mSession information in UI from mSession object --------------
+            SessionImagesAdapter sessionImagesAdapter = new SessionImagesAdapter(getActivity().getApplicationContext(), imagesURLs, mSession.getSessionName(), sessionTypeString, address, hasRating, ratingTextString);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), RecyclerView.HORIZONTAL, false);
+            imagesRV.setLayoutManager(linearLayoutManager);
+            imagesRV.setAdapter(sessionImagesAdapter);
+
+            if (imagesURLs.size()>1) {
+                imagesRV.setOnFlingListener(null);
+                PagerSnapHelper snapHelper = new PagerSnapHelper();
+                snapHelper.attachToRecyclerView(imagesRV);
+                imagesRV.addItemDecoration(new CirclePagerIndicatorDecoration());
+            }
         }
 
         // -------- VIEW -------- PAYMENT ----- ADSELECTED ---
@@ -1499,7 +1517,6 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
                 paymentMethodProgressBar.setVisibility(View.GONE);
                 paymentMethodTV.setVisibility(View.GONE);
                 addPaymentMethodTV.setVisibility(View.GONE);
-                Log.w("CRICKE", "null");
                 mDisplaySessionBtn.setVisibility(View.GONE);
                 snackNoUpcomingAds.setVisibility(View.VISIBLE);
                 snackNoUpcomingAds.setOnClickListener(new View.OnClickListener() {

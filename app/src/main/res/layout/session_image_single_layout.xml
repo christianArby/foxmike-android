@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/sessionImageCardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:contentDescription="@string/session_image"
+        android:id="@+id/displaySessionImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="5:3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <RelativeLayout
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical">
+
+        <TextView
+            style="@style/FoxmikeTitle"
+            android:textColor="@color/secondaryTextColor"
+            android:id="@+id/sessionName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:text="No pain no gain"
+            app:layout_scrollFlags="scroll"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_centerHorizontal="true"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="2"/>
+
+        <TextView
+            android:textColor="@color/secondaryTextColor"
+            android:id="@+id/sessionType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:text="foxmike"
+            android:textAllCaps="true"
+            app:layout_collapseMode="pin"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sessionName"
+            android:textAlignment="center"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/addressTV"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/margin_minimum"
+            android:drawableStart="@mipmap/ic_location_on_black_24dp"
+            android:drawableTint="@color/secondaryTextColor"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Loading..."
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/secondaryTextColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/margin_left"
+            android:gravity="center_vertical"/>
+
+        <TextView
+            android:id="@+id/ratingsAndReviewsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_minimum"
+            android:textColor="@color/secondaryTextColor"
+            android:text="Loading..."
+            android:drawableStart="@drawable/ic_star_black_24dp"
+            android:drawableTint="@color/secondaryTextColor"
+            android:drawablePadding="@dimen/margin_minimum"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            android:layout_marginBottom="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:gravity="center_vertical"
+            />
+
+        <TextView
+            android:id="@+id/newFlag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/small_rounded_textview"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+            android:textAllCaps="true"
+            android:text="@string/new_text"
+            android:textStyle="bold"
+            android:padding="4dp"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/margin_left"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center_vertical"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -22,13 +23,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,6 +96,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -105,6 +105,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.foxmike.android.utils.StaticResources.IMAGE_KEYS_INTEGERS;
+import static com.foxmike.android.utils.StaticResources.IMAGE_KEYS_STRINGS;
 
 public class CreateOrEditSessionActivity extends AppCompatActivity {
 
@@ -130,7 +133,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private StorageReference mStorageSessionImage;
     private boolean updateSession;
     private long mSessionTimestamp;
-    private ImageButton mSessionImageButton;
+    private ImageView imageButtonA;
+    private ImageView imageButtonB;
+    private ImageView imageButtonC;
+    private ImageView imageButtonD;
+    private ImageView imageButtonE;
+    private ImageView imageButtonF;
     private static final int GALLERY_REQUEST = 1;
     private static final int PAYOUT_METHOD_REQUEST = 2;
     static final int GET_USER_REQUEST = 5;
@@ -209,13 +217,17 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     private ExecutorService mExecutorService = Executors.newFixedThreadPool(1);
 
     private ImageCompressTask imageCompressTask;
-    private Uri compressedImageUri = null;
-    private Uri compressedImageHiResUri = null;
     private FirebaseAnalytics mFirebaseAnalytics;
     private boolean userIsLoaded;
     private User currentUser;
     private String secondaryHostId;
     private String secondaryHostFullName;
+    private ArrayList<ImageView> imagesBtnList;
+    private int currentImageBtnIndex;
+    private HashMap<String, Uri> imagesUris = new HashMap<>();
+    private HashMap<String, Uri> imagesHQUris  = new HashMap<>();
+    private HashMap<String, String> images = new HashMap<>();
+    private HashMap<String, String> imagesHQ = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,7 +267,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
-        mSessionImageButton = createSession.findViewById(R.id.sessionImageBtn);
+        imageButtonA = createSession.findViewById(R.id.imageA);
+        imageButtonB = createSession.findViewById(R.id.imageB);
+        imageButtonC = createSession.findViewById(R.id.imageC);
+        imageButtonD = createSession.findViewById(R.id.imageD);
+        imageButtonE = createSession.findViewById(R.id.imageE);
+        imageButtonF = createSession.findViewById(R.id.imageF);
         mapsFragmentContainer = findViewById(R.id.container_maps_fragment);
         imageErrorText = createSession.findViewById(R.id.imageErrorText);
         compactCalendarView = (CompactCalendarView) createSession.findViewById(R.id.compactcalendar_view);
@@ -272,6 +289,14 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         selectedDate = new DateTime().minusMonths(2);
+
+        imagesBtnList = new ArrayList<>();
+        imagesBtnList.add(imageButtonA);
+        imagesBtnList.add(imageButtonB);
+        imagesBtnList.add(imageButtonC);
+        imagesBtnList.add(imageButtonD);
+        imagesBtnList.add(imageButtonE);
+        imagesBtnList.add(imageButtonF);
 
         String language = getResources().getConfiguration().locale.getLanguage();
         DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(language);
@@ -406,18 +431,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         /*The Firebase Database client in our app can keep the data from the database in two places: in memory and/or on disk.
           This keeps the data on the disk even though listeners are detached*/
 
-        // Setup standard aspect ratio of session image
-        mSessionImageButton.post(new Runnable() {
-            @Override
-            public void run() {
-                RelativeLayout.LayoutParams mParams;
-                mParams = (RelativeLayout.LayoutParams) mSessionImageButton.getLayoutParams();
-                mParams.height = mSessionImageButton.getWidth()*getResources().getInteger(R.integer.heightOfSessionImageNumerator)/getResources().getInteger(R.integer.heightOfSessionImageDenominator);
-                mSessionImageButton.setLayoutParams(mParams);
-                mSessionImageButton.postInvalidate();
-            }
-        });
-
         // FILL VIEW with the session in bundle or with the session with the sessionID
 
         if (existingSessionID != null | existingSession!=null) {
@@ -457,7 +470,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
                 mLocation.setText(address);
             }
-            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER);
             sessionLoadedIfAny = true;
             setupUI();
         }
@@ -670,7 +682,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             clickedLatLng = new LatLng(existingSession.getLatitude(), existingSession.getLongitude());
             address = getAddress(clickedLatLng.latitude,clickedLatLng.longitude);
             mLocation.setText(address);
-            setImage(existingSession.getImageUrl(),mSessionImageButton);
+            images = existingSession.getImages();
+            imagesHQ = existingSession.getImagesHQ();
+            setImages(existingSession);
             mSessionName.setText(existingSession.getSessionName());
             mSessionType.setText(sessionTypeFilterMap.get(existingSession.getSessionType()));
             Long currentTimestamp = System.currentTimeMillis();
@@ -741,7 +755,78 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         // -------------- Set on button click listeners --------------------
 
         /*When imagebutton is clicked start gallery in phone to let user choose photo/image*/
-        mSessionImageButton.setOnClickListener(new View.OnClickListener() {
+        for (ImageView imageButton: imagesBtnList) {
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+
+
+
+                    currentImageBtnIndex = imagesBtnList.indexOf(imageButton);
+                    if (currentImageBtnIndex==0) {
+                        imageErrorText.setVisibility(View.GONE);
+                        Intent galleryIntent = new Intent();
+                        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        galleryIntent.setType("image/*");
+                        startActivityForResult(galleryIntent, GALLERY_REQUEST);
+                        return;
+                    }
+
+                    if (images.containsKey(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex)) || imagesUris.containsKey(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex))) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(CreateOrEditSessionActivity.this);
+                        // 2. Chain together various setter methods to set the dialog characteristics
+
+                        // Add the buttons
+                        builder.setPositiveButton(getString(R.string.choose_a_new_image), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                imageErrorText.setVisibility(View.GONE);
+                                Intent galleryIntent = new Intent();
+                                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                                galleryIntent.setType("image/*");
+                                startActivityForResult(galleryIntent, GALLERY_REQUEST);
+
+
+                            }
+                        });
+                        builder.setNegativeButton(getString(R.string.remove_image), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (images.containsKey(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex))) {
+                                    images.remove(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex));
+                                    imagesHQ.remove(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex));
+                                }
+                                if (imagesUris.containsKey(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex))) {
+                                    imagesUris.remove(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex));
+                                    imagesHQUris.remove(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex));
+                                }
+                                imageButton.setImageDrawable(getResources().getDrawable(R.mipmap.ic_add_a_photo_black_48dp));
+                                imageButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                                imageButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.grayTextColor)));
+                                //Glide.with(CreateOrEditSessionActivity.this).load(getResources().getDrawable(R.mipmap.ic_add_a_photo_black_48dp)).into(imageButton);
+
+
+                            }
+                        });
+                        // 3. Get the AlertDialog from create()
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    } else {
+                        imageErrorText.setVisibility(View.GONE);
+                        Intent galleryIntent = new Intent();
+                        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        galleryIntent.setType("image/*");
+                        startActivityForResult(galleryIntent, GALLERY_REQUEST);
+                    }
+
+
+                }
+            });
+        }
+
+        /*mSessionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -755,9 +840,8 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
                 startActivityForResult(galleryIntent, GALLERY_REQUEST);
-
             }
-        });
+        });*/
 
         mSessionName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -1077,44 +1161,78 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         /**If imageUrl exists it means that the user has selected a photo from the gallery, if so create a filepath and send that
          * photo to the Storage database*/
 
-        if(compressedImageUri != null && infoIsValid){
-            StorageReference filepath = mStorageSessionImage.child(mSessionId);
-            filepath.putFile(compressedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        if (imagesUris.size()!=0 && infoIsValid) {
+
+            ArrayList<Task<?>> asyncImagesTasks = new ArrayList<>();
+
+            for (String key: imagesUris.keySet()) {
+                TaskCompletionSource<Boolean> uploadImageSource = new TaskCompletionSource<>();
+                Task uploadImageTask = uploadImageSource.getTask();
+                asyncImagesTasks.add(uploadImageTask);
+
+
+                StorageReference filepath = mStorageSessionImage.child(mSessionId).child("images").child(key);
+                filepath.putFile(imagesUris.get(key)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadUri = uri.toString();
+                                /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
+                                 * to the main activity*/
+                                images.put(key, downloadUri);
+                                uploadImageSource.setResult(true);
+
+                            }
+                        });
+                    }
+                });
+            }
+
+            for (String key: imagesHQUris.keySet()) {
+                TaskCompletionSource<Boolean> uploadImageSource = new TaskCompletionSource<>();
+                Task uploadImageTask = uploadImageSource.getTask();
+                asyncImagesTasks.add(uploadImageTask);
+
+
+                StorageReference filepath = mStorageSessionImage.child(mSessionId).child("imagesHQ").child(key);
+
+                filepath.putFile(imagesHQUris.get(key)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadUri = uri.toString();
+
+                                imagesHQ.put(key, downloadUri);
+                                uploadImageSource.setResult(true);
+
+                            }
+                        });
+                    }
+                });
+            }
+
+            Tasks.whenAll(asyncImagesTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                public void onComplete(@NonNull Task<Void> task) {
+                    // for backwards capability
+                    sessionMap.put("imageUrl", images.get("A"));
+                    sessionMap.put("imageUrlHiRes", imagesHQ.get("A"));
 
-                    filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String downloadUri = uri.toString();
-                            /** When image have been sent to storage database save also the uri (URL) to the session object and send this object to the realtime database and send user back
-                             * to the main activity*/
-                            sessionMap.put("imageUrl", downloadUri);
-
-                            StorageReference hiResfFilepath = mStorageSessionImage.child(mSessionId + "hiRes");
-
-                            hiResfFilepath.putFile(compressedImageHiResUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                    hiResfFilepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            String downloadUri = uri.toString();
-                                            sessionMap.put("imageUrlHiRes", downloadUri);
-                                            if (infoIsValid){
-                                                onSessionUpdatedListener.OnSessionUpdated(sessionMap);
-                                            }
-                                            mProgress.dismiss();
-
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
+                    sessionMap.put("images", images);
+                    sessionMap.put("imagesHQ", imagesHQ);
+                    if (infoIsValid){
+                        onSessionUpdatedListener.OnSessionUpdated(sessionMap);
+                    }
+                    mProgress.dismiss();
                 }
             });
+
         }
         /**If imageUri does not exists it means that the user has NOT selected a photo from the gallery, check if the session is an existing session*/
         else {
@@ -1122,6 +1240,9 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
              * and send the user back to the main activity*/
             if (updateSession) {
                 sessionMap.put("imageUrl", existingSession.getImageUrl());
+                sessionMap.put("imageUrlHiRes", existingSession.getImageUrlHiRes());
+                sessionMap.put("images", images);
+                sessionMap.put("imagesHQ", imagesHQ);
                 mProgress.dismiss();
 
                 if (infoIsValid){
@@ -1131,7 +1252,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             }
             /**If the session is NOT an existing session tell the user that a photo must be chosen*/
             else {
-                if (compressedImageUri == null) {
+                if (imagesUris.size()==0) {
                     imageErrorText.setVisibility(View.VISIBLE);
                 }
                 mProgress.dismiss();
@@ -1154,8 +1275,6 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                 advertisement.setStatus("active");
                 advertisement.setSessionId((String) sendSession.get("sessionId"));
                 advertisement.setHost((String) sendSession.get("host"));
-                advertisement.setSessionName((String) sendSession.get("sessionName"));
-                advertisement.setImageUrl((String) sendSession.get("imageUrl"));
                 advertisement.setCurrency(accountCurrency);
 
                 // Save the advertisement Id and the ad timestamp in a hashmap to be saved under sessionAdvertisements
@@ -1392,11 +1511,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
 
             File file = compressed.get(0);
 
-            compressedImageUri = Uri.fromFile(file);
-            compressedImageHiResUri = Uri.fromFile(compressed.get(1));
+            imagesUris.put(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex), Uri.fromFile(file));
+            imagesHQUris.put(IMAGE_KEYS_STRINGS.get(currentImageBtnIndex), Uri.fromFile(compressed.get(1)));
 
-            mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            mSessionImageButton.setImageURI(compressedImageUri);
+            imagesBtnList.get(currentImageBtnIndex).setImageTintList(null);
+            imagesBtnList.get(currentImageBtnIndex).setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imagesBtnList.get(currentImageBtnIndex).setImageURI(Uri.fromFile(file));
         }
 
         @Override
@@ -1406,9 +1526,23 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
     };
 
     /**Method setImage scales the chosen image*/
-    private void setImage(String image, ImageView imageView) {
-        mSessionImageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(this).load(image).into(imageView);
+    private void setImages(Session session) {
+
+        if (session.getImages().size()==0) {
+            imageButtonA.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageButtonA.setImageTintList(null);
+            Glide.with(this).load(session.getImageUrl()).into(imageButtonA);
+        } else {
+
+            ArrayList<String> imagesKeys = new ArrayList<>(session.getImages().keySet());
+            Collections.sort(imagesKeys);
+
+            for (String key:imagesKeys) {
+                imagesBtnList.get(IMAGE_KEYS_INTEGERS.get(key)).setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imagesBtnList.get(IMAGE_KEYS_INTEGERS.get(key)).setImageTintList(null);
+                Glide.with(this).load(session.getImages().get(key)).into(imagesBtnList.get(IMAGE_KEYS_INTEGERS.get(key)));
+            }
+        }
     }
 
     @Override
