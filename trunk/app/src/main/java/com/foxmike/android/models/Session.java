@@ -31,8 +31,9 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
     private boolean superHosted;
+    private boolean plus;
 
-    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, HashMap<String, String> images, HashMap<String, String> imagesHQ, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted) {
+    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, HashMap<String, String> images, HashMap<String, String> imagesHQ, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted, boolean plus) {
         this.sessionId = sessionId;
         this.host = host;
         this.secondaryHostId = secondaryHostId;
@@ -57,6 +58,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.nrOfRatings = nrOfRatings;
         this.nrOfReviews = nrOfReviews;
         this.superHosted = superHosted;
+        this.plus = plus;
     }
 
     public Session() {
@@ -86,6 +88,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.rating = sessionToCopy.rating;
         this.nrOfRatings = sessionToCopy.nrOfRatings;
         this.nrOfReviews = sessionToCopy.nrOfReviews;
+        this.plus = sessionToCopy.plus;
     }
 
     public HashMap<String, String> getImages() {
@@ -304,5 +307,13 @@ public class Session implements Comparable<Session>, Serializable {
         long comp = this.getRepresentingAdTimestamp()-session.getRepresentingAdTimestamp();
         return (int) comp;
 
+    }
+
+    public boolean isPlus() {
+        return plus;
+    }
+
+    public void setPlus(boolean plus) {
+        this.plus = plus;
     }
 }

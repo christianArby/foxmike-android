@@ -18,13 +18,63 @@
         android:background="@color/foxmikePrimaryColor"
         android:textColor="@color/secondaryTextColor"
         app:layout_constraintTop_toTopOf="parent"/>
+    
+    <LinearLayout
+        android:visibility="visible"
+        android:id="@+id/plusContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/editSession"
+        app:layout_constraintBottom_toTopOf="@id/hostInfoContainer">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_marginTop="@dimen/margin_left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/plusIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/foxmike_rgb_color_icon_24"
+                android:layout_marginStart="@dimen/margin_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/FoxmikeSemiBold"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/grayTextColor"
+                android:layout_marginStart="@dimen/margin_minimum"
+                android:text="Foxmike Plus"
+                app:layout_constraintStart_toEndOf="@id/plusIcon"
+                app:layout_constraintTop_toTopOf="@id/plusIcon"
+                app:layout_constraintBottom_toBottomOf="@id/plusIcon"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/primaryTextColor"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_minimum"
+            android:text="Foxmike Plus är gruppträningspass som endast finns hos foxmike och som är kvalitetssäkrade av foxmike." />
+
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/hostInfoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editSession">
+        app:layout_constraintTop_toBottomOf="@id/plusContainer">
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/FoxmikeHeading"

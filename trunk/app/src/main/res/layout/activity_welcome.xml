@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.foxmike.android.activities.WelcomeActivity">
+    tools:context="com.foxmike.android.activities.WelcomeActivity"
+    android:background="@color/black">
 
     <LinearLayout
         android:clickable="true"
@@ -29,19 +30,13 @@
     </LinearLayout>
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/background_welcome_foxmike"/>
-
-    <ImageView
         android:id="@+id/foxmikeIcon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="70dp"
-        android:layout_marginStart="@dimen/margin_left"
+        android:layout_width="250dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="80dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/continueWithFacebookButton"/>
 
     <TextView
         android:id="@+id/loginTV"
@@ -54,46 +49,35 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
-        android:id="@+id/welcomeText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/margin_left"
-        android:text="@string/welcome_to_foxmike_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="@color/secondaryTextColor"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/foxmikeIcon" />
 
     <Button
         style="?android:attr/borderlessButtonStyle"
         android:id="@+id/continueWithFacebookButton"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_green_edittext"
         android:padding="@dimen/margin_minimum"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textAllCaps="false"
-        android:layout_marginStart="@dimen/margin_left"
-        android:layout_marginEnd="@dimen/margin_left"
-        android:textColor="@color/foxmikePrimaryDarkColor"
+        android:layout_margin="@dimen/margin_left"
+        android:textColor="@color/secondaryTextColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/continue_to_facebook_text"
-        app:layout_constraintTop_toBottomOf="@id/welcomeText"
+        app:layout_constraintBottom_toTopOf="@id/googleSignInButton"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
         style="?android:attr/borderlessButtonStyle"
         android:id="@+id/googleSignInButton"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_green_edittext"
         android:padding="@dimen/margin_minimum"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:textAllCaps="false"
         android:layout_margin="@dimen/margin_left"
-        android:textColor="@color/foxmikePrimaryDarkColor"
+        android:textColor="@color/secondaryTextColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/continue_with_google_text"
-        app:layout_constraintTop_toBottomOf="@id/continueWithFacebookButton"
+        app:layout_constraintBottom_toTopOf="@id/createAccountBtn"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
@@ -101,15 +85,17 @@
         android:id="@+id/createAccountBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_left"
-        android:background="@drawable/rounded_button_transparent"
+        android:layout_marginBottom="80dp"
+        android:layout_marginStart="@dimen/margin_left"
+        android:layout_marginEnd="@dimen/margin_left"
+        android:background="@drawable/rounded_button_black"
         android:padding="@dimen/margin_minimum"
         android:textAllCaps="false"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
         android:text="@string/create_account_text"
         android:textColor="@color/secondaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
+        app:layout_constraintBottom_toTopOf="@id/policyAgreement"/>
 
     <TextView
         android:id="@+id/versionName"
@@ -131,9 +117,10 @@
         android:text="@string/foxmike_policy_text"
         android:layout_marginStart="@dimen/margin_left"
         android:layout_marginBottom="@dimen/marginVertical"
-        android:layout_marginEnd="70dp"
+        android:layout_marginEnd="@dimen/margin_left"
         android:textColor="@color/secondaryTextColor"
         android:textColorLink="@color/secondaryTextColor"
+        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
