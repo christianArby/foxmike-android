@@ -50,6 +50,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <TextView
+        android:visibility="visible"
+        android:id="@+id/plusFlag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/booked_flag"
+        android:text="PLUS"
+        android:textAppearance="@style/FoxmikeBodySemiBold"
+        android:textSize="12sp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintTop_toTopOf="@id/newFlag"
+        app:layout_constraintBottom_toBottomOf="@id/newFlag"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -107,17 +126,19 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/newFlag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/small_rounded_textview"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
-        android:padding="4dp"
         android:textAllCaps="true"
+        android:drawableStart="@drawable/baseline_star_black_18"
+        android:drawableTint="@color/secondaryTextColor"
+        android:drawablePadding="@dimen/margin_minimum"
         android:text="@string/new_text"
+        android:layout_gravity="start|center"
         android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/secondaryTextColor"
         android:layout_marginTop="@dimen/marginVertical"
         android:layout_marginStart="@dimen/margin_left"
         app:layout_constraintStart_toStartOf="parent"

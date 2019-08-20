@@ -142,6 +142,8 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                 Session session = sessionHashMap.get(advertisement.getSessionId());
 
+                ((ListSessionsAdapter.SessionViewHolder) holder).setVerified(session.isPlus());
+
                 /**Fill the cardview with information of the session" */
                 String addressName = getAddress(session.getLatitude(),session.getLongitude());
                 if (addressName.length()>40) {
@@ -462,6 +464,15 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mView= itemView;
         }
 
+        public void setVerified(boolean verified){
+            TextView plusFlag = mView.findViewById(R.id.plusFlag);
+            if (verified) {
+                plusFlag.setVisibility(View.VISIBLE);
+            } else {
+                plusFlag.setVisibility(View.GONE);
+            }
+        }
+
         public void setTitle(String title){
             TextView session_title = mView.findViewById(R.id.session_title);
             session_title.setText(title);
@@ -551,7 +562,7 @@ public class ListSessionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             TextView newFlag = mView.findViewById(R.id.newFlag);
             if (displayRating) {
                 ratingContainer.setVisibility(View.VISIBLE);
-                newFlag.setVisibility(View.GONE);
+                newFlag.setVisibility(View.INVISIBLE);
             } else {
                 ratingContainer.setVisibility(View.GONE);
                 newFlag.setVisibility(View.VISIBLE);

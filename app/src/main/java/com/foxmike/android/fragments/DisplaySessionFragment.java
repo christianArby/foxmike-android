@@ -259,6 +259,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private boolean firstLoaded;
 
     private RecyclerView imagesRV;
+    private LinearLayout plusContainer;
 
     public DisplaySessionFragment() {
         // Required empty public constructor
@@ -975,6 +976,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         whoDivider = displaySession.findViewById(R.id.whoDivider);
         infoDivider = displaySession.findViewById(R.id.infoDivider);
 
+        plusContainer = displaySession.findViewById(R.id.plusContainer);
+
 
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
         sessionImageCardView = view.findViewById(R.id.sessionImageCardView);
@@ -1170,6 +1173,12 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // ---------------- SESSION && VIEW-----------------
         if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
             sessionAndViewUsed = true;
+
+            if (mSession.isPlus()) {
+                plusContainer.setVisibility(View.VISIBLE);
+            } else {
+                plusContainer.setVisibility(View.GONE);
+            }
 
             shareIcon.setOnClickListener(new View.OnClickListener() {
                 @Override

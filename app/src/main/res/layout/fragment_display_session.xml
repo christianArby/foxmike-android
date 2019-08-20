@@ -39,16 +39,16 @@
 
                 <ImageView
                     android:id="@+id/editTop"
-                    android:layout_marginTop="@dimen/margin_left"
                     app:layout_collapseMode="pin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_left"
                     android:src="@mipmap/ic_mode_edit_black_24dp"
                     android:tint="@color/secondaryTextColor"/>
 
                 <ImageView
                     android:id="@+id/shareIcon"
-                    android:layout_margin="@dimen/margin_left"
+                    android:padding="@dimen/margin_left"
                     app:layout_collapseMode="pin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

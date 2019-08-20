@@ -45,7 +45,7 @@ public class Util {
             root.mkdirs();
 
         //decode and resize the original bitmap from @param path.
-        Bitmap bitmap = decodeImageFromFiles(path, /* your desired width*/800, /*your desired height*/ 480);
+        Bitmap bitmap = decodeImageFromFiles(path, /* your desired width*/800, /*your desired height*/ 533);
 
         //create placeholder for the compressed image file
         File compressed = new File(root, SDF.format(new Date()) + ".jpg" /*Your desired format*/);
@@ -95,7 +95,7 @@ public class Util {
             root.mkdirs();
 
         //decode and resize the original bitmap from @param path.
-        Bitmap bitmap = decodeImageFromFiles(path, /* your desired width*/1600, /*your desired height*/ 960);
+        Bitmap bitmap = decodeImageFromFiles(path, /* your desired width*/1600, /*your desired height*/ 1066);
 
         //create placeholder for the compressed image file
         File compressed = new File(root, SDF.format(new Date()) + ".jpg" /*Your desired format*/);

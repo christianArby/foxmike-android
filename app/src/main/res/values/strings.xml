@@ -558,7 +558,7 @@
     <string name="you_have_been_on_the_session">You have been on the session\u0020</string>
     <string name="leave_your_review_below">, leave your review below.</string>
     <string name="Rate">Rate</string>
-    <string name="new_text">NEW</string>
+    <string name="new_text">(NEW)</string>
     <string name="bad_internet">Bad internet connection, please try again later.</string>
     <string name="save">Save</string>
     <string name="already_session_planned_at_this_time">You already have a session planned at this time, please choose another time.</string>

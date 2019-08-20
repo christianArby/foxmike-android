@@ -1094,6 +1094,12 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             sessionMap.put("superHosted", false);
         }
 
+        if (currentUser.isPlus()) {
+            sessionMap.put("plus", true);
+        } else {
+            sessionMap.put("plus", false);
+        }
+
         sessionMap.put("sessionId", mSessionId);
         sessionMap.put("sessionName", mSessionName.getText().toString());
         String sessionTypeCode = "000";
@@ -1466,7 +1472,10 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
 
             CropImage.activity(imageUri)
+                    .setMinCropResultSize(800,533)
+                    .setMinCropWindowSize(800, 533)
                     .setGuidelines(CropImageView.Guidelines.ON)
+                    .setInitialCropWindowPaddingRatio(0)
                     .setAspectRatio(getResources().getInteger(R.integer.heightOfCreatedSessionImageDenominator), getResources().getInteger(R.integer.heightOfCreatedSessionImageNumerator))
                     .start(this);
         }

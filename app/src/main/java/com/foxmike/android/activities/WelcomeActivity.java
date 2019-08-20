@@ -129,7 +129,7 @@ public class WelcomeActivity extends AppCompatActivity {
         maintenanceView = findViewById(R.id.maintenance);
         foxmikeIcon = findViewById(R.id.foxmikeIcon);
 
-        int drawableResourceId = this.getResources().getIdentifier("foxmike_icon_transparent", "drawable", this.getPackageName());
+        int drawableResourceId = this.getResources().getIdentifier("foxmike_logotype_rgb_white_colour", "drawable", this.getPackageName());
         Glide.with(this).load(drawableResourceId).into(foxmikeIcon);
 
         version = "";
@@ -142,7 +142,7 @@ public class WelcomeActivity extends AppCompatActivity {
         versionNameTV.setText(version);
         versionNameTV.setVisibility(View.GONE);
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.foxmikePrimaryColor));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.black));
 
         // ----------------- E-mail and password login ------------------------
         loginTV.setOnClickListener(new View.OnClickListener() {

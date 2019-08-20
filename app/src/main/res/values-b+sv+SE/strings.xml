@@ -558,7 +558,7 @@
     <string name="you_have_been_on_the_session">Du har varit på passet\u0020</string>
     <string name="leave_your_review_below">, lämna ditt omdöme nedan.</string>
     <string name="Rate">Betygsätt</string>
-    <string name="new_text">Nytt</string>
+    <string name="new_text">(NYTT)</string>
     <string name="bad_internet">Dålig internetuppkoppling, försök igen senare.</string>
     <string name="save">Spara</string>
     <string name="already_session_planned_at_this_time">Du har redan ett pass den här tiden, välj en annan tid.</string>
