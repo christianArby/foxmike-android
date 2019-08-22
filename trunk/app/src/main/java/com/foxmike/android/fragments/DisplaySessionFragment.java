@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -257,6 +258,8 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
     private Long currentLastTimestamp = 0L;
     private ListHistoryAdvertisementsAdapter listHistoryAdvertisementsAdapter;
     private boolean firstLoaded;
+    private VideoView videoView;
+    private boolean isContinuously = false;
 
     private RecyclerView imagesRV;
     private LinearLayout plusContainer;
@@ -977,6 +980,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         infoDivider = displaySession.findViewById(R.id.infoDivider);
 
         plusContainer = displaySession.findViewById(R.id.plusContainer);
+        //videoView = displaySession.findViewById(R.id.video);
 
 
         mCurrentUserPostImage = displaySession.findViewById(R.id.session_post_current_user_image);
@@ -1161,6 +1165,7 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         sessionAndViewUsed = false;
         onAsyncTaskFinished();
     }
+
     private void onAsyncTaskFinished() {
 
         // ---------------- CURRENTUSER && VIEW-----------------
@@ -1173,6 +1178,72 @@ public class DisplaySessionFragment extends Fragment implements OnMapReadyCallba
         // ---------------- SESSION && VIEW-----------------
         if (sessionLoaded && getView()!=null && !sessionAndViewUsed) {
             sessionAndViewUsed = true;
+
+
+            /*MediaController mediacontroller = new MediaController(getActivity());
+            mediacontroller.setAnchorView(videoView);
+            String uriPath = "https://firebasestorage.googleapis.com/v0/b/foxmike-beta/o/heroautumn2019.mp4?alt=media&token=76cf054f-f177-440c-8d2e-19d2cd85c97d"; //update package name
+            Uri uri = Uri.parse(uriPath);*/
+
+            /*isContinuously = false;
+            videoView.setMediaController(mediacontroller);
+            videoView.setVideoURI(uri);
+            videoView.requestFocus();
+            videoView.start();*/
+
+            /*videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    if(isContinuously){
+                        videoView.start();
+                    }
+                }
+            });*/
+
+            /*btnstop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vv.pause();
+                }
+            });*/
+
+            /*btnplay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vv.start();
+                }
+            });*/
+
+            /*mHost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isContinuously = false;
+                    videoView.setMediaController(mediacontroller);
+                    videoView.setVideoURI(uri);
+                    videoView.requestFocus();
+                    videoView.start();
+                }
+            });*/
+
+            /*btncontinuously.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isContinuously = true;
+                    progressBar.setVisibility(View.VISIBLE);
+                    vv.setMediaController(mediacontroller);
+                    vv.setVideoURI(uri);
+                    vv.requestFocus();
+                    vv.start();
+                }
+            });
+
+            vv.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                // Close the progress bar and play the video
+                public void onPrepared(MediaPlayer mp) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });*/
+
 
             if (mSession.isPlus()) {
                 plusContainer.setVisibility(View.VISIBLE);

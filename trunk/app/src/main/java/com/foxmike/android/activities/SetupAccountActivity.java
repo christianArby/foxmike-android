@@ -145,7 +145,7 @@ public class SetupAccountActivity extends AppCompatActivity {
             user.setFullName(firstName + " " + lastName);
 
             SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {
+            setOrUpdateUserImage.setOrUpdateUserImages(SetupAccountActivity.this, mImageUri, currentUserID, getString(R.string.storage_bucket), new SetOrUpdateUserImage.OnUserImageSetListener() {
                 @Override
                 public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
                     user.setImage(userImageUrlMap.getUserImageUrl());

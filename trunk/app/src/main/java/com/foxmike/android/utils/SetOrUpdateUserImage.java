@@ -33,12 +33,12 @@ public class SetOrUpdateUserImage {
     public SetOrUpdateUserImage() {
     }
 
-    public void setOrUpdateUserImages(final Context context, Uri imageUri, String mCurrentUserID, OnUserImageSetListener onUserImageSetListener) {
+    public void setOrUpdateUserImages(final Context context, Uri imageUri, String mCurrentUserID, String storageBucket, OnUserImageSetListener onUserImageSetListener) {
 
         this.onUserImageSetListener = onUserImageSetListener;
 
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("users");
-        mStorageImage = FirebaseStorage.getInstance().getReference().child("Profile_images");
+        mStorageImage = FirebaseStorage.getInstance(storageBucket).getReference().child("Profile_images");
         this.currentUserID =mCurrentUserID;
 
         //Create bitmap thumb_image

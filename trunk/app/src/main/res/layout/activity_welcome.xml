@@ -133,9 +133,9 @@
         android:minHeight="@dimen/height_progressBar"
         android:minWidth="@dimen/width_progressBar"
         android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/foxmikeIcon"
+        app:layout_constraintBottom_toTopOf="@id/continueWithFacebookButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
