@@ -313,7 +313,7 @@ public class RegisterActivity extends AppCompatActivity {
                         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
 
                         SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this, mImageUri, currentUserID, new SetOrUpdateUserImage.OnUserImageSetListener() {
+                        setOrUpdateUserImage.setOrUpdateUserImages(RegisterActivity.this, mImageUri, currentUserID, getString(R.string.storage_bucket), new SetOrUpdateUserImage.OnUserImageSetListener() {
                             @Override
                             public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
 

@@ -3,5 +3,6 @@
     <string name="web_client_id_for_google">961444435312-eaav2hag9uq96v875hplvia2t4p3kkdf.apps.googleusercontent.com</string>
     <string name="stripe_publishable_key">pk_test_6IcNIdHpN4LegxE3t8KzvmHx</string>
     <string name="release_type">debug</string>
+    <string name="storage_bucket">gs://foxmike-beta/</string>
 
 </resources>

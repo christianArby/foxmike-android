@@ -310,7 +310,7 @@ public class UserProfilePublicEditFragment extends Fragment {
 
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();
-                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(), mImageUri, currentFirebaseUser.getUid(), new SetOrUpdateUserImage.OnUserImageSetListener() {
+                    setOrUpdateUserImage.setOrUpdateUserImages(getActivity(), mImageUri, currentFirebaseUser.getUid(), getString(R.string.storage_bucket),new SetOrUpdateUserImage.OnUserImageSetListener() {
                         @Override
                         public void onUserImageSet(UserImageUrlMap userImageUrlMap) {
                             Map imageUrlHashMap = new HashMap();

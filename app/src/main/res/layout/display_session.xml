@@ -69,6 +69,16 @@
 
     </LinearLayout>
 
+    <!--<VideoView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/plusContainer"
+        android:id="@+id/video"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="5:3" />-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/hostInfoContainer"
         android:layout_width="match_parent"

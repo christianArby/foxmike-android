@@ -264,7 +264,7 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
         mWhat = createSession.findViewById(R.id.whatET);
         mWho = createSession.findViewById(R.id.whoET);
         mWhere = createSession.findViewById(R.id.whereET);
-        mStorageSessionImage = FirebaseStorage.getInstance().getReference().child("Session_images");
+        mStorageSessionImage = FirebaseStorage.getInstance(getString(R.string.storage_bucket)).getReference().child("Session_images");
         mProgress = new ProgressDialog(this);
         mCreateSessionBtn = createSession.findViewById(R.id.createSessionBtn);
         imageButtonA = createSession.findViewById(R.id.imageA);
