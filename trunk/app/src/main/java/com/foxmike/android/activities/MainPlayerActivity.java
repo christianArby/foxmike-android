@@ -38,7 +38,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.ExploreFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.ListSessionsFragment;
@@ -584,8 +583,14 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, false);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);
+        /*DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, false);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,DisplaySessionFragment.TAG);*/
+
+        Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+        displaySession.putExtra("sessionID", sessionId);
+        displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+        displaySession.putExtra("trainerMode",false);
+        startActivity(displaySession);
     }
 
     @Override
@@ -594,8 +599,16 @@ public class MainPlayerActivity extends AppCompatActivity
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary, false);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        /*DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary, false);
+        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");*/
+
+        Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+        displaySession.putExtra("sessionID", sessionId);
+        displaySession.putExtra("representingAdTimestamp", representingAdTimestamp);
+        displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+        displaySession.putExtra("trainerMode",false);
+        startActivity(displaySession);
+
     }
 
     /* Listener, when edit "button" in account is clicked show user profile */
@@ -1011,20 +1024,32 @@ public class MainPlayerActivity extends AppCompatActivity
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary, false);
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP1());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, false);
-            cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
             InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(2);
@@ -1128,8 +1153,11 @@ public class MainPlayerActivity extends AppCompatActivity
 
                     @Override
                     public void OnNegativePressed() {
-                        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, false);
-                        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
+                        Intent displaySession = new Intent(MainPlayerActivity.this,DisplaySessionActivity.class);
+                        displaySession.putExtra("sessionID", sessionId);
+                        displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+                        displaySession.putExtra("trainerMode",false);
+                        startActivity(displaySession);
                     }
                 });
     }

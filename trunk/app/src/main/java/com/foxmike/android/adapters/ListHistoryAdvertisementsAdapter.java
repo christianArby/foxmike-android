@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.foxmike.android.R;
-import com.foxmike.android.fragments.DisplaySessionFragment;
+import com.foxmike.android.activities.DisplaySessionActivity;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.utils.AdvertisementRowViewHolder;
@@ -25,9 +25,9 @@ public class ListHistoryAdvertisementsAdapter extends RecyclerView.Adapter<Adver
     private boolean isSuperHosted;
     private boolean isSuperAdmin;
     private boolean isHost;
-    private DisplaySessionFragment.OnHistoryAdClickedListener onHistoryAdClickedListener;
+    private DisplaySessionActivity.OnHistoryAdClickedListener onHistoryAdClickedListener;
 
-    public ListHistoryAdvertisementsAdapter(ArrayList<Advertisement> advertisementArrayListArray, boolean isSuperHosted, boolean isSuperAdmin, boolean isHost, DisplaySessionFragment.OnHistoryAdClickedListener onHistoryAdClickedListener) {
+    public ListHistoryAdvertisementsAdapter(ArrayList<Advertisement> advertisementArrayListArray, boolean isSuperHosted, boolean isSuperAdmin, boolean isHost, DisplaySessionActivity.OnHistoryAdClickedListener onHistoryAdClickedListener) {
         this.advertisementArrayListArray = advertisementArrayListArray;
         this.isSuperHosted = isSuperHosted;
         this.isHost = isHost;
