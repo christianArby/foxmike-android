@@ -32,8 +32,9 @@ public class Session implements Comparable<Session>, Serializable {
     private int nrOfReviews;
     private boolean superHosted;
     private boolean plus;
+    private String videoUrl;
 
-    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, HashMap<String, String> images, HashMap<String, String> imagesHQ, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted, boolean plus) {
+    public Session(String sessionId, String host, String secondaryHostId, String sessionName, String sessionType, String address, int maxParticipants, double latitude, double longitude, String imageUrl, String imageUrlHiRes, HashMap<String, String> images, HashMap<String, String> imagesHQ, String what, String who, String whereAt, int durationInMin, String currency, long representingAdTimestamp, int price, float rating, int nrOfRatings, int nrOfReviews, boolean superHosted, boolean plus, String videoUrl) {
         this.sessionId = sessionId;
         this.host = host;
         this.secondaryHostId = secondaryHostId;
@@ -59,6 +60,7 @@ public class Session implements Comparable<Session>, Serializable {
         this.nrOfReviews = nrOfReviews;
         this.superHosted = superHosted;
         this.plus = plus;
+        this.videoUrl = videoUrl;
     }
 
     public Session() {
@@ -89,6 +91,15 @@ public class Session implements Comparable<Session>, Serializable {
         this.nrOfRatings = sessionToCopy.nrOfRatings;
         this.nrOfReviews = sessionToCopy.nrOfReviews;
         this.plus = sessionToCopy.plus;
+        this.videoUrl = sessionToCopy.videoUrl;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
     public HashMap<String, String> getImages() {

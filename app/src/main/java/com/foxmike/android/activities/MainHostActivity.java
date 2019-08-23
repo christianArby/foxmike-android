@@ -35,7 +35,6 @@ import com.foxmike.android.adapters.BottomNavigationAdapter;
 import com.foxmike.android.fragments.AllUsersFragment;
 import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
-import com.foxmike.android.fragments.DisplaySessionFragment;
 import com.foxmike.android.fragments.HostSessionsFragment;
 import com.foxmike.android.fragments.InboxFragment;
 import com.foxmike.android.fragments.NotificationsFragment;
@@ -428,9 +427,11 @@ public class MainHostActivity extends AppCompatActivity implements
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
         }
-        mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, sessionTypeDictionary, true);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true, "");
+        Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+        displaySession.putExtra("sessionID", sessionId);
+        displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+        displaySession.putExtra("trainerMode",false);
+        startActivity(displaySession);
     }
 
     @Override
@@ -439,8 +440,12 @@ public class MainHostActivity extends AppCompatActivity implements
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        DisplaySessionFragment displaySessionFragment = DisplaySessionFragment.newInstance(sessionId, representingAdTimestamp, sessionTypeDictionary, true);
-        cleanMainFullscreenActivityAndSwitch(displaySessionFragment, true,"");
+        Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+        displaySession.putExtra("sessionID", sessionId);
+        displaySession.putExtra("representingAdTimestamp", representingAdTimestamp);
+        displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+        displaySession.putExtra("trainerMode",false);
+        startActivity(displaySession);
     }
 
     /* Listener, when edit "button" in account is clicked show user profile */
@@ -686,20 +691,32 @@ public class MainHostActivity extends AppCompatActivity implements
     @Override
     public void OnNotificationClicked(FoxmikeNotification foxmikeNotification) {
         if (foxmikeNotification.getType().equals("sessionPost")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP1(), sessionTypeDictionary, true);
-            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP1());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
-            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
-            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
-            DisplaySessionFragment hostDisplaySessionFragment = DisplaySessionFragment.newInstance(foxmikeNotification.getP2(), sessionTypeDictionary, true);
-            cleanMainFullscreenActivityAndSwitch(hostDisplaySessionFragment, true,"");
+            Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
+            displaySession.putExtra("sessionID", foxmikeNotification.getP2());
+            displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
+            displaySession.putExtra("trainerMode",false);
+            startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {
             InboxFragment inboxFragment = (InboxFragment) bottomNavigationAdapter.getRegisteredFragment(0);

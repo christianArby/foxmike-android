@@ -48,9 +48,9 @@
                 android:textAppearance="@style/FoxmikeSemiBold"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/grayTextColor"
+                android:textColor="@color/primaryTextColor"
                 android:layout_marginStart="@dimen/margin_minimum"
-                android:text="Foxmike Plus"
+                android:text="foxmike plus"
                 app:layout_constraintStart_toEndOf="@id/plusIcon"
                 app:layout_constraintTop_toTopOf="@id/plusIcon"
                 app:layout_constraintBottom_toBottomOf="@id/plusIcon"/>
@@ -60,24 +60,24 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             android:textColor="@color/primaryTextColor"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginTop="@dimen/margin_minimum"
-            android:text="Foxmike Plus är gruppträningspass som endast finns hos foxmike och som är kvalitetssäkrade av foxmike." />
+            android:text="Unika gruppträningspass som är kvalitetssäkrade av foxmike." />
+
+        <View
+            android:id="@+id/spaceView00"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/dividerBottom"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_left"
+            android:background="@color/color_divider" />
 
     </LinearLayout>
-
-    <!--<VideoView
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/plusContainer"
-        android:id="@+id/video"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="5:3" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/hostInfoContainer"
@@ -533,13 +533,75 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ratingsAndReviews"/>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/videoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spaceView05">
+
+        <TextView
+            android:id="@+id/videoHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Video"
+            style="@style/FoxmikeHeading"
+            android:layout_margin="@dimen/margin_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <VideoView
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/videoHeading"
+            android:layout_marginTop="@dimen/margin_left"
+            android:id="@+id/video"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintDimensionRatio="5:3" />
+
+        <ImageView
+            android:id="@+id/playVideoIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_play_circle_filled_black_24dp"
+            android:tint="@color/secondaryTextColor"
+            app:layout_constraintTop_toTopOf="@id/video"
+            app:layout_constraintBottom_toBottomOf="@id/video"
+            app:layout_constraintStart_toStartOf="@id/video"
+            app:layout_constraintEnd_toEndOf="@id/video"/>
+
+        <ProgressBar
+            android:id="@+id/videoProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/video"
+            app:layout_constraintBottom_toBottomOf="@id/video"
+            app:layout_constraintStart_toStartOf="@id/video"
+            app:layout_constraintEnd_toEndOf="@id/video"/>
+
+        <View
+            android:id="@+id/spaceView06"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/space_view__big_height"
+            android:background="@color/color_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/video"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
     <LinearLayout
         android:id="@+id/write_post_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceView05">
+        app:layout_constraintTop_toBottomOf="@id/videoContainer">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/session_post_current_user_image"
