@@ -156,6 +156,7 @@ public class ExploreFragment extends Fragment{
     private ArrayList<String> geoFireNodesKeys = new ArrayList<>();
     private long mLastGeoFireQueryUpdated = 0;
     private CountDownTimer countDownTimerLocation;
+    private boolean foxmikePlusOnly;
 
     public HashMap<String, Boolean> getSessionTypeChosen() {
         return sessionTypeChosen;
@@ -195,10 +196,11 @@ public class ExploreFragment extends Fragment{
     }
 
 
-    public static ExploreFragment newInstance(HashMap<String,String> sessionTypeDictionary) {
+    public static ExploreFragment newInstance(HashMap<String,String> sessionTypeDictionary, boolean foxmikePlusOnly) {
 
         Bundle args = new Bundle();
         args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
+        args.putBoolean("foxmikePlusOnly", foxmikePlusOnly);
         ExploreFragment fragment = new ExploreFragment();
         fragment.setArguments(args);
         return fragment;
@@ -258,6 +260,7 @@ public class ExploreFragment extends Fragment{
 
         if (getArguments() != null) {
             sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
+            foxmikePlusOnly = getArguments().getBoolean("foxmikePlusOnly", false);
         }
 
         // Construct a FusedLocationProviderClient.
@@ -544,7 +547,7 @@ public class ExploreFragment extends Fragment{
                 if (sortAndFilterFragment!=null) {
                     transaction.remove(sortAndFilterFragment);
                 }
-                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, currentDistanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, currentDistanceRadius, sessionTypeChosen, sessionTypeDictionary);
+                sortAndFilterFragment = SortAndFilterFragment.newInstance(sortType, currentDistanceRadius, minPrice, maxPrice, minHour, minMinute, maxHour, maxMinute, currentDistanceRadius, foxmikePlusOnly, sessionTypeChosen, sessionTypeDictionary);
                 sortAndFilterFragment.show(transaction,SortAndFilterFragment.TAG);
             }
         });
@@ -801,6 +804,12 @@ public class ExploreFragment extends Fragment{
 
     }
 
+    public void OnFoxmikePlusOnlyChanged(boolean foxmikePlusOnly) {
+        this.foxmikePlusOnly = foxmikePlusOnly;
+        filterGeoFireNodesAndPopulateListAndMap(false, 0);
+    }
+
+
     private void toggleFilterChecked() {
 
         if (this.minHour==minDefaultHour && minMinute==minDefaultMinute && maxHour==maxDefaultHour && maxMinute==maxDefaultMinute && this.maxPrice==PRICES_INTEGERS_SE.get("Max") && this.minPrice==0 && !this.sessionTypeChosen.containsValue(true)) {
@@ -1018,6 +1027,17 @@ public class ExploreFragment extends Fragment{
         if (geoFireNodes.size()>0) {
             for (String geoFireNodeKey: geoFireNodes.keySet()) {
                 boolean show = true;
+
+                if (foxmikePlusOnly) {
+                    if (geoFireNodeKey.length()>65) {
+                        String foxmikeClass = CharBuffer.wrap(geoFireNodeKey, 65, 66).toString();
+                        if (!foxmikeClass.equals("A")) {
+                            show = false;
+                        }
+                    } else {
+                        show = false;
+                    }
+                }
 
                 // User has made an active choice
                 if (sessionTypeChosen.containsValue(true)) {

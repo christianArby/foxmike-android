@@ -13,10 +13,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -86,12 +88,14 @@ public class SortAndFilterFragment extends DialogFragment {
     private Spinner spinnerMin;
     private ArrayAdapter<CharSequence> adapterPriceMin;
     private ArrayAdapter<CharSequence> adapterPriceMax;
+    private Switch foxmikePlusSwitch;
+    private boolean foxmikePlusOnly;
 
     public SortAndFilterFragment() {
         // Required empty public constructor
     }
 
-    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, HashMap<String, Boolean> sessionTypeChosen, HashMap<String,String> sessionTypeDictionary) {
+    public static SortAndFilterFragment newInstance(String sort, int filter, int minPrice, int maxPrice, int minHour, int minMinute, int maxHour, int maxMinute, int distance, boolean foxmikePlusOnly, HashMap<String, Boolean> sessionTypeChosen, HashMap<String,String> sessionTypeDictionary) {
         SortAndFilterFragment fragment = new SortAndFilterFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SORT, sort);
@@ -103,6 +107,7 @@ public class SortAndFilterFragment extends DialogFragment {
         args.putInt("maxHour", maxHour);
         args.putInt("maxMinute", maxMinute);
         args.putInt("distance", distance);
+        args.putBoolean("foxmikePlusOnly", foxmikePlusOnly);
         args.putSerializable("sessionTypeChosen", sessionTypeChosen);
         args.putSerializable("sessionTypeDictionary", sessionTypeDictionary);
         fragment.setArguments(args);
@@ -121,6 +126,7 @@ public class SortAndFilterFragment extends DialogFragment {
             maxHour = getArguments().getInt("maxHour");
             maxMinute = getArguments().getInt("maxMinute");
             mFilterDistance = getArguments().getInt("distance");
+            foxmikePlusOnly = getArguments().getBoolean("foxmikePlusOnly", foxmikePlusOnly);
             sessionTypeChosen = (HashMap<String, Boolean>)getArguments().getSerializable("sessionTypeChosen");
             sessionTypeDictionary = (HashMap<String, String>)getArguments().getSerializable("sessionTypeDictionary");
         }
@@ -146,6 +152,7 @@ public class SortAndFilterFragment extends DialogFragment {
         sessionTypeRV = view.findViewById(R.id.sessionTypeRV);
         sessionTypeProgress = view.findViewById(R.id.sessionTypeProgress);
         clearAll = view.findViewById(R.id.clearAll);
+        foxmikePlusSwitch = view.findViewById(R.id.foxmikePlusSwitch);
 
         sessionTypeDrawables = new HashMap<>();
         sessionTypeDrawables.put("checked", getResources().getDrawable(R.drawable.ic_check_black_24dp));
@@ -157,6 +164,18 @@ public class SortAndFilterFragment extends DialogFragment {
         sessionTypeDrawables.put("default", getResources().getDrawable(R.mipmap.ic_people_black_24dp));
         ColorStateList checkedColor = ColorStateList.valueOf(Color.parseColor("#006959"));
         ColorStateList notCheckedColor = ColorStateList.valueOf(Color.parseColor("#00bfa5"));
+
+        if (foxmikePlusOnly) {
+            foxmikePlusSwitch.setChecked(true);
+        }
+
+        foxmikePlusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                foxmikePlusOnly = isChecked;
+                onFilterChangedListener.OnFoxmikePlusOnlyChanged(isChecked);
+            }
+        });
 
         checkedColors = new HashMap<>();
         checkedColors.put("isChecked", checkedColor);
@@ -417,6 +436,7 @@ public class SortAndFilterFragment extends DialogFragment {
         void OnMaxPriceChanged(int maxPrice);
         void OnTimeRangeChanged(int minHour, int minMinute, int maxHour, int maxMinute);
         void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen);
+        void OnFoxmikePlusOnlyChanged(boolean foxmikePlusOnly);
         void OnResetFilter();
     }
 

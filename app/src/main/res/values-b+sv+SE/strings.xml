@@ -641,4 +641,7 @@
     <string name="how_was_your_class">Hur var ditt pass?</string>
     <string name="choose_a_new_image">Välj en ny bild</string>
     <string name="remove_image">Ta bort bild</string>
+    <string name="visa_bara_foxmike_plus">Visa bara Foxmike Plus</string>
+    <string name="foxmike_plus_text">Foxmike Plus är unika gruppträningspass som är kvalitetssäkrade av Foxmike.</string>
+    <string name="foxmike_plus_non_cap">foxmike plus</string>
 </resources>

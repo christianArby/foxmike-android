@@ -19,8 +19,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="@dimen/margin_left">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/clearAll"
@@ -48,6 +47,40 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_margin="@dimen/margin_left"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/foxmikePlusHeading"
+                    style="@style/FoxmikeSemiBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visa_bara_foxmike_plus"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <Switch
+                    android:id="@+id/foxmikePlusSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/foxmikePlusHeading"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/foxmikePlusHeading"
+                    android:layout_marginTop="@dimen/leadSub2Body"
+                    android:text="@string/foxmike_plus_text"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
             <TextView
@@ -55,6 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
+                style="@style/FoxmikeSemiBold"
                 android:text="@string/session_type"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
@@ -122,6 +156,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
+                style="@style/FoxmikeSemiBold"
                 android:text="@string/filter_by_price"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rangeSeekbar" />
@@ -162,6 +197,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"
+                style="@style/FoxmikeSemiBold"
                 android:text="@string/start_time"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/closeImageButton" />
@@ -229,6 +265,7 @@
                 android:id="@+id/filterText"
                 android:layout_width="290dp"
                 android:layout_height="wrap_content"
+                style="@style/FoxmikeSemiBold"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_left"
                 android:layout_marginTop="@dimen/margin_minimum"

@@ -430,7 +430,7 @@ public class MainHostActivity extends AppCompatActivity implements
         Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
         displaySession.putExtra("sessionID", sessionId);
         displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-        displaySession.putExtra("trainerMode",false);
+        displaySession.putExtra("trainerMode",true);
         startActivity(displaySession);
     }
 
@@ -444,7 +444,7 @@ public class MainHostActivity extends AppCompatActivity implements
         displaySession.putExtra("sessionID", sessionId);
         displaySession.putExtra("representingAdTimestamp", representingAdTimestamp);
         displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-        displaySession.putExtra("trainerMode",false);
+        displaySession.putExtra("trainerMode",true);
         startActivity(displaySession);
     }
 
@@ -694,28 +694,28 @@ public class MainHostActivity extends AppCompatActivity implements
             Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
             displaySession.putExtra("sessionID", foxmikeNotification.getP1());
             displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-            displaySession.putExtra("trainerMode",false);
+            displaySession.putExtra("trainerMode",true);
             startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("sessionPostComment")) {
             Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
             displaySession.putExtra("sessionID", foxmikeNotification.getP2());
             displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-            displaySession.putExtra("trainerMode",false);
+            displaySession.putExtra("trainerMode",true);
             startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantNew")) {
             Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
             displaySession.putExtra("sessionID", foxmikeNotification.getP2());
             displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-            displaySession.putExtra("trainerMode",false);
+            displaySession.putExtra("trainerMode",true);
             startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("participantCancellation")) {
             Intent displaySession = new Intent(MainHostActivity.this,DisplaySessionActivity.class);
             displaySession.putExtra("sessionID", foxmikeNotification.getP2());
             displaySession.putExtra("sessionTypeDictionary", sessionTypeDictionary);
-            displaySession.putExtra("trainerMode",false);
+            displaySession.putExtra("trainerMode",true);
             startActivity(displaySession);
         }
         if (foxmikeNotification.getType().equals("friendRequestAccepted")) {

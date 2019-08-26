@@ -641,4 +641,7 @@
     <string name="how_was_your_class">How was your session?</string>
     <string name="choose_a_new_image">Choose a new image</string>
     <string name="remove_image">Remove image</string>
+    <string name="visa_bara_foxmike_plus">Show only Foxmike Plus</string>
+    <string name="foxmike_plus_text">Foxmike Plus is unique group training sessions with vetted instructors.</string>
+    <string name="foxmike_plus_non_cap">foxmike plus</string>
 </resources>
