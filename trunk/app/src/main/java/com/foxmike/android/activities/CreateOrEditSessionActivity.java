@@ -1334,11 +1334,19 @@ public class CreateOrEditSessionActivity extends AppCompatActivity {
                     }
                 }
 
-                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + sessionType + currency + price + rating;
+                String sessionClass = "X";
+
+                if (currentUser.isPlus()) {
+                    sessionClass = "A";
+                }
+
+                String geoFireKey = advertisement.getAdvertisementTimestamp() + advertisement.getAdvertisementId() + advertisement.getSessionId() + sessionType + currency + price + rating + sessionClass;
 
                 DatabaseReference mGeofireDbRef = FirebaseDatabase.getInstance().getReference().child("geoFire").child(geoFireDateNode);
                 geoFire = new GeoFire(mGeofireDbRef);
                 geoFire.setLocation(geoFireKey, new GeoLocation((double)sendSession.get("latitude"), (double)sendSession.get("longitude")));
+
+
 
                 // Save the reference so it is easy to remove from geofire if cancelled
                 FirebaseDatabase.getInstance().getReference().child("advertisementGeoFireReference").child(advertisement.getAdvertisementId()).setValue(geoFireDateNode + "/" +geoFireKey);

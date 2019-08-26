@@ -72,6 +72,8 @@ import com.foxmike.android.viewmodels.MaintenanceViewModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -140,6 +142,7 @@ public class MainPlayerActivity extends AppCompatActivity
     // variable to track event time
     private long mLastClickTime = 0;
     private HashMap<String, Boolean> reviewsPresented = new HashMap<>();
+    private boolean foxmikePlusOnly;
 
 
     private HashMap<CountDownTimer, String> countDownTimerHashMap = new HashMap<>();
@@ -339,6 +342,16 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
+        ArrayList<Task<?>> asyncTasks = new ArrayList<>();
+
+        TaskCompletionSource<Boolean> sessionTypeArraySource = new TaskCompletionSource<>();
+        Task sessionTypeArrayTask = sessionTypeArraySource.getTask();
+        asyncTasks.add(sessionTypeArrayTask);
+
+        TaskCompletionSource<Boolean> foxmikePlusOnlySource = new TaskCompletionSource<>();
+        Task foxmikePlusOnlyTask = foxmikePlusOnlySource.getTask();
+        asyncTasks.add(foxmikePlusOnlyTask);
+
         String language = getResources().getConfiguration().locale.getLanguage();
         DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child(language);
         sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -351,7 +364,7 @@ public class MainPlayerActivity extends AppCompatActivity
                     for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
                         sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
                     }
-                    setupUI();
+                    sessionTypeArraySource.setResult(true);
                 } else {
                     DatabaseReference sessionTypeArrayLocalReference = FirebaseDatabase.getInstance().getReference().child("sessionTypeArray").child("en");
                     sessionTypeArrayLocalReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -360,7 +373,7 @@ public class MainPlayerActivity extends AppCompatActivity
                             for (DataSnapshot sessionTypeSnap : dataSnapshot.getChildren()) {
                                 sessionTypeDictionary.put(sessionTypeSnap.getKey(), sessionTypeSnap.getValue().toString());
                             }
-                            setupUI();
+                            sessionTypeArraySource.setResult(true);
                         }
 
                         @Override
@@ -372,6 +385,31 @@ public class MainPlayerActivity extends AppCompatActivity
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+
+        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("foxmikePlusOnly").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null) {
+                    foxmikePlusOnly = (boolean)dataSnapshot.getValue();
+                } else {
+                    foxmikePlusOnly = false;
+                }
+                foxmikePlusOnlySource.setResult(true);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        Tasks.whenAll(asyncTasks).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                setupUI();
             }
         });
 
@@ -400,7 +438,7 @@ public class MainPlayerActivity extends AppCompatActivity
     }
 
     private void setupUI() {
-        ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary);
+        ExploreFragment exploreFragment = ExploreFragment.newInstance(sessionTypeDictionary, foxmikePlusOnly);
         bottomNavigationAdapter.addFragments(exploreFragment);
 
         PlayerSessionsFragment playerSessionsFragment = PlayerSessionsFragment.newInstance(sessionTypeDictionary);
@@ -1091,6 +1129,13 @@ public class MainPlayerActivity extends AppCompatActivity
     public void OnSessionTypeChanged(HashMap<String, Boolean> sessionTypeChosen) {
         ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
         exploreFragment.OnSessionTypeChanged(sessionTypeChosen);
+    }
+
+    @Override
+    public void OnFoxmikePlusOnlyChanged(boolean foxmikePlusOnly) {
+        rootDbRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("foxmikePlusOnly").setValue(foxmikePlusOnly);
+        ExploreFragment exploreFragment = (ExploreFragment) bottomNavigationAdapter.getRegisteredFragment(0);
+        exploreFragment.OnFoxmikePlusOnlyChanged(foxmikePlusOnly);
     }
 
     @Override

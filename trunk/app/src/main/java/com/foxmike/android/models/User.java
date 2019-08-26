@@ -31,8 +31,9 @@ public class User implements Comparable<User>{
     private long depositRefunded;
     private int depositRefundedCount;
     private boolean plus;
+    private boolean foxmikePlusOnly;
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId, long depositRefunded, int depositRefundedCount, boolean plus) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId, long depositRefunded, int depositRefundedCount, boolean plus, boolean foxmikePlusOnly) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -56,10 +57,19 @@ public class User implements Comparable<User>{
         this.depositRefunded = depositRefunded;
         this.depositRefundedCount = depositRefundedCount;
         this.plus = plus;
+        this.foxmikePlusOnly = foxmikePlusOnly;
     }
 
     public User() {
 
+    }
+
+    public boolean isFoxmikePlusOnly() {
+        return foxmikePlusOnly;
+    }
+
+    public void setFoxmikePlusOnly(boolean foxmikePlusOnly) {
+        this.foxmikePlusOnly = foxmikePlusOnly;
     }
 
     public boolean isPlus() {

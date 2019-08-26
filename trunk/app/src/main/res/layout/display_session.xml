@@ -50,7 +50,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/primaryTextColor"
                 android:layout_marginStart="@dimen/margin_minimum"
-                android:text="foxmike plus"
+                android:text="@string/foxmike_plus_non_cap"
                 app:layout_constraintStart_toEndOf="@id/plusIcon"
                 app:layout_constraintTop_toTopOf="@id/plusIcon"
                 app:layout_constraintBottom_toBottomOf="@id/plusIcon"/>
@@ -65,7 +65,7 @@
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginTop="@dimen/margin_minimum"
-            android:text="Unika gruppträningspass som är kvalitetssäkrade av foxmike." />
+            android:text="@string/foxmike_plus_text" />
 
         <View
             android:id="@+id/spaceView00"
