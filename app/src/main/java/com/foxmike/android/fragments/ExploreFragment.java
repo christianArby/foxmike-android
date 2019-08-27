@@ -133,9 +133,9 @@ public class ExploreFragment extends Fragment{
     private int minMinute = minDefaultMinute;
     private int maxHour = maxDefaultHour;
     private int maxMinute = maxDefaultMinute;
-    private final int DEFAULT_DISTANCE = DISTANCE_INTEGERS_SE.get("6 mil");
-    private int currentDefaultDistanceRadius = DISTANCE_INTEGERS_SE.get("6 mil");
-    private int currentDistanceRadius = DISTANCE_INTEGERS_SE.get("6 mil");
+    private final int DEFAULT_DISTANCE = DISTANCE_INTEGERS_SE.get("8 km");
+    private int currentDefaultDistanceRadius = DISTANCE_INTEGERS_SE.get("8 km");
+    private int currentDistanceRadius = DISTANCE_INTEGERS_SE.get("8 km");
     private ArrayList<String> sessionIdsFiltered;
     private TreeMap<String, GeoLocation> geoFireNodes = new TreeMap<>();
     private TreeMap<String, GeoLocation> geoFireNodesFiltered = new TreeMap<>();
