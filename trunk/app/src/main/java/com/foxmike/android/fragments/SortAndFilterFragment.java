@@ -61,7 +61,7 @@ public class SortAndFilterFragment extends DialogFragment {
     private static final String ARG_SORT= "sort";
     private static final String ARG_FILTER = "filter";
     private String mSortType;
-    private int mFilterDistance = DISTANCE_INTEGERS_SE.get("100 mil");
+    private int mFilterDistance = DISTANCE_INTEGERS_SE.get("8 km");
     private ImageButton closeButton;
     private int minClicked = 0;
     private int maxClicked = 0;
@@ -160,7 +160,7 @@ public class SortAndFilterFragment extends DialogFragment {
         sessionTypeDrawables.put("AAA", getResources().getDrawable(R.drawable.running));
         sessionTypeDrawables.put("BBB", getResources().getDrawable(R.drawable.yoga));
         sessionTypeDrawables.put("EEE", getResources().getDrawable(R.drawable.cardio));
-        sessionTypeDrawables.put("CCC", getResources().getDrawable(R.drawable.crossfit));
+        sessionTypeDrawables.put("III", getResources().getDrawable(R.drawable.bootcamp));
         sessionTypeDrawables.put("default", getResources().getDrawable(R.mipmap.ic_people_black_24dp));
         ColorStateList checkedColor = ColorStateList.valueOf(Color.parseColor("#006959"));
         ColorStateList notCheckedColor = ColorStateList.valueOf(Color.parseColor("#00bfa5"));
