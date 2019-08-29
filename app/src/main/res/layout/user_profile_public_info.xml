@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/instagramIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/instagram_24"
+        android:tint="@color/primaryTextColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/margin_left"/>
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profilePublicIV"
         android:layout_width="@dimen/height_profileImage"

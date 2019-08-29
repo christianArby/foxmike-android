@@ -46,7 +46,6 @@ import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WriteReviewsFlagTrainerFragment;
 import com.foxmike.android.fragments.WriteReviewsFlagTrainerWriteReportFragment;
 import com.foxmike.android.fragments.WriteReviewsFragment;
-import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -74,8 +73,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_ADVERTISEMENT_REQUEST;
-
 public class MainHostActivity extends AppCompatActivity implements
         OnSessionClickedListener,
         UserAccountHostFragment.OnUserAccountFragmentInteractionListener,
@@ -90,7 +87,6 @@ public class MainHostActivity extends AppCompatActivity implements
         UserAccountFragment.OnUserAccountFragmentInteractionListener,
         OnCreateSessionClickedListener,
         OnAdvertisementsFoundListener,
-        AdvertisementListener,
         NotificationsFragment.OnNotificationClickedListener,
         AlertOccasionCancelledListener, WriteReviewsFragment.OnWriteReviewsFragmentInteractionListener, WriteReviewsFlagTrainerFragment.OnWriteReviewsFlagTrainerFragmentInteractionListener, WriteReviewsFlagTrainerWriteReportFragment.OnWriteReviewsFlagTrainerWriteReportFragmentInteractionListener {
 
@@ -670,21 +666,6 @@ public class MainHostActivity extends AppCompatActivity implements
 
     @Override
     public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
-
-    }
-
-    @Override
-    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, Long> participantsTimestamps, String accountId, int price) {
-        Intent cancelAdIntent = new Intent(MainHostActivity.this, CancelAdvertisementActivity.class);
-        cancelAdIntent.putExtra("sessionName", advertisementName);
-        cancelAdIntent.putExtra("advertisementId", advertisementId);
-        cancelAdIntent.putExtra("imageUrl", imageUrl);
-        cancelAdIntent.putExtra("sessionId", sessionId);
-        cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
-        cancelAdIntent.putExtra("participantsTimestamps", participantsTimestamps);
-        cancelAdIntent.putExtra("accountId",accountId);
-        cancelAdIntent.putExtra("price",price);
-        startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
 
     }
 

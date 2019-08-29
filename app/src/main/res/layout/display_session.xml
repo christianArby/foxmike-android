@@ -34,26 +34,13 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/plusIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/foxmike_rgb_color_icon_24"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
+                android:id="@+id/plusIcon"
+                android:src="@drawable/foxmike_plus_28"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/FoxmikeSemiBold"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/primaryTextColor"
-                android:layout_marginStart="@dimen/margin_minimum"
-                android:text="@string/foxmike_plus_non_cap"
-                app:layout_constraintStart_toEndOf="@id/plusIcon"
-                app:layout_constraintTop_toTopOf="@id/plusIcon"
-                app:layout_constraintBottom_toBottomOf="@id/plusIcon"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -133,12 +120,25 @@
             android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginBottom="@dimen/margin_left"
             android:text="@string/loading"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/displaySessionHostImage"
+            app:layout_constraintBottom_toTopOf="@id/instagramIcon"
             android:autoLink="web"/>
+
+        <ImageView
+            android:id="@+id/instagramIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/instagram_24"
+            android:tint="@color/primaryTextColor"
+            android:layout_marginEnd="@dimen/margin_left"
+            app:layout_constraintTop_toBottomOf="@id/hostAbout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -156,7 +156,7 @@
             android:layout_marginBottom="@dimen/dividerBottom"
             android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
-            android:layout_marginTop="@dimen/dividerDistance"
+            android:layout_marginTop="@dimen/margin_left"
             android:background="@color/color_divider" />
 
         <androidx.constraintlayout.widget.ConstraintLayout

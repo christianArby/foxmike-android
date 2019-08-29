@@ -33,7 +33,6 @@ import com.bumptech.glide.Glide;
 import com.foxmike.android.R;
 import com.foxmike.android.models.User;
 import com.foxmike.android.models.UserImageUrlMap;
-import com.foxmike.android.utils.MyFirebaseDatabase;
 import com.foxmike.android.utils.MyProgressBar;
 import com.foxmike.android.utils.SetOrUpdateUserImage;
 import com.foxmike.android.viewmodels.FirebaseDatabaseViewModel;
@@ -84,6 +83,11 @@ public class UserProfilePublicEditFragment extends Fragment {
     private InputMethodManager imm;
     private TextInputLayout aboutMeTIL;
     private boolean infoIsValid;
+    private EditText userFirstNameET;
+    private EditText userLastNameET;
+    private EditText userAboutMeET;
+    private EditText userNameET;
+    private EditText instagramUrlET;
 
     public UserProfilePublicEditFragment() {
         // Required empty public constructor
@@ -105,12 +109,12 @@ public class UserProfilePublicEditFragment extends Fragment {
         list = view.findViewById(R.id.list_user_profile_public_edit);
         profile = inflater.inflate(R.layout.user_profile_public_edit_info,list,false);
         list.addView(profile);
-        final EditText userFirstNameET = profile.findViewById(R.id.firstNameProfilePublicEditET);
-        final EditText userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
-        final EditText userAboutMeET = profile.findViewById(R.id.aboutMeProfilePublicEditET);
-        final EditText userNameET = profile.findViewById(R.id.userNameProfilePublicEditET);
+        userFirstNameET = profile.findViewById(R.id.firstNameProfilePublicEditET);
+        userLastNameET = profile.findViewById(R.id.lastNameProfilePublicEditET);
+        userAboutMeET = profile.findViewById(R.id.aboutMeProfilePublicEditET);
+        userNameET = profile.findViewById(R.id.userNameProfilePublicEditET);
+        instagramUrlET = profile.findViewById(R.id.instagramUrlProfilePublicEditET);
         aboutMeTIL = profile.findViewById(R.id.aboutMeProfilePublicEditTIL);
-        final MyFirebaseDatabase myFirebaseDatabase = new MyFirebaseDatabase();
         profileImageButton = profile.findViewById(R.id.profilePublicEditIB);
         Button updateBtn= profile.findViewById(R.id.updateProfileBtn);
         smallImageBtn = profile.findViewById(R.id.smallImageBtn);
@@ -136,6 +140,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                     userLastNameET.setText(currentUser.getLastName());
                     userAboutMeET.setText(currentUser.getAboutMe());
                     userNameET.setText(currentUser.getUserName());
+                    instagramUrlET.setText(currentUser.getInstagramUrl());
                     if(mImageUri==null) {
                         setImageButton(currentUser.getImage(), profileImageButton);
                     }
@@ -307,6 +312,7 @@ public class UserProfilePublicEditFragment extends Fragment {
                 usersDbRef.child(currentFirebaseUser.getUid()).child("lastName").setValue(userLastNameET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("aboutMe").setValue(userAboutMeET.getText().toString());
                 usersDbRef.child(currentFirebaseUser.getUid()).child("userName").setValue(userNameET.getText().toString());
+                usersDbRef.child(currentFirebaseUser.getUid()).child("instagramUrl").setValue(instagramUrlET.getText().toString());
 
                 if(mImageUri!=null) {
                     SetOrUpdateUserImage setOrUpdateUserImage = new SetOrUpdateUserImage();

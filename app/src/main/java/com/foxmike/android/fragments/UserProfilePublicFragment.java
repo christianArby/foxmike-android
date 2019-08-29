@@ -2,12 +2,16 @@ package com.foxmike.android.fragments;
 // Checked
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +68,7 @@ public class UserProfilePublicFragment extends Fragment {
     private UserPublic otherUser;
     private OnChatClickedListener onChatClickedListener;
     private long mLastClickTime = 0;
+    private ImageView instagramIcon;
 
 
     public UserProfilePublicFragment() {
@@ -98,6 +103,7 @@ public class UserProfilePublicFragment extends Fragment {
         final TextView fullNameTV = profile.findViewById(R.id.nameProfilePublicTV);
         final TextView userAboutMeTV = profile.findViewById(R.id.aboutMeProfilePublicTV);
         final TextView userNameTV = profile.findViewById(R.id.userNameProfilePublicTV);
+        instagramIcon = profile.findViewById(R.id.instagramIcon);
         sendRequestBtn = profile.findViewById(R.id.send_request_btn);
         sendRequestBtn.setVisibility(View.VISIBLE);
         declineBtn = profile.findViewById(R.id.decline_request_btn);
@@ -141,6 +147,19 @@ public class UserProfilePublicFragment extends Fragment {
                 userNameTV.setText(otherUser.getUserName());
 
                 setCircleImage(otherUser.getImage(), (CircleImageView) profile.findViewById(R.id.profilePublicIV));
+
+                if (otherUser.getInstagramUrl()==null) {
+                    instagramIcon.setVisibility(View.GONE);
+                } else {
+                    instagramIcon.setVisibility(View.VISIBLE);
+                    instagramIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            startActivity(newInstagramProfileIntent(getActivity().getPackageManager(), otherUser.getInstagramUrl()));
+                        }
+                    });
+                }
 
                 // ------------ FRIENDS LIST / REQUEST FEATURE ------------
                 // Find out if there are any requests sent or recieved from the other user in the database/"friend_requests"/currentUserID
@@ -422,5 +441,23 @@ public class UserProfilePublicFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ((AppCompatActivity)getActivity()).setSupportActionBar(null);
+    }
+
+    public static Intent newInstagramProfileIntent(PackageManager pm, String url) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        try {
+            if (pm.getPackageInfo("com.instagram.android", 0) != null) {
+                if (url.endsWith("/")) {
+                    url = url.substring(0, url.length() - 1);
+                }
+                final String username = url.substring(url.lastIndexOf("/") + 1);
+                intent.setData(Uri.parse("http://instagram.com/_u/" + username));
+                intent.setPackage("com.instagram.android");
+                return intent;
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        intent.setData(Uri.parse(url));
+        return intent;
     }
 }

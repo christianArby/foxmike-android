@@ -112,6 +112,27 @@
             android:inputType="textCapSentences|textMultiLine"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:focusedByDefault="false"
+        android:id="@+id/instagramUrlProfilePublicEditTIL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginVertical"
+        android:layout_marginEnd="@dimen/margin_right"
+        android:layout_marginStart="@dimen/margin_left"
+        android:hint="@string/instagram_url_optional"
+        app:layout_constraintTop_toBottomOf="@id/aboutMeProfilePublicEditTIL"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:id="@+id/instagramUrlProfilePublicEditET"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences|textMultiLine"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:background="@drawable/rounded_button_primary"
         android:textColor="@color/secondaryTextColor"
@@ -120,7 +141,7 @@
         android:text="@string/update_profile_button_text"
         android:id="@+id/updateProfileBtn"
         android:layout_margin="@dimen/marginHorizontal"
-        app:layout_constraintTop_toBottomOf="@id/aboutMeProfilePublicEditTIL"
+        app:layout_constraintTop_toBottomOf="@id/instagramUrlProfilePublicEditTIL"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

@@ -52,7 +52,6 @@ import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.fragments.WriteReviewsFlagTrainerFragment;
 import com.foxmike.android.fragments.WriteReviewsFlagTrainerWriteReportFragment;
 import com.foxmike.android.fragments.WriteReviewsFragment;
-import com.foxmike.android.interfaces.AdvertisementListener;
 import com.foxmike.android.interfaces.AlertOccasionCancelledListener;
 import com.foxmike.android.interfaces.OnAdvertisementsFoundListener;
 import com.foxmike.android.interfaces.OnChatClickedListener;
@@ -109,7 +108,6 @@ public class MainPlayerActivity extends AppCompatActivity
         OnCommentClickedListener,
         InboxFragment.OnSearchClickedListener,
         OnAdvertisementsFoundListener,
-        AdvertisementListener,
         ListSessionsFragment.OnRefreshSessionsListener,
         ListSessionsFragment.OnListSessionsScrollListener,
         NotificationsFragment.OnNotificationClickedListener,
@@ -299,8 +297,6 @@ public class MainPlayerActivity extends AppCompatActivity
             }
         });
 
-
-
         FirebaseDatabaseViewModel unreadNotificationsUserIdViewModel = ViewModelProviders.of(MainPlayerActivity.this).get(FirebaseDatabaseViewModel.class);
         LiveData<DataSnapshot> unreadNotificationsliveData = unreadNotificationsUserIdViewModel.getDataSnapshotLiveData(FirebaseDatabase.getInstance().getReference().child("unreadNotifications").child(FirebaseAuth.getInstance().getCurrentUser().getUid()));
         unreadNotificationsliveData.observe(MainPlayerActivity.this, new Observer<DataSnapshot>() {
@@ -317,7 +313,6 @@ public class MainPlayerActivity extends AppCompatActivity
                 } else {
                     bottomNavigation.setNotification("",2);
                 }
-
             }
         });
 
@@ -918,21 +913,6 @@ public class MainPlayerActivity extends AppCompatActivity
 
     @Override
     public void OnAdvertisementsFound(ArrayList<Advertisement> advertisements) {
-
-    }
-
-    @Override
-    public void OnCancelAdvertisement(String advertisementName, String advertisementId, String imageUrl, String sessionId, Long advertisementTimestamp, HashMap<String, Long> participantsTimestamps, String accountId, int price) {
-        Intent cancelAdIntent = new Intent(MainPlayerActivity.this,CancelAdvertisementActivity.class);
-        cancelAdIntent.putExtra("sessionName", advertisementName);
-        cancelAdIntent.putExtra("advertisementId", advertisementId);
-        cancelAdIntent.putExtra("imageUrl", imageUrl);
-        cancelAdIntent.putExtra("sessionId", sessionId);
-        cancelAdIntent.putExtra("advertisementTimestamp", advertisementTimestamp);
-        cancelAdIntent.putExtra("participantsTimestamps", participantsTimestamps);
-        cancelAdIntent.putExtra("accountId",accountId);
-        cancelAdIntent.putExtra("price",price);
-        startActivityForResult(cancelAdIntent, CANCEL_ADVERTISEMENT_REQUEST);
 
     }
 

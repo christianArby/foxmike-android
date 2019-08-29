@@ -21,8 +21,9 @@ public class UserPublic implements Comparable<UserPublic>, Serializable {
     private int nrOfRatings;
     private int nrOfReviews;
     private boolean superAdmin;
+    private String instagramUrl;
 
-    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings, int nrOfReviews, boolean superAdmin) {
+    public UserPublic(String userId, String firstName, String lastName, String fullName, String aboutMe, String image, String thumb_image, String userName, float rating, int nrOfRatings, int nrOfReviews, boolean superAdmin, String instagramUrl) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,6 +36,15 @@ public class UserPublic implements Comparable<UserPublic>, Serializable {
         this.nrOfRatings = nrOfRatings;
         this.nrOfReviews = nrOfReviews;
         this.superAdmin = superAdmin;
+        this.instagramUrl = instagramUrl;
+    }
+
+    public String getInstagramUrl() {
+        return instagramUrl;
+    }
+
+    public void setInstagramUrl(String instagramUrl) {
+        this.instagramUrl = instagramUrl;
     }
 
     public boolean isSuperAdmin() {

@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_left"
-                android:text="@string/create_trainer"
+                android:text="@string/create_trainer_service_free"
                 app:layout_constraintTop_toBottomOf="@id/heading"
                 app:layout_constraintStart_toStartOf="parent"/>
 

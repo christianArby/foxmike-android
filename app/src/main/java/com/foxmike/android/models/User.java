@@ -33,8 +33,9 @@ public class User implements Comparable<User>{
     private boolean plus;
     private boolean foxmikePlusOnly;
     private boolean serviceFree;
+    private String instagramUrl;
 
-    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId, long depositRefunded, int depositRefundedCount, boolean plus, boolean foxmikePlusOnly, boolean serviceFree) {
+    public User(String userId, String stripeCustomerId, Long stripeLastChange, String firstName, String lastName, String aboutMe, String fullName, String userName, String image, String thumb_image, boolean trainerMode, String stripeAccountId, boolean dontShowBookingText, float rating, int nrOfRatings, int nrOfReviews, boolean admin, boolean superAdmin, String stripeDefaultPaymentMethod, String stripeDepositionPaymentIntentId, long depositRefunded, int depositRefundedCount, boolean plus, boolean foxmikePlusOnly, boolean serviceFree, String instagramUrl) {
         this.userId = userId;
         this.stripeCustomerId = stripeCustomerId;
         this.stripeLastChange = stripeLastChange;
@@ -60,10 +61,19 @@ public class User implements Comparable<User>{
         this.plus = plus;
         this.foxmikePlusOnly = foxmikePlusOnly;
         this.serviceFree = serviceFree;
+        this.instagramUrl = instagramUrl;
     }
 
     public User() {
 
+    }
+
+    public String getInstagramUrl() {
+        return instagramUrl;
+    }
+
+    public void setInstagramUrl(String instagramUrl) {
+        this.instagramUrl = instagramUrl;
     }
 
     public boolean isServiceFree() {
