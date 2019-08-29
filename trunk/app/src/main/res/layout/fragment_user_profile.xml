@@ -20,9 +20,8 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:layout_marginTop="@dimen/margin_top_fab"
-        android:layout_marginEnd="@dimen/margin_end_fab"
-        android:layout_gravity="end"
+        android:layout_margin="@dimen/margin_bottom_fab"
+        android:layout_gravity="bottom|end"
         android:src="@mipmap/ic_mode_edit_black_24dp"
         android:tint="@color/white"/>
 

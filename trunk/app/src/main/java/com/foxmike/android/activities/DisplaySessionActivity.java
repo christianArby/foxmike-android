@@ -2,6 +2,7 @@ package com.foxmike.android.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -54,12 +55,14 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.foxmike.android.R;
 import com.foxmike.android.adapters.ListHistoryAdvertisementsAdapter;
 import com.foxmike.android.adapters.SessionImagesAdapter;
+import com.foxmike.android.fragments.ChatFragment;
 import com.foxmike.android.fragments.CommentFragment;
 import com.foxmike.android.fragments.ParticipantsFragment;
 import com.foxmike.android.fragments.UserAccountFragment;
+import com.foxmike.android.fragments.UserProfilePublicFragment;
 import com.foxmike.android.interfaces.AdvertisementRowClickedListener;
+import com.foxmike.android.interfaces.OnChatClickedListener;
 import com.foxmike.android.interfaces.OnCommentClickedListener;
-import com.foxmike.android.interfaces.OnUserClickedListener;
 import com.foxmike.android.models.Advertisement;
 import com.foxmike.android.models.Post;
 import com.foxmike.android.models.Session;
@@ -126,7 +129,7 @@ import static com.foxmike.android.activities.MainPlayerActivity.CANCEL_BOOKING_R
 import static com.foxmike.android.models.CreditCard.BRAND_CARD_RESOURCE_MAP;
 import static com.foxmike.android.utils.Price.PRICES_STRINGS;
 
-public class DisplaySessionActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DisplaySessionActivity extends AppCompatActivity implements OnMapReadyCallback, OnChatClickedListener {
 
     private final DatabaseReference mSessionDbRef = FirebaseDatabase.getInstance().getReference().child("sessions");
     private DatabaseReference rootDbRef = FirebaseDatabase.getInstance().getReference();
@@ -164,7 +167,6 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
     private User currentUser;
     private OnCommentClickedListener onCommentClickedListener;
     private UserAccountFragment.OnUserAccountFragmentInteractionListener onUserAccountFragmentInteractionListener;
-    private OnUserClickedListener onUserClickedListener;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private androidx.appcompat.widget.Toolbar toolbar;
     private UserPublic host;
@@ -849,6 +851,14 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
         });
     }
 
+    @Override
+    public void OnChatClicked(String userID, String userName, String userThumbImage, String chatID) {
+        ChatFragment chatFragment = ChatFragment.newInstance(userID,userName,userThumbImage,chatID);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.replace(R.id.container_fullscreen_display_session, chatFragment).addToBackStack(ChatFragment.TAG).commit();
+    }
+
     // Model PostBranch which is used to reflect the branch posts in the database
     public class PostBranch implements Comparable<PostBranch>{
         String postID;
@@ -1408,7 +1418,8 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                                     return;
                                 }
                                 mLastClickTime = SystemClock.elapsedRealtime();
-                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
+
+                                onUserClicked(mSession.getSecondaryHostId());
                             }
                         });
                     }
@@ -1423,7 +1434,7 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                                 return;
                             }
                             mLastClickTime = SystemClock.elapsedRealtime();
-                            onUserClickedListener.OnUserClicked(mSession.getHost());
+                            onUserClicked(mSession.getHost());
                         }
                     });
 
@@ -1462,7 +1473,7 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                                     return;
                                 }
                                 mLastClickTime = SystemClock.elapsedRealtime();
-                                onUserClickedListener.OnUserClicked(mSession.getSecondaryHostId());
+                                onUserClicked(mSession.getSecondaryHostId());
                             }
                         });
                     }
@@ -1477,7 +1488,7 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                                 return;
                             }
                             mLastClickTime = SystemClock.elapsedRealtime();
-                            onUserClickedListener.OnUserClicked(mSession.getHost());
+                            onUserClicked(mSession.getHost());
                         }
                     });
 
@@ -1496,6 +1507,20 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
             String hostText = getString(R.string.hosted_by_text) + " " + host.getFirstName();
             mHost.setText(hostText);
             mHostAboutTV.setText(host.getAboutMe());
+
+            ImageView instagramIcon = findViewById(R.id.instagramIcon);
+            if (host.getInstagramUrl()==null) {
+                instagramIcon.setVisibility(View.GONE);
+            } else {
+                instagramIcon.setVisibility(View.VISIBLE);
+                instagramIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        startActivity(newInstagramProfileIntent(getPackageManager(), host.getInstagramUrl()));
+                    }
+                });
+            }
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -1899,10 +1924,10 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                         // Now user will book mSession if button is pressed, if free send parameters to book mSession with blank customerId and price 0 and dont show booking "warning" text
                         if (adSelected.getPrice()==0) {
 
-                            OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
+                            OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), true, adSelected.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
                         } else {
                             // mSession costs money, send customerId, price and if user has not clicked dont want to see booking text show the warning text
-                            OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), mSession.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
+                            OnBookSession(adSelected.getAdvertisementId(), adSelected.getAdvertisementTimestamp(), mSession.getHost(), adSelected.getPrice(), currentUser.isDontShowBookingText(), adSelected.getDurationInMin(), mSession.getSessionType(), adSelected.getParticipantsTimestamps().size(), mSession.isSuperHosted());
                         }
                     }
                     // If the current user is the mSession host, button will show cancel mSession, if clicked start cancellation process
@@ -1912,6 +1937,19 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
                 }
             });
         }
+    }
+
+    private void onUserClicked(String host) {
+        Bundle bundle = new Bundle();
+        bundle.putString("otherUserID", host);
+        UserProfilePublicFragment userProfilePublicFragment = (UserProfilePublicFragment) getSupportFragmentManager().findFragmentByTag(UserProfilePublicFragment.TAG);
+        if (userProfilePublicFragment==null) {
+            userProfilePublicFragment = UserProfilePublicFragment.newInstance();
+        }
+        userProfilePublicFragment.setArguments(bundle);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left, R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.replace(R.id.container_fullscreen_display_session, userProfilePublicFragment).addToBackStack(UserProfilePublicFragment.TAG).commit();
     }
 
     private void updateListViews() {
@@ -2432,5 +2470,23 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
 
     public interface OnHistoryAdClickedListener {
         void OnHistoryAdClicked(Advertisement adClicked);
+    }
+
+    public static Intent newInstagramProfileIntent(PackageManager pm, String url) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        try {
+            if (pm.getPackageInfo("com.instagram.android", 0) != null) {
+                if (url.endsWith("/")) {
+                    url = url.substring(0, url.length() - 1);
+                }
+                final String username = url.substring(url.lastIndexOf("/") + 1);
+                intent.setData(Uri.parse("http://instagram.com/_u/" + username));
+                intent.setPackage("com.instagram.android");
+                return intent;
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        intent.setData(Uri.parse(url));
+        return intent;
     }
 }
