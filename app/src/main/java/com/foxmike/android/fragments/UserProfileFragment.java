@@ -198,6 +198,11 @@ public class UserProfileFragment extends Fragment {
             }
         } catch (PackageManager.NameNotFoundException ignored) {
         }
+
+        if (!url.contains("/")) {
+            url = "https://instagram.com/" + url;
+        }
+
         intent.setData(Uri.parse(url));
         return intent;
     }

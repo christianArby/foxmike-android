@@ -645,5 +645,5 @@
     <string name="visa_bara_foxmike_plus">Visa bara Foxmike Plus</string>
     <string name="foxmike_plus_text">Foxmike Plus är unika gruppträningspass som är kvalitetssäkrade av Foxmike.</string>
     <string name="foxmike_plus_non_cap">foxmike plus</string>
-    <string name="instagram_url_optional">Ange länk till din Instagram eller ditt Instagram-användarnamn (valfritt)</string>
+    <string name="instagram_url_optional">Instagram-länk eller användarnamn</string>
 </resources>
