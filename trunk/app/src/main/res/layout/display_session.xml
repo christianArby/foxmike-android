@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -146,17 +147,19 @@
         android:id="@+id/novelInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/hostInfoContainer">
+        app:layout_constraintTop_toBottomOf="@id/hostInfoContainer"
+        tools:layout_editor_absoluteX="16dp">
 
         <View
             android:id="@+id/spaceView"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/dividerBottom"
-            android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/margin_left"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:background="@color/color_divider" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -170,24 +173,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
+                android:text="@string/what_heading"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:text="@string/what_heading"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:src="@mipmap/ic_mode_edit_black_24dp"
-                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWhat"
-                app:layout_constraintTop_toTopOf="@id/whatHeadingTW"
-                app:layout_constraintBottom_toBottomOf="@id/whatHeadingTW"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_margin="@dimen/margin_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:textSize="18sp"
+                android:layout_margin="@dimen/margin_left"
+                android:src="@mipmap/ic_mode_edit_black_24dp"
                 android:text="@string/edit"
-                android:textColor="@color/foxmikePrimaryColor"/>
+                android:textColor="@color/foxmikePrimaryColor"
+                android:textSize="18sp"
+                android:tint="@color/foxmikePrimaryColor"
+                app:layout_constraintBottom_toBottomOf="@id/whatHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/whatHeadingTW" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -195,22 +198,21 @@
             android:id="@+id/whatTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:autoLink="web"/>
-
+            android:layout_marginEnd="@dimen/margin_right"
+            android:autoLink="web"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead" />
 
 
         <View
             android:id="@+id/infoDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/dividerBottom"
-            android:layout_marginEnd="@dimen/margin_right"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/dividerDistance"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:background="@color/color_divider" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -224,25 +226,25 @@
                 style="@style/FoxmikeHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_left"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="@dimen/marginVertical"
-                android:text="@string/who_heading"/>
+                android:layout_marginEnd="@dimen/margin_left"
+                android:text="@string/who_heading" />
 
             <ImageView
-                android:src="@mipmap/ic_mode_edit_black_24dp"
-                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWho"
-                app:layout_constraintTop_toTopOf="@id/whoHeadingTW"
-                app:layout_constraintBottom_toBottomOf="@id/whoHeadingTW"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_margin="@dimen/margin_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:textSize="18sp"
+                android:layout_margin="@dimen/margin_left"
+                android:src="@mipmap/ic_mode_edit_black_24dp"
                 android:text="@string/edit"
-                android:textColor="@color/foxmikePrimaryColor"/>
+                android:textColor="@color/foxmikePrimaryColor"
+                android:textSize="18sp"
+                android:tint="@color/foxmikePrimaryColor"
+                app:layout_constraintBottom_toBottomOf="@id/whoHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/whoHeadingTW" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -250,23 +252,22 @@
             android:id="@+id/whoTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:autoLink="web"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/primaryTextColor"
-            android:autoLink="web"/>
+            android:textColor="@color/primaryTextColor" />
 
         <View
             android:id="@+id/whoDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/dividerBottom"
-            android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/dividerDistance"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:layout_marginBottom="@dimen/dividerBottom"
             android:background="@color/color_divider" />
-
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -280,25 +281,25 @@
                 style="@style/FoxmikeHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_left"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginTop="@dimen/marginVertical"
-                android:text="@string/where_heading"/>
+                android:layout_marginEnd="@dimen/margin_left"
+                android:text="@string/where_heading" />
 
             <ImageView
-                android:src="@mipmap/ic_mode_edit_black_24dp"
-                android:tint="@color/foxmikePrimaryColor"
                 android:id="@+id/editWhere"
-                app:layout_constraintTop_toTopOf="@id/whereHeadingTW"
-                app:layout_constraintBottom_toBottomOf="@id/whereHeadingTW"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_margin="@dimen/margin_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:textSize="18sp"
+                android:layout_margin="@dimen/margin_left"
+                android:src="@mipmap/ic_mode_edit_black_24dp"
                 android:text="@string/edit"
-                android:textColor="@color/foxmikePrimaryColor"/>
+                android:textColor="@color/foxmikePrimaryColor"
+                android:textSize="18sp"
+                android:tint="@color/foxmikePrimaryColor"
+                app:layout_constraintBottom_toBottomOf="@id/whereHeadingTW"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/whereHeadingTW" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -306,12 +307,12 @@
             android:id="@+id/whereTW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_left"
             android:layout_marginStart="@dimen/margin_left"
             android:layout_marginTop="@dimen/marginVertical"
-            android:textColor="@color/primaryTextColor"
+            android:layout_marginEnd="@dimen/margin_left"
+            android:autoLink="web"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:autoLink="web"/>
+            android:textColor="@color/primaryTextColor" />
     </LinearLayout>
 
     <TextView

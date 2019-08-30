@@ -7,13 +7,13 @@
 
     <ImageView
         android:id="@+id/instagramIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/instagram_24"
         android:tint="@color/primaryTextColor"
+        android:padding="@dimen/margin_left"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="@dimen/margin_left"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profilePublicIV"

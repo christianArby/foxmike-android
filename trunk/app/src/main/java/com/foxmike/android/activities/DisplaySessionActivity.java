@@ -2486,6 +2486,10 @@ public class DisplaySessionActivity extends AppCompatActivity implements OnMapRe
             }
         } catch (PackageManager.NameNotFoundException ignored) {
         }
+        if (!url.contains("/")) {
+            url = "https://instagram.com/" + url;
+        }
+
         intent.setData(Uri.parse(url));
         return intent;
     }
